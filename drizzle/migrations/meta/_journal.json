@@ -29,6 +29,13 @@
       "when": 1792002392157,
       "tag": "0003_csv_ingestion_c01",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792005754663,
+      "tag": "0004_c02_deterioration_detector",
+      "breakpoints": true
     }
   ]
 }
