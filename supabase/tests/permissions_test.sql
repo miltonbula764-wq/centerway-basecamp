@@ -8,11 +8,14 @@ DO $test$
 DECLARE
   ua uuid := gen_random_uuid(); ub uuid := gen_random_uuid(); uop uuid := gen_random_uuid(); uv uuid := gen_random_uuid();
   ta uuid; tb uuid; sa uuid; sb uuid; pa uuid; pb uuid; pa2 uuid; pa3 uuid; ia uuid; ba uuid; bb uuid; oa uuid; ob uuid;
-  r text := ''; npass int; nfail int;
+  r text := ''; root uuid := '00000000-0000-0000-0000-0000000000ff'; npass int; nfail int;
 BEGIN
   -- ---------- helpers (temp, rolled back) ----------
   CREATE FUNCTION pg_temp.as_user(_uid uuid) RETURNS void LANGUAGE plpgsql AS $f$
   BEGIN
+    IF _uid = '00000000-0000-0000-0000-0000000000ff'::uuid THEN  -- privileged fixture path (no RLS), only for setup / trigger-level checks
+      PERFORM set_config('request.jwt.claims', '', true); RESET ROLE; RETURN;
+    END IF;
     PERFORM set_config('request.jwt.claims', CASE WHEN _uid IS NULL THEN '{"role":"anon"}'
       ELSE json_build_object('sub', _uid, 'role', 'authenticated')::text END, true);
     PERFORM set_config('role', CASE WHEN _uid IS NULL THEN 'anon' ELSE 'authenticated' END, true);
@@ -74,8 +77,8 @@ BEGIN
   tb := pg_temp.val(ub, $$select public.create_tenant('Fixture B','person')$$)::uuid;
   sb := pg_temp.val(ub, format($$insert into public.subjects(tenant_id, external_ref) values (%L,'b-1') returning id$$, tb))::uuid;
   pb := pg_temp.val(ub, format($$select public.create_value_profile_draft(%L,'B promise')$$, tb))::uuid;
-  bb := pg_temp.val(ub, format($$insert into public.ingestion_batches(tenant_id, source) values (%L,'fixture') returning id$$, tb))::uuid;
-  ob := pg_temp.val(ub, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key)
+  bb := pg_temp.val(root, format($$insert into public.ingestion_batches(tenant_id, source) values (%L,'fixture') returning id$$, tb))::uuid;
+  ob := pg_temp.val(root, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key)
          values (%L,%L,%L,'paid_on_time_pct',80,'%%','fixture','2026-01-31T00:00:00Z','b-k1') returning id$$, tb, bb, sb))::uuid;
   r := r || pg_temp.expect_err('T04 B cannot join A as admin', ub, format($$select public.add_tenant_member(%L,%L,'admin')$$, ta, ub), '42501');
 
@@ -95,10 +98,13 @@ BEGIN
   r := r || pg_temp.expect_err('T13 A indicator pointing to B profile rejected by FK', ua, format($$insert into public.profile_indicators(tenant_id,profile_id,key,name,classification,unit,direction) values (%L,%L,'k','k','usage','%%','higher_is_better')$$, ta, pb), '23503', 'profile_indicators_tenant_id_profile_id_fkey');
 
   sa := pg_temp.val(ua, format($$insert into public.subjects(tenant_id, external_ref, display_name) values (%L,'a-1','Cliente A1') returning id$$, ta))::uuid;
-  ba := pg_temp.val(ua, format($$insert into public.ingestion_batches(tenant_id, source) values (%L,'fixture') returning id$$, ta))::uuid;
-  r := r || pg_temp.expect_err('T14 observation with B batch rejected by FK', ua, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key) values (%L,%L,%L,'k',1,'%%','f',now(),'x1')$$, ta, bb, sa), '23503', 'observations_tenant_id_batch_id_fkey');
-  r := r || pg_temp.expect_err('T15 observation with B subject rejected by FK', ua, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key) values (%L,%L,%L,'k',1,'%%','f',now(),'x1')$$, ta, ba, sb), '23503', 'observations_tenant_id_subject_id_fkey');
-  r := r || pg_temp.expect_err('T16 correction pointing to B observation rejected', ua, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key,corrects_observation_id) values (%L,%L,%L,'paid_on_time_pct',1,'%%','f',now(),'x2',%L)$$, ta, ba, sa, ob), '23503');
+  ba := pg_temp.val(root, format($$insert into public.ingestion_batches(tenant_id, source) values (%L,'fixture') returning id$$, ta))::uuid;
+  r := r || pg_temp.expect_err('T14 observation with B batch rejected by FK', root, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key) values (%L,%L,%L,'k',1,'%%','f',now(),'x1')$$, ta, bb, sa), '23503', 'observations_tenant_id_batch_id_fkey');
+  r := r || pg_temp.expect_err('T15 observation with B subject rejected by FK', root, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key) values (%L,%L,%L,'k',1,'%%','f',now(),'x1')$$, ta, ba, sb), '23503', 'observations_tenant_id_subject_id_fkey');
+  r := r || pg_temp.expect_err('T16 correction pointing to B observation rejected', root, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key,corrects_observation_id) values (%L,%L,%L,'paid_on_time_pct',1,'%%','f',now(),'x2',%L)$$, ta, ba, sa, ob), '23503');
+  r := r || pg_temp.expect_err('T16b authenticated cannot INSERT observations directly (RPC only)', ua, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key) values (%L,%L,%L,'k',1,'%%','f',now(),'d1')$$, ta, ba, sa), '42501');
+  r := r || pg_temp.expect_err('T16c authenticated cannot INSERT batches directly (RPC only)', ua, format($$insert into public.ingestion_batches(tenant_id, source) values (%L,'x')$$, ta), '42501');
+  r := r || pg_temp.expect_err('T16d authenticated cannot UPDATE batches directly', ua, format($$update public.ingestion_batches set status='completed' where id=%L$$, ba), '42501');
   r := r || pg_temp.expect_err('T17 tenant_id is immutable', ua, format($$update public.subjects set tenant_id=%L where id=%L$$, tb, sa), '42501');
   r := r || pg_temp.expect_err('T18 created_by is immutable', ua, format($$update public.subjects set created_by=%L where id=%L$$, ub, sa), '42501');
   r := r || pg_temp.expect_err('T19 last admin cannot be demoted', ua, format($$select public.set_member_role(%L,%L,'viewer')$$, ta, ua), '42501');
@@ -155,15 +161,21 @@ BEGIN
   r := r || pg_temp.expect_val('T51 one approved profile per tenant', ua, format($$select count(*)::text from public.tenant_value_profiles where tenant_id=%L and status='approved'$$, ta), '1');
 
   -- ---------- observations ----------
-  oa := pg_temp.val(uop, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key,payload)
+  oa := pg_temp.val(root, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key,payload)
         values (%L,%L,%L,'paid_on_time_pct',80,'%%','fixture','2026-01-31T00:00:00Z','a-k1','{"eligible":100,"paid_on_time":80}') returning id$$, ta, ba, sa))::uuid;
-  r := r || pg_temp.expect_rows('T52 identical replay is a no-op', uop, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key,payload)
+  r := r || pg_temp.expect_rows('T52 identical replay is a no-op', root, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key,payload)
         values (%L,%L,%L,'paid_on_time_pct',80.0,'%%','fixture','2026-01-31T00:00:00Z','a-k1','{"eligible":100,"paid_on_time":80}')$$, ta, ba, sa), 0);
-  r := r || pg_temp.expect_err('T53 same key, different content = conflict', uop, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key)
+  r := r || pg_temp.expect_err('T53 same key, different content = conflict', root, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key)
         values (%L,%L,%L,'paid_on_time_pct',55,'%%','fixture','2026-01-31T00:00:00Z','a-k1')$$, ta, ba, sa), '23505');
   r := r || pg_temp.expect_err('T54 observations not updatable', ua, format($$update public.observations set value_numeric=1 where id=%L$$, oa), '42501');
-  r := r || pg_temp.expect_rows('T55 explicit same-tenant correction accepted', uop, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key,corrects_observation_id)
+  r := r || pg_temp.expect_rows('T55 explicit same-tenant correction accepted', root, format($$insert into public.observations(tenant_id,batch_id,subject_id,indicator_key,value_numeric,unit,source,observed_at,idempotency_key,corrects_observation_id)
         values (%L,%L,%L,'paid_on_time_pct',78,'%%','fixture','2026-01-31T00:00:00Z','a-k1-fix',%L)$$, ta, ba, sa, oa), 1);
+
+  -- ---------- regression 0002: zero outcome indicators must report an issue, not crash ----------
+  PERFORM pg_temp.val(ub, format($$insert into public.profile_indicators(tenant_id,profile_id,key,name,classification,unit,direction) values (%L,%L,'logins','Logins','usage','count','higher_is_better') returning id$$, tb, pb));
+  r := r || pg_temp.expect_val('T62 zero-outcome profile returns the explicit issue', ub, format($$select array_to_string(public.value_profile_approval_issues(%L),'|')$$, pb), 'profile needs at least one outcome indicator');
+  r := r || pg_temp.expect_err('T63 zero-outcome profile cannot be approved', ub, format($$select public.approve_value_profile(%L)$$, pb), '22023');
+  r := r || pg_temp.expect_err('T64 outcome indicator cannot be text-typed', ub, format($$insert into public.profile_indicators(tenant_id,profile_id,key,name,classification,value_type,unit,direction) values (%L,%L,'o_txt','x','outcome','text','x','higher_is_better')$$, tb, pb), '23514', 'pi_outcome_numeric');
 
   -- ---------- audit ----------
   r := r || pg_temp.expect_err('T56 client cannot insert audit', ua, format($$insert into public.audit_log(tenant_id,actor_id,action,entity_type) values (%L,%L,'fake','x')$$, ta, ub), '42501');

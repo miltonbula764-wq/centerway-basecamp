@@ -118,42 +118,85 @@ export type Database = {
       }
       ingestion_batches: {
         Row: {
+          committed_at: string | null
+          contract_snapshot: Json | null
+          coverage_declared: boolean
           coverage_end: string | null
           coverage_start: string | null
+          coverage_timezone: string
           created_at: string
           created_by: string | null
+          duplicate_count: number
+          errors: Json
+          file_name: string | null
           id: string
+          inserted_count: number
           notes: string | null
+          profile_id: string | null
+          profile_version: number | null
+          rejected_count: number
+          row_count: number
           source: string
           status: Database["public"]["Enums"]["batch_status"]
           tenant_id: string
           updated_at: string
         }
         Insert: {
+          committed_at?: string | null
+          contract_snapshot?: Json | null
+          coverage_declared?: boolean
           coverage_end?: string | null
           coverage_start?: string | null
+          coverage_timezone?: string
           created_at?: string
           created_by?: string | null
+          duplicate_count?: number
+          errors?: Json
+          file_name?: string | null
           id?: string
+          inserted_count?: number
           notes?: string | null
+          profile_id?: string | null
+          profile_version?: number | null
+          rejected_count?: number
+          row_count?: number
           source: string
           status?: Database["public"]["Enums"]["batch_status"]
           tenant_id: string
           updated_at?: string
         }
         Update: {
+          committed_at?: string | null
+          contract_snapshot?: Json | null
+          coverage_declared?: boolean
           coverage_end?: string | null
           coverage_start?: string | null
+          coverage_timezone?: string
           created_at?: string
           created_by?: string | null
+          duplicate_count?: number
+          errors?: Json
+          file_name?: string | null
           id?: string
+          inserted_count?: number
           notes?: string | null
+          profile_id?: string | null
+          profile_version?: number | null
+          rejected_count?: number
+          row_count?: number
           source?: string
           status?: Database["public"]["Enums"]["batch_status"]
           tenant_id?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "batches_profile_fkey"
+            columns: ["tenant_id", "profile_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_value_profiles"
+            referencedColumns: ["tenant_id", "id"]
+          },
           {
             foreignKeyName: "ingestion_batches_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -315,6 +358,7 @@ export type Database = {
           tenant_id: string
           unit: string
           updated_at: string
+          value_type: Database["public"]["Enums"]["indicator_value_type"]
         }
         Insert: {
           baseline_method?:
@@ -350,6 +394,7 @@ export type Database = {
           tenant_id: string
           unit: string
           updated_at?: string
+          value_type?: Database["public"]["Enums"]["indicator_value_type"]
         }
         Update: {
           baseline_method?:
@@ -385,6 +430,7 @@ export type Database = {
           tenant_id?: string
           unit?: string
           updated_at?: string
+          value_type?: Database["public"]["Enums"]["indicator_value_type"]
         }
         Relationships: [
           {
@@ -642,6 +688,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      import_observations: {
+        Args: {
+          _coverage_declared: boolean
+          _coverage_end: string
+          _coverage_start: string
+          _expected_profile_id: string
+          _file_name: string
+          _rows: Json
+          _source: string
+          _tenant_id: string
+        }
+        Returns: Json
+      }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
       my_tenant_role: {
         Args: { _tenant_id: string }
@@ -669,6 +728,7 @@ export type Database = {
       batch_status: "received" | "processing" | "completed" | "failed"
       indicator_class: "outcome" | "usage" | "context"
       indicator_direction: "higher_is_better" | "lower_is_better"
+      indicator_value_type: "numeric" | "text"
       member_role: "admin" | "operator" | "viewer"
       profile_status: "draft" | "approved" | "superseded"
       rule_kind: "absolute" | "relative_pct"
@@ -805,6 +865,7 @@ export const Constants = {
       batch_status: ["received", "processing", "completed", "failed"],
       indicator_class: ["outcome", "usage", "context"],
       indicator_direction: ["higher_is_better", "lower_is_better"],
+      indicator_value_type: ["numeric", "text"],
       member_role: ["admin", "operator", "viewer"],
       profile_status: ["draft", "approved", "superseded"],
       rule_kind: ["absolute", "relative_pct"],

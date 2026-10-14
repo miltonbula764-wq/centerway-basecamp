@@ -2,6 +2,8 @@ export type IndicatorClass = "outcome" | "usage" | "context";
 export type Direction = "higher_is_better" | "lower_is_better";
 export type BaselineMethod = "fixed_value" | "trailing_window" | "reference_period";
 export type RuleKind = "absolute" | "relative_pct";
+export type ValueType = "numeric" | "text";
+export const valueTypeLabel: Record<ValueType, string> = { numeric: "Número", text: "Texto" };
 export type RuleOperator = "lt" | "lte" | "gt" | "gte";
 
 export const classLabel: Record<IndicatorClass, string> = {
@@ -64,6 +66,7 @@ export type IndicatorForm = {
   name: string;
   definition: string;
   classification: IndicatorClass;
+  value_type: ValueType;
   unit: string;
   direction: Direction;
   baseline_method: BaselineMethod | "";
@@ -89,6 +92,7 @@ export const emptyIndicatorForm: IndicatorForm = {
   name: "",
   definition: "",
   classification: "outcome",
+  value_type: "numeric",
   unit: "",
   direction: "higher_is_better",
   baseline_method: "",
@@ -114,6 +118,7 @@ export type IndicatorPayload = {
   name: string;
   definition: string | null;
   classification: IndicatorClass;
+  value_type: ValueType;
   unit: string;
   direction: Direction;
   baseline_method: BaselineMethod | null;
@@ -179,6 +184,7 @@ export function buildIndicatorPayload(f: IndicatorForm): Result {
     name,
     definition: f.definition.trim() || null,
     classification: f.classification,
+    value_type: f.classification === "outcome" ? "numeric" : f.value_type,
     unit,
     direction: f.direction,
     baseline_method: f.baseline_method || null,
