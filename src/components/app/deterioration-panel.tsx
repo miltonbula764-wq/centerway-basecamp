@@ -17,7 +17,7 @@ type Win = {
 };
 type Details = {
   windows: Win[]; reference: Win | null; baseline_window: Win | null;
-  parameters: Record<string, unknown>;
+  parameters: { deterioration_kind?: string; deterioration_operator?: string; deterioration_value?: number; deterioration_consecutive_windows?: number; observation_window_days?: number; unit?: string; target_value?: number | null };
 };
 
 const tone = (s: C02Status) =>
