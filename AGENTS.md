@@ -19,3 +19,5 @@
 - Observations are append-only; corrections are new rows with `corrects_observation_id`; idempotency hash is computed server-side — why: auditability and safe replays.
 - `audit_log` is written only by DB triggers with `auth.uid()` as actor and is immutable — why: the client cannot forge history.
 - Permission tests run as real `authenticated`/`anon` roles with JWT claims inside a transaction that is always rolled back — why: service_role bypasses RLS and would prove nothing.
+- UI reads/writes go through the browser client under RLS; every tenant-scoped query key starts with `["t", tenantId]` and is removed on tenant switch/logout, and mutations call `assertActiveTenant` with the tenant captured at form open — why: stale data or writes must never cross tenants.
+- Only the selected tenant id is kept in localStorage, always revalidated against `memberships` — why: permissions live in the database, not the browser.
