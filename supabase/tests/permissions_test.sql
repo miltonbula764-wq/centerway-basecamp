@@ -149,7 +149,7 @@ BEGIN
   r := r || pg_temp.expect_val('T47 new version is draft v2 with full copy', uop, format($$select p.version||'/'||p.status||'/'||(select count(*) from public.profile_indicators i where i.profile_id=p.id and i.classification='outcome' and i.recovery_value=72) from public.tenant_value_profiles p where p.id=%L$$, pa2), '2/draft/1');
   PERFORM pg_temp.val(uop, format($$insert into public.profile_indicators(tenant_id,profile_id,key,name,classification,unit,direction) values (%L,%L,'logins','Logins','usage','count','higher_is_better') returning id$$, ta, pa2));
   pa3 := pg_temp.val(uop, format($$select public.create_value_profile_version(%L)$$, pa))::uuid;
-  r := r || pg_temp.expect_val('T48 usage indicator needs no rules; v3 approved', ua, format($$select (public.approve_value_profile(%L)).version::text$$, pa3), '3');
+  r := r || pg_temp.expect_val('T48 v3 (copy of v1) approved', ua, format($$select (public.approve_value_profile(%L)).version::text$$, pa3), '3');
   r := r || pg_temp.expect_val('T49 previous approved becomes superseded', ua, format($$select status::text from public.tenant_value_profiles where id=%L$$, pa), 'superseded');
   r := r || pg_temp.expect_err('T50 older draft cannot override newer approved', ua, format($$select public.approve_value_profile(%L)$$, pa2), '22023');
   r := r || pg_temp.expect_val('T51 one approved profile per tenant', ua, format($$select count(*)::text from public.tenant_value_profiles where tenant_id=%L and status='approved'$$, ta), '1');
