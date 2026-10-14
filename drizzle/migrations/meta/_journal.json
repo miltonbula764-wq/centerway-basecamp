@@ -36,6 +36,13 @@
       "when": 1792005754663,
       "tag": "0004_c02_deterioration_detector",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792005822696,
+      "tag": "0005_c02_sum_requires_equal_windows",
+      "breakpoints": true
     }
   ]
 }
