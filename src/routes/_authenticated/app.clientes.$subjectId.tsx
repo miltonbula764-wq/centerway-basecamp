@@ -9,6 +9,7 @@ import { classLabel } from "@/lib/profile";
 import { Button } from "@/components/ui/button";
 import { Empty, ErrorState, formatDate, Loading, Mono, PageHeader, Panel, StatusPill } from "@/components/app/ui-bits";
 import { SubjectDialog } from "@/components/app/subject-dialog";
+import { DeteriorationPanel } from "@/components/app/deterioration-panel";
 
 export const Route = createFileRoute("/_authenticated/app/clientes/$subjectId")({
   head: () => ({
@@ -120,6 +121,7 @@ function ClienteDetalhe() {
             </div>
           )}
         </Panel>
+        <DeteriorationPanel subjectId={s.id} profileId={approved?.id} />
         <Panel title="Histórico de observações" className="lg:col-span-2">
           {observations.isLoading ? (
             <Loading />
