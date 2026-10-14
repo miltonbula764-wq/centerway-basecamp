@@ -47,6 +47,156 @@ export type Database = {
         }
         Relationships: []
       }
+      c02_results: {
+        Row: {
+          baseline_value: number | null
+          below_target: boolean | null
+          classification: Database["public"]["Enums"]["indicator_class"]
+          created_at: string
+          details: Json
+          id: string
+          indicator_key: string
+          observation_ids: string[]
+          reasons: string[]
+          run_id: string
+          status: Database["public"]["Enums"]["c02_status"]
+          subject_id: string
+          tenant_id: string
+        }
+        Insert: {
+          baseline_value?: number | null
+          below_target?: boolean | null
+          classification: Database["public"]["Enums"]["indicator_class"]
+          created_at?: string
+          details: Json
+          id?: string
+          indicator_key: string
+          observation_ids?: string[]
+          reasons?: string[]
+          run_id: string
+          status: Database["public"]["Enums"]["c02_status"]
+          subject_id: string
+          tenant_id: string
+        }
+        Update: {
+          baseline_value?: number | null
+          below_target?: boolean | null
+          classification?: Database["public"]["Enums"]["indicator_class"]
+          created_at?: string
+          details?: Json
+          id?: string
+          indicator_key?: string
+          observation_ids?: string[]
+          reasons?: string[]
+          run_id?: string
+          status?: Database["public"]["Enums"]["c02_status"]
+          subject_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "c02_results_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "c02_results_tenant_id_run_id_fkey"
+            columns: ["tenant_id", "run_id"]
+            isOneToOne: false
+            referencedRelation: "c02_runs"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c02_results_tenant_id_subject_id_fkey"
+            columns: ["tenant_id", "subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      c02_runs: {
+        Row: {
+          algorithm_version: string
+          as_of: string
+          created_at: string
+          created_by: string | null
+          data_cutoff: string
+          id: string
+          input_hash: string
+          observation_count: number
+          profile_id: string
+          profile_version: number
+          revision_of: string | null
+          subject_id: string
+          summary: Json
+          tenant_id: string
+        }
+        Insert: {
+          algorithm_version: string
+          as_of: string
+          created_at?: string
+          created_by?: string | null
+          data_cutoff: string
+          id?: string
+          input_hash: string
+          observation_count: number
+          profile_id: string
+          profile_version: number
+          revision_of?: string | null
+          subject_id: string
+          summary: Json
+          tenant_id: string
+        }
+        Update: {
+          algorithm_version?: string
+          as_of?: string
+          created_at?: string
+          created_by?: string | null
+          data_cutoff?: string
+          id?: string
+          input_hash?: string
+          observation_count?: number
+          profile_id?: string
+          profile_version?: number
+          revision_of?: string | null
+          subject_id?: string
+          summary?: Json
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "c02_runs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "c02_runs_tenant_id_profile_id_fkey"
+            columns: ["tenant_id", "profile_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_value_profiles"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c02_runs_tenant_id_revision_of_fkey"
+            columns: ["tenant_id", "revision_of"]
+            isOneToOne: false
+            referencedRelation: "c02_runs"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c02_runs_tenant_id_subject_id_fkey"
+            columns: ["tenant_id", "subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       indicators: {
         Row: {
           baseline: number | null
@@ -329,6 +479,7 @@ export type Database = {
       }
       profile_indicators: {
         Row: {
+          aggregation: Database["public"]["Enums"]["c02_aggregation"] | null
           baseline_method: Database["public"]["Enums"]["baseline_method"] | null
           baseline_min_period_days: number | null
           baseline_value: number | null
@@ -336,6 +487,10 @@ export type Database = {
           comparison_window_days: number | null
           created_at: string
           definition: string | null
+          denominator_indicator_key: string | null
+          denominator_mode:
+            | Database["public"]["Enums"]["c02_denominator_mode"]
+            | null
           deterioration_consecutive_windows: number | null
           deterioration_kind: Database["public"]["Enums"]["rule_kind"] | null
           deterioration_operator:
@@ -343,6 +498,7 @@ export type Database = {
             | null
           deterioration_value: number | null
           direction: Database["public"]["Enums"]["indicator_direction"]
+          expected_cadence_days: number | null
           id: string
           key: string
           min_coverage_pct: number | null
@@ -361,6 +517,7 @@ export type Database = {
           value_type: Database["public"]["Enums"]["indicator_value_type"]
         }
         Insert: {
+          aggregation?: Database["public"]["Enums"]["c02_aggregation"] | null
           baseline_method?:
             | Database["public"]["Enums"]["baseline_method"]
             | null
@@ -370,6 +527,10 @@ export type Database = {
           comparison_window_days?: number | null
           created_at?: string
           definition?: string | null
+          denominator_indicator_key?: string | null
+          denominator_mode?:
+            | Database["public"]["Enums"]["c02_denominator_mode"]
+            | null
           deterioration_consecutive_windows?: number | null
           deterioration_kind?: Database["public"]["Enums"]["rule_kind"] | null
           deterioration_operator?:
@@ -377,6 +538,7 @@ export type Database = {
             | null
           deterioration_value?: number | null
           direction: Database["public"]["Enums"]["indicator_direction"]
+          expected_cadence_days?: number | null
           id?: string
           key: string
           min_coverage_pct?: number | null
@@ -397,6 +559,7 @@ export type Database = {
           value_type?: Database["public"]["Enums"]["indicator_value_type"]
         }
         Update: {
+          aggregation?: Database["public"]["Enums"]["c02_aggregation"] | null
           baseline_method?:
             | Database["public"]["Enums"]["baseline_method"]
             | null
@@ -406,6 +569,10 @@ export type Database = {
           comparison_window_days?: number | null
           created_at?: string
           definition?: string | null
+          denominator_indicator_key?: string | null
+          denominator_mode?:
+            | Database["public"]["Enums"]["c02_denominator_mode"]
+            | null
           deterioration_consecutive_windows?: number | null
           deterioration_kind?: Database["public"]["Enums"]["rule_kind"] | null
           deterioration_operator?:
@@ -413,6 +580,7 @@ export type Database = {
             | null
           deterioration_value?: number | null
           direction?: Database["public"]["Enums"]["indicator_direction"]
+          expected_cadence_days?: number | null
           id?: string
           key?: string
           min_coverage_pct?: number | null
@@ -629,6 +797,70 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _c02_cmp: {
+        Args: {
+          _a: number
+          _b: number
+          _op: Database["public"]["Enums"]["rule_operator"]
+        }
+        Returns: boolean
+      }
+      _c02_effective: {
+        Args: {
+          _compat: string[]
+          _cutoff: string
+          _key: string
+          _subject: string
+          _tenant: string
+          _unit: string
+        }
+        Returns: {
+          ingested_at: string
+          issue: string
+          obs_id: string
+          observed_at: string
+          source: string
+          value: number
+        }[]
+      }
+      _c02_fingerprint: {
+        Args: { i: Database["public"]["Tables"]["profile_indicators"]["Row"] }
+        Returns: string
+      }
+      _c02_window: {
+        Args: {
+          _agg: Database["public"]["Enums"]["c02_aggregation"]
+          _cad: number
+          _compat: string[]
+          _cutoff: string
+          _den_compat: string[]
+          _den_key: string
+          _den_mode: Database["public"]["Enums"]["c02_denominator_mode"]
+          _den_unit: string
+          _e: string
+          _key: string
+          _min_cov: number
+          _min_den: number
+          _s: string
+          _subject: string
+          _tenant: string
+          _unit: string
+        }
+        Returns: Json
+      }
+      _cw_correction_issues: {
+        Args: {
+          _corr: string
+          _dup_in_batch: boolean
+          _ind: string
+          _obs: string
+          _src: string
+          _subject: string
+          _tenant: string
+          _unit: string
+        }
+        Returns: string[]
+      }
       _cw_is_privileged: { Args: never; Returns: boolean }
       add_tenant_member: {
         Args: {
@@ -710,6 +942,15 @@ export type Database = {
         Args: { _tenant_id: string; _user_id: string }
         Returns: undefined
       }
+      run_deterioration_analysis: {
+        Args: {
+          _as_of?: string
+          _expected_profile_id: string
+          _subject_id: string
+          _tenant_id: string
+        }
+        Returns: Json
+      }
       set_member_role: {
         Args: {
           _role: Database["public"]["Enums"]["member_role"]
@@ -726,6 +967,16 @@ export type Database = {
     Enums: {
       baseline_method: "fixed_value" | "trailing_window" | "reference_period"
       batch_status: "received" | "processing" | "completed" | "failed"
+      c02_aggregation: "mean" | "sum" | "last"
+      c02_denominator_mode: "observation_count" | "paired_indicator"
+      c02_status:
+        | "deterioration_candidate"
+        | "no_deterioration"
+        | "persistent_condition"
+        | "insufficient_data"
+        | "insufficient_config"
+        | "unsupported"
+        | "not_evaluated"
       indicator_class: "outcome" | "usage" | "context"
       indicator_direction: "higher_is_better" | "lower_is_better"
       indicator_value_type: "numeric" | "text"
@@ -863,6 +1114,17 @@ export const Constants = {
     Enums: {
       baseline_method: ["fixed_value", "trailing_window", "reference_period"],
       batch_status: ["received", "processing", "completed", "failed"],
+      c02_aggregation: ["mean", "sum", "last"],
+      c02_denominator_mode: ["observation_count", "paired_indicator"],
+      c02_status: [
+        "deterioration_candidate",
+        "no_deterioration",
+        "persistent_condition",
+        "insufficient_data",
+        "insufficient_config",
+        "unsupported",
+        "not_evaluated",
+      ],
       indicator_class: ["outcome", "usage", "context"],
       indicator_direction: ["higher_is_better", "lower_is_better"],
       indicator_value_type: ["numeric", "text"],
