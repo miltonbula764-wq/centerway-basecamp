@@ -163,7 +163,7 @@ function ImportPanel({ profileId, profileVersion }: { profileId: string; profile
 
   const startD = utcFromLocalInput(start);
   const endD = utcFromLocalInput(end);
-  const formErrors: Record<string, string> = {};
+  const formErrors: Partial<Record<"source" | "start" | "end" | "declared", string>> = {};
   if (source.trim().length < 1 || source.trim().length > 200) formErrors.source = "Indique a fonte (até 200 caracteres).";
   if (!startD) formErrors.start = "Indique o início.";
   if (!endD) formErrors.end = "Indique o fim.";
@@ -376,7 +376,7 @@ function PreviewTable({ rows, errors }: { rows: CsvRow[]; errors: LineErrors[] }
   );
 }
 
-function BatchHistory({ totalObs }: { totalObs?: number }) {
+function BatchHistory({ totalObs }: { totalObs: number | undefined }) {
   const { tenant } = useTenant();
   const [open, setOpen] = useState<string | null>(null);
   const batches = useQuery({
