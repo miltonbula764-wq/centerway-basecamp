@@ -176,7 +176,7 @@ BEGIN
   res := pg_temp.run(uop, ta, s6, pa, asof);
   r := r || pg_temp.check('C26 UTC boundaries [start,end): 08-25T00 in current_1, 09-01T00 excluded',
     pg_temp.st(ua, res, 'paid_pct')||' '||pg_temp.val(ua, format($$select trim_scale((details->'windows'->0->>'value')::numeric)::text||'/'||(details->'windows'->0->>'n')||'/'||trim_scale((details->'windows'->1->>'value')::numeric)::text from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, res->>'run_id')),
-    'deterioration_candidate 48/1/52');
+    'deterioration_candidate/below=true 48/1/52');
 
   res := pg_temp.run(uop, ta, s8, pa, asof);
   r := r || pg_temp.check('C27 two sources in one window are not merged', pg_temp.rs(ua, res, 'paid_pct'), 'current_1:multiple_sources');
@@ -215,6 +215,7 @@ BEGIN
   r := r || pg_temp.expect_err('C50 client cannot insert a run', ua, format($$insert into public.c02_runs(tenant_id,subject_id,profile_id,profile_version,algorithm_version,as_of,data_cutoff,input_hash,observation_count,summary) values (%L,%L,%L,1,'x',now(),now(),'h',0,'{}')$$, ta, s1, pa), '42501');
   r := r || pg_temp.expect_err('C51 client cannot insert a result', ua, format($$insert into public.c02_results(tenant_id,run_id,subject_id,indicator_key,classification,status,details) values (%L,%L,%L,'k','outcome','deterioration_candidate','{}')$$, ta, run1->>'run_id', s1), '42501');
   r := r || pg_temp.expect_err('C52 client cannot update a result', ua, format($$update public.c02_results set status='no_deterioration' where run_id=%L$$, run1->>'run_id'), '42501');
+  r := r || pg_temp.expect_err('C53 anon cannot read runs', NULL, 'select count(*) from public.c02_runs', '42501');
   BEGIN
     UPDATE public.c02_runs SET summary = '{}' WHERE id = (run1->>'run_id')::uuid;
     r := r || E'\nFAIL C54 owner update of run not blocked';
