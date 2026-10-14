@@ -53,8 +53,8 @@
   --color-chart-5: var(--chart-5);
   --color-success: var(--success);
   --color-warning: var(--warning);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  --font-sans: var(--app-font-sans);
+  --font-mono: var(--app-font-mono);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -67,8 +67,8 @@
 
 :root {
   --radius: 0.5rem;
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --app-font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --app-font-mono: "Geist Mono", ui-monospace, monospace;
   --background: oklch(0.155 0.004 260);
   --foreground: oklch(0.93 0.005 260);
   --card: oklch(0.185 0.005 260);
@@ -113,7 +113,7 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: var(--font-sans);
+    font-family: var(--app-font-sans);
     -webkit-font-smoothing: antialiased;
   }
   html {
