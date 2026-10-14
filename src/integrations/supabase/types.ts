@@ -284,6 +284,125 @@ export type Database = {
           },
         ]
       }
+      profile_indicators: {
+        Row: {
+          baseline_method: Database["public"]["Enums"]["baseline_method"] | null
+          baseline_min_period_days: number | null
+          baseline_value: number | null
+          classification: Database["public"]["Enums"]["indicator_class"]
+          comparison_window_days: number | null
+          created_at: string
+          definition: string | null
+          deterioration_consecutive_windows: number | null
+          deterioration_kind: Database["public"]["Enums"]["rule_kind"] | null
+          deterioration_operator:
+            | Database["public"]["Enums"]["rule_operator"]
+            | null
+          deterioration_value: number | null
+          direction: Database["public"]["Enums"]["indicator_direction"]
+          id: string
+          key: string
+          min_coverage_pct: number | null
+          min_denominator: number | null
+          name: string
+          observation_window_days: number | null
+          profile_id: string
+          recovery_consecutive_windows: number | null
+          recovery_kind: Database["public"]["Enums"]["rule_kind"] | null
+          recovery_operator: Database["public"]["Enums"]["rule_operator"] | null
+          recovery_value: number | null
+          target_value: number | null
+          tenant_id: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          baseline_method?:
+            | Database["public"]["Enums"]["baseline_method"]
+            | null
+          baseline_min_period_days?: number | null
+          baseline_value?: number | null
+          classification: Database["public"]["Enums"]["indicator_class"]
+          comparison_window_days?: number | null
+          created_at?: string
+          definition?: string | null
+          deterioration_consecutive_windows?: number | null
+          deterioration_kind?: Database["public"]["Enums"]["rule_kind"] | null
+          deterioration_operator?:
+            | Database["public"]["Enums"]["rule_operator"]
+            | null
+          deterioration_value?: number | null
+          direction: Database["public"]["Enums"]["indicator_direction"]
+          id?: string
+          key: string
+          min_coverage_pct?: number | null
+          min_denominator?: number | null
+          name: string
+          observation_window_days?: number | null
+          profile_id: string
+          recovery_consecutive_windows?: number | null
+          recovery_kind?: Database["public"]["Enums"]["rule_kind"] | null
+          recovery_operator?:
+            | Database["public"]["Enums"]["rule_operator"]
+            | null
+          recovery_value?: number | null
+          target_value?: number | null
+          tenant_id: string
+          unit: string
+          updated_at?: string
+        }
+        Update: {
+          baseline_method?:
+            | Database["public"]["Enums"]["baseline_method"]
+            | null
+          baseline_min_period_days?: number | null
+          baseline_value?: number | null
+          classification?: Database["public"]["Enums"]["indicator_class"]
+          comparison_window_days?: number | null
+          created_at?: string
+          definition?: string | null
+          deterioration_consecutive_windows?: number | null
+          deterioration_kind?: Database["public"]["Enums"]["rule_kind"] | null
+          deterioration_operator?:
+            | Database["public"]["Enums"]["rule_operator"]
+            | null
+          deterioration_value?: number | null
+          direction?: Database["public"]["Enums"]["indicator_direction"]
+          id?: string
+          key?: string
+          min_coverage_pct?: number | null
+          min_denominator?: number | null
+          name?: string
+          observation_window_days?: number | null
+          profile_id?: string
+          recovery_consecutive_windows?: number | null
+          recovery_kind?: Database["public"]["Enums"]["rule_kind"] | null
+          recovery_operator?:
+            | Database["public"]["Enums"]["rule_operator"]
+            | null
+          recovery_value?: number | null
+          target_value?: number | null
+          tenant_id?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_indicators_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_indicators_tenant_id_profile_id_fkey"
+            columns: ["tenant_id", "profile_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_value_profiles"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       subjects: {
         Row: {
           created_at: string
@@ -315,6 +434,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "subjects_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_value_profiles: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          expected_outcome: string | null
+          id: string
+          notes: string | null
+          promise: string
+          status: Database["public"]["Enums"]["profile_status"]
+          tenant_id: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          expected_outcome?: string | null
+          id?: string
+          notes?: string | null
+          promise: string
+          status?: Database["public"]["Enums"]["profile_status"]
+          tenant_id: string
+          updated_at?: string
+          version: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          expected_outcome?: string | null
+          id?: string
+          notes?: string | null
+          promise?: string
+          status?: Database["public"]["Enums"]["profile_status"]
+          tenant_id?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_value_profiles_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -427,18 +599,18 @@ export type Database = {
           approved_by: string | null
           created_at: string
           created_by: string | null
-          expected_value: string
+          expected_outcome: string | null
           id: string
           notes: string | null
+          promise: string
           status: Database["public"]["Enums"]["profile_status"]
-          subject_id: string
           tenant_id: string
           updated_at: string
           version: number
         }
         SetofOptions: {
           from: "*"
-          to: "value_profiles"
+          to: "tenant_value_profiles"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -450,10 +622,19 @@ export type Database = {
         }
         Returns: string
       }
+      create_value_profile_draft: {
+        Args: {
+          _expected_outcome?: string
+          _promise: string
+          _tenant_id: string
+        }
+        Returns: string
+      }
       create_value_profile_version: {
         Args: { _from_profile_id: string }
         Returns: string
       }
+      effective_value_profile: { Args: { _tenant_id: string }; Returns: string }
       has_tenant_role: {
         Args: {
           _roles: Database["public"]["Enums"]["member_role"][]
@@ -478,12 +659,20 @@ export type Database = {
         }
         Returns: undefined
       }
+      value_profile_approval_issues: {
+        Args: { _profile_id: string }
+        Returns: string[]
+      }
     }
     Enums: {
+      baseline_method: "fixed_value" | "trailing_window" | "reference_period"
       batch_status: "received" | "processing" | "completed" | "failed"
+      indicator_class: "outcome" | "usage" | "context"
       indicator_direction: "higher_is_better" | "lower_is_better"
       member_role: "admin" | "operator" | "viewer"
       profile_status: "draft" | "approved" | "superseded"
+      rule_kind: "absolute" | "relative_pct"
+      rule_operator: "lt" | "lte" | "gt" | "gte"
       subject_unit_type: "organization" | "person"
     }
     CompositeTypes: {
@@ -612,10 +801,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      baseline_method: ["fixed_value", "trailing_window", "reference_period"],
       batch_status: ["received", "processing", "completed", "failed"],
+      indicator_class: ["outcome", "usage", "context"],
       indicator_direction: ["higher_is_better", "lower_is_better"],
       member_role: ["admin", "operator", "viewer"],
       profile_status: ["draft", "approved", "superseded"],
+      rule_kind: ["absolute", "relative_pct"],
+      rule_operator: ["lt", "lte", "gt", "gte"],
       subject_unit_type: ["organization", "person"],
     },
   },

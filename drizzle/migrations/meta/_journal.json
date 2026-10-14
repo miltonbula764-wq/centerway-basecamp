@@ -8,6 +8,13 @@
       "when": 1791982944553,
       "tag": "0000_centerway_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791983232926,
+      "tag": "0001_tenant_value_profiles",
+      "breakpoints": true
     }
   ]
 }
