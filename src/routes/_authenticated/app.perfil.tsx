@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { assertActiveTenant, tk, useTenant } from "@/lib/tenant";
 import { indicatorsQuery, issuesQuery, profilesQuery } from "@/lib/queries";
 import { friendlyError } from "@/lib/errors";
-import { baselineLabel, classLabel, directionLabel, kindLabel, operatorLabel, statusLabel, translateIssue } from "@/lib/profile";
+import { baselineLabel, classLabel, directionLabel, operatorLabel, statusLabel, translateIssue } from "@/lib/profile";
 import type { Database } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -406,7 +406,6 @@ function IndicatorSummary({ i }: { i: Indicator }) {
     ["Deterioração", rule(i.deterioration_kind, i.deterioration_operator, i.deterioration_value, i.deterioration_consecutive_windows)],
     ["Recuperação", rule(i.recovery_kind, i.recovery_operator, i.recovery_value, i.recovery_consecutive_windows)],
   ];
-  void kindLabel;
   return (
     <dl className="mt-2 grid gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
       {items.map(([k, v]) => (

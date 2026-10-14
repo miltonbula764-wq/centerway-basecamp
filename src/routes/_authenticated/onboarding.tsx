@@ -117,6 +117,18 @@ function Onboarding() {
             </div>
           </form>
         )}
+        <button
+          className="mt-4 text-sm text-muted-foreground underline underline-offset-4"
+          onClick={async () => {
+            await qc.cancelQueries();
+            qc.clear();
+            writePreferredTenant(null);
+            await supabase.auth.signOut();
+            navigate({ to: "/auth", search: { redirect: undefined }, replace: true });
+          }}
+        >
+          Terminar sessão
+        </button>
       </div>
     </main>
   );
