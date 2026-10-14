@@ -67,14 +67,14 @@ function ClienteDetalhe() {
     return (
       <Empty title="Cliente não encontrado">
         Não existe nesta empresa ou não tem acesso.{" "}
-        <Link to="/app/clientes" search={{ q: "", page: 1 }} className="underline">Voltar à lista</Link>
+        <Link to="/app/clientes" className="underline">Voltar à lista</Link>
       </Empty>
     );
   const s = subject.data;
 
   return (
     <>
-      <Link to="/app/clientes" search={{ q: "", page: 1 }} className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link to="/app/clientes" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> Clientes
       </Link>
       <PageHeader

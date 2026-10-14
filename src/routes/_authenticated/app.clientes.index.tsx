@@ -12,9 +12,9 @@ import { SubjectDialog } from "@/components/app/subject-dialog";
 const PAGE = 25;
 
 export const Route = createFileRoute("/_authenticated/app/clientes/")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    q: typeof s.q === "string" ? s.q : "",
-    page: Number(s.page) >= 1 ? Math.floor(Number(s.page)) : 1,
+  validateSearch: (s: Record<string, unknown>): { q?: string; page?: number } => ({
+    q: typeof s.q === "string" && s.q ? s.q : undefined,
+    page: Number(s.page) > 1 ? Math.floor(Number(s.page)) : undefined,
   }),
   head: () => ({
     meta: [
@@ -31,14 +31,16 @@ export const Route = createFileRoute("/_authenticated/app/clientes/")({
 
 function Clientes() {
   const { tenant, canWrite } = useTenant();
-  const { q, page } = Route.useSearch();
+  const search = Route.useSearch();
+  const q = search.q ?? "";
+  const page = search.page ?? 1;
   const navigate = useNavigate({ from: "/app/clientes/" });
   const [term, setTerm] = useState(q);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (term !== q) navigate({ search: { q: term, page: 1 }, replace: true });
+      if (term !== q) navigate({ search: { q: term || undefined }, replace: true });
     }, 300);
     return () => clearTimeout(t);
   }, [term, q, navigate]);
@@ -114,10 +116,10 @@ function Clientes() {
               {total} cliente{total === 1 ? "" : "s"} · página {page} de {pages}
             </span>
             <div className="flex gap-2">
-              <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => navigate({ search: { q, page: page - 1 } })} aria-label="Página anterior">
+              <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => navigate({ search: { q: q || undefined, page: page - 1 } })} aria-label="Página anterior">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <Button variant="secondary" size="sm" disabled={page >= pages} onClick={() => navigate({ search: { q, page: page + 1 } })} aria-label="Página seguinte">
+              <Button variant="secondary" size="sm" disabled={page >= pages} onClick={() => navigate({ search: { q: q || undefined, page: page + 1 } })} aria-label="Página seguinte">
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
