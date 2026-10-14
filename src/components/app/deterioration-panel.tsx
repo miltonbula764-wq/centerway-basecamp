@@ -107,7 +107,7 @@ export function DeteriorationPanel({ subjectId, profileId }: { subjectId: string
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <label htmlFor="c02run" className="text-muted-foreground">Análise</label>
             <select id="c02run" value={runId ?? ""} onChange={(e) => setSelected(e.target.value)}
-              className="h-8 rounded-md border border-input bg-background px-2 text-xs">
+              className="h-8 w-full max-w-full rounded-md border border-input bg-background px-2 text-xs sm:w-auto">
               {runs.data!.map((r, i) => (
                 <option key={r.id} value={r.id}>
                   {formatDate(r.created_at)} · corte {utc(r.as_of)} · perfil v{r.profile_version}{i === 0 ? " (mais recente)" : ""}{r.revision_of ? " · revisão" : ""}

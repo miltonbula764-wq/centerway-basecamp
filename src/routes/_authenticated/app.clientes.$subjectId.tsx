@@ -86,7 +86,7 @@ function ClienteDetalhe() {
           </Button>
         )}
       />
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
         <Panel title="Identidade">
           <dl className="grid grid-cols-[140px_1fr] gap-y-2 text-sm">
             <dt className="text-muted-foreground">Referência externa</dt>
