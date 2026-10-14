@@ -21,3 +21,5 @@
 - Permission tests run as real `authenticated`/`anon` roles with JWT claims inside a transaction that is always rolled back — why: service_role bypasses RLS and would prove nothing.
 - UI reads/writes go through the browser client under RLS; every tenant-scoped query key starts with `["t", tenantId]` and is removed on tenant switch/logout, and mutations call `assertActiveTenant` with the tenant captured at form open — why: stale data or writes must never cross tenants.
 - Only the selected tenant id is kept in localStorage, always revalidated against `memberships` — why: permissions live in the database, not the browser.
+- Observations and ingestion batches are written only by `import_observations` (clients have no INSERT/UPDATE grants); it revalidates role, approved profile id, limits and every row, and commits a batch atomically or records a failed batch with per-line error codes — why: preview in the browser is advisory and must never be the authority.
+- Ingestion error codes are shared between the RPC and `src/lib/ingest.ts`; add a code in both places — why: the preview must mirror the server's messages.
