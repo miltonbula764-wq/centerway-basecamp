@@ -137,7 +137,7 @@ BEGIN
   r := r || pg_temp.expect_err('C01 anon cannot run analysis', NULL, format($$select public.run_deterioration_analysis(%L,%L,%L,%L)$$, ta, s1, pa, asof), '42501');
   r := r || pg_temp.expect_err('C02 viewer cannot run analysis', uv, format($$select public.run_deterioration_analysis(%L,%L,%L,%L)$$, ta, s1, pa, asof), '42501', 'not authorized');
   r := r || pg_temp.expect_err('C03 tenant B admin cannot run on tenant A', ub, format($$select public.run_deterioration_analysis(%L,%L,%L,%L)$$, ta, s1, pa, asof), '42501', 'not authorized');
-  r := r || pg_temp.expect_err('C04 tenant B cannot reference A subject from its own tenant', ub, format($$select public.run_deterioration_analysis(%L,%L,%L,%L)$$, tb, s1, pa, asof), '22023', 'analysis: no approved value profile');
+  r := r || pg_temp.expect_err('C04 tenant B cannot use A ids through its own tenant', ub, format($$select public.run_deterioration_analysis(%L,%L,%L,%L)$$, tb, s1, pa, asof), '22023', 'analysis: no approved value profile');
   r := r || pg_temp.expect_err('C05 stale profile id refused', uop, format($$select public.run_deterioration_analysis(%L,%L,%L,%L)$$, ta, s1, gen_random_uuid(), asof), '22023', 'analysis: approved value profile changed');
   r := r || pg_temp.expect_err('C06 future as_of refused', uop, format($$select public.run_deterioration_analysis(%L,%L,%L,%L)$$, ta, s1, pa, '2999-01-01T00:00:00Z'), '22023', 'analysis: as_of in the future');
 
@@ -145,10 +145,10 @@ BEGIN
   run1 := pg_temp.run(uop, ta, s1, pa, asof);
   r := r || pg_temp.check('C10 outcome drop 80 -> 52,48 (rule <56 x2, reference 80) = candidate, gap vs target', pg_temp.st(ua, run1, 'paid_pct'), 'deterioration_candidate/below=true');
   r := r || pg_temp.check('C11 current_1 value / denominator / coverage computed server-side',
-    pg_temp.val(ua, format($$select (details->'windows'->0->>'value')::numeric::text||'|'||(details->'windows'->0->>'denominator')||'|'||(details->'windows'->0->>'coverage_pct') from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, run1->>'run_id')),
+    pg_temp.val(ua, format($$select trim_scale((details->'windows'->0->>'value')::numeric)::text||'|'||(details->'windows'->0->>'denominator')||'|'||(details->'windows'->0->>'coverage_pct') from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, run1->>'run_id')),
     '48|100|100.00');
-  r := r || pg_temp.check('C12 evidence refs = exactly the 3 observations used, all of tenant A',
-    pg_temp.val(ua, format($$select cardinality(observation_ids)||'/'||(select count(*) from public.observations o where o.id = any(observation_ids) and o.tenant_id=%L) from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, ta, run1->>'run_id')), '3/3');
+  r := r || pg_temp.check('C12 evidence refs = the 3 values + 3 denominators used, all of tenant A',
+    pg_temp.val(ua, format($$select cardinality(observation_ids)||'/'||(select count(*) from public.observations o where o.id = any(observation_ids) and o.tenant_id=%L) from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, ta, run1->>'run_id')), '6/6');
   r := r || pg_temp.check('C13 stable usage = no deterioration', pg_temp.st(ua, run1, 'logins'), 'no_deterioration');
   r := r || pg_temp.check('C14 lower-is-better stable latency = no deterioration', pg_temp.st(ua, run1, 'latency'), 'no_deterioration');
   r := r || pg_temp.check('C15 trailing baseline of zeros + relative rule = insufficient (baseline_zero)', pg_temp.st(ua, run1, 'errors')||' '||pg_temp.rs(ua, run1, 'errors'), 'insufficient_data baseline_zero');
@@ -167,7 +167,7 @@ BEGIN
 
   res := pg_temp.run(uop, ta, s4, pa, asof);
   r := r || pg_temp.check('C23 missing week is absence (insufficient), small denominator flagged', pg_temp.st(ua, res, 'paid_pct')||' '||pg_temp.rs(ua, res, 'paid_pct'),
-    'insufficient_data current_1:denominator_below_minimum,current_2:no_observations,current_2:denominator_missing,current_2:denominator_below_minimum');
+    'insufficient_data current_1:denominator_below_minimum,current_2:no_observations,current_2:coverage_below_minimum,current_2:denominator_missing,current_2:denominator_below_minimum');
   r := r || pg_temp.check('C24 subject with no data at all = insufficient, not zero', pg_temp.st(ua, res, 'latency')||' '||split_part(pg_temp.rs(ua, res, 'latency'), ',', 1), 'insufficient_data current_1:no_observations');
 
   res := pg_temp.run(uop, ta, s5, pa, asof);
@@ -175,7 +175,7 @@ BEGIN
 
   res := pg_temp.run(uop, ta, s6, pa, asof);
   r := r || pg_temp.check('C26 UTC boundaries [start,end): 08-25T00 in current_1, 09-01T00 excluded',
-    pg_temp.st(ua, res, 'paid_pct')||' '||pg_temp.val(ua, format($$select (details->'windows'->0->>'value')::numeric::text||'/'||(details->'windows'->0->>'n')||'/'||(details->'windows'->1->>'value')::numeric::text from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, res->>'run_id')),
+    pg_temp.st(ua, res, 'paid_pct')||' '||pg_temp.val(ua, format($$select trim_scale((details->'windows'->0->>'value')::numeric)::text||'/'||(details->'windows'->0->>'n')||'/'||trim_scale((details->'windows'->1->>'value')::numeric)::text from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, res->>'run_id')),
     'deterioration_candidate 48/1/52');
 
   res := pg_temp.run(uop, ta, s8, pa, asof);
@@ -202,7 +202,7 @@ BEGIN
   r := r || pg_temp.check('C44 second correction of the same target refused (no forks)', pg_temp.codes(res), 'correction_already_corrected');
   res := pg_temp.run(uop, ta, s7, pa, asof);
   r := r || pg_temp.check('C45 correction replaces value without double count (70, n=1) -> no deterioration',
-    pg_temp.st(ua, res, 'paid_pct')||' '||pg_temp.val(ua, format($$select (details->'windows'->0->>'value')::numeric::text||'/'||(details->'windows'->0->>'n') from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, res->>'run_id')),
+    pg_temp.st(ua, res, 'paid_pct')||' '||pg_temp.val(ua, format($$select trim_scale((details->'windows'->0->>'value')::numeric)::text||'/'||(details->'windows'->0->>'n') from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, res->>'run_id')),
     'no_deterioration/below=true 70/1');
 
   -- new late data for s1 -> traceable revision, previous run untouched
@@ -215,14 +215,13 @@ BEGIN
   r := r || pg_temp.expect_err('C50 client cannot insert a run', ua, format($$insert into public.c02_runs(tenant_id,subject_id,profile_id,profile_version,algorithm_version,as_of,data_cutoff,input_hash,observation_count,summary) values (%L,%L,%L,1,'x',now(),now(),'h',0,'{}')$$, ta, s1, pa), '42501');
   r := r || pg_temp.expect_err('C51 client cannot insert a result', ua, format($$insert into public.c02_results(tenant_id,run_id,subject_id,indicator_key,classification,status,details) values (%L,%L,%L,'k','outcome','deterioration_candidate','{}')$$, ta, run1->>'run_id', s1), '42501');
   r := r || pg_temp.expect_err('C52 client cannot update a result', ua, format($$update public.c02_results set status='no_deterioration' where run_id=%L$$, run1->>'run_id'), '42501');
-  r := r || pg_temp.expect_err('C53 privileged update still blocked by immutability trigger', NULL, 'select 1/0', '22012');
   BEGIN
     UPDATE public.c02_runs SET summary = '{}' WHERE id = (run1->>'run_id')::uuid;
     r := r || E'\nFAIL C54 owner update of run not blocked';
   EXCEPTION WHEN SQLSTATE '42501' THEN r := r || E'\nPASS C54 owner update of run blocked by trigger [42501]'; END;
   r := r || pg_temp.check('C55 viewer reads results; tenant B reads none',
     pg_temp.val(uv, format($$select count(*)::text from public.c02_runs where tenant_id=%L$$, ta))||'/'||pg_temp.val(ub, format($$select (select count(*) from public.c02_runs where tenant_id=%1$L)+(select count(*) from public.c02_results where tenant_id=%1$L) from (select 1) z$$, ta)),
-    '8/0');
+    '9/0');
   r := r || pg_temp.check('C56 run audited with real actor', pg_temp.val(ua, format($$select count(*)::text from public.audit_log where entity_type='c02_runs' and entity_id=%L and actor_id=%L$$, run1->>'run_id', uop)), '1');
 
   -- ---------- version mismatch ----------
@@ -237,8 +236,11 @@ BEGIN
     pg_temp.st(ua, res, 'paid_pct')||' '||pg_temp.val(ua, format($$select details->'windows'->0->'excluded'->>'version_mismatch' from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, res->>'run_id')),
     'insufficient_data 1');
   r := r || pg_temp.check('C63 unchanged indicator stays comparable across versions', pg_temp.st(ua, res, 'logins'), 'no_deterioration');
-  r := r || pg_temp.check('C64 approval rejects operator contradicting direction',
-    (SELECT 'ok' FROM (SELECT 1) z WHERE EXISTS (SELECT 1)), 'ok');
+  pa := pg_temp.val(uop, format($$select public.create_value_profile_version(%L)$$, pa2))::uuid;
+  PERFORM pg_temp.val(uop, format($$update public.profile_indicators set deterioration_operator='lt' where profile_id=%L and key='latency' returning id$$, pa));
+  r := r || pg_temp.check('C64 approval issues flag operator contradicting direction (lower_is_better with <)',
+    pg_temp.val(uop, format($$select array_to_string(public.value_profile_approval_issues(%L), ';')$$, pa)), 'latency: deterioration operator contradicts direction');
+  r := r || pg_temp.expect_err('C65 approval refused while contradiction remains', ua, format($$select public.approve_value_profile(%L)$$, pa), '22023');
 
   npass := (length(r) - length(replace(r, E'\nPASS', ''))) / 5;
   nfail := (length(r) - length(replace(r, E'\nFAIL', ''))) / 5;
