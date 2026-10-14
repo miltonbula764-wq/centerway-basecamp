@@ -16,6 +16,8 @@ import {
   classHelp,
   classLabel,
   valueTypeLabel,
+  aggregationLabel,
+  denominatorModeLabel,
   directionLabel,
   emptyIndicatorForm,
   formFromRow,
@@ -206,6 +208,35 @@ export function IndicatorDialog({
                 {numField("min_coverage_pct", "Cobertura mínima", "Percentagem do período com dados (0–100).", "%")}
                 {numField("min_denominator", "Denominador mínimo", "Nº mínimo de casos elegíveis por janela.", "casos")}
                 {numField("target_value", "Alvo", "Valor esperado (opcional).", f.unit || undefined)}
+              </div>
+            </Section>
+
+            <Section title="Cálculo da deteção (C02)" hint="Sem estes campos a deteção devolve “configuração insuficiente”. Não há valores por omissão.">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label>Agregação por janela</Label>
+                  <NativeSelect className="mt-1.5" value={f.aggregation} onChange={(e) => set("aggregation", e.target.value as never)}>
+                    <option value="">—</option>
+                    {Object.entries(aggregationLabel).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  </NativeSelect>
+                  <FieldHint>Soma só é comparável se a janela de comparação tiver o mesmo tamanho.</FieldHint>
+                </div>
+                {numField("expected_cadence_days", "Cadência esperada", "Espera-se pelo menos uma observação a cada N dias; define a cobertura. As janelas têm de ser múltiplos.", "dias")}
+                <div>
+                  <Label>Denominador</Label>
+                  <NativeSelect className="mt-1.5" value={f.denominator_mode} onChange={(e) => set("denominator_mode", e.target.value as never)}>
+                    <option value="">—</option>
+                    {Object.entries(denominatorModeLabel).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  </NativeSelect>
+                  <FieldHint>O que se compara com o denominador mínimo em cada janela.</FieldHint>
+                </div>
+                {f.denominator_mode === "paired_indicator" && (
+                  <div>
+                    <Label htmlFor="den_key">Chave do indicador de denominador</Label>
+                    <Input id="den_key" value={f.denominator_indicator_key} onChange={(e) => set("denominator_indicator_key", e.target.value)} className="mt-1.5 font-mono" placeholder="eligible_invoices" />
+                    <FieldError>{errors.denominator_indicator_key}</FieldError>
+                  </div>
+                )}
               </div>
             </Section>
 
