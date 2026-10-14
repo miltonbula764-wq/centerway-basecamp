@@ -14,16 +14,477 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          entity_id: string | null
+          entity_type: string
+          id: number
+          tenant_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity_id?: string | null
+          entity_type: string
+          id?: never
+          tenant_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity_id?: string | null
+          entity_type?: string
+          id?: never
+          tenant_id?: string | null
+        }
+        Relationships: []
+      }
+      indicators: {
+        Row: {
+          baseline: number | null
+          created_at: string
+          definition: string | null
+          deterioration_threshold: number | null
+          direction: Database["public"]["Enums"]["indicator_direction"]
+          evaluation_window_days: number | null
+          id: string
+          key: string
+          min_denominator: number | null
+          name: string
+          target: number | null
+          tenant_id: string
+          unit: string
+          updated_at: string
+          value_profile_id: string
+        }
+        Insert: {
+          baseline?: number | null
+          created_at?: string
+          definition?: string | null
+          deterioration_threshold?: number | null
+          direction: Database["public"]["Enums"]["indicator_direction"]
+          evaluation_window_days?: number | null
+          id?: string
+          key: string
+          min_denominator?: number | null
+          name: string
+          target?: number | null
+          tenant_id: string
+          unit: string
+          updated_at?: string
+          value_profile_id: string
+        }
+        Update: {
+          baseline?: number | null
+          created_at?: string
+          definition?: string | null
+          deterioration_threshold?: number | null
+          direction?: Database["public"]["Enums"]["indicator_direction"]
+          evaluation_window_days?: number | null
+          id?: string
+          key?: string
+          min_denominator?: number | null
+          name?: string
+          target?: number | null
+          tenant_id?: string
+          unit?: string
+          updated_at?: string
+          value_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "indicators_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "indicators_tenant_id_value_profile_id_fkey"
+            columns: ["tenant_id", "value_profile_id"]
+            isOneToOne: false
+            referencedRelation: "value_profiles"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      ingestion_batches: {
+        Row: {
+          coverage_end: string | null
+          coverage_start: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          source: string
+          status: Database["public"]["Enums"]["batch_status"]
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          coverage_end?: string | null
+          coverage_start?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          source: string
+          status?: Database["public"]["Enums"]["batch_status"]
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          coverage_end?: string | null
+          coverage_start?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["batch_status"]
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingestion_batches_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memberships: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["member_role"]
+          tenant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["member_role"]
+          tenant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memberships_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      observations: {
+        Row: {
+          batch_id: string
+          corrects_observation_id: string | null
+          created_by: string | null
+          id: string
+          idempotency_key: string
+          indicator_key: string
+          ingested_at: string
+          observed_at: string
+          payload: Json
+          payload_hash: string
+          source: string
+          subject_id: string
+          tenant_id: string
+          unit: string
+          value_numeric: number | null
+          value_text: string | null
+        }
+        Insert: {
+          batch_id: string
+          corrects_observation_id?: string | null
+          created_by?: string | null
+          id?: string
+          idempotency_key: string
+          indicator_key: string
+          ingested_at?: string
+          observed_at: string
+          payload?: Json
+          payload_hash?: string
+          source: string
+          subject_id: string
+          tenant_id: string
+          unit: string
+          value_numeric?: number | null
+          value_text?: string | null
+        }
+        Update: {
+          batch_id?: string
+          corrects_observation_id?: string | null
+          created_by?: string | null
+          id?: string
+          idempotency_key?: string
+          indicator_key?: string
+          ingested_at?: string
+          observed_at?: string
+          payload?: Json
+          payload_hash?: string
+          source?: string
+          subject_id?: string
+          tenant_id?: string
+          unit?: string
+          value_numeric?: number | null
+          value_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "observations_tenant_id_batch_id_fkey"
+            columns: ["tenant_id", "batch_id"]
+            isOneToOne: false
+            referencedRelation: "ingestion_batches"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "observations_tenant_id_corrects_observation_id_fkey"
+            columns: ["tenant_id", "corrects_observation_id"]
+            isOneToOne: false
+            referencedRelation: "observations"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "observations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "observations_tenant_id_subject_id_fkey"
+            columns: ["tenant_id", "subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      subjects: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_name: string | null
+          external_ref: string
+          id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_name?: string | null
+          external_ref: string
+          id?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_name?: string | null
+          external_ref?: string
+          id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subjects_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          subject_unit_type: Database["public"]["Enums"]["subject_unit_type"]
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          subject_unit_type: Database["public"]["Enums"]["subject_unit_type"]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          subject_unit_type?: Database["public"]["Enums"]["subject_unit_type"]
+        }
+        Relationships: []
+      }
+      value_profiles: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          expected_value: string
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["profile_status"]
+          subject_id: string
+          tenant_id: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          expected_value: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["profile_status"]
+          subject_id: string
+          tenant_id: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          expected_value?: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["profile_status"]
+          subject_id?: string
+          tenant_id?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "value_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "value_profiles_tenant_id_subject_id_fkey"
+            columns: ["tenant_id", "subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      _cw_is_privileged: { Args: never; Returns: boolean }
+      add_tenant_member: {
+        Args: {
+          _role: Database["public"]["Enums"]["member_role"]
+          _tenant_id: string
+          _user_id: string
+        }
+        Returns: string
+      }
+      approve_value_profile: {
+        Args: { _profile_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          expected_value: string
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["profile_status"]
+          subject_id: string
+          tenant_id: string
+          updated_at: string
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "value_profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_tenant: {
+        Args: {
+          _name: string
+          _subject_unit_type: Database["public"]["Enums"]["subject_unit_type"]
+        }
+        Returns: string
+      }
+      create_value_profile_version: {
+        Args: { _from_profile_id: string }
+        Returns: string
+      }
+      has_tenant_role: {
+        Args: {
+          _roles: Database["public"]["Enums"]["member_role"][]
+          _tenant_id: string
+        }
+        Returns: boolean
+      }
+      is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
+      my_tenant_role: {
+        Args: { _tenant_id: string }
+        Returns: Database["public"]["Enums"]["member_role"]
+      }
+      remove_tenant_member: {
+        Args: { _tenant_id: string; _user_id: string }
+        Returns: undefined
+      }
+      set_member_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["member_role"]
+          _tenant_id: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      batch_status: "received" | "processing" | "completed" | "failed"
+      indicator_direction: "higher_is_better" | "lower_is_better"
+      member_role: "admin" | "operator" | "viewer"
+      profile_status: "draft" | "approved" | "superseded"
+      subject_unit_type: "organization" | "person"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +611,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      batch_status: ["received", "processing", "completed", "failed"],
+      indicator_direction: ["higher_is_better", "lower_is_better"],
+      member_role: ["admin", "operator", "viewer"],
+      profile_status: ["draft", "approved", "superseded"],
+      subject_unit_type: ["organization", "person"],
+    },
   },
 } as const
