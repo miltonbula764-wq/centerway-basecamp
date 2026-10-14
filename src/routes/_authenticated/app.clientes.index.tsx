@@ -12,9 +12,9 @@ import { SubjectDialog } from "@/components/app/subject-dialog";
 const PAGE = 25;
 
 export const Route = createFileRoute("/_authenticated/app/clientes/")({
-  validateSearch: (s: Record<string, unknown>): { q?: string; page?: number } => ({
-    q: typeof s.q === "string" && s.q ? s.q : undefined,
-    page: Number(s.page) > 1 ? Math.floor(Number(s.page)) : undefined,
+  validateSearch: (s: Record<string, unknown>): { q?: string | undefined; page?: number | undefined } => ({
+    q: typeof s["q"] === "string" && s["q"] ? s["q"] : undefined,
+    page: Number(s["page"]) > 1 ? Math.floor(Number(s["page"])) : undefined,
   }),
   head: () => ({
     meta: [

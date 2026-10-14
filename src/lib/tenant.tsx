@@ -52,7 +52,7 @@ export function writePreferredTenant(id: string | null) {
 export function pickTenant(tenants: { id: string }[], preferred: string | null): string | null {
   if (tenants.length === 0) return null;
   if (preferred && tenants.some((t) => t.id === preferred)) return preferred;
-  return tenants[0].id;
+  return tenants[0]?.id ?? null;
 }
 
 // Guard against writes landing in a tenant that is no longer the active one.

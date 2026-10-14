@@ -30,8 +30,8 @@ type Profile = Database["public"]["Tables"]["tenant_value_profiles"]["Row"];
 type Indicator = Database["public"]["Tables"]["profile_indicators"]["Row"];
 
 export const Route = createFileRoute("/_authenticated/app/perfil")({
-  validateSearch: (s: Record<string, unknown>): { v?: number } => ({
-    v: Number(s.v) >= 1 ? Math.floor(Number(s.v)) : undefined,
+  validateSearch: (s: Record<string, unknown>): { v?: number | undefined } => ({
+    v: Number(s["v"]) >= 1 ? Math.floor(Number(s["v"])) : undefined,
   }),
   head: () => ({
     meta: [

@@ -21,10 +21,11 @@ import {
   kindLabel,
   operatorLabel,
   type IndicatorForm,
+  type FormErrors,
 } from "@/lib/profile";
 import { ErrorState, FieldError, FieldHint, NativeSelect } from "./ui-bits";
 
-type Row = Record<string, unknown> & { id: string };
+type Row = { id: string };
 
 export function IndicatorDialog({
   open,
@@ -41,7 +42,7 @@ export function IndicatorDialog({
   const tenantId = tenant.id;
   const qc = useQueryClient();
   const [f, setF] = useState<IndicatorForm>(emptyIndicatorForm);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     if (open) {

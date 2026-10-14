@@ -50,9 +50,10 @@ export function translateIssue(issue: string): string {
     return "O perfil precisa de pelo menos um indicador de resultado.";
   const m = /^([^:]+): (.+)$/.exec(issue);
   if (!m) return issue;
-  const [, key, rest] = m;
-  const field = /^(\w+) missing$/.exec(rest);
-  if (field && fieldPt[field[1]]) return `${key}: ${fieldPt[field[1]]}`;
+  const key = m[1] ?? "";
+  const rest = m[2] ?? "";
+  const field = /^(\w+) missing$/.exec(rest)?.[1];
+  if (field && fieldPt[field]) return `${key}: ${fieldPt[field]}`;
   if (rest === "deterioration rule incomplete") return `${key}: regra de deterioração incompleta`;
   if (rest === "recovery rule incomplete") return `${key}: regra de recuperação incompleta`;
   return issue;
@@ -133,7 +134,8 @@ export type IndicatorPayload = {
   recovery_consecutive_windows: number | null;
 };
 
-export function formFromRow(row: Partial<Record<keyof IndicatorPayload, unknown>>): IndicatorForm {
+export function formFromRow(input: object): IndicatorForm {
+  const row = input as Record<string, unknown>;
   const f = { ...emptyIndicatorForm };
   for (const k of Object.keys(f) as (keyof IndicatorForm)[]) {
     const v = row[k];
@@ -142,11 +144,13 @@ export function formFromRow(row: Partial<Record<keyof IndicatorPayload, unknown>
   return f;
 }
 
-type Result = { ok: true; data: IndicatorPayload } | { ok: false; errors: Record<string, string> };
+export type ErrKey = keyof IndicatorForm | "deterioration_rule" | "recovery_rule";
+export type FormErrors = Partial<Record<ErrKey, string>>;
+type Result = { ok: true; data: IndicatorPayload } | { ok: false; errors: FormErrors };
 
 /** Client-side mirror of the database CHECK constraints, for friendly messages. The database stays authoritative. */
 export function buildIndicatorPayload(f: IndicatorForm): Result {
-  const errors: Record<string, string> = {};
+  const errors: FormErrors = {};
   const num = (field: keyof IndicatorForm, opts: { int?: boolean; positive?: boolean; max?: number } = {}) => {
     const raw = String(f[field]).trim().replace(",", ".");
     if (raw === "") return null;
