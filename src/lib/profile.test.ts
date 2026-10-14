@@ -60,3 +60,19 @@ describe("tenant preference", () => {
     expect(pickTenant([], "a")).toBeNull();
   });
 });
+
+describe("C02 analysis fields", () => {
+  it("leaves aggregation, cadence and denominator empty by default", () => {
+    const r = buildIndicatorPayload(base);
+    expect(r.ok && [r.data.aggregation, r.data.expected_cadence_days, r.data.denominator_mode]).toEqual([null, null, null]);
+  });
+  it("requires a denominator key when the denominator is another indicator", () => {
+    const r = buildIndicatorPayload({ ...base, denominator_mode: "paired_indicator" });
+    expect(r.ok).toBe(false);
+  });
+  it("rejects a 'greater than' deterioration rule when higher is better", () => {
+    const r = buildIndicatorPayload({ ...base, deterioration_kind: "absolute", deterioration_operator: "gt", deterioration_value: "5" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.errors.deterioration_rule).toBeDefined();
+  });
+});

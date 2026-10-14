@@ -90,7 +90,7 @@ function Overview() {
           </div>
           <Panel title="Casos">
             <p className="text-sm text-muted-foreground">
-              A deteção de deterioração e os casos estão disponíveis numa próxima etapa. Nenhum caso é mostrado até existirem dados e regras aprovadas.
+              A deteção de deterioração já pode ser corrida na página de cada cliente e produz apenas sinais candidatos. A abertura de casos chega numa próxima etapa.
             </p>
           </Panel>
         </div>
