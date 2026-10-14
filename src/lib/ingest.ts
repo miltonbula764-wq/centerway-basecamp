@@ -21,6 +21,9 @@ export const errorLabel: Record<string, string> = {
   invalid_idempotency_key: "idempotency_key vazia ou com mais de 300 caracteres.",
   invalid_correction_ref: "corrects_observation_id não é um identificador válido.",
   correction_target_not_found: "Observação a corrigir não encontrada para este cliente, indicador e unidade.",
+  correction_incompatible: "A correção tem de manter a mesma data observed_at e a mesma fonte da observação original.",
+  correction_version_mismatch: "A observação original pertence a uma versão do perfil com significado diferente para este indicador.",
+  correction_already_corrected: "Esta observação já foi corrigida; corrija a correção mais recente.",
   idempotency_conflict: "Esta idempotency_key já foi usada com conteúdo diferente.",
 };
 export const labelFor = (code: string) => errorLabel[code] ?? code;

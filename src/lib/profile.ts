@@ -5,6 +5,17 @@ export type RuleKind = "absolute" | "relative_pct";
 export type ValueType = "numeric" | "text";
 export const valueTypeLabel: Record<ValueType, string> = { numeric: "Número", text: "Texto" };
 export type RuleOperator = "lt" | "lte" | "gt" | "gte";
+export type Aggregation = "mean" | "sum" | "last";
+export type DenominatorMode = "observation_count" | "paired_indicator";
+export const aggregationLabel: Record<Aggregation, string> = {
+  mean: "Média dos valores da janela",
+  sum: "Soma dos valores da janela",
+  last: "Último valor da janela",
+};
+export const denominatorModeLabel: Record<DenominatorMode, string> = {
+  observation_count: "Nº de observações na janela",
+  paired_indicator: "Soma de outro indicador (ex.: faturas elegíveis)",
+};
 
 export const classLabel: Record<IndicatorClass, string> = {
   outcome: "Resultado",
@@ -58,6 +69,9 @@ export function translateIssue(issue: string): string {
   if (field && fieldPt[field]) return `${key}: ${fieldPt[field]}`;
   if (rest === "deterioration rule incomplete") return `${key}: regra de deterioração incompleta`;
   if (rest === "recovery rule incomplete") return `${key}: regra de recuperação incompleta`;
+  if (rest === "deterioration operator contradicts direction")
+    return `${key}: o operador da regra de deterioração contradiz a direção (piorar = descer quando "maior é melhor")`;
+  if (rest === "denominator indicator not found") return `${key}: o indicador de denominador não existe neste perfil ou não é numérico`;
   return issue;
 }
 
@@ -85,6 +99,10 @@ export type IndicatorForm = {
   recovery_operator: RuleOperator | "";
   recovery_value: string;
   recovery_consecutive_windows: string;
+  aggregation: Aggregation | "";
+  expected_cadence_days: string;
+  denominator_mode: DenominatorMode | "";
+  denominator_indicator_key: string;
 };
 
 export const emptyIndicatorForm: IndicatorForm = {
@@ -111,6 +129,10 @@ export const emptyIndicatorForm: IndicatorForm = {
   recovery_operator: "",
   recovery_value: "",
   recovery_consecutive_windows: "",
+  aggregation: "",
+  expected_cadence_days: "",
+  denominator_mode: "",
+  denominator_indicator_key: "",
 };
 
 export type IndicatorPayload = {
@@ -137,6 +159,10 @@ export type IndicatorPayload = {
   recovery_operator: RuleOperator | null;
   recovery_value: number | null;
   recovery_consecutive_windows: number | null;
+  aggregation: Aggregation | null;
+  expected_cadence_days: number | null;
+  denominator_mode: DenominatorMode | null;
+  denominator_indicator_key: string | null;
 };
 
 export function formFromRow(input: object): IndicatorForm {
@@ -203,7 +229,21 @@ export function buildIndicatorPayload(f: IndicatorForm): Result {
     recovery_operator: f.recovery_operator || null,
     recovery_value: num("recovery_value"),
     recovery_consecutive_windows: num("recovery_consecutive_windows", { int: true, positive: true }),
+    aggregation: f.aggregation || null,
+    expected_cadence_days: num("expected_cadence_days", { int: true, positive: true, max: 366 }),
+    denominator_mode: f.denominator_mode || null,
+    denominator_indicator_key: f.denominator_mode === "paired_indicator" ? f.denominator_indicator_key.trim() || null : null,
   };
+
+  if (data.denominator_mode === "paired_indicator") {
+    const dk = data.denominator_indicator_key ?? "";
+    if (!/^[a-z][a-z0-9_]{0,63}$/.test(dk)) errors.denominator_indicator_key = "Indique a chave do indicador de denominador.";
+    else if (dk === key) errors.denominator_indicator_key = "O denominador tem de ser outro indicador.";
+  }
+  const op = data.deterioration_operator;
+  if (op && ((data.direction === "higher_is_better" && (op === "gt" || op === "gte")) ||
+             (data.direction === "lower_is_better" && (op === "lt" || op === "lte"))))
+    errors.deterioration_rule = "O operador contradiz a direção: piorar é descer quando maior é melhor, e subir quando menor é melhor.";
 
   if (data.baseline_method === "fixed_value" && data.baseline_value === null && !errors.baseline_value)
     errors.baseline_value = "Com baseline de valor fixo, indique o valor.";
