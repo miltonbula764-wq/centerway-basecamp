@@ -43,6 +43,13 @@
       "when": 1792005822696,
       "tag": "0005_c02_sum_requires_equal_windows",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792005957937,
+      "tag": "0006_c02_denominator_evidence_refs",
+      "breakpoints": true
     }
   ]
 }
