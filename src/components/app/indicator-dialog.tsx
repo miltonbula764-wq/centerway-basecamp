@@ -15,6 +15,7 @@ import {
   buildIndicatorPayload,
   classHelp,
   classLabel,
+  valueTypeLabel,
   directionLabel,
   emptyIndicatorForm,
   formFromRow,
