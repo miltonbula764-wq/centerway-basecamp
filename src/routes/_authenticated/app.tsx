@@ -22,6 +22,7 @@ import {
   roleLabel,
   setActiveTenantId,
   TenantContext,
+  useTenant,
   writePreferredTenant,
   type TenantCtx,
   type TenantInfo,
@@ -186,7 +187,7 @@ function Brand() {
 }
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
-  const { tenant, tenants, user, switchTenant, signOut } = useContext();
+  const { tenant, tenants, user, switchTenant, signOut } = useTenant();
   return (
     <>
       <div className="hidden px-4 pb-2 pt-5 md:block">
@@ -250,4 +251,3 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-import { useTenant as useContext } from "@/lib/tenant";
