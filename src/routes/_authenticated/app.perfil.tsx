@@ -149,7 +149,7 @@ function PromiseFields(p: { promise: string; setPromise: (s: string) => void; ou
   );
 }
 
-function ProfileView({ profile, hasDraft, draftVersion, onOpenVersion }: { profile: Profile; hasDraft: boolean; draftVersion?: number; onOpenVersion: (v: number) => void }) {
+function ProfileView({ profile, hasDraft, draftVersion, onOpenVersion }: { profile: Profile; hasDraft: boolean; draftVersion?: number | undefined; onOpenVersion: (v: number) => void }) {
   const { tenant, canWrite, isAdmin } = useTenant();
   const tenantId = tenant.id;
   const qc = useQueryClient();
