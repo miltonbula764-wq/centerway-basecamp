@@ -150,6 +150,13 @@ export function IndicatorDialog({
                   </NativeSelect>
                   <FieldHint>{classHelp[f.classification]}</FieldHint>
                 </div>
+                <div>
+                  <Label>Tipo de valor</Label>
+                  <NativeSelect className="mt-1.5" value={isOutcome ? "numeric" : f.value_type} disabled={isOutcome} onChange={(e) => set("value_type", e.target.value as never)}>
+                    {Object.entries(valueTypeLabel).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  </NativeSelect>
+                  <FieldHint>{isOutcome ? "Indicadores de resultado são sempre numéricos." : "Define se a importação aceita value_numeric ou value_text."}</FieldHint>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="unit">Unidade</Label>
