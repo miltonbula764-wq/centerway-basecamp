@@ -59,7 +59,7 @@ function Perfil() {
 
   const draft = list.find((p) => p.status === "draft");
   const approved = list.find((p) => p.status === "approved");
-  const current = list.find((p) => p.version === v) ?? draft ?? approved ?? list[0];
+  const current = list.find((p) => p.version === v) ?? draft ?? approved ?? list[0]!;
 
   return (
     <>
@@ -101,7 +101,7 @@ function CreateFirstDraft({ canWrite }: { canWrite: boolean }) {
       const { error } = await supabase.rpc("create_value_profile_draft", {
         _tenant_id: tenantId,
         _promise: promise.trim(),
-        _expected_outcome: outcome.trim() || undefined,
+        ...(outcome.trim() ? { _expected_outcome: outcome.trim() } : {}),
       });
       if (error) throw error;
     },
@@ -157,7 +157,7 @@ function ProfileView({ profile, hasDraft, draftVersion, onOpenVersion }: { profi
   const editable = isDraft && canWrite;
   const indicators = useQuery(indicatorsQuery(tenantId, profile.id));
   const issues = useQuery({ ...issuesQuery(tenantId, profile.id), enabled: isDraft });
-  const [dialog, setDialog] = useState<{ open: boolean; indicator?: Indicator }>({ open: false });
+  const [dialog, setDialog] = useState<{ open: boolean; indicator?: Indicator | undefined }>({ open: false });
   const [toDelete, setToDelete] = useState<Indicator | null>(null);
   const [confirmApprove, setConfirmApprove] = useState(false);
 

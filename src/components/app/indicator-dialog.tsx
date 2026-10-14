@@ -36,7 +36,7 @@ export function IndicatorDialog({
   open: boolean;
   onOpenChange: (o: boolean) => void;
   profileId: string;
-  indicator?: Row;
+  indicator?: Row | undefined;
 }) {
   const { tenant } = useTenant();
   const tenantId = tenant.id;

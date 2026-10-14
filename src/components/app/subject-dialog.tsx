@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 type Subject = { id: string; external_ref: string; display_name: string | null };
 
-export function SubjectDialog({ open, onOpenChange, subject }: { open: boolean; onOpenChange: (o: boolean) => void; subject?: Subject }) {
+export function SubjectDialog({ open, onOpenChange, subject }: { open: boolean; onOpenChange: (o: boolean) => void; subject?: Subject | undefined }) {
   const { tenant } = useTenant();
   const tenantId = tenant.id; // captured at open time
   const qc = useQueryClient();
