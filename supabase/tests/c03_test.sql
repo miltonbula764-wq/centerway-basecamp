@@ -190,7 +190,6 @@ BEGIN
   r := r || pg_temp.check('G04 denominator incoherent -> calculation_mismatch', pg_temp.build(uop, ta, fr)->>'code', 'calculation_mismatch');
   fr := pg_temp.forge(run1, 'forged-5', 'c02-v2', 'paid_pct', 'details', 'observation_ids');
   r := r || pg_temp.check('G05 intact refs but wrong input hash -> c02_input_hash_mismatch', pg_temp.build(uop, ta, fr)->>'code' || ' ' || pg_temp.nb(fr), 'c02_input_hash_mismatch 0/rejected:c02_input_hash_mismatch');
-  fr := pg_temp.forge(run1, 'forged-6', 'c02-v2', 'paid_pct', $$jsonb_set(details,'{windows,1,corrections,0,supersedes}',jsonb_build_array(%L))$$, 'observation_ids');
   fr := pg_temp.forge(run1, 'forged-6b', 'c02-v2', 'paid_pct', format($$jsonb_set(details,'{windows,1,corrections,0,supersedes}',jsonb_build_array(%L))$$, o26), 'observation_ids');
   r := r || pg_temp.check('G06 fake correction chain -> correction_chain_invalid', pg_temp.build(uop, ta, fr)->>'code', 'correction_chain_invalid');
 
