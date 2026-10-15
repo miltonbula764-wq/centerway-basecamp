@@ -234,6 +234,7 @@ export function IndicatorDialog({
                   <div>
                     <Label htmlFor="den_key">Chave do indicador de denominador</Label>
                     <Input id="den_key" value={f.denominator_indicator_key} onChange={(e) => set("denominator_indicator_key", e.target.value)} className="mt-1.5 font-mono" placeholder="eligible_invoices" />
+                    <FieldHint>O indicador de denominador precisa da sua própria cadência e cobertura mínima; nada é copiado deste indicador.</FieldHint>
                     <FieldError>{errors.denominator_indicator_key}</FieldError>
                   </div>
                 )}

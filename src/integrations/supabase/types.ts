@@ -848,6 +848,48 @@ export type Database = {
         }
         Returns: Json
       }
+      _c02v2_effective: {
+        Args: {
+          _compat: string[]
+          _cutoff: string
+          _key: string
+          _subject: string
+          _tenant: string
+          _unit: string
+        }
+        Returns: {
+          ingested_at: string
+          issue: string
+          obs_id: string
+          observed_at: string
+          source: string
+          supersedes: string[]
+          value: number
+        }[]
+      }
+      _c02v2_window: {
+        Args: {
+          _agg: Database["public"]["Enums"]["c02_aggregation"]
+          _cad: number
+          _compat: string[]
+          _cutoff: string
+          _den_cad: number
+          _den_compat: string[]
+          _den_key: string
+          _den_min_cov: number
+          _den_mode: Database["public"]["Enums"]["c02_denominator_mode"]
+          _den_unit: string
+          _e: string
+          _key: string
+          _min_cov: number
+          _min_den: number
+          _s: string
+          _subject: string
+          _tenant: string
+          _unit: string
+        }
+        Returns: Json
+      }
       _cw_correction_issues: {
         Args: {
           _corr: string
