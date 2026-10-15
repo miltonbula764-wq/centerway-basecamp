@@ -5,7 +5,7 @@ export type C02Status =
 
 export const c02StatusLabel: Record<C02Status, string> = {
   deterioration_candidate: "Sinal candidato de deterioração",
-  no_deterioration: "Sem deterioração",
+  no_deterioration: "Critério não satisfeito nas janelas analisadas",
   persistent_condition: "Condição persistente (não é piora nova)",
   insufficient_data: "Dados insuficientes",
   insufficient_config: "Configuração insuficiente",
@@ -45,6 +45,16 @@ const reasonPt: Record<string, string> = {
   operator_contradicts_direction: "operador contradiz a direção",
   relative_threshold_not_a_worsening: "limiar relativo não representa piora",
   sum_requires_equal_windows: "soma exige janelas de igual tamanho",
+  source_mismatch_across_windows: "fontes diferentes entre janelas (não comparáveis sem regra explícita)",
+  denominator_source_mismatch_across_windows: "denominador com fontes diferentes entre janelas",
+  denominator_source_mismatch: "denominador de outra fonte que o numerador",
+  denominator_coverage_below_minimum: "cobertura do denominador abaixo do mínimo",
+  denominator_incompatible_observations: "dados do denominador de versão/unidade incompatível",
+  denominator_ambiguous_correction: "cadeia de correções do denominador ambígua",
+  denominator_cadence_missing: "falta a cadência própria do indicador de denominador",
+  denominator_min_coverage_missing: "falta a cobertura mínima própria do indicador de denominador",
+  denominator_window_not_multiple_of_cadence: "janela não é múltiplo da cadência do denominador",
+  denominator_comparison_not_multiple_of_cadence: "janela de comparação não é múltiplo da cadência do denominador",
 };
 const scopePt: Record<string, string> = { reference: "referência", baseline: "baseline" };
 
@@ -62,3 +72,16 @@ export const analysisErrorPt: Record<string, string> = {
   "analysis: unknown subject": "Cliente não encontrado nesta empresa.",
   "analysis: as_of in the future": "A data de corte não pode estar no futuro.",
 };
+
+/** Known limits per algorithm version. Shown next to every stored run; old runs are never recomputed. */
+export const algorithmLimitations: Record<string, string[]> = {
+  "c02-v1": [
+    "Não verificava se a fonte era a mesma entre janelas (só dentro de cada janela).",
+    "O denominador emparelhado só era verificado pela soma mínima, sem cobertura própria nem fonte igual ao numerador.",
+    "Não guardava a prova da cadeia de correções usada.",
+  ],
+};
+export const generalLimitations = [
+  "Só compara as janelas analisadas: uma descida progressiva que fica acima do limiar, ou que o cruzou antes da janela de referência, não é sinalizada.",
+  "“Critério não satisfeito” não prova ausência de piora; “condição persistente” não prova que não houve deterioração anterior.",
+];
