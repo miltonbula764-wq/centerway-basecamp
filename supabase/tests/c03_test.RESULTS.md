@@ -17,3 +17,15 @@
   a genuine cross-tenant observation id was not fixtured (lookup is tenant-filtered, tested with a random id).
 - C01/C02 code unchanged; their suites were not re-run. Note: this remix's migration journal table was empty; the 10 existing
   migrations were registered as applied (hashes of the committed files) so only 0010 ran.
+
+## Follow-up run 2026-10-15 08:4x UTC (targeted, not the full file)
+- Minimal rolled-back fixture (2 fixture tenants, real roles/JWT), only the pending cases:
+  - base bundle for the valid run: `built`.
+  - **G02** late ref added to window 0 (original ids and correction chain intact): `rejected / ref_after_cutoff`, 0 bundles,
+    attempt persisted `rejected:ref_after_cutoff`. **PASS**.
+  - **G07 (new)** a REAL observation imported in tenant B referenced from a tenant A run: `rejected / ref_missing`, 0 bundles,
+    attempt persisted, response contains neither B's value nor its id, 0 refs to it anywhere. **PASS**.
+- After rollback: `observations_append_only` and `c02_runs_immutable` enabled (`O`), RLS on all 4 c03 tables, 0 fixture
+  tenants/users, 0 bundles/attempts; no real rows existed or were removed (tenant count 0 before and after).
+- Full `c03_test.sql` with the corrected G02 fixture was NOT re-run (avoided repeating the 40 checks); G02 is now covered by this run.
+- Still not covered: real two-session concurrency.
