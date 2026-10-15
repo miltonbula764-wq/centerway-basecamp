@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { assertActiveTenant, tk, useTenant } from "@/lib/tenant";
 import { friendlyError } from "@/lib/errors";
-import { analysisErrorPt, c02StatusLabel, translateReason, type C02Status } from "@/lib/c02";
+import { algorithmLimitations, analysisErrorPt, c02StatusLabel, generalLimitations, translateReason, type C02Status } from "@/lib/c02";
 import { classLabel, operatorLabel, kindLabel, type IndicatorClass } from "@/lib/profile";
 import { Button } from "@/components/ui/button";
 import { Empty, ErrorState, formatDate, Loading, Mono, Panel, StatusPill } from "./ui-bits";
@@ -14,6 +14,8 @@ type Win = {
   label?: string; start: string; end: string; n: number; value: number | null; denominator: number | null;
   coverage_pct: number | null; expected_slots: number; covered_slots: number; sufficient: boolean;
   metric?: number; meets_rule?: boolean; excluded?: Record<string, number>; late_observations?: number;
+  source?: string | null; denominator_source?: string | null; denominator_coverage_pct?: number | null;
+  corrections?: { observation_id: string; supersedes: string[] }[];
 };
 type Details = {
   windows: Win[]; reference: Win | null; baseline_window: Win | null;
@@ -125,6 +127,17 @@ export function DeteriorationPanel({ subjectId, profileId }: { subjectId: string
               </span>
             </div>
           )}
+          {current && (
+            <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+              <p className="font-medium text-foreground">Limites conhecidos ({current.algorithm_version})</p>
+              <ul className="mt-1 list-disc pl-5">
+                {[...(algorithmLimitations[current.algorithm_version] ?? []), ...generalLimitations].map((l) => <li key={l}>{l}</li>)}
+              </ul>
+              {algorithmLimitations[current.algorithm_version] && (
+                <p className="mt-1">Análise histórica mantida como foi calculada. Uma nova análise usa a versão atual.</p>
+              )}
+            </div>
+          )}
           {results.isLoading ? <Loading /> : results.isError ? (
             <ErrorState message="Não foi possível carregar os resultados." onRetry={() => results.refetch()} />
           ) : (
@@ -178,6 +191,7 @@ function ResultItem({ r }: {
                 <th className="py-1 pr-3 font-normal">Valor</th>
                 <th className="py-1 pr-3 font-normal">Métrica</th>
                 <th className="py-1 pr-3 font-normal">Cobertura</th>
+                <th className="py-1 pr-3 font-normal">Fonte</th>
                 <th className="py-1 pr-3 font-normal">Denominador</th>
                 <th className="py-1 font-normal">Obs.</th>
               </tr>
@@ -192,8 +206,13 @@ function ResultItem({ r }: {
                   <td className="py-1 pr-3">{w.value == null ? "—" : Number(w.value).toFixed(2)}</td>
                   <td className="py-1 pr-3">{w.metric == null ? "—" : `${Number(w.metric).toFixed(2)}${w.meets_rule ? " ✓" : ""}`}</td>
                   <td className="py-1 pr-3">{w.covered_slots}/{w.expected_slots} ({num(w.coverage_pct)}%)</td>
-                  <td className="py-1 pr-3">{num(w.denominator)}</td>
-                  <td className="py-1">{w.n}{w.excluded && Object.keys(w.excluded).length ? ` (+${Object.values(w.excluded).reduce((a, b) => a + b, 0)} excl.)` : ""}</td>
+                  <td className="py-1 pr-3 font-sans">{w.source ?? "—"}</td>
+                  <td className="py-1 pr-3">
+                    {num(w.denominator)}
+                    {w.denominator_coverage_pct != null ? ` · cob. ${num(w.denominator_coverage_pct)}%` : ""}
+                    {w.denominator_source && w.denominator_source !== w.source ? ` · ${w.denominator_source}` : ""}
+                  </td>
+                  <td className="py-1">{w.n}{w.corrections?.length ? ` (${w.corrections.length} corr.)` : ""}{w.excluded && Object.keys(w.excluded).length ? ` (+${Object.values(w.excluded).reduce((a, b) => a + b, 0)} excl.)` : ""}</td>
                 </tr>
               ))}
             </tbody>
