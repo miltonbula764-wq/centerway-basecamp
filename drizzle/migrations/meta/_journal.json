@@ -1,5 +1,83 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791982944553,
+      "tag": "0000_centerway_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791983232926,
+      "tag": "0001_tenant_value_profiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792001640789,
+      "tag": "0002_fix_approval_issues_array",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792002392157,
+      "tag": "0003_csv_ingestion_c01",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792005754663,
+      "tag": "0004_c02_deterioration_detector",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792005822696,
+      "tag": "0005_c02_sum_requires_equal_windows",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792005957937,
+      "tag": "0006_c02_denominator_evidence_refs",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792006084797,
+      "tag": "0007_c02_fix_ambiguous_alias",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792006185310,
+      "tag": "0008_c02_restrict_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792024776975,
+      "tag": "0009_c02_v2_source_denominator_chain",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792047582309,
+      "tag": "0010_c03_evidence_builder",
+      "breakpoints": true
+    }
+  ]
 }

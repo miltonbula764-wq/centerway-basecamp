@@ -197,6 +197,299 @@ export type Database = {
           },
         ]
       }
+      c03_attempts: {
+        Row: {
+          actor_id: string | null
+          algorithm_version: string
+          bundle_id: string | null
+          code: string | null
+          created_at: string
+          id: string
+          requested_run_id: string
+          status: Database["public"]["Enums"]["c03_attempt_status"]
+          tenant_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          algorithm_version: string
+          bundle_id?: string | null
+          code?: string | null
+          created_at?: string
+          id?: string
+          requested_run_id: string
+          status: Database["public"]["Enums"]["c03_attempt_status"]
+          tenant_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          algorithm_version?: string
+          bundle_id?: string | null
+          code?: string | null
+          created_at?: string
+          id?: string
+          requested_run_id?: string
+          status?: Database["public"]["Enums"]["c03_attempt_status"]
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "c03_attempts_tenant_id_bundle_id_fkey"
+            columns: ["tenant_id", "bundle_id"]
+            isOneToOne: false
+            referencedRelation: "c03_bundles"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c03_attempts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      c03_bundles: {
+        Row: {
+          algorithm_version: string
+          c02_algorithm_version: string
+          c02_input_hash: string
+          content_hash: string
+          created_at: string
+          created_by: string | null
+          data_cutoff: string
+          id: string
+          revision_of: string | null
+          run_id: string
+          subject_id: string
+          summary: Json
+          tenant_id: string
+        }
+        Insert: {
+          algorithm_version: string
+          c02_algorithm_version: string
+          c02_input_hash: string
+          content_hash: string
+          created_at?: string
+          created_by?: string | null
+          data_cutoff: string
+          id?: string
+          revision_of?: string | null
+          run_id: string
+          subject_id: string
+          summary: Json
+          tenant_id: string
+        }
+        Update: {
+          algorithm_version?: string
+          c02_algorithm_version?: string
+          c02_input_hash?: string
+          content_hash?: string
+          created_at?: string
+          created_by?: string | null
+          data_cutoff?: string
+          id?: string
+          revision_of?: string | null
+          run_id?: string
+          subject_id?: string
+          summary?: Json
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "c03_bundles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "c03_bundles_tenant_id_revision_of_fkey"
+            columns: ["tenant_id", "revision_of"]
+            isOneToOne: false
+            referencedRelation: "c03_bundles"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c03_bundles_tenant_id_subject_id_fkey"
+            columns: ["tenant_id", "subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c03_bundles_tenant_id_subject_id_run_id_fkey"
+            columns: ["tenant_id", "subject_id", "run_id"]
+            isOneToOne: false
+            referencedRelation: "c02_runs"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+        ]
+      }
+      c03_indicators: {
+        Row: {
+          bundle_id: string
+          c02_result_id: string
+          created_at: string
+          id: string
+          indicator_key: string
+          reasons: string[]
+          ref_budget: number
+          ref_count: number
+          snapshot: Json
+          status: Database["public"]["Enums"]["c03_indicator_status"]
+          stored_ref_count: number
+          tenant_id: string
+        }
+        Insert: {
+          bundle_id: string
+          c02_result_id: string
+          created_at?: string
+          id?: string
+          indicator_key: string
+          reasons?: string[]
+          ref_budget: number
+          ref_count: number
+          snapshot: Json
+          status: Database["public"]["Enums"]["c03_indicator_status"]
+          stored_ref_count: number
+          tenant_id: string
+        }
+        Update: {
+          bundle_id?: string
+          c02_result_id?: string
+          created_at?: string
+          id?: string
+          indicator_key?: string
+          reasons?: string[]
+          ref_budget?: number
+          ref_count?: number
+          snapshot?: Json
+          status?: Database["public"]["Enums"]["c03_indicator_status"]
+          stored_ref_count?: number
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "c03_indicators_c02_result_id_fkey"
+            columns: ["c02_result_id"]
+            isOneToOne: false
+            referencedRelation: "c02_results"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "c03_indicators_tenant_id_bundle_id_fkey"
+            columns: ["tenant_id", "bundle_id"]
+            isOneToOne: false
+            referencedRelation: "c03_bundles"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c03_indicators_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      c03_refs: {
+        Row: {
+          bundle_id: string
+          corrects_observation_id: string | null
+          id: number
+          indicator_id: string
+          indicator_key: string
+          ingested_at: string
+          observation_id: string
+          observed_at: string
+          ordinal: number
+          payload_hash: string
+          role: string
+          source: string
+          superseded_by: string | null
+          tenant_id: string
+          unit: string
+          value_numeric: number | null
+          value_text: string | null
+          window_end: string | null
+          window_label: string | null
+          window_start: string | null
+        }
+        Insert: {
+          bundle_id: string
+          corrects_observation_id?: string | null
+          id?: never
+          indicator_id: string
+          indicator_key: string
+          ingested_at: string
+          observation_id: string
+          observed_at: string
+          ordinal: number
+          payload_hash: string
+          role: string
+          source: string
+          superseded_by?: string | null
+          tenant_id: string
+          unit: string
+          value_numeric?: number | null
+          value_text?: string | null
+          window_end?: string | null
+          window_label?: string | null
+          window_start?: string | null
+        }
+        Update: {
+          bundle_id?: string
+          corrects_observation_id?: string | null
+          id?: never
+          indicator_id?: string
+          indicator_key?: string
+          ingested_at?: string
+          observation_id?: string
+          observed_at?: string
+          ordinal?: number
+          payload_hash?: string
+          role?: string
+          source?: string
+          superseded_by?: string | null
+          tenant_id?: string
+          unit?: string
+          value_numeric?: number | null
+          value_text?: string | null
+          window_end?: string | null
+          window_label?: string | null
+          window_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "c03_refs_tenant_id_bundle_id_fkey"
+            columns: ["tenant_id", "bundle_id"]
+            isOneToOne: false
+            referencedRelation: "c03_bundles"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c03_refs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "c03_refs_tenant_id_indicator_id_fkey"
+            columns: ["tenant_id", "indicator_id"]
+            isOneToOne: false
+            referencedRelation: "c03_indicators"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c03_refs_tenant_id_observation_id_fkey"
+            columns: ["tenant_id", "observation_id"]
+            isOneToOne: false
+            referencedRelation: "observations"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       indicators: {
         Row: {
           baseline: number | null
@@ -890,6 +1183,25 @@ export type Database = {
         }
         Returns: Json
       }
+      _c03_assemble: {
+        Args: {
+          _alg: string
+          _budget: number
+          _bundle: string
+          _run: Database["public"]["Tables"]["c02_runs"]["Row"]
+          _uid: string
+        }
+        Returns: Json
+      }
+      _c03_build: {
+        Args: { _budget: number; _run_id: string; _tenant_id: string }
+        Returns: Json
+      }
+      _c03_payload_hash: {
+        Args: { o: Database["public"]["Tables"]["observations"]["Row"] }
+        Returns: string
+      }
+      _c03_reject: { Args: { _code: string }; Returns: undefined }
       _cw_correction_issues: {
         Args: {
           _corr: string
@@ -934,6 +1246,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      build_evidence_bundle: {
+        Args: { _run_id: string; _tenant_id: string }
+        Returns: Json
       }
       create_tenant: {
         Args: {
@@ -1019,6 +1335,8 @@ export type Database = {
         | "insufficient_config"
         | "unsupported"
         | "not_evaluated"
+      c03_attempt_status: "built" | "reused" | "rejected" | "failed"
+      c03_indicator_status: "complete" | "insufficient" | "context_facts"
       indicator_class: "outcome" | "usage" | "context"
       indicator_direction: "higher_is_better" | "lower_is_better"
       indicator_value_type: "numeric" | "text"
@@ -1167,6 +1485,8 @@ export const Constants = {
         "unsupported",
         "not_evaluated",
       ],
+      c03_attempt_status: ["built", "reused", "rejected", "failed"],
+      c03_indicator_status: ["complete", "insufficient", "context_facts"],
       indicator_class: ["outcome", "usage", "context"],
       indicator_direction: ["higher_is_better", "lower_is_better"],
       indicator_value_type: ["numeric", "text"],
