@@ -183,7 +183,7 @@ BEGIN
   -- ---------- forged / corrupted C02 runs (fixtures) -> rejected, no bundle, attempt persisted ----------
   fr := pg_temp.forge(run1, 'forged-1', 'c02-v2', 'paid_pct', format($$jsonb_set(details,'{windows,0,observation_ids}',jsonb_build_array(%L))$$, gen_random_uuid()), 'observation_ids');
   r := r || pg_temp.check('G01 forged/cross-tenant ref id -> ref_missing', pg_temp.build(uop, ta, fr)->>'code' || ' ' || pg_temp.nb(fr), 'ref_missing 0/rejected:ref_missing');
-  fr := pg_temp.forge(run1, 'forged-2', 'c02-v2', 'paid_pct', format($$jsonb_set(jsonb_set(details,'{windows,0,observation_ids}',jsonb_build_array(%L)),'{windows,0,corrections}','[]')$$, late), format('array[%L::uuid]', late));
+  fr := pg_temp.forge(run1, 'forged-2', 'c02-v2', 'paid_pct', format($$jsonb_set(jsonb_set(details,'{windows,0,observation_ids}',jsonb_build_array(%L)),'{windows,0,corrections}','[]')$$, late), format('observation_ids || %L::uuid', late));
   r := r || pg_temp.check('G02 ref ingested after cut-off -> rejected', pg_temp.build(uop, ta, fr)->>'code' || ' ' || pg_temp.nb(fr), 'ref_after_cutoff 0/rejected:ref_after_cutoff');
   fr := pg_temp.forge(run1, 'forged-3', 'c02-v2', 'paid_pct', $$jsonb_set(details,'{windows,0,value}','99')$$, 'observation_ids');
   r := r || pg_temp.check('G03 value incoherent with refs -> calculation_mismatch', pg_temp.build(uop, ta, fr)->>'code' || ' ' || pg_temp.nb(fr), 'calculation_mismatch 0/rejected:calculation_mismatch');
