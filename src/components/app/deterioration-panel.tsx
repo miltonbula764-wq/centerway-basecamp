@@ -93,7 +93,7 @@ export function DeteriorationPanel({ subjectId, profileId }: { subjectId: string
       )}
     >
       <p className="mb-4 text-xs text-muted-foreground">
-        Cálculo determinístico no servidor, com corte à meia-noite UTC de hoje. Os resultados são <strong>sinais candidatos</strong>: não
+        Cálculo determinístico no servidor: as janelas terminam à meia-noite UTC de hoje e só entram dados importados até ao momento da análise. Os resultados são <strong>sinais candidatos</strong>: não
         abrem casos, não indicam causa e um sinal só de uso nunca significa perda de valor.
       </p>
       {!profileId && <p className="text-sm text-muted-foreground">É preciso um perfil de valor aprovado para analisar.</p>}
@@ -112,7 +112,7 @@ export function DeteriorationPanel({ subjectId, profileId }: { subjectId: string
               className="h-8 w-full max-w-full rounded-md border border-input bg-background px-2 text-xs sm:w-auto">
               {runs.data!.map((r, i) => (
                 <option key={r.id} value={r.id}>
-                  {formatDate(r.created_at)} · corte {utc(r.as_of)} · perfil v{r.profile_version}{i === 0 ? " (mais recente)" : ""}{r.revision_of ? " · revisão" : ""}
+                  {formatDate(r.created_at)} · janelas até {utc(r.as_of)} · perfil v{r.profile_version}{i === 0 ? " (mais recente)" : ""}{r.revision_of ? " · revisão" : ""}
                 </option>
               ))}
             </select>
@@ -123,7 +123,7 @@ export function DeteriorationPanel({ subjectId, profileId }: { subjectId: string
               <StatusPill tone="neutral">{summary?.usage_candidates ?? 0} sinais de uso</StatusPill>
               <StatusPill tone="muted">{summary?.insufficient ?? 0} insuficientes</StatusPill>
               <span className="text-muted-foreground">
-                {current.observation_count} observações consideradas · algoritmo <Mono>{current.algorithm_version}</Mono> · dados até {formatDate(current.data_cutoff)}
+                {current.observation_count} observações consideradas · algoritmo <Mono>{current.algorithm_version}</Mono> · dados importados até {formatDate(current.data_cutoff)}
               </span>
             </div>
           )}
