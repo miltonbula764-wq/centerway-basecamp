@@ -279,7 +279,7 @@ BEGIN
     'src-a|src-a|100.00|eligible_invoices');
   r := r || pg_temp.check('V04 v2 run is a traceable revision of the v1 run, not a reuse',
     (res->>'reused')||' '||((res->>'revision_of') = v1run::text)::text, 'false true');
-  r := r || pg_temp.check('V05 v1 run byte-identical after v2', (SELECT md5(x::text) FROM public.c02_runs x WHERE x.id = v1run) = v1md5, true);
+  r := r || pg_temp.check('V05 v1 run byte-identical after v2', ((SELECT md5(x::text) FROM public.c02_runs x WHERE x.id = v1run) = v1md5)::text, 'true');
   run2 := pg_temp.run(uop, ta, s10, pa2, asof);
   r := r || pg_temp.check('V06 replay with same inputs reuses the v2 run', (run2->>'reused')||' '||((run2->>'run_id') = (res->>'run_id'))::text, 'true true');
   run2 := pg_temp.run(uop, ta, s10, pa2, '2026-08-31T00:00:00Z');
