@@ -312,11 +312,12 @@ BEGIN
     pg_temp.val(ua, format($$select details->'windows'->0->>'corrections' from public.c02_results where run_id=%L and indicator_key='paid_pct'$$, runA->>'run_id')),
     'true []');
   -- Chain resolution honours the cut-off. All rows of one transaction share now(), so the ORIGINAL rows of this fixture subject
-  -- are back-dated by one day (session-local replica mode, fixture rows only, rolled back with everything else).
+  -- are back-dated by one day. Only the append-only guard is suspended (audit is an INSERT trigger and stays on), only for this
+  -- fixture subject, and the whole transaction - including the ALTER - is rolled back. Note: this briefly locks the table.
   BEGIN
-    PERFORM set_config('session_replication_role', 'replica', true);
+    ALTER TABLE public.observations DISABLE TRIGGER observations_append_only;
     UPDATE public.observations SET ingested_at = ingested_at - interval '1 day' WHERE subject_id = s15 AND corrects_observation_id IS NULL;
-    PERFORM set_config('session_replication_role', 'origin', true);
+    ALTER TABLE public.observations ENABLE TRIGGER observations_append_only;
     SELECT ARRAY(SELECT jsonb_array_elements_text(details->'compatible_profile_ids')::uuid) INTO compat FROM public.c02_results WHERE run_id = (runB->>'run_id')::uuid AND indicator_key = 'paid_pct';
     r := r || pg_temp.check('V15 chain resolution with cut-off before / after the correction',
       (SELECT trim_scale(e.value)::text||'/'||e.supersedes::text FROM public._c02v2_effective(ta, s15, 'paid_pct', '%', compat, now() - interval '1 hour') e WHERE e.observed_at = '2026-08-26T10:00:00Z')
