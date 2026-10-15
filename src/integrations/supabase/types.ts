@@ -14,21 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      _cw_test_scripts: {
-        Row: {
-          body: string
-          name: string
-        }
-        Insert: {
-          body: string
-          name: string
-        }
-        Update: {
-          body?: string
-          name?: string
-        }
-        Relationships: []
-      }
       audit_log: {
         Row: {
           action: string
