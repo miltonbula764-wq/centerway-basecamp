@@ -45,8 +45,9 @@ const c03CodePt: Record<string, string> = {
   ref_set_mismatch: "O conjunto de referências não corresponde às observações da análise.",
   window_boundary_mismatch: "Os limites de uma janela não correspondem aos parâmetros da análise.",
   calculation_mismatch: "Um cálculo guardado não é reproduzido pelas observações referenciadas.",
+  c02_input_hash_mismatch: "Os dados e hashes não correspondem ao retrato histórico da análise.",
   baseline_mismatch: "O valor de baseline guardado não é reproduzido pela configuração.",
-  ref_changed_during_build: "As referências mudaram durante a montagem; nada foi gravado.",
+  ref_changed_during_build: "As referências mudaram durante a montagem; o pacote não foi guardado e a tentativa ficou registada.",
 };
 
 /** Motivos por indicador (coluna reasons de c03_indicators). */

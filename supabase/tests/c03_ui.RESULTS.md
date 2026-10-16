@@ -37,3 +37,8 @@ Neste bloco não foi aberta nova sessão de browser. A verificação autenticada
 - Sem dados reais de C02/C03; nada foi inventado no backend.
 - Reset da análise selecionada ao mudar de cliente é feito por `key`; coberto por inspeção de código, sem teste de rota dedicado.
 - A mutação do painel C02 ("Analisar agora") não recebeu o mesmo guard de geração; fora do escopo C03 UI.
+
+## Fecho da revisão
+- Ajustes apenas de texto após a validação 55/55: ausência de `revision_of` significa sem pacote anterior associado, não necessariamente o primeiro pacote do cliente; falha na montagem preserva a tentativa de auditoria; código `c02_input_hash_mismatch` traduzido.
+- A lista apresenta as últimas 20 tentativas; o seletor C02 existente apresenta as 50 análises mais recentes. O histórico completo permanece na base de dados; a paginação completa desses dois históricos ainda não foi implementada.
+- Créditos reportados pela API Lovable nesta continuação: 3,7 (verificação autenticada), 8,0 (primeira interface) e 13,7 (correções e validação), total 25,4. Estes valores não são o saldo do workspace.

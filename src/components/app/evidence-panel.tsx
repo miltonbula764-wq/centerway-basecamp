@@ -250,7 +250,7 @@ export function EvidencePanel({ subjectId, runId }: { subjectId: string; runId: 
             <BundleView tenantId={tenantId} bundle={bundle} otherVersions={bundles.length - 1} />
           )}
           <div>
-            <h3 className="mb-2 text-xs font-medium text-muted-foreground">Tentativas de montagem nesta análise</h3>
+            <h3 className="mb-2 text-xs font-medium text-muted-foreground">Últimas 20 tentativas de montagem nesta análise</h3>
             {attempts.isLoading ? (
               <Loading />
             ) : attempts.isError ? (
@@ -312,7 +312,7 @@ function BundleView({ tenantId, bundle, otherVersions }: { tenantId: string; bun
         <dt>Montado em (UTC)</dt>
         <dd><Mono>{utc(bundle.created_at)}</Mono></dd>
         <dt>Revisão do pacote</dt>
-        <dd>{bundle.revision_of ? <Mono className="break-all">{bundle.revision_of}</Mono> : "— (primeiro pacote deste cliente)"}</dd>
+        <dd>{bundle.revision_of ? <Mono className="break-all">{bundle.revision_of}</Mono> : "— (sem pacote anterior associado)"}</dd>
         <dt>Hash do conteúdo</dt>
         <dd><Mono className="break-all">{bundle.content_hash}</Mono></dd>
         <dt>Hash dos dados da análise</dt>
