@@ -17,3 +17,12 @@
 
 ## Limites
 Sem testes de comportamento como authenticated nesta base; sem suites SQL históricas; corpos de funções não comparados com o CI.
+
+## Verificação independente posterior — Codex
+- SELECT de matriz efetiva: checks=812,passed=812,failed=0;inclui grant options,privilégio MAINTAIN e colunas, além de tabelas/sequências/funções.
+- RLS16/16;40definition_hash de funções,29policies e44triggers comparados byte a byte após normalização e preservados.
+-11primeiras entradas SQL(id,hash,created_at) exatamente iguais ao baseline CI e à fotografia remota anterior;12entradas no total.
+-14contagens consultadas antes/depois:tenants,memberships,subjects,tenant_value_profiles,profile_indicators,ingestion_batches,observations,audit_log,c02_runs,c02_results,c03_bundles,c03_indicators,c03_refs,c03_attempts; todas0.
+- A árvore final07471d7 mantém package.json/bun.lock/previewAuthStorage atualizados, apesar da descrição ambígua do agente sobre “não apareciam”. Build/Vitest reportados referem esse estado de trabalho.
+- O hash diferente da cópia CI inicial resulta apenas da newline final removida; comandos SQL iguais.
+- Sem teste de sessão HTTP/JWT real; sem testes mutáveis nem bootstrap no backend.

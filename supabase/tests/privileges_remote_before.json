@@ -1,0 +1,550 @@
+{
+  "observed_at": "2026-10-16",
+  "project": "fb5e84e9-e3a9-40bf-a7ab-26c21ea1cf0a",
+  "commit": "faa3bd6fe3b18176d4df45045c4458cf75f6ba75",
+  "method": "Read-only pg_class, pg_proc, pg_default_acl, pg_auth_members catalog query; no application data",
+  "catalog": {
+    "defaults": [
+      {
+        "acl": "{postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "public",
+        "type": "S"
+      },
+      {
+        "acl": "{postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "public",
+        "type": "r"
+      },
+      {
+        "acl": "{postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "public",
+        "type": "f"
+      },
+      {
+        "acl": "{postgres=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+        "owner": "supabase_auth_admin",
+        "schema": "auth",
+        "type": "r"
+      },
+      {
+        "acl": "{postgres=rwU/supabase_auth_admin,dashboard_user=rwU/supabase_auth_admin}",
+        "owner": "supabase_auth_admin",
+        "schema": "auth",
+        "type": "S"
+      },
+      {
+        "acl": "{postgres=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+        "owner": "supabase_auth_admin",
+        "schema": "auth",
+        "type": "f"
+      },
+      {
+        "acl": "{postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "graphql_public",
+        "type": "S"
+      },
+      {
+        "acl": "{postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "graphql_public",
+        "type": "r"
+      },
+      {
+        "acl": "{postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "graphql_public",
+        "type": "f"
+      },
+      {
+        "acl": "{postgres=a*r*w*d*D*x*t*m*/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "extensions",
+        "type": "r"
+      },
+      {
+        "acl": "{postgres=X*/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "extensions",
+        "type": "f"
+      },
+      {
+        "acl": "{postgres=r*w*U*/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "extensions",
+        "type": "S"
+      },
+      {
+        "acl": "{postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "graphql",
+        "type": "r"
+      },
+      {
+        "acl": "{postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "graphql",
+        "type": "f"
+      },
+      {
+        "acl": "{postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "graphql",
+        "type": "S"
+      },
+      {
+        "acl": "{postgres=rwU/supabase_admin,dashboard_user=rwU/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "realtime",
+        "type": "S"
+      },
+      {
+        "acl": "{postgres=X/supabase_admin,dashboard_user=X/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "realtime",
+        "type": "f"
+      },
+      {
+        "acl": "{postgres=a*r*wdDxtm/supabase_admin,dashboard_user=arwdDxtm/supabase_admin}",
+        "owner": "supabase_admin",
+        "schema": "realtime",
+        "type": "r"
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "owner": "postgres",
+        "schema": "public",
+        "type": "r"
+      },
+      {
+        "acl": "{postgres=rwU/postgres,anon=rwU/postgres,authenticated=rwU/postgres,service_role=rwU/postgres,sandbox_exec=rU/postgres}",
+        "owner": "postgres",
+        "schema": "public",
+        "type": "S"
+      },
+      {
+        "acl": "{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "owner": "postgres",
+        "schema": "public",
+        "type": "f"
+      },
+      {
+        "acl": "{sandbox_exec=ar/postgres}",
+        "owner": "postgres",
+        "schema": "auth",
+        "type": "r"
+      },
+      {
+        "acl": "{sandbox_exec=rU/postgres}",
+        "owner": "postgres",
+        "schema": "auth",
+        "type": "S"
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "owner": "postgres",
+        "schema": "storage",
+        "type": "r"
+      },
+      {
+        "acl": "{postgres=rwU/postgres,anon=rwU/postgres,authenticated=rwU/postgres,service_role=rwU/postgres,sandbox_exec=rU/postgres}",
+        "owner": "postgres",
+        "schema": "storage",
+        "type": "S"
+      },
+      {
+        "acl": "{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "owner": "postgres",
+        "schema": "storage",
+        "type": "f"
+      },
+      {
+        "acl": "{sandbox_exec=ar/postgres}",
+        "owner": "postgres",
+        "schema": "extensions",
+        "type": "r"
+      },
+      {
+        "acl": "{sandbox_exec=rU/postgres}",
+        "owner": "postgres",
+        "schema": "extensions",
+        "type": "S"
+      }
+    ],
+    "functions": [
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_c02_cmp(numeric,rule_operator,numeric)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_c02_effective(uuid,uuid,text,text,uuid[],timestamp with time zone)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_c02_fingerprint(profile_indicators)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_c02_immutable()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_c02_window(uuid,uuid,text,text,uuid[],c02_aggregation,integer,c02_denominator_mode,text,text,uuid[],numeric,integer,timestamp with time zone,timestamp with time zone,timestamp with time zone)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_c02v2_effective(uuid,uuid,text,text,uuid[],timestamp with time zone)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_c02v2_window(uuid,uuid,text,text,uuid[],c02_aggregation,integer,c02_denominator_mode,text,text,uuid[],integer,numeric,numeric,integer,timestamp with time zone,timestamp with time zone,timestamp with time zone)"
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_c03_assemble(c02_runs,uuid,text,integer,uuid)"
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "_c03_build(uuid,uuid,integer)"
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_c03_payload_hash(observations)"
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_c03_reject(text)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_append_only()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_audit_immutable()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "_cw_audit()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_correction_issues(uuid,uuid,uuid,text,text,timestamp with time zone,uuid,boolean)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_indicator_guard()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_is_privileged()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_lock_columns()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "_cw_membership_guard()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_observation_ingest()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "_cw_profile_indicator_guard()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_set_creator()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_touch()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_tvp_guard()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": false,
+        "owner": "postgres",
+        "signature": "_cw_value_profile_guard()"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "add_tenant_member(uuid,uuid,member_role)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "approve_value_profile(uuid)"
+      },
+      {
+        "acl": "{postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "build_evidence_bundle(uuid,uuid)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "create_tenant(text,subject_unit_type)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "create_value_profile_draft(uuid,text,text)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "create_value_profile_version(uuid)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "effective_value_profile(uuid)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "has_tenant_role(uuid,member_role[])"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "import_observations(uuid,uuid,text,timestamp with time zone,timestamp with time zone,boolean,text,jsonb)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "is_tenant_member(uuid)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "my_tenant_role(uuid)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "remove_tenant_member(uuid,uuid)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "run_deterioration_analysis(uuid,uuid,uuid,timestamp with time zone)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "set_member_role(uuid,uuid,member_role)"
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "definer": true,
+        "owner": "postgres",
+        "signature": "value_profile_approval_issues(uuid)"
+      }
+    ],
+    "memberships": null,
+    "tables": [
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "audit_log",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=rwU/postgres,anon=rwU/postgres,authenticated=rwU/postgres,service_role=rwU/postgres,sandbox_exec=rU/postgres}",
+        "kind": "S",
+        "name": "audit_log_id_seq",
+        "owner": "postgres",
+        "rls": false
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "profile_indicators",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "c02_results",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "tenants",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "memberships",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "ingestion_batches",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "observations",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "subjects",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "c02_runs",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "value_profiles",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "indicators",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres}",
+        "kind": "r",
+        "name": "tenant_value_profiles",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=rwU/postgres,service_role=rwU/postgres,sandbox_exec=rU/postgres}",
+        "kind": "S",
+        "name": "c03_refs_id_seq",
+        "owner": "postgres",
+        "rls": false
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres,authenticated=r/postgres}",
+        "kind": "r",
+        "name": "c03_bundles",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres,authenticated=r/postgres}",
+        "kind": "r",
+        "name": "c03_indicators",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres,authenticated=r/postgres}",
+        "kind": "r",
+        "name": "c03_refs",
+        "owner": "postgres",
+        "rls": true
+      },
+      {
+        "acl": "{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres,sandbox_exec=ar/postgres,authenticated=r/postgres}",
+        "kind": "r",
+        "name": "c03_attempts",
+        "owner": "postgres",
+        "rls": true
+      }
+    ],
+    "version": "PostgreSQL 17.11 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit"
+  }
+}
