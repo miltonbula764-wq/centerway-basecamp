@@ -31,3 +31,26 @@ Comandos/resultados: `bunx vitest run src/test/tenant-session.test.tsx` inicialm
 - RLS de admin/operator/viewer não é reprovada por mocks; operator não exercitado neste turno. Modal aberto bloqueia interação normal com sidebar; mudança externa foi simulada explicitamente.
 - Build automático do preview registou `build OK`; nenhum build/typecheck manual (harness). Sem publicação/serviços pagos, C03 UI ou funcionalidades novas.
 - Saldo workspace consultado: 86,00 créditos; não representa orçamento reservado do projeto nem custo final deste turno.
+---
+
+# Verificação autenticada no navegador real — 2026-10-16 UTC (main 719ae43)
+
+## Proveniência da sessão
+- Conta criada e confirmada pelo fundador; password login **reportado pelo fundador** e corroborado por registo do serviço (`auth.users=1`, `confirmed=1`, `last_sign_in` não nulo) — **não observado por nós**.
+- Sessão técnica cunhada via `lovable auth-session --json` (conta existente, única) e restaurada no Chromium via localStorage. Sessão técnica não prova password login.
+- Nenhuma password/código/token recolhido no chat; nenhum utilizador criado, nenhuma política Auth ou dado de empresa alterado.
+
+## Observado no navegador real (Chromium, 1280×1800 e 390×844)
+1. Rota protegida `/app` com sessão: carrega layout real, tenant "Centerway" (Administrador), contagens e próximos passos. Zero erros de consola.
+2. Reload em `/app`: sessão preservada, conteúdo protegido reaparece.
+3. Troca de tenant A ("Centerway") → B ("Milton"): cabeçalho e conteúdo passam a B; preferência em localStorage atualizada; sem dados de A no conteúdo de B (ambos os tenants estão vazios — empty state real, não prova de isolamento com dados).
+4. Troca B → A: conteúdo de A reapresentado corretamente.
+5. Logout: redireciona para `/auth`; botão "voltar" do navegador não mostra conteúdo protegido (permanece em `/auth`).
+6. Mobile 390×844 autenticado: `/app` carrega com barra móvel; `/auth` renderiza corretamente.
+7. Zero erros de consola; zero respostas HTTP ≥400 na segunda execução. Na primeira execução, pedidos REST apareceram como "failed" por cancelamento de queries no logout/troca (abort normal do React Query), confirmado como não-erro na reexecução instrumentada por código de estado.
+
+## Limitações
+- Ambos os tenants pertencem à mesma conta com papel admin: troca A/B não prova isolamento por roles nem RLS entre utilizadores diferentes.
+- Tenants sem clientes/observações: não foi exercitado cruzamento de cache com dados reais (coberto apenas pelos testes controlados `tenant-session.test.tsx`).
+- Password login, signup e confirmação de email continuam apenas user-reported + registo DB, sem observação direta.
+- Pedidos de escrita/imports/runs não foram exercitados nesta fase.

@@ -23,7 +23,7 @@ Lovable produziu src/test/tenant-session.test.tsx e supabase/tests/auth_tenant_u
 - CacheA removida ao mudarB; respostaA tardia não aparece emB; formulárioA desmonta; preview capturadoA recusado após troca; escrita já enviada permanece dirigidaA; logout limpa/invalida antes de signOut.
 - Navegador real rejeitou rota protegida sem sessão e password sign-in de conta inexistente contra o serviço real; reload não autenticado e zero erros de página.
 - Não foi inventada sessão. auth.users=0 e tenants=0 antes; nenhuma fixture remota criada.
-- Login positivo, reload autenticado, logout/back e isolamentoA/B no navegador real continuam sem prova: falta conta Auth confirmada e ferramenta administrativa suportada de criação. O fundador foi orientado a criar/confirmar a sua própria conta na preview atual, sem partilhar senha.
+- 2026-10-16 (main 719ae43): verificação autenticada fechada — ver `auth_tenant_ui.RESULTS.md`. Conta real criada/confirmada pelo fundador (password login user-reported + registo DB `auth.users=1`, `last_sign_in` não nulo); sessão técnica via `lovable auth-session` na conta existente. Observado no navegador real: rota protegida, reload com sessão, troca A↔B sem cruzamento (tenants vazios — não prova isolamento por roles), logout e back sem conteúdo protegido, mobile autenticado, zero erros de consola/HTTP. Pendente: isolamento com dados reais e roles distintos, e password login observado diretamente.
 - Não desativar email confirmation, não inserir backdoor, não apagar auditoria nem fingir teste positivo.
 - Nenhuma falha de produto foi comprovada nos caminhos exercitados. Apenas testes/documentação foram acrescentados.
 
