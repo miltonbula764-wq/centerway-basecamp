@@ -88,7 +88,12 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-/** Sentinel: the mutation callback really ran (it invalidated tenant A's attempts for the captured run). */
+/** Sentinel: a mutation callback really ran (it invalidated some c03_attempts key) before asserting a negative. */
+function callbackRan(spy: ReturnType<typeof vi.spyOn>) {
+  return spy.mock.calls.some(([arg]) => ((arg as { queryKey?: unknown[] })?.queryKey ?? [])[2] === "c03_attempts");
+}
+
+/** Tenant A's attempts for the captured run were invalidated (tenant captured at request time, not the new one). */
 function invalidatedAttemptsFor(spy: ReturnType<typeof vi.spyOn>, tenantId: string, runId: string) {
   return spy.mock.calls.some(([arg]) => {
     const key = (arg as { queryKey?: unknown[] })?.queryKey ?? [];
@@ -331,8 +336,9 @@ describe("EvidencePanel late RPC races (controlled deferred RPC)", () => {
     m.rerender(TENANT_B, RUN); // same run id string, other tenant
     await act(async () => { rpc.resolve({ data: { status: "built", bundle_id: "b9" }, error: null }); await rpc.promise; });
     await flush();
-    await waitFor(() => expect(invalidatedAttemptsFor(m.invalidate, TENANT, RUN)).toBe(true)); // callback ran
+    await waitFor(() => expect(callbackRan(m.invalidate)).toBe(true));
     expect(mocks.toastSuccess).not.toHaveBeenCalled();
+    expect(invalidatedAttemptsFor(m.invalidate, TENANT, RUN)).toBe(true);
     expect(m.invalidate.mock.calls.some(([a]) => ((a as { queryKey?: unknown[] }).queryKey ?? [])[1] === TENANT_B)).toBe(false);
   });
 
@@ -346,7 +352,7 @@ describe("EvidencePanel late RPC races (controlled deferred RPC)", () => {
     m.rerender(TENANT_B, RUN);
     await act(async () => { rpc.resolve({ data: { status: "rejected", code: "ref_missing" }, error: null }); await rpc.promise; });
     await flush();
-    await waitFor(() => expect(invalidatedAttemptsFor(m.invalidate, TENANT, RUN)).toBe(true));
+    await waitFor(() => expect(callbackRan(m.invalidate)).toBe(true));
     expect(screen.queryByText(/Montagem recusada/)).not.toBeInTheDocument();
   });
 
@@ -360,7 +366,7 @@ describe("EvidencePanel late RPC races (controlled deferred RPC)", () => {
     m.rerender(TENANT_B, RUN);
     await act(async () => { rpc.resolve({ data: null, error: { message: "network down", code: "08006" } }); await rpc.promise; });
     await flush();
-    await waitFor(() => expect(invalidatedAttemptsFor(m.invalidate, TENANT, RUN)).toBe(true));
+    await waitFor(() => expect(callbackRan(m.invalidate)).toBe(true));
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(screen.queryByText(/network down|Erro|erro/)).not.toBeInTheDocument();
   });
@@ -374,7 +380,7 @@ describe("EvidencePanel late RPC races (controlled deferred RPC)", () => {
     m.rerender(TENANT, RUN_B);
     await act(async () => { rpc.resolve({ data: { status: "built", bundle_id: "b9" }, error: null }); await rpc.promise; });
     await flush();
-    await waitFor(() => expect(invalidatedAttemptsFor(m.invalidate, TENANT, RUN)).toBe(true));
+    await waitFor(() => expect(callbackRan(m.invalidate)).toBe(true));
     expect(mocks.toastSuccess).not.toHaveBeenCalled();
   });
 
@@ -387,7 +393,7 @@ describe("EvidencePanel late RPC races (controlled deferred RPC)", () => {
     m.unmount();
     await act(async () => { rpc.resolve({ data: { status: "built", bundle_id: "b9" }, error: null }); await rpc.promise; });
     await flush();
-    await waitFor(() => expect(invalidatedAttemptsFor(m.invalidate, TENANT, RUN)).toBe(true));
+    await waitFor(() => expect(callbackRan(m.invalidate)).toBe(true));
     expect(mocks.toastSuccess).not.toHaveBeenCalled();
   });
 
@@ -403,7 +409,7 @@ describe("EvidencePanel late RPC races (controlled deferred RPC)", () => {
     m.rerender(TENANT, RUN);
     await act(async () => { rpc.resolve({ data: { status: "built", bundle_id: "b9" }, error: null }); await rpc.promise; });
     await flush();
-    await waitFor(() => expect(invalidatedAttemptsFor(m.invalidate, TENANT, RUN)).toBe(true));
+    await waitFor(() => expect(callbackRan(m.invalidate)).toBe(true));
     expect(mocks.toastSuccess).not.toHaveBeenCalled();
   });
 });
