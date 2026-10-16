@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { assertActiveTenant, tk, useTenant } from "@/lib/tenant";
 import { friendlyError } from "@/lib/errors";
+import { c02StatusLabel, translateReason, type C02Status } from "@/lib/c02";
+import { classLabel, type IndicatorClass } from "@/lib/profile";
 import {
   c03AttemptLabel,
   c03RoleLabel,
@@ -29,8 +31,16 @@ type Bundle = {
   data_cutoff: string;
   content_hash: string;
   revision_of: string | null;
-  summary: { indicators?: number; complete?: number; insufficient?: number; context_facts?: number; stored_refs?: number; ref_budget?: number };
+  summary: { complete?: unknown; insufficient?: unknown; context_facts?: unknown; stored_refs?: unknown; indicators?: unknown; ref_budget?: unknown } | null;
   created_at: string;
+};
+
+type Snapshot = {
+  c02_status?: string;
+  c02_reasons?: string[];
+  classification?: string;
+  baseline_value?: number | string | null;
+  below_target?: boolean | null;
 };
 
 type Indicator = {
@@ -41,7 +51,7 @@ type Indicator = {
   ref_count: number;
   stored_ref_count: number;
   ref_budget: number;
-  snapshot: { c02_status?: string; classification?: string; baseline_value?: number | null; below_target?: boolean | null };
+  snapshot: Snapshot | null;
 };
 
 type Ref = {
@@ -77,43 +87,73 @@ type BuildResult =
   | { status: "reused"; bundle_id: string }
   | { status: "rejected" | "failed"; code?: string };
 
+/** Identity captured when the user clicks; travels with the request and its result. */
+type BuildVars = { tenantId: string; subjectId: string; runId: string; gen: number };
+
 const statusTone = (s: C03IndicatorStatus) =>
   s === "complete" ? "success" : s === "insufficient" ? "muted" : "neutral";
 const attemptTone = (s: C03AttemptStatus) =>
   s === "built" ? "success" : s === "reused" ? "neutral" : s === "rejected" ? "primary" : "muted";
+
+/** UTC minute precision, explicit "Z". */
+const utc = (iso: string | null | undefined) =>
+  iso ? new Date(iso).toISOString().slice(0, 16).replace("T", " ") + "Z" : "—";
+/** Missing counts are unknown, never zero. */
+const count = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? String(v) : "?");
+const isActive = (tenantId: string) => {
+  try {
+    assertActiveTenant(tenantId);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 /** C03 evidence panel for the C02 run currently selected in the deterioration panel. */
 export function EvidencePanel({ subjectId, runId }: { subjectId: string; runId: string | null }) {
   const { tenant, canWrite } = useTenant();
   const tenantId = tenant.id;
   const qc = useQueryClient();
-  // Guards against a late RPC response applying to a run/tenant the user has already left.
-  const requestSeq = useRef(0);
   const [buildNote, setBuildNote] = useState<{ kind: "error" | "info"; text: string } | null>(null);
 
+  // Late-response guard: a generation that changes on every tenant/subject/run change and on unmount.
+  const identity = `${tenantId}|${subjectId}|${runId ?? ""}`;
+  const identityRef = useRef(identity);
+  identityRef.current = identity;
+  const genRef = useRef(0);
+  const aliveRef = useRef(true);
   useEffect(() => {
+    aliveRef.current = true;
+    genRef.current += 1;
     setBuildNote(null);
-  }, [tenantId, subjectId, runId]);
+    return () => {
+      // Runs on identity change and on unmount: invalidates every in-flight request of the old context.
+      genRef.current += 1;
+      aliveRef.current = false;
+    };
+  }, [identity]);
+  const isCurrent = (v: BuildVars) =>
+    aliveRef.current && v.gen === genRef.current && identityRef.current === `${v.tenantId}|${v.subjectId}|${v.runId}`;
 
-  const bundles = useQuery({
-    queryKey: tk(tenantId, "c03_bundles", subjectId),
+  const bundleQ = useQuery({
+    queryKey: tk(tenantId, "c03_bundle", subjectId, runId),
+    enabled: !!runId,
     queryFn: async () => {
+      // Direct server lookup for the selected run (not a truncated list of the subject's bundles).
       const { data, error } = await supabase
         .from("c03_bundles")
         .select("id, run_id, algorithm_version, c02_algorithm_version, c02_input_hash, data_cutoff, content_hash, revision_of, summary, created_at")
         .eq("tenant_id", tenantId)
         .eq("subject_id", subjectId)
-        .order("created_at", { ascending: false })
-        .limit(50);
+        .eq("run_id", runId!)
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Bundle[];
     },
   });
 
-  const bundle = bundles.data?.find((b) => b.run_id === runId) ?? null;
-
   const attempts = useQuery({
-    queryKey: tk(tenantId, "c03_attempts", runId),
+    queryKey: tk(tenantId, "c03_attempts", subjectId, runId),
     enabled: !!runId,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -129,41 +169,44 @@ export function EvidencePanel({ subjectId, runId }: { subjectId: string; runId: 
   });
 
   const build = useMutation({
-    mutationFn: async () => {
-      if (!runId) throw new Error("no_run");
-      assertActiveTenant(tenantId);
-      const capturedRun = runId;
-      const seq = ++requestSeq.current;
-      const { data, error } = await supabase.rpc("build_evidence_bundle", {
-        _tenant_id: tenantId,
-        _run_id: capturedRun,
-      });
+    mutationFn: async (v: BuildVars) => {
+      assertActiveTenant(v.tenantId); // pre-request guard
+      const { data, error } = await supabase.rpc("build_evidence_bundle", { _tenant_id: v.tenantId, _run_id: v.runId });
       if (error) throw error;
-      return { result: data as BuildResult, capturedRun, seq };
+      return data as BuildResult;
     },
-    onSuccess: ({ result, capturedRun, seq }) => {
-      // Always refresh attempts, including rejected/failed results returned as JSON without error.
-      qc.invalidateQueries({ queryKey: tk(tenantId, "c03_attempts") });
-      qc.invalidateQueries({ queryKey: tk(tenantId, "c03_bundles") });
-      if (seq !== requestSeq.current || capturedRun !== runId) return; // user moved on; no toast on the new context
-      if (result.status === "built") {
+    onSuccess: (result, v) => {
+      // Always refresh with the captured tenant/run, including rejected/failed JSON results.
+      qc.invalidateQueries({ queryKey: tk(v.tenantId, "c03_attempts", v.subjectId, v.runId) });
+      qc.invalidateQueries({ queryKey: tk(v.tenantId, "c03_bundle", v.subjectId, v.runId) });
+      if (!isCurrent(v) || !isActive(v.tenantId)) return; // user moved on: no toast/note in the new context
+      if (result?.status === "built") {
         setBuildNote(null);
         toast.success("Pacote de evidência montado.");
-      } else if (result.status === "reused") {
+      } else if (result?.status === "reused") {
         setBuildNote(null);
         toast.info("Já existia um pacote para esta análise; foi reutilizado.");
       } else {
+        const st = result?.status === "rejected" || result?.status === "failed" ? result.status : null;
         setBuildNote({
           kind: "error",
-          text: `${c03AttemptLabel[result.status]}: ${translateC03Code(result.code ?? null)}`,
+          text: `${st ? c03AttemptLabel[st] : "Resposta não reconhecida"}: ${translateC03Code(st ? (result as { code?: string }).code : null)}`,
         });
       }
     },
-    onError: (e) => {
-      qc.invalidateQueries({ queryKey: tk(tenantId, "c03_attempts") });
+    onError: (e, v) => {
+      qc.invalidateQueries({ queryKey: tk(v.tenantId, "c03_attempts", v.subjectId, v.runId) });
+      if (!isCurrent(v)) return;
       setBuildNote({ kind: "error", text: friendlyError(e) });
     },
   });
+
+  // Pending state only belongs to the context that started it.
+  const pendingHere =
+    build.isPending && !!build.variables && `${build.variables.tenantId}|${build.variables.subjectId}|${build.variables.runId}` === identity;
+
+  const bundles = bundleQ.data ?? [];
+  const bundle = bundles[0] ?? null;
 
   return (
     <Panel
@@ -171,8 +214,13 @@ export function EvidencePanel({ subjectId, runId }: { subjectId: string; runId: 
       className="lg:col-span-2"
       actions={
         canWrite && (
-          <Button size="sm" variant="secondary" onClick={() => build.mutate()} disabled={build.isPending || !runId}>
-            {build.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <PackagePlus className="h-4 w-4" />} Montar pacote
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => runId && build.mutate({ tenantId, subjectId, runId, gen: genRef.current })}
+            disabled={pendingHere || !runId}
+          >
+            {pendingHere ? <Loader2 className="h-4 w-4 animate-spin" /> : <PackagePlus className="h-4 w-4" />} Montar pacote
           </Button>
         )
       }
@@ -189,135 +237,148 @@ export function EvidencePanel({ subjectId, runId }: { subjectId: string; runId: 
         </div>
       )}
       {runId && (
-        <BundleView
-          key={`${tenantId}:${runId}`}
-          tenantId={tenantId}
-          runId={runId}
-          bundles={bundles}
-          bundle={bundle}
-          attempts={attempts.data ?? []}
-          attemptsLoading={attempts.isLoading}
-          attemptsError={attempts.isError}
-          onRetryAttempts={() => attempts.refetch()}
-        />
+        <div key={identity} className="space-y-4">
+          {bundleQ.isLoading ? (
+            <Loading />
+          ) : bundleQ.isError ? (
+            <ErrorState message="Não foi possível carregar o pacote desta análise." onRetry={() => bundleQ.refetch()} />
+          ) : !bundle ? (
+            <Empty title="Sem pacote para esta análise">
+              A análise selecionada ainda não tem pacote de evidência. A montagem é explícita e nunca automática.
+            </Empty>
+          ) : (
+            <BundleView tenantId={tenantId} bundle={bundle} otherVersions={bundles.length - 1} />
+          )}
+          <div>
+            <h3 className="mb-2 text-xs font-medium text-muted-foreground">Tentativas de montagem nesta análise</h3>
+            {attempts.isLoading ? (
+              <Loading />
+            ) : attempts.isError ? (
+              <ErrorState message="Não foi possível carregar as tentativas." onRetry={() => attempts.refetch()} />
+            ) : (attempts.data ?? []).length === 0 ? (
+              <p className="text-xs text-muted-foreground">Nenhuma tentativa registada.</p>
+            ) : (
+              <ul className="space-y-1 text-xs">
+                {attempts.data!.map((a) => (
+                  <li key={a.id} className="flex flex-wrap items-center gap-2">
+                    <StatusPill tone={attemptTone(a.status)}>{c03AttemptLabel[a.status] ?? a.status}</StatusPill>
+                    <span className="text-muted-foreground">{formatDate(a.created_at)}</span>
+                    {a.code && <span className="text-muted-foreground">{translateC03Code(a.code)}</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       )}
     </Panel>
   );
 }
 
-function BundleView({
-  tenantId,
-  runId,
-  bundles,
-  bundle,
-  attempts,
-  attemptsLoading,
-  attemptsError,
-  onRetryAttempts,
-}: {
-  tenantId: string;
-  runId: string;
-  bundles: ReturnType<typeof useQuery<Bundle[]>>;
-  bundle: Bundle | null;
-  attempts: Attempt[];
-  attemptsLoading: boolean;
-  attemptsError: boolean;
-  onRetryAttempts: () => void;
-}) {
+function BundleView({ tenantId, bundle, otherVersions }: { tenantId: string; bundle: Bundle; otherVersions: number }) {
   const indicators = useQuery({
-    queryKey: tk(tenantId, "c03_indicators", bundle?.id),
-    enabled: !!bundle,
+    queryKey: tk(tenantId, "c03_indicators", bundle.id),
     queryFn: async () => {
       const { data, error } = await supabase
         .from("c03_indicators")
         .select("id, indicator_key, status, reasons, ref_count, stored_ref_count, ref_budget, snapshot")
         .eq("tenant_id", tenantId)
-        .eq("bundle_id", bundle!.id)
+        .eq("bundle_id", bundle.id)
         .order("indicator_key");
       if (error) throw error;
       return (data ?? []) as Indicator[];
     },
   });
+  const s = bundle.summary ?? {};
 
   return (
     <div className="space-y-4">
-      {bundles.isLoading ? (
-        <Loading />
-      ) : bundles.isError ? (
-        <ErrorState message="Não foi possível carregar os pacotes." onRetry={() => bundles.refetch()} />
-      ) : !bundle ? (
-        <Empty title="Sem pacote para esta análise">
-          A análise selecionada ainda não tem pacote de evidência. A montagem é explícita e nunca automática.
-        </Empty>
-      ) : (
-        <div className="space-y-4">
-          <div className="flex flex-wrap gap-2 text-xs">
-            <StatusPill tone="success">{bundle.summary?.complete ?? 0} íntegros</StatusPill>
-            <StatusPill tone="muted">{bundle.summary?.insufficient ?? 0} insuficientes</StatusPill>
-            <StatusPill tone="neutral">{bundle.summary?.context_facts ?? 0} contexto</StatusPill>
-            <span className="text-muted-foreground">
-              {bundle.summary?.stored_refs ?? 0} referências guardadas · algoritmo <Mono>{bundle.algorithm_version}</Mono> sobre{" "}
-              <Mono>{bundle.c02_algorithm_version}</Mono> · dados até {formatDate(bundle.data_cutoff)}
-              {bundle.revision_of ? " · revisão de pacote anterior" : ""}
-            </span>
-          </div>
-          <dl className="grid grid-cols-1 gap-y-1 text-xs text-muted-foreground sm:grid-cols-[180px_1fr]">
-            <dt>Hash do conteúdo</dt>
-            <dd><Mono className="break-all">{bundle.content_hash}</Mono></dd>
-            <dt>Hash dos dados da análise</dt>
-            <dd><Mono className="break-all">{bundle.c02_input_hash}</Mono></dd>
-          </dl>
-          {indicators.isLoading ? (
-            <Loading />
-          ) : indicators.isError ? (
-            <ErrorState message="Não foi possível carregar os indicadores do pacote." onRetry={() => indicators.refetch()} />
-          ) : (
-            <ul className="space-y-3">
-              {(indicators.data ?? []).map((i) => (
-                <IndicatorItem key={i.id} tenantId={tenantId} bundleId={bundle.id} indicator={i} />
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-      <div>
-        <h3 className="mb-2 text-xs font-medium text-muted-foreground">Tentativas de montagem nesta análise</h3>
-        {attemptsLoading ? (
-          <Loading />
-        ) : attemptsError ? (
-          <ErrorState message="Não foi possível carregar as tentativas." onRetry={onRetryAttempts} />
-        ) : attempts.length === 0 ? (
-          <p className="text-xs text-muted-foreground">Nenhuma tentativa registada.</p>
-        ) : (
-          <ul className="space-y-1 text-xs">
-            {attempts.map((a) => (
-              <li key={a.id} className="flex flex-wrap items-center gap-2">
-                <StatusPill tone={attemptTone(a.status)}>{c03AttemptLabel[a.status]}</StatusPill>
-                <span className="text-muted-foreground">{formatDate(a.created_at)}</span>
-                {a.code && <span className="text-muted-foreground">{translateC03Code(a.code)}</span>}
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className="flex flex-wrap gap-2 text-xs">
+        <StatusPill tone="success">{count(s.complete)} íntegros</StatusPill>
+        <StatusPill tone="muted">{count(s.insufficient)} insuficientes</StatusPill>
+        <StatusPill tone="neutral">{count(s.context_facts)} contexto</StatusPill>
+        <span className="text-muted-foreground">
+          {count(s.stored_refs)} referências guardadas · algoritmo <Mono>{bundle.algorithm_version}</Mono> sobre{" "}
+          <Mono>{bundle.c02_algorithm_version}</Mono>
+        </span>
       </div>
+      <dl className="grid grid-cols-1 gap-y-1 text-xs text-muted-foreground sm:grid-cols-[200px_1fr]">
+        <dt>Pacote</dt>
+        <dd><Mono className="break-all">{bundle.id}</Mono></dd>
+        <dt>Análise C02</dt>
+        <dd><Mono className="break-all">{bundle.run_id}</Mono></dd>
+        <dt>Corte dos dados (UTC)</dt>
+        <dd><Mono>{utc(bundle.data_cutoff)}</Mono></dd>
+        <dt>Montado em (UTC)</dt>
+        <dd><Mono>{utc(bundle.created_at)}</Mono></dd>
+        <dt>Revisão do pacote</dt>
+        <dd>{bundle.revision_of ? <Mono className="break-all">{bundle.revision_of}</Mono> : "— (primeiro pacote deste cliente)"}</dd>
+        <dt>Hash do conteúdo</dt>
+        <dd><Mono className="break-all">{bundle.content_hash}</Mono></dd>
+        <dt>Hash dos dados da análise</dt>
+        <dd><Mono className="break-all">{bundle.c02_input_hash}</Mono></dd>
+      </dl>
+      {otherVersions > 0 && (
+        <p className="text-xs text-muted-foreground">
+          Existem mais {otherVersions} pacote(s) desta análise com outra versão de algoritmo; mostra-se o mais recente.
+        </p>
+      )}
+      {indicators.isLoading ? (
+        <Loading />
+      ) : indicators.isError ? (
+        <ErrorState message="Não foi possível carregar os indicadores do pacote." onRetry={() => indicators.refetch()} />
+      ) : (indicators.data ?? []).length === 0 ? (
+        <p className="text-xs text-muted-foreground">Pacote sem indicadores registados.</p>
+      ) : (
+        <ul className="space-y-3">
+          {indicators.data!.map((i) => (
+            <IndicatorItem key={i.id} tenantId={tenantId} bundle={bundle} indicator={i} />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
 
-function IndicatorItem({ tenantId, bundleId, indicator }: { tenantId: string; bundleId: string; indicator: Indicator }) {
+/** Historical C02 state as stored in the C03 snapshot; never reconstructed from the current profile. */
+function SnapshotSummary({ indicatorKey, snapshot }: { indicatorKey: string; snapshot: Snapshot | null }) {
+  const sn = snapshot ?? {};
+  const has = (v: unknown) => v !== undefined && v !== null;
+  return (
+    <div data-testid={`c03-snapshot-${indicatorKey}`} className="mt-2 pl-6 text-xs text-muted-foreground">
+      {!sn.c02_status ? (
+        <p>Snapshot sem estado C02 registado.</p>
+      ) : (
+        <p>
+          Na análise C02 (snapshot guardado): {c02StatusLabel[sn.c02_status as C02Status] ?? `estado ${sn.c02_status}`}
+          {sn.classification ? ` · ${classLabel[sn.classification as IndicatorClass] ?? sn.classification}` : ""}
+          {" · "}Baseline: {has(sn.baseline_value) ? String(sn.baseline_value) : "não registado"}
+          {" · "}
+          {sn.below_target === true ? "abaixo do alvo (gap) nesse momento" : sn.below_target === false ? "não abaixo do alvo" : "gap não registado"}
+        </p>
+      )}
+      {(sn.c02_reasons ?? []).length > 0 && (
+        <p>Motivos C02: {sn.c02_reasons!.map((r) => translateReason(r)).join("; ")}</p>
+      )}
+    </div>
+  );
+}
+
+function IndicatorItem({ tenantId, bundle, indicator }: { tenantId: string; bundle: Bundle; indicator: Indicator }) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
+  const [detail, setDetail] = useState<number | null>(null);
   const totalPages = Math.max(1, Math.ceil(indicator.stored_ref_count / PAGE_SIZE));
 
   const refs = useQuery({
-    queryKey: tk(tenantId, "c03_refs", indicator.id, page),
+    queryKey: tk(tenantId, "c03_refs", bundle.id, indicator.id, page),
     enabled: open && indicator.stored_ref_count > 0,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("c03_refs")
         .select("id, ordinal, role, window_label, window_start, window_end, observation_id, superseded_by, corrects_observation_id, indicator_key, observed_at, ingested_at, value_numeric, value_text, unit, source, payload_hash")
         .eq("tenant_id", tenantId)
-        .eq("bundle_id", bundleId)
+        .eq("bundle_id", bundle.id)
         .eq("indicator_id", indicator.id)
         .order("ordinal", { ascending: true })
         .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
@@ -338,13 +399,14 @@ function IndicatorItem({ tenantId, bundleId, indicator }: { tenantId: string; bu
       >
         {open ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
         <Mono className="text-foreground">{indicator.indicator_key}</Mono>
-        <StatusPill tone={statusTone(indicator.status)}>{c03StatusLabel[indicator.status]}</StatusPill>
+        <StatusPill tone={statusTone(indicator.status)}>{c03StatusLabel[indicator.status] ?? indicator.status}</StatusPill>
         <span className="text-xs text-muted-foreground">
           {budgetExceeded
             ? `${indicator.ref_count} referências exigidas · 0 guardadas (limite ${indicator.ref_budget})`
             : `${indicator.stored_ref_count} referências guardadas`}
         </span>
       </button>
+      <SnapshotSummary indicatorKey={indicator.indicator_key} snapshot={indicator.snapshot} />
       {indicator.reasons.length > 0 && (
         <ul className="mt-2 list-disc pl-9 text-xs text-muted-foreground">
           {indicator.reasons.map((r) => (
@@ -353,7 +415,7 @@ function IndicatorItem({ tenantId, bundleId, indicator }: { tenantId: string; bu
         </ul>
       )}
       {open && (
-        <div className="mt-3 pl-9">
+        <div className="mt-3 pl-0 sm:pl-6">
           {budgetExceeded ? (
             <p className="text-xs text-muted-foreground">
               O limite de referências foi excedido; nenhuma foi guardada para não apresentar um pacote parcial como completo.
@@ -366,52 +428,38 @@ function IndicatorItem({ tenantId, bundleId, indicator }: { tenantId: string; bu
             <ErrorState message="Não foi possível carregar as referências." onRetry={() => refs.refetch()} />
           ) : (
             <>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead className="text-left text-muted-foreground">
-                    <tr>
-                      <th className="py-1 pr-3 font-normal">#</th>
-                      <th className="py-1 pr-3 font-normal">Papel</th>
-                      <th className="py-1 pr-3 font-normal">Valor</th>
-                      <th className="py-1 pr-3 font-normal">Fonte</th>
-                      <th className="py-1 pr-3 font-normal">Janela</th>
-                      <th className="py-1 pr-3 font-normal">Observado</th>
-                      <th className="py-1 font-normal">Hash</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border font-mono tabular-nums">
-                    {(refs.data ?? []).map((r) => (
-                      <tr key={r.id}>
-                        <td className="py-1 pr-3">{r.ordinal}</td>
-                        <td className="py-1 pr-3 font-sans">
-                          {c03RoleLabel[r.role] ?? r.role}
-                          {r.corrects_observation_id && <span className="text-muted-foreground"> · corrige outra</span>}
-                        </td>
-                        <td className="py-1 pr-3">
-                          {r.value_numeric ?? r.value_text ?? "—"} <span className="text-muted-foreground">{r.unit}</span>
-                        </td>
-                        <td className="py-1 pr-3 font-sans">{r.source}</td>
-                        <td className="py-1 pr-3 whitespace-nowrap text-muted-foreground">
-                          {r.window_label ?? "—"}
-                        </td>
-                        <td className="py-1 pr-3 whitespace-nowrap">{formatDate(r.observed_at)}</td>
-                        <td className="py-1 text-muted-foreground" title={r.payload_hash}>
-                          {r.payload_hash.slice(0, 12)}…
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+              <ul className="divide-y divide-border text-xs">
+                {(refs.data ?? []).map((r) => (
+                  <li key={r.id} className="py-1">
+                    <button
+                      type="button"
+                      aria-label={`Detalhe da referência ${r.ordinal}`}
+                      aria-expanded={detail === r.ordinal}
+                      onClick={() => setDetail((d) => (d === r.ordinal ? null : r.ordinal))}
+                      className="flex w-full flex-wrap items-center gap-x-3 gap-y-0.5 text-left"
+                    >
+                      <span className="w-10 font-mono tabular-nums text-muted-foreground">#{r.ordinal}</span>
+                      <span>{c03RoleLabel[r.role] ?? r.role}</span>
+                      <span className="font-mono tabular-nums">
+                        {r.value_numeric ?? r.value_text ?? "—"} <span className="text-muted-foreground">{r.unit}</span>
+                      </span>
+                      <span className="text-muted-foreground">{r.source}</span>
+                      <span className="text-muted-foreground">{r.window_label ?? "sem janela"}</span>
+                      {r.corrects_observation_id && <span className="text-muted-foreground">· corrige outra</span>}
+                    </button>
+                    {detail === r.ordinal && <RefDetail r={r} cutoff={bundle.data_cutoff} />}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
                 <span>
                   Página {page + 1} de {totalPages} · {indicator.stored_ref_count} referências no total
                 </span>
                 <span className="flex gap-2">
-                  <Button size="sm" variant="ghost" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
+                  <Button size="sm" variant="ghost" disabled={page === 0} onClick={() => { setDetail(null); setPage((p) => p - 1); }}>
                     Anterior
                   </Button>
-                  <Button size="sm" variant="ghost" disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>
+                  <Button size="sm" variant="ghost" disabled={page + 1 >= totalPages} onClick={() => { setDetail(null); setPage((p) => p + 1); }}>
                     Seguinte
                   </Button>
                 </span>
@@ -421,5 +469,44 @@ function IndicatorItem({ tenantId, bundleId, indicator }: { tenantId: string; bu
         </div>
       )}
     </li>
+  );
+}
+
+/** Full, tap-accessible reference detail. All values are rendered as plain text data. */
+function RefDetail({ r, cutoff }: { r: Ref; cutoff: string }) {
+  const window = r.window_start || r.window_end ? `[${utc(r.window_start)}, ${utc(r.window_end)})` : "—";
+  return (
+    <dl
+      data-testid={`c03-ref-detail-${r.ordinal}`}
+      className="mt-2 grid grid-cols-1 gap-y-1 rounded-md bg-muted/40 p-2 text-muted-foreground sm:grid-cols-[180px_1fr]"
+    >
+      <dt>Papel</dt>
+      <dd>{c03RoleLabel[r.role] ?? r.role}</dd>
+      <dt>Observação</dt>
+      <dd><Mono className="break-all">{r.observation_id}</Mono></dd>
+      <dt>Indicador</dt>
+      <dd><Mono>{r.indicator_key}</Mono></dd>
+      <dt>Valor</dt>
+      <dd className="break-words">
+        {r.value_numeric !== null ? <Mono>{String(r.value_numeric)}</Mono> : r.value_text !== null ? <span>{r.value_text}</span> : "—"}{" "}
+        <span>{r.unit}</span>
+      </dd>
+      <dt>Fonte</dt>
+      <dd className="break-words">{r.source}</dd>
+      <dt>Janela {r.window_label ?? ""} [início, fim) UTC</dt>
+      <dd><Mono>{window}</Mono></dd>
+      <dt>Observado (UTC)</dt>
+      <dd><Mono>{utc(r.observed_at)}</Mono></dd>
+      <dt>Recebido (UTC)</dt>
+      <dd><Mono>{utc(r.ingested_at)}</Mono></dd>
+      <dt>Corte do pacote (UTC)</dt>
+      <dd><Mono>{utc(cutoff)}</Mono></dd>
+      <dt>Corrige a observação</dt>
+      <dd>{r.corrects_observation_id ? <Mono className="break-all">{r.corrects_observation_id}</Mono> : "—"}</dd>
+      <dt>Substituída por</dt>
+      <dd>{r.superseded_by ? <Mono className="break-all">{r.superseded_by}</Mono> : "—"}</dd>
+      <dt>Hash do conteúdo</dt>
+      <dd><Mono className="break-all">{r.payload_hash}</Mono></dd>
+    </dl>
   );
 }

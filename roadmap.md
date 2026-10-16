@@ -2,15 +2,17 @@
 
 ## Autenticação e isolamento (concluído)
 - [x] Testes controlados de troca de tenant, formulário e logout.
-- [x] Verificação autenticada no browser real (dev local, backend real): rota protegida, reload, troca A↔B, logout e back, mobile. Relatado em supabase/tests/auth_tenant_ui.RESULTS.md.
-- Limitação: password login é user-reported + registo DB, não observado por nós; roles iguais em A/B não provam isolamento por roles.
+- [x] Verificação autenticada no browser (dev local ligado ao backend real, conta existente do fundador): rota protegida, reload, troca A↔B, logout e back, mobile. Ver supabase/tests/auth_tenant_ui.RESULTS.md.
+- Limitação: password login é relatado pelo fundador + registo na base, não observado por nós; roles iguais em A/B não provam isolamento por roles.
 
-## C03 UI (concluído)
-- [x] Painel "Pacote de evidência (C03)" no detalhe do cliente, ligado à análise C02 selecionada.
-- [x] Montagem explícita só admin/operator; viewer só lê; rejected/failed JSON sem error tratado sem toast de sucesso.
-- [x] Refs paginadas por ordinal; estados complete/insufficient/context_facts com semântica honesta.
-- [x] Testes controlados (7 novos) + suite 44/44 + build OK. Relatório: supabase/tests/c03_ui.RESULTS.md.
+## Concorrência real (concluído)
+- [x] 5 cenários em PostgreSQL isolado no GitHub (PR #2 integrado em 719ae43, execução 38981197896). Ver DEVELOPMENT_READINESS.md.
+
+## C03 UI (concluído, revisto)
+- [x] Painel "Pacote de evidência (C03)" ligado à análise C02 selecionada; pacote consultado por tenant+cliente+análise.
+- [x] Guard de resposta tardia por identidade+geração (sucesso e erro), reset ao mudar de cliente/análise/empresa.
+- [x] Detalhe completo de cada referência e resumo do snapshot histórico.
+- [x] 18 testes controlados (red/green registado), suite 55/55, tipos e build OK. Ver supabase/tests/c03_ui.RESULTS.md.
 
 ## Pendente
-- [ ] Concorrência real em PostgreSQL isolado (a cargo do Codex no GitHub).
 - [ ] C04–C10: não autorizados.

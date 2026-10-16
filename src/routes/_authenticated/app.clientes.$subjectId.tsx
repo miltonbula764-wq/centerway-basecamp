@@ -30,7 +30,6 @@ function ClienteDetalhe() {
   const { subjectId } = Route.useParams();
   const { tenant, canWrite } = useTenant();
   const [edit, setEdit] = useState(false);
-  const [selectedRun, setSelectedRun] = useState<string | null>(null);
 
   const subject = useQuery({
     queryKey: tk(tenant.id, "subject", subjectId),
@@ -123,8 +122,7 @@ function ClienteDetalhe() {
             </div>
           )}
         </Panel>
-        <DeteriorationPanel subjectId={s.id} profileId={approved?.id} onRunChange={setSelectedRun} />
-        <EvidencePanel subjectId={s.id} runId={selectedRun} />
+        <AnalysisSection key={`${tenant.id}:${s.id}`} subjectId={s.id} profileId={approved?.id} />
         <Panel title="Histórico de observações" className="lg:col-span-2">
           {observations.isLoading ? (
             <Loading />
@@ -164,6 +162,17 @@ function ClienteDetalhe() {
         </Panel>
       </div>
       {canWrite && <SubjectDialog open={edit} onOpenChange={setEdit} subject={s} />}
+    </>
+  );
+}
+
+/** Keyed by tenant+subject so the selected C02 run (and the C03 panel state) resets on every context change. */
+function AnalysisSection({ subjectId, profileId }: { subjectId: string; profileId: string | undefined }) {
+  const [selectedRun, setSelectedRun] = useState<string | null>(null);
+  return (
+    <>
+      <DeteriorationPanel subjectId={subjectId} profileId={profileId} onRunChange={setSelectedRun} />
+      <EvidencePanel subjectId={subjectId} runId={selectedRun} />
     </>
   );
 }

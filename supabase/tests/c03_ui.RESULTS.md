@@ -1,31 +1,39 @@
 # C03 UI — resultados
 
-Data: 2026-10-16. Escopo: painel de pacote de evidência no detalhe do cliente, sobre o servidor c03-v1 (migration 0010). Sem SQL novo, sem migrations, sem C04–C10.
+Escopo: painel "Pacote de evidência (C03)" no detalhe do cliente, sobre o servidor c03-v1 (migration 0010). Sem SQL novo, sem migrations, sem C04–C10, nada publicado.
 
-## Ficheiros
-- `src/lib/c03.ts` — traduções de estados, roles de refs e códigos de recusa/falha da migration 0010, com fallback legível.
-- `src/components/app/evidence-panel.tsx` — painel C03 (bundle, indicadores, refs paginadas, tentativas, montagem).
-- `src/components/app/deterioration-panel.tsx` — prop `onRunChange` para expor a análise selecionada.
-- `src/routes/_authenticated/app.clientes.$subjectId.tsx` — ligação run selecionado → painel C03.
-- `src/test/evidence-panel.test.tsx` — 7 testes controlados (mocks, sem backend real).
+## Histórico
+- 2026-10-16, commit 8595a3f: primeira versão (7 testes controlados).
+- 2026-10-16, revisão independente de 8595a3f: corrigidos 5 problemas (abaixo). Base desta correção: main 46b83e6.
 
-## Comportamento implementado
-- Pacote selecionado pelo `run_id` da análise histórica escolhida (não só a última).
-- Montagem explícita via `build_evidence_bundle(_tenant_id, _run_id)`, só admin/operator; viewer nem vê o botão.
-- RPC pode devolver rejected/failed como JSON sem error: mostra código traduzido, refaz fetch de tentativas, sem toast de sucesso. built → sucesso; reused → info.
-- Estados por indicador: complete = "Evidência íntegra" (nunca recuperação/valor/caso), insufficient com motivos, context_facts.
-- Refs paginadas por ordinal (50/página), filtros tenant+bundle+indicator, contagem total visível; página parcial nunca apresentada como total.
-- `ref_budget_exceeded`: explica que nenhuma ref foi guardada para não apresentar pacote parcial como completo.
-- Guard de corrida: tenant+run capturados antes da RPC; resposta tardia após troca não mostra toast nem seleciona pacote no run errado. Reset de estado na mudança de cliente/run/tenant.
-- Query keys com prefixo de tenant; texto importado tratado como dado.
+## Correções após revisão
+1. **Guard de resposta tardia.** Identidade tenant+subject+run e geração (`gen`) capturadas no clique e passadas como variáveis da mutação. A geração muda em cada troca de tenant/cliente/análise e na desmontagem (cleanup do efeito). `onSuccess` exige mesma identidade, mesma geração, componente vivo e tenant ainda ativo; `onError` exige mesma identidade/geração/vivo. Invalidações usam sempre o tenant/run capturados, nunca os da closure nova. Guard pré-pedido (`assertActiveTenant`) mantido. O botão só mostra "a montar" no contexto que o iniciou. No detalhe do cliente, a análise selecionada vive num componente com `key` tenant+cliente, e o painel C02 ignora uma seleção que não pertença à lista de análises do cliente atual.
+2. **Pacote histórico.** Consulta direta `c03_bundles` por tenant+subject+run (query key inclui o run); já não depende dos 50 pacotes mais recentes do cliente.
+3. **Contrato visível.** Cada referência abre um detalhe acessível por toque (mobile) com papel, id da observação, indicador, valor (texto como dado), fonte, janela UTC `[início, fim)`, observado/recebido UTC, corte do pacote, `corrects_observation_id`, `superseded_by` e hash completo. Resumo histórico por indicador só a partir do snapshot guardado (estado C02, classificação, baseline, gap, motivos C02); ausência aparece como "não registado", nunca 0. Contagens em falta no resumo aparecem como "?". `revision_of`, id do pacote e id da análise mostrados por extenso.
+4. **Testes completados** (abaixo).
+5. **Documentação** corrigida (roadmap, readiness, este ficheiro).
 
-## Testes executados
-- `bunx vitest run` — 44/44 (37 preexistentes + 7 novos C03 UI).
-- Build: OK (log de build sem erros).
-- Cobertura nova: três estados com semântica honesta; paginação determinística (página 2 começa no ordinal 51, total 120 visível); budget exceeded explicado; viewer sem botão; rejected JSON sem error (código visível, tentativas refetchadas, sem toast de sucesso); reused → info; resposta tardia após troca de tenant sem toast.
+## Testes — red/green (testes controlados com pedidos simulados, não backend real)
+Ficheiro: `src/test/evidence-panel.test.tsx` (18 testes). Corridas contra a versão antiga do painel (cópia de 8595a3f) e depois contra a corrigida.
+
+Red (versão antiga): `bunx vitest run src/test/evidence-panel.test.tsx` → 12 falharam / 6 passaram.
+- Falhas por comportamento de corrida (sentinela: callback correu e invalidou tentativas antes da asserção negativa): toast de sucesso após troca de tenant (rerender do Provider), após desmontagem e em A→B→A; nota de recusa e nota de erro (onError sem guard) mostradas no tenant novo.
+- Falhas por funcionalidade em falta: snapshot histórico, contagem desconhecida ≠ 0, pacote de análise antiga fora dos 50 recentes, paginação com detalhe por referência, detalhe completo da referência, invalidação com chave do run capturado.
+- Passou já na versão antiga (esperado): resposta tardia após troca só de análise (o guard antigo cobria esse caso), e os testes de estados/viewer/rejected/failed/reused/guard pré-pedido.
+
+Green (versão corrigida): 18/18.
+
+Cobertura: três estados e semântica; snapshot só guardado; contagens ausentes; pacote de análise antiga com filtros tenant/subject/run verificados no pedido; paginação com `order(ordinal asc)`, `range(50,99)` e filtros tenant+bundle+indicator verificados, esperando os dados da página 2 (página 1 não fica visível como página 2 durante o carregamento); detalhe da referência; budget excedido; viewer sem botão nem RPC; built (toast único, invalidações com tenant/run capturados); rejected e failed como JSON sem error (código seguro, tentativas refeitas, sem toast de sucesso); reused (info); guard pré-pedido (RPC não chamada); corridas com RPC diferida: troca de tenant (built, rejected, erro), troca de análise, desmontagem, A→B→A.
+
+## Comandos e resultados finais
+- `bunx vitest run` — 6 ficheiros, **55/55**.
+- `bunx tsgo --noEmit` — 0 erros (6 erros de tipos introduzidos durante esta correção foram corrigidos antes do fim).
+- Build da pré-visualização: OK.
+
+## Browser real
+Neste bloco não foi aberta nova sessão de browser. A verificação autenticada anterior (dev local ligado ao backend real) viu empresas sem clientes: com 0 clientes, o detalhe do cliente — onde está o painel C03 — não é alcançável, por isso **o painel C03 nunca foi renderizado no browser real**. Todos os cenários do painel são testes controlados.
 
 ## Limitações
-- Dados reais vazios: cenários ricos são testes controlados com mocks, não backend populado.
-- Browser real validou apenas o empty state (sem pacotes).
-- Concorrência real não testada (prevista para PostgreSQL isolado via Codex).
-- Nada publicado; sem custos de serviços.
+- Sem dados reais de C02/C03; nada foi inventado no backend.
+- Reset da análise selecionada ao mudar de cliente é feito por `key`; coberto por inspeção de código, sem teste de rota dedicado.
+- A mutação do painel C02 ("Analisar agora") não recebeu o mesmo guard de geração; fora do escopo C03 UI.

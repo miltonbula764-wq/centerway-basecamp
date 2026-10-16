@@ -46,7 +46,8 @@ export function DeteriorationPanel({ subjectId, profileId, onRunChange }: { subj
       return data ?? [];
     },
   });
-  const runId = selected ?? runs.data?.[0]?.id ?? null;
+  // A selection only counts if it belongs to this tenant+subject's run list (never a run carried over from elsewhere).
+  const runId = (selected && runs.data?.some((r) => r.id === selected) ? selected : null) ?? runs.data?.[0]?.id ?? null;
   useEffect(() => {
     onRunChange?.(runId);
   }, [runId, onRunChange]);
