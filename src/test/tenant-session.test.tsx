@@ -101,6 +101,23 @@ describe("Existing tenant/session UI with controlled requests (not real login)",
     expect(mocks.insert).not.toHaveBeenCalled();
   });
 
+  it("keeps an already-dispatched form write targeted at A, never retargeting it to B", async () => {
+    let finishWrite: (value: { error: null }) => void = () => {};
+    mocks.insert.mockImplementation(() => new Promise<{ error: null }>((resolve) => { finishWrite = resolve; }));
+    mount();
+    await waitFor(() => expect(screen.getByTestId("active-tenant")).toHaveTextContent("fixture-A"));
+    fireEvent.click(screen.getByRole("button", { name: "Abrir formulário" }));
+    fireEvent.change(await screen.findByLabelText("Referência externa"), { target: { value: "cliente-A" } });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+    await waitFor(() => expect(mocks.insert).toHaveBeenCalledWith({ tenant_id: "fixture-A", external_ref: "cliente-A", display_name: null }));
+    act(() => switchFromOpenForm("fixture-B"));
+    await screen.findByText("Dados B");
+    await act(async () => finishWrite({ error: null }));
+    expect(mocks.insert).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByTestId("active-tenant")).toHaveTextContent("fixture-B");
+  });
+
   it("cancels pending queries and clears cache/preference before sign-out and replacement navigation", async () => {
     const qc = mount();
     await waitFor(() => expect(screen.getByTestId("active-tenant")).toHaveTextContent("fixture-A"));
