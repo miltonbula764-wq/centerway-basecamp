@@ -119,7 +119,8 @@ def main():
             out_b, err_b = b.communicate(timeout=20)
             require(a.returncode == 0, f'{name}: A failed at commit')
             if expected_error:
-                require(b.returncode == 3 and expected_error in err_b,
+                # psql -c and -f use different nonzero exit codes; the SQLSTATE is the contract.
+                require(b.returncode in (1, 3) and expected_error in err_b,
                         f'{name}: expected SQLSTATE {expected_error}, got {b.returncode}: {err_b}')
             else:
                 require(b.returncode == 0, f'{name}: B failed: {err_b}')
@@ -213,7 +214,8 @@ COMMIT;
             'Approval did not serialize with the preceding edit')
     denied = subprocess.run(psql + ['-c', 'BEGIN; ' + claims(f['operator']) + edit + '; COMMIT;'],
                             env=env, cwd=root, text=True, capture_output=True, timeout=10)
-    require(denied.returncode == 3 and '42501' in denied.stderr, 'Approved indicator remained editable')
+    require(denied.returncode in (1, 3) and '42501' in denied.stderr,
+            f'Approved edit: expected SQLSTATE 42501, got exit={denied.returncode}: {denied.stderr}')
     results.append(item)
 
     draft2 = actor(f['operator'], f'SELECT public.create_value_profile_version({draft})')
