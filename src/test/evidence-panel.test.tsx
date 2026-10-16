@@ -29,7 +29,10 @@ function tableHandlers(map: Record<string, (args: Record<string, unknown>) => un
     const c: Record<string, unknown> = {};
     for (const m of ["select"]) c[m] = () => c;
     c.eq = (k: string, v: unknown) => { state[k] = v; return c; };
-    c.order = (k: string) => { state.order = k; return c; };
+    c["order"] = (col: string, o: { ascending?: boolean }) => {
+      state["order"] = [col, o.ascending !== false ? "asc" : "desc"];
+      return c;
+    };
     c["limit"] = (n: number) => {
       state["limit"] = n;
       return c;
