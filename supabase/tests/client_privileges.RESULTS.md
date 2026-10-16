@@ -1,3 +1,21 @@
+# Atualização — correção aplicada e verificada
+
+O relatório original abaixo é mantido como histórico da preparação, quando o executor local estava bloqueado. As frases “não executado” desse relatório não descrevem a situação atual.
+
+## Evidência posterior
+- CI inicial: 683f0ad30c87ab4b85c996f1d859d0e3449c1ecc; https://github.com/miltonbula764-wq/centerway-basecamp/actions/runs/38977171450; ambos os jobs success.
+- 812 ACL, acesso/isolamento e reaplicação verdes. Suites históricas: permissions67,ingestion35,C0270,C0340;212 verificações,zero falhas; C02 not_run=0.
+- Drizzle:11migrações anteriores preservadas,0011 acrescentada,segunda execução sem mudar journal.
+- Backend real: aplicação gerida em16/10/2026UTC; ficheiro canónico0011_restore_client_privileges.sql; hash ad64c139583a55ff02ed2d79a9e1becc1f3546effeee8974dfd1df10969a1f1f; created_at1792191706522.
+- Consulta independente:812checks,812passed,0failed; RLS16;40corpos de funções,29policies,44triggers idênticos ao catálogo anterior;11entradas históricas intactas;12entradas finais.
+- Nenhuma fixture inserida no backend nesta verificação;14contagens de negócio continuam0. Publicação não efetuada.
+- Os testes de comportamento permanecem em PostgreSQL sintético; integração HTTP/auth real e concorrência entre sessões não são alegadas.
+
+## História e integração
+A migração foi criada/aplicada pelo executor Lovable ANTES da reconciliação deste PR. O branch mantém agora esse ficheiro,journal e snapshot como referência canónica. Não executar uma segunda migração para voltar a aplicar o mesmo patch. Não usar o journal inicialmente proposto no CI no lugar do timestamp/hash efetivamente registados.
+
+---
+
 # C01–C03: patch de permissões para revisão
 
 Data: 2026-10-16. Base: `faa3bd6fe3b18176d4df45045c4458cf75f6ba75`, branch local `work`.

@@ -1,3 +1,18 @@
+# Estado atualizado — integração da migração canónica
+
+A secção abaixo foi escrita ANTES do push; é um relato histórico, não o estado atual.
+
+- Primeiro CI: commit 683f0ad30c87ab4b85c996f1d859d0e3449c1ecc, execução https://github.com/miltonbula764-wq/centerway-basecamp/actions/runs/38977171450, SQL e Drizzle success; 812 verificações ACL e 212 históricas (67+35+70+40), zero falhas.
+- A 0011 foi entretanto aplicada ao backend Pro Suzana pela ferramenta gerida Lovable, não por Git sync nem por SQL manual com journal fabricado.
+- Este branch passa a preservar o ficheiro/journal/snapshot canónicos de main em 07471d7580b12f0096aa04bb883375e3f516dd57. Hash SQL ad64c139583a55ff02ed2d79a9e1becc1f3546effeee8974dfd1df10969a1f1f; timestamp 1792191706522. O SQL difere da cópia inicialmente testada apenas pela ausência da newline final; os comandos são idênticos.
+- A atualização gerada de package/bun.lock/previewAuthStorage é mantida; o Lovable executou Vitest 33/33 e build com sucesso. Código de aplicação verificado na árvore, não revertido.
+- Verificação independente remota: 812/812 privilégios; RLS16/16; 40 corpos de funções,29policies e44triggers preservados;11registos históricos do journal id/hash/created_at intactos,12no total; contagens das14tabelas de negócio consultadas continuam0.
+- Uma nova execução CI será disparada pelo push deste alinhamento e deve validar o conteúdo final canónico. Consultar a execução do head atual antes de integrar; os resultados do primeiro commit não são atribuídos automaticamente a este.
+- Limites: validação SQL sintética não prova GoTrue/JWT real/PostgREST/pooling/browser nem concorrência de duas sessões. Nenhuma publicação.
+- O workflow permanece intencionalmente limitado a pushes da branch de revisão; não é CI universal para futuros PRs.
+
+---
+
 # Revisão: validação C01–C03 no GitHub Actions
 
 Estado: preparado localmente; nenhum push, execução Actions ou teste PostgreSQL realizado.
