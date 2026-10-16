@@ -89,12 +89,12 @@ function deferred<T>() {
 }
 
 /** Sentinel: a mutation callback really ran (it invalidated some c03_attempts key) before asserting a negative. */
-function callbackRan(spy: ReturnType<typeof vi.spyOn>) {
+function callbackRan(spy: { mock: { calls: unknown[][] } }) {
   return spy.mock.calls.some(([arg]) => ((arg as { queryKey?: unknown[] })?.queryKey ?? [])[2] === "c03_attempts");
 }
 
 /** Tenant A's attempts for the captured run were invalidated (tenant captured at request time, not the new one). */
-function invalidatedAttemptsFor(spy: ReturnType<typeof vi.spyOn>, tenantId: string, runId: string) {
+function invalidatedAttemptsFor(spy: { mock: { calls: unknown[][] } }, tenantId: string, runId: string) {
   return spy.mock.calls.some(([arg]) => {
     const key = (arg as { queryKey?: unknown[] })?.queryKey ?? [];
     return key[0] === "t" && key[1] === tenantId && key[2] === "c03_attempts" && key.includes(runId);

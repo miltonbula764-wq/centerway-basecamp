@@ -31,7 +31,7 @@ type Bundle = {
   data_cutoff: string;
   content_hash: string;
   revision_of: string | null;
-  summary: Record<string, unknown> | null;
+  summary: { complete?: unknown; insufficient?: unknown; context_facts?: unknown; stored_refs?: unknown; indicators?: unknown; ref_budget?: unknown } | null;
   created_at: string;
 };
 
