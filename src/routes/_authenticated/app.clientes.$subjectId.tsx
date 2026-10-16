@@ -30,6 +30,7 @@ function ClienteDetalhe() {
   const { subjectId } = Route.useParams();
   const { tenant, canWrite } = useTenant();
   const [edit, setEdit] = useState(false);
+  const [selectedRun, setSelectedRun] = useState<string | null>(null);
 
   const subject = useQuery({
     queryKey: tk(tenant.id, "subject", subjectId),
