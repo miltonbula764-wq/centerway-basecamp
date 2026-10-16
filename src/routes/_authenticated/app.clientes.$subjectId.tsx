@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Empty, ErrorState, formatDate, Loading, Mono, PageHeader, Panel, StatusPill } from "@/components/app/ui-bits";
 import { SubjectDialog } from "@/components/app/subject-dialog";
 import { DeteriorationPanel } from "@/components/app/deterioration-panel";
+import { EvidencePanel } from "@/components/app/evidence-panel";
 
 export const Route = createFileRoute("/_authenticated/app/clientes/$subjectId")({
   head: () => ({
@@ -29,6 +30,7 @@ function ClienteDetalhe() {
   const { subjectId } = Route.useParams();
   const { tenant, canWrite } = useTenant();
   const [edit, setEdit] = useState(false);
+  const [selectedRun, setSelectedRun] = useState<string | null>(null);
 
   const subject = useQuery({
     queryKey: tk(tenant.id, "subject", subjectId),
@@ -121,7 +123,8 @@ function ClienteDetalhe() {
             </div>
           )}
         </Panel>
-        <DeteriorationPanel subjectId={s.id} profileId={approved?.id} />
+        <DeteriorationPanel subjectId={s.id} profileId={approved?.id} onRunChange={setSelectedRun} />
+        <EvidencePanel subjectId={s.id} runId={selectedRun} />
         <Panel title="Histórico de observações" className="lg:col-span-2">
           {observations.isLoading ? (
             <Loading />

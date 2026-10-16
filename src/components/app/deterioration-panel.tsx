@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Play } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,7 +28,7 @@ const tone = (s: C02Status) =>
 const utc = (iso: string) => new Date(iso).toISOString().slice(0, 16).replace("T", " ") + "Z";
 const num = (v: unknown) => (v === null || v === undefined ? "—" : String(Number(v)));
 
-export function DeteriorationPanel({ subjectId, profileId }: { subjectId: string; profileId: string | undefined }) {
+export function DeteriorationPanel({ subjectId, profileId, onRunChange }: { subjectId: string; profileId: string | undefined; onRunChange?: (runId: string | null) => void }) {
   const { tenant, canWrite } = useTenant();
   const tenantId = tenant.id;
   const qc = useQueryClient();
@@ -47,6 +47,9 @@ export function DeteriorationPanel({ subjectId, profileId }: { subjectId: string
     },
   });
   const runId = selected ?? runs.data?.[0]?.id ?? null;
+  useEffect(() => {
+    onRunChange?.(runId);
+  }, [runId, onRunChange]);
   const results = useQuery({
     queryKey: tk(tenantId, "c02_results", runId),
     enabled: !!runId,
