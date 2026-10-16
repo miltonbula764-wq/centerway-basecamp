@@ -123,7 +123,8 @@ function ClienteDetalhe() {
             </div>
           )}
         </Panel>
-        <DeteriorationPanel subjectId={s.id} profileId={approved?.id} />
+        <DeteriorationPanel subjectId={s.id} profileId={approved?.id} onRunChange={setSelectedRun} />
+        <EvidencePanel subjectId={s.id} runId={selectedRun} />
         <Panel title="Histórico de observações" className="lg:col-span-2">
           {observations.isLoading ? (
             <Loading />
