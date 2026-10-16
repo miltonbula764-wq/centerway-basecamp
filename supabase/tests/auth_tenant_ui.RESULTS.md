@@ -19,7 +19,9 @@ Base de trabalho: `6770fd2`. Apenas testes e documentação adicionados; nenhuma
 3. Logout cancela queries, limpa cache/preferência e invalida guard antes do signOut; navegação usa `/auth` com `replace: true`. Resposta tardia não repovoa cache tenant.
 4. Request de criação já enviado em A permanece dirigido a A quando B é selecionado; nunca é reenviado/retargeted a B. Uma escrita já enviada não tem garantia de cancelamento transacional.
 
-Comandos/resultados: primeira execução focada 2/3; falha no seletor do teste porque o modal torna sidebar inacessível, não falha do produto. Teste corrigido para invocar a troca através do contexto real. Suite completa posterior 36/36. Resultado final após adicionar cenário 4 registado abaixo.
+Comandos/resultados: `bunx vitest run src/test/tenant-session.test.tsx` inicialmente 2/3; falha no seletor do teste porque o modal torna sidebar inacessível, não falha do produto. Teste corrigido para invocar a troca através do contexto real. `bunx vitest run` passou 36/36. Execução focada final após adicionar cenário 4: **4/4 passaram**, 2,77 s. Não se repetiu a suite completa após acrescentar apenas esse teste.
+
+Último commit observado após implementação dos testes: `67c6901` (gerido automaticamente pela plataforma; o relatório final pode produzir commit posterior).
 
 ## Fixtures, capacidades e limites
 
