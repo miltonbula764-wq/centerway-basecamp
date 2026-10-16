@@ -131,8 +131,9 @@ describe("EvidencePanel (C03 UI, controlled requests — not a real backend)", (
     await screen.findByText("Página 1 de 3 · 120 referências no total");
     fireEvent.click(screen.getByRole("button", { name: "Seguinte" }));
     await screen.findByText("Página 2 de 3 · 120 referências no total");
-    // deterministic: page 2 starts at ordinal 51
-    expect(screen.getByText("51")).toBeInTheDocument();
+    // deterministic: page 2 starts at ordinal 51 (ordinal and value cells both render it)
+    expect(screen.getAllByText("51").length).toBeGreaterThan(0);
+    expect(screen.queryByText("1", { selector: "td" })).not.toBeInTheDocument();
   });
 
   it("explains ref budget exceeded without showing a partial bundle as complete", async () => {
