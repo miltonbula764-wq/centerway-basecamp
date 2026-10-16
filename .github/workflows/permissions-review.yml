@@ -1,0 +1,81 @@
+name: C01-C03 permissions review
+
+# push starts the FIRST run from this branch, without registering the workflow on main.
+on:
+  push:
+    branches: [review/c01-c03-permissions-ci]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: permissions-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  permissions:
+    name: PostgreSQL 17 / ${{ matrix.mode }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [sql, drizzle]
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          # Disposable service, loopback-only published port, no reusable password/secret.
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 127.0.0.1:5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - name: Checkout review commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Prepare logs
+        run: |
+          mkdir -p "$RUNNER_TEMP/cw-validation/logs"
+          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/cw-validation/logs/commit.txt"
+      - name: Node for Drizzle only
+        if: matrix.mode == 'drizzle'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Ensure PostgreSQL client
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update > "$RUNNER_TEMP/cw-validation/logs/client-install.log" 2>&1
+            sudo apt-get install -y --no-install-recommends postgresql-client >> "$RUNNER_TEMP/cw-validation/logs/client-install.log" 2>&1
+          fi
+      - name: Validate synthetic database
+        env:
+          CW_MODE: ${{ matrix.mode }}
+        run: python3 scripts/ci/validate_permissions.py "$CW_MODE"
+      - name: Collect disposable PostgreSQL logs
+        if: always()
+        env:
+          PG_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/cw-validation/logs"
+          if [ -n "$PG_CONTAINER" ]; then
+            docker logs "$PG_CONTAINER" > "$RUNNER_TEMP/cw-validation/logs/postgres.log" 2>&1
+          fi
+      - name: Save validation logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: permissions-${{ matrix.mode }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cw-validation/logs/
+          retention-days: 3
+          if-no-files-found: warn
