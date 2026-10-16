@@ -14,12 +14,13 @@ Cenários:
 4. Edição de indicador draft em paralelo com aprovação: aprovação aguarda, conserva edição e recusa escrita posterior com SQLSTATE42501.
 5. Aprovação de nova versão em paralelo com importação de preview antigo: import aguarda, recusa SQLSTATE22023, nenhuma observação inserida com a chave de teste.
 Primeira execução38980952054 falhou numa expectativa do próprio harness: psql -c não usou exit3 do modo script. A proteção42501 já funcionava. Corrigida a verificação para aceitar os exits de erro do cliente, mantendo SQLSTATE exato42501/22023. Nenhum SQL/produto nem teste histórico alterado.
-Execução corrigida38981092103: etapa de testes passou; verificar a execução do head final desta branch antes de integrar.
+Execução corrigida38981092103: etapa de testes passou.
+**Estado atual: concorrência real APROVADA nos 5 cenários; PR #2 integrado em main 719ae43; execução final 38981197896 verde.** Não repetir sem alteração de SQL (nenhum SQL mudou desde então).
 Ambiente: GitHub-hosted Ubuntu24.04, PostgreSQL17 descartável, claims sintéticas, dados de teste no serviço descartável. Não liga ao Supabase real nem prova HTTP/JWT/GoTrue.
 
 ## Interface/autenticação
 Lovable produziu src/test/tenant-session.test.tsx e supabase/tests/auth_tenant_ui.RESULTS.md em58a4a7ff.
-- Suite completa36/36; depois quarto cenário acrescentado, execução focada4/4. Não alegar suite completa37/37.
+- Histórico (58a4a7ff): suite completa 36/36 e depois execução focada 4/4. Atual: a suite completa foi reexecutada com 37/37 na verificação autenticada (719ae43) e é hoje 55/55 após C03 UI.
 - CacheA removida ao mudarB; respostaA tardia não aparece emB; formulárioA desmonta; preview capturadoA recusado após troca; escrita já enviada permanece dirigidaA; logout limpa/invalida antes de signOut.
 - Navegador real rejeitou rota protegida sem sessão e password sign-in de conta inexistente contra o serviço real; reload não autenticado e zero erros de página.
 - Não foi inventada sessão. auth.users=0 e tenants=0 antes; nenhuma fixture remota criada.
@@ -34,7 +35,13 @@ Lovable produziu src/test/tenant-session.test.tsx e supabase/tests/auth_tenant_u
 - O Lovable reportou saldo workspace86 durante a verificação. Não é saldo reservado deste projeto nem valor de faturação pós-turno; a antiga estimativa por envelope100 não substitui a leitura do saldo.
 - Bootstrap/testes SQL desta branch nunca devem ser executados no backend real.
 
-## Próximo bloco de produto
+## C03 UI (estado atual)
+- Construído em 8595a3f e corrigido após revisão independente (guard de resposta tardia por identidade+geração, pacote por tenant+cliente+análise, detalhe completo das referências, snapshot histórico, testes red/green). Ver `c03_ui.RESULTS.md`.
+- Suite 55/55, tipos 0 erros, build OK. Testes do painel são controlados (pedidos simulados).
+- Browser: verificações anteriores foram no dev local ligado ao backend real. Com 0 clientes o detalhe do cliente não é alcançável; o painel C03 nunca foi renderizado no browser real.
+- Conta do fundador: existe e foi confirmada (registo na base); password login relatado pelo fundador.
+
+## Próximo bloco de produto (histórico — C03 UI já concluída)
 C03 interface, sobre o servidor c03-v1 existente: detalhe de cliente/análise, montar pacote apenas admin/operator, viewer consulta, histórico e refs paginadas, estados complete/insufficient/context_facts com motivos claros. Usar snapshot e IDs; nunca fabricar evidências no browser, nem converter candidato/pacote em caso acionável.
 Preservar tk(tenant), limpeza de cache, guard de tenant capturado, imutabilidade e 0011.
 Começar por confirmar o entendimento desse escopo no Lovable antes da construção. Sem novos componentes C04–C10, IA paga, ações externas ou alterações de semântica do detector neste bloco.
