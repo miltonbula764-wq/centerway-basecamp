@@ -40,13 +40,13 @@ function tableHandlers(map: Record<string, (args: Record<string, unknown>) => un
     c.order = (k: string) => { state.order = k; return c; };
     c.limit = (n: number) => { state.limit = n; return c; };
     c.range = (a: number, b: number) => { state.range = [a, b]; return c; };
-    c.then = (resolve: (v: unknown) => unknown) =>
+    c["then"] = (resolve: (v: unknown) => unknown) =>
       Promise.resolve({ data: map[table] ? map[table](state) : [], error: null }).then(resolve);
     return c;
   });
 }
 
-function ctx(role: "admin" | "viewer"): TenantCtx {
+function ctx(role: "admin" | "operator" | "viewer"): TenantCtx {
   return {
     tenant: { id: TENANT, name: "Empresa", subject_unit_type: "organization", role },
     tenants: [],
@@ -107,7 +107,7 @@ beforeEach(() => {
     c03_indicators: () => indicators,
     c03_attempts: () => [],
     c03_refs: (s) => {
-      const [a, b] = (s.range as [number, number]) ?? [0, 49];
+      const [a, b] = (s["range"] as [number, number]) ?? [0, 49];
       return Array.from({ length: Math.min(b - a + 1, 120 - a) }, (_, i) => refRow(a + i + 1));
     },
   });
