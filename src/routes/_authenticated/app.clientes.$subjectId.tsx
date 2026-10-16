@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Empty, ErrorState, formatDate, Loading, Mono, PageHeader, Panel, StatusPill } from "@/components/app/ui-bits";
 import { SubjectDialog } from "@/components/app/subject-dialog";
 import { DeteriorationPanel } from "@/components/app/deterioration-panel";
+import { EvidencePanel } from "@/components/app/evidence-panel";
 
 export const Route = createFileRoute("/_authenticated/app/clientes/$subjectId")({
   head: () => ({

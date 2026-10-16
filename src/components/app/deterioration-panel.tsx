@@ -47,6 +47,9 @@ export function DeteriorationPanel({ subjectId, profileId, onRunChange }: { subj
     },
   });
   const runId = selected ?? runs.data?.[0]?.id ?? null;
+  useEffect(() => {
+    onRunChange?.(runId);
+  }, [runId, onRunChange]);
   const results = useQuery({
     queryKey: tk(tenantId, "c02_results", runId),
     enabled: !!runId,
