@@ -28,7 +28,7 @@ function tableHandlers(map: Record<string, (args: Record<string, unknown>) => un
     const state: Record<string, unknown> = {};
     const c: Record<string, unknown> = {};
     for (const m of ["select"]) c[m] = () => c;
-    c.eq = (k: string, v: unknown) => { state[k] = v; return c; };
+    c["eq"] = (k: string, v: unknown) => { state[k] = v; return c; };
     c["order"] = (col: string, o: { ascending?: boolean }) => {
       state["order"] = [col, o.ascending !== false ? "asc" : "desc"];
       return c;
