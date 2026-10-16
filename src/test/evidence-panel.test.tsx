@@ -30,8 +30,14 @@ function tableHandlers(map: Record<string, (args: Record<string, unknown>) => un
     for (const m of ["select"]) c[m] = () => c;
     c.eq = (k: string, v: unknown) => { state[k] = v; return c; };
     c.order = (k: string) => { state.order = k; return c; };
-    c.limit = (n: number) => { state.limit = n; return c; };
-    c.range = (a: number, b: number) => { state.range = [a, b]; return c; };
+    c["limit"] = (n: number) => {
+      state["limit"] = n;
+      return c;
+    };
+    c["range"] = (a: number, b: number) => {
+      state["range"] = [a, b];
+      return c;
+    };
     c["then"] = (resolve: (v: unknown) => unknown) =>
       Promise.resolve({ data: map[table] ? map[table](state) : [], error: null }).then(resolve);
     return c;
