@@ -38,8 +38,10 @@ import { Route } from "@/routes/_authenticated/app";
 
 let resolveA: (value: string) => void;
 let pendingA: Promise<string>;
+let switchFromOpenForm: (id: string) => void;
 function TestSurface() {
-  const { tenant, canWrite } = useTenant();
+  const { tenant, canWrite, switchTenant } = useTenant();
+  switchFromOpenForm = switchTenant;
   const [open, setOpen] = useState(false);
   const result = useQuery({ queryKey: tk(tenant.id, "controlled-read"), queryFn: () => tenant.id === "fixture-A" ? pendingA : Promise.resolve("Dados B") });
   return <>
@@ -75,7 +77,9 @@ describe("Existing tenant/session UI with controlled requests (not real login)",
     qc.setQueryData(tk("fixture-A", "cached-secret"), "Segredo A");
     fireEvent.click(screen.getByRole("button", { name: "Abrir formulário" }));
     fireEvent.change(await screen.findByLabelText("Referência externa"), { target: { value: "cliente-A" } });
-    fireEvent.click(screen.getByRole("button", { name: "Empresa B" }));
+    // A modal correctly blocks sidebar interaction. Simulate an external tenant
+    // switch through the real context while its old form remains open.
+    act(() => switchFromOpenForm("fixture-B"));
     await screen.findByText("Dados B");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Abrir formulário" })).not.toBeInTheDocument();
