@@ -23,14 +23,6 @@ const TENANT = "fixture-tenant";
 const SUBJECT = "fixture-subject";
 const RUN = "fixture-run";
 
-function chain(result: { data: unknown; error?: unknown }) {
-  const c: Record<string, unknown> = {};
-  const self = () => c;
-  for (const m of ["select", "eq", "order", "limit", "range", "maybeSingle", "single"]) c[m] = self;
-  c.then = (resolve: (v: unknown) => unknown) => Promise.resolve(result).then(resolve);
-  return c;
-}
-
 function tableHandlers(map: Record<string, (args: Record<string, unknown>) => unknown>) {
   mocks.from.mockImplementation((table: string) => {
     const state: Record<string, unknown> = {};
