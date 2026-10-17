@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { randomBytes } from 'node:crypto';
 const config = JSON.parse(fs.readFileSync('e2e/private/public.json', 'utf8'));
 assert.equal(config.url, 'http://127.0.0.1:54321');
-const password = 'Synthetic-CI-Only-Password-4859';
+const password = randomBytes(24).toString('base64url') + '-Aa1!';
 async function request(path, token, body, method = 'POST') {
   const response = await fetch(config.url + path, {
     method, headers: { apikey: config.anon, Authorization: `Bearer ${token || config.anon}`,
@@ -66,13 +67,18 @@ async function subject(token, tenant, profileId, key, name) {
     })),
   });
   assert.equal(imported.status, 'completed');
+  const readable = await rpc(token, 'run_deterioration_analysis', {
+    _tenant_id: tenant, _subject_id: row.id, _expected_profile_id: profileId, _as_of: date(-1),
+  });
+  const historicalBundle = await rpc(token, 'build_evidence_bundle', { _tenant_id: tenant, _run_id: readable.run_id });
+  assert.equal(historicalBundle.status, 'built');
   const older = await rpc(token, 'run_deterioration_analysis', {
     _tenant_id: tenant, _subject_id: row.id, _expected_profile_id: profileId, _as_of: date(-7),
   });
   const primary = await rpc(token, 'run_deterioration_analysis', {
     _tenant_id: tenant, _subject_id: row.id, _expected_profile_id: profileId, _as_of: date(0),
   });
-  return { id: row.id, name, primary: primary.run_id, older: older.run_id };
+  return { id: row.id, name, primary: primary.run_id, older: older.run_id, readable: readable.run_id, historicalBundle: historicalBundle.bundle_id };
 }
 const customerA = await subject(users.admin.token, tenantA, profileA, 'synthetic-a', 'Cliente Sintético A');
 const customerA2 = await subject(users.admin.token, tenantA, profileA, 'synthetic-a2', 'Outro Cliente A');
@@ -96,11 +102,16 @@ for (const [label, token, body] of [
   assert.equal(response.status, 403, label);
   assert.equal(error.code, '42501', label);
 }
+const tampered = users.viewer.token.slice(0, -5) + 'aaaaa';
+for (const path of ['/rest/v1/subjects?select=id', '/auth/v1/user']) {
+  const invalid = await fetch(config.url + path, { headers: { apikey: config.anon, Authorization: `Bearer ${tampered}` } });
+  assert.equal(invalid.status, 401, 'Invalid JWT signature must be rejected by ' + path);
+}
 const fixture = { tenantA, tenantB, customerA, customerA2, customerB, profileA, profileV2 };
 fs.writeFileSync('e2e/fixtures.json', JSON.stringify(fixture, null, 2));
-fs.writeFileSync('e2e/private/users.json', JSON.stringify(users));
+fs.writeFileSync('e2e/private/users.json', JSON.stringify(Object.fromEntries(Object.entries(users).map(([role, u]) => [role, { email: u.email, password: u.password, id: u.id }]))));
 fs.writeFileSync('e2e/logs/auth-rls.json', JSON.stringify({
-  real_password_grants: 4, get_user_verified: 4, cross_tenant_read_hidden: true,
+  real_password_grants: 4, get_user_verified: 4, invalid_jwt_rejected_by_auth_and_rest: true, cross_tenant_read_hidden: true,
   viewer_build_sqlstate: '42501', cross_tenant_operator_sqlstate: '42501',
   synthetic: true, production_contacted: false,
 }, null, 2));

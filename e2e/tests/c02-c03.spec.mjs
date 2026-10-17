@@ -75,6 +75,7 @@ test('native auth/REST: historical C02 → explicit built/reused → stored indi
   await select(page).selectOption(fixture.customerA.primary);
   await expect(select(page).locator('option:checked')).toContainText('perfil v1');
   await expect(page.getByText('Promessa atual v2', { exact: true })).toBeVisible();
+  await expect(page.getByText('Sinal candidato de deterioração', { exact: true })).toBeVisible();
   expect(builds).toBe(0);
   const response = page.waitForResponse(rpc);
   await button(page).click();
@@ -187,6 +188,8 @@ for (const [status, code, message] of [
 
 test('native viewer login can read evidence but has no analyze/build controls', async ({ page }) => {
   await login(page, 'viewer'); await detail(page);
+  await select(page).selectOption(fixture.customerA.readable);
+  await expect(evidence(page).getByText(fixture.customerA.historicalBundle, { exact: true })).toBeVisible();
   await expect(evidence(page).getByText('Evidência íntegra', { exact: true })).toBeVisible();
   await expect(button(page)).toHaveCount(0);
   await expect(page.getByRole('button', { name: /Analisar agora/ })).toHaveCount(0);
@@ -195,9 +198,28 @@ test('native viewer login can read evidence but has no analyze/build controls', 
 test('mobile native login and historical evidence detail', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await login(page, 'operator'); await detail(page);
+  await select(page).selectOption(fixture.customerA.readable);
+  await expect(evidence(page).getByText(fixture.customerA.historicalBundle, { exact: true })).toBeVisible();
   await expect(evidence(page).getByTestId('c03-snapshot-outcome')).toContainText('Baseline: 80');
   await evidence(page).getByRole('button', { name: /^outcome/ }).click();
   await evidence(page).getByRole('button', { name: 'Detalhe da referência 1', exact: true }).click();
   await expect(evidence(page).getByTestId('c03-ref-detail-1')).toBeVisible();
   await page.screenshot({ path: 'logs/browser-mobile.png', fullPage: true });
+});
+
+
+test('native auth: protected route, reload, logout/cache clear and back navigation', async ({ page }) => {
+  await page.goto('/app/clientes/' + fixture.customerA.id);
+  await expect(page).toHaveURL(/\/auth/);
+  await expect(button(page)).toHaveCount(0);
+  await login(page, 'viewer');
+  await detail(page);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: fixture.customerA.name, exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Terminar sessão', exact: true }).click();
+  await expect(page).toHaveURL(/\/auth/);
+  await expect.poll(() => page.evaluate(() => window.__CW_E2E_STATE__().keys)).toEqual([]);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/auth/);
+  await expect(page.getByRole('heading', { name: fixture.customerA.name, exact: true })).toHaveCount(0);
 });

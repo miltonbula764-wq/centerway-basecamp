@@ -42,3 +42,13 @@ Neste bloco não foi aberta nova sessão de browser. A verificação autenticada
 - Ajustes apenas de texto após a validação 55/55: ausência de `revision_of` significa sem pacote anterior associado, não necessariamente o primeiro pacote do cliente; falha na montagem preserva a tentativa de auditoria; código `c02_input_hash_mismatch` traduzido.
 - A lista apresenta as últimas 20 tentativas; o seletor C02 existente apresenta as 50 análises mais recentes. O histórico completo permanece na base de dados; a paginação completa desses dois históricos ainda não foi implementada.
 - Créditos reportados pela API Lovable nesta continuação: 3,7 (verificação autenticada), 8,0 (primeira interface) e 13,7 (correções e validação), total 25,4. Estes valores não são o saldo do workspace.
+
+## Atualização — Engenharia #5 (browser isolado)
+
+O relato anterior de ausência de browser refere-se à validação histórica desse bloco.
+Foi acrescentada uma suite Chromium com servidor real da aplicação e stack descartável
+GoTrue/PostgREST/PostgreSQL, sem sessões fabricadas. A primeira execução completa
+39015283962 aprovou 9 cenários de browser, 89 testes unitários, tipos e build.
+Ver `e2e/README.md` e o PR da Engenharia #5 para a receita, evolução da suite e resultados
+do commit final. Os cenários de JSON rejected/failed são controlados; os testes de password,
+JWT e RLS usam apenas os serviços sintéticos locais. Isto não revalida o backend alojado.
