@@ -55,6 +55,17 @@ jobs:
       - name: Seed synthetic data through real password grants and REST
         working-directory: ${{ runner.temp }}/cw-browser
         run: node e2e/seed.mjs
+      - name: Mount synthetic MVP cases and explicit retrospective outcome fixtures
+        working-directory: ${{ runner.temp }}/cw-browser
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGDATABASE: cw_e2e
+          PGPASSFILE: /dev/null
+        run: |
+          node e2e/mvp-seed.mjs
+          python3 scripts/mvp/load-history.py
       - name: Browser end-to-end scenarios
         working-directory: ${{ runner.temp }}/cw-browser/e2e
         run: |
@@ -85,6 +96,7 @@ jobs:
             ${{ runner.temp }}/cw-browser/e2e/logs/
             ${{ runner.temp }}/cw-browser/e2e/report/
             ${{ runner.temp }}/cw-browser/e2e/results/
+            ${{ runner.temp }}/cw-browser/public/mvp-preview.html
           retention-days: 3
           if-no-files-found: warn
       - name: Stop only this job's disposable services

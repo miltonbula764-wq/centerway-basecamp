@@ -22,3 +22,10 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## MVP C01–C10 em revisão
+
+O percurso operacional está em `/app/casos`, com Core e política sintética isolada.
+Ver [arranque e limites](docs/MVP_RUNNING.md) e [contrato da demonstração](docs/MVP_JOURNEY_CONTRACT.md).
+Para uma referência visual sem instalação, abrir `public/mvp-preview.html` (leitura, ilustrativo).
+Não aplicar migrações no backend hospedado para testar esta entrega.
