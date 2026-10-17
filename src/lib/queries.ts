@@ -82,7 +82,8 @@ export const historicalValueContextQuery = (tenantId: string, subjectId: string,
       const run = runs.data[0] as Run;
       if (run.id !== bundle.run_id || run.tenant_id !== tenantId || run.subject_id !== subjectId ||
           run.input_hash !== bundle.c02_input_hash || run.algorithm_version !== bundle.c02_algorithm_version ||
-          !Number.isFinite(Date.parse(run.data_cutoff)) || Date.parse(run.data_cutoff) !== Date.parse(bundle.data_cutoff)) return null;
+          // Both values come from the same PostgREST timestamp serializer. Preserve PostgreSQL microseconds.
+          !Number.isFinite(Date.parse(run.data_cutoff)) || run.data_cutoff !== bundle.data_cutoff) return null;
       const profiles = await supabase.from("tenant_value_profiles")
         .select("id, tenant_id, version, status, approved_at, promise, expected_outcome")
         .eq("tenant_id", tenantId).eq("id", run.profile_id).limit(2);

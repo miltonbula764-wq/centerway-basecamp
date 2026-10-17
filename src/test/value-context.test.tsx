@@ -77,6 +77,7 @@ describe("Core input: historical promise, never a value conclusion", () => {
   it.each([
     { tenant_id: "tenant-b" }, { subject_id: "subject-b" }, { id: "run-b" },
     { input_hash: "different" }, { algorithm_version: "c02-v1" }, { data_cutoff: "2026-10-02T00:00:00Z" },
+    { data_cutoff: "2026-10-01T00:00:00.000001Z" },
   ])("refuses a run incompatible with the selected bundle: %j", async change => {
     backend(table => table === "c02_runs" ? [{ ...run, ...change }] : [profile]);
     mount(); await screen.findByText(/Contexto histórico indisponível/);
