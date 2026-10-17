@@ -1,3 +1,5 @@
+import type { Objective, Assessment, JourneyCase, CaseEvent, ReadOnlyTable } from "@/lib/journey-types";
+
 export type Json =
   | string
   | number
@@ -14,6 +16,10 @@ export type Database = {
   }
   public: {
     Tables: {
+      cw_objectives: ReadOnlyTable<Objective>
+      cw_assessments: ReadOnlyTable<Assessment>
+      cw_cases: ReadOnlyTable<JourneyCase>
+      cw_case_events: ReadOnlyTable<CaseEvent>
       audit_log: {
         Row: {
           action: string
@@ -1090,6 +1096,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_demo_objective: {
+        Args: { _tenant_id: string; _subject_id: string; _profile_id: string; _deadline: string; _source: string; _capacity_ref: string; _commitment_ref: string; _customer_ref: string }
+        Returns: string
+      }
+      assess_demo_objective: {
+        Args: { _tenant_id: string; _objective_id: string; _bundle_id: string }
+        Returns: string
+      }
+      open_demo_case: {
+        Args: { _tenant_id: string; _assessment_id: string }
+        Returns: string
+      }
+      command_demo_case: {
+        Args: { _tenant_id: string; _case_id: string; _expected_version: number; _operation_id: string; _command: string; _payload: Json }
+        Returns: Json
+      }
       _c02_cmp: {
         Args: {
           _a: number
