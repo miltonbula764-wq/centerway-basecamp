@@ -17,7 +17,11 @@ assert os.environ.get('PGDATABASE') == 'cw_e2e'
 fixture=json.dumps(json.loads(Path('e2e/mvp-fixtures.json').read_text()))
 # SQL literal escaping, not shell interpolation; fixture has no credentials.
 statement="BEGIN; SELECT set_config('cw.mvp_fixture', '"+fixture.replace("'","''")+"', true);\n"+Path('e2e/mvp-history.sql').read_text()+"\nCOMMIT;"
-result=subprocess.run(['psql','-X','-v','ON_ERROR_STOP=1'],input=statement,text=True,capture_output=True)
+env=os.environ.copy()
+for key in ('PGPASSWORD','PGSERVICE','PGSERVICEFILE','PGHOSTADDR','PGOPTIONS'):
+    env.pop(key,None)
+env['PGPASSFILE']='/dev/null'
+result=subprocess.run(['psql','-X','-h','127.0.0.1','-p','5432','-U','postgres','-d','cw_e2e','-v','ON_ERROR_STOP=1'],input=statement,text=True,capture_output=True,env=env)
 if result.returncode:
     print(result.stderr)
     raise SystemExit(result.returncode)

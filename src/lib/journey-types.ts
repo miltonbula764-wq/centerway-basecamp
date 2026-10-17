@@ -53,6 +53,7 @@ export function journeyError(error: unknown): string {
     stale_case_version: "O caso mudou. Atualize o histórico antes de repetir.", idempotency_conflict: "A chave da operação já foi usada com outro conteúdo.",
     transition_not_allowed: "Esta ação não é permitida no estado atual.",
     approval_expired: "A aprovação expirou. Este piloto ainda não permite renovar o plano; a execução ficou bloqueada.",
+    approval_no_longer_authorized: "O autor da aprovação já não é administrador. A execução ficou bloqueada.",
     human_receipt_required: "Registe a referência da execução humana (até 2000 caracteres).",
     observation_window_not_due: "A janela de 14 dias ainda não terminou. O servidor mantém o caso em observação.",
     bundle_not_found: "O pacote não existe para este cliente e empresa.", case_not_found: "Caso não encontrado nesta empresa.",

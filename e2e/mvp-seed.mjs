@@ -46,12 +46,22 @@ for(const [name,stage,post] of [
   const [a]=await request('/rest/v1/cw_assessments?id=eq.'+assessment,token,undefined,'GET'); assert.equal(a.result,'not_achieved');
   const proof=await request(`/rest/v1/observations?subject_id=eq.${subject.id}&value_text=eq.disabled&select=id`,token,undefined,'GET');
   let caseId=null,version=0;
-  async function command(command,payload={}) { const e=await rpc(token,'command_demo_case',{_tenant_id:tenant,_case_id:caseId,_expected_version:version,_operation_id:crypto.randomUUID(),_command:command,_payload:payload}); version=e.sequence; return e; }
+  async function command(command,payload={},actorToken=token) { const e=await rpc(actorToken,'command_demo_case',{_tenant_id:tenant,_case_id:caseId,_expected_version:version,_operation_id:crypto.randomUUID(),_command:command,_payload:payload}); version=e.sequence; return e; }
   if(!stage.startsWith('historical')) {
     caseId=await rpc(token,'open_demo_case',{_tenant_id:tenant,_assessment_id:assessment});
     if(stage!=='investigation') { await command('investigate',{observation_id:proof[0].id});await command('plan'); }
     if(['execution','waiting'].includes(stage)) await command('approve');
-    if(stage==='waiting') await command('record_execution',{receipt:'[SINTÉTICO] Tarefa humana DEMO-001, registo sem conector externo.'});
+    if(stage==='waiting') {
+      // Basic assembly checks, not the comprehensive security campaign.
+      const body={_tenant_id:tenant,_case_id:caseId,_expected_version:version,_operation_id:crypto.randomUUID(),_command:'record_execution',_payload:{receipt:'[SINTÉTICO] Tarefa humana DEMO-001, registo sem conector externo.'}};
+      await assert.rejects(()=>rpc(users.viewer.token,'command_demo_case',body),/write_role_required/);
+      const executed=await rpc(users.operator.token,'command_demo_case',body);
+      assert.equal(executed.created_by,users.operator.id);
+      const replay=await rpc(users.operator.token,'command_demo_case',body);
+      assert.equal(replay.id,executed.id,'Replayed execution must reuse the stored event');
+      await assert.rejects(()=>rpc(users.operator.token,'command_demo_case',{...body,_payload:{receipt:'different'}}),/idempotency_conflict/);
+      await assert.rejects(()=>rpc(users.operator.token,'command_demo_case',{...body,_expected_version:executed.sequence,_operation_id:crypto.randomUUID(),_command:'observe',_payload:{bundle_id:bundle.bundle_id}}),/observation_window_not_due/);
+    }
   }
   let afterBundle=null;
   if(stage.startsWith('historical')) {

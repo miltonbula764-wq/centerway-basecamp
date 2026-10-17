@@ -14,7 +14,16 @@
 - [x] Detalhe completo de cada referência e resumo do snapshot histórico.
 - [x] 18 testes controlados (red/green registado), suite 55/55, tipos e build OK. Ver supabase/tests/c03_ui.RESULTS.md.
 
-## Pendente
-- [ ] Core/C04: missão Engenharia #6 autoriza contexto histórico; ver docs/CORE_C04_CONTRACT.md.
-- [ ] Classificação de estado de valor: pendente do contrato aprovado (realização, gap, suficiência, agregação).
-- [ ] C05–C10: fora do escopo atual.
+## MVP montado — missão de continuação, outubro 2026
+- [x] Core/C04: contexto histórico preservado; avaliador sintético versionado, sem score global.
+- [x] C05–C10: investigação com prova C01, plano manual, aprovação admin, recibo humano,
+  gate de 14 dias, comparação com novo pacote C03 e decisão resolved/remain_open.
+- [x] Página Casos integrada, dossier por etapa, histórico e estados/erros explícitos.
+- [x] Mapa visual autónomo de leitura em `public/mvp-preview.html`.
+- [x] Receita de base descartável e seis casos sintéticos; histórico retrospectivo explicitamente identificado.
+- [ ] Validação da montagem no commit final: consultar PR #8 e execução CI.
+- [ ] Campanha completa de segurança e E2E C01–C10 após montagem, conforme nova prioridade.
+- [ ] Classificação universal de valor, múltiplos objetivos, compatibilidade documental automática,
+  reabertura e políticas gerais continuam pendentes das decisões A–H do manual.
+
+Contrato: `docs/MVP_JOURNEY_CONTRACT.md`. Arranque e limites: `docs/MVP_RUNNING.md`.

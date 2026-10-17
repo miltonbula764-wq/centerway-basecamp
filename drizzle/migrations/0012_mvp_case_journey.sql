@@ -206,9 +206,11 @@ BEGIN
   SELECT * INTO o FROM public.cw_objectives WHERE id=a.objective_id AND tenant_id=c.tenant_id;
   next_state := NULL;
   IF _command='investigate' AND c.state IN ('investigation','needs_information') THEN
-    SELECT * INTO proof FROM public.observations obs WHERE obs.tenant_id=c.tenant_id AND obs.subject_id=c.subject_id
+    SELECT obs.* INTO proof FROM public.observations obs
+      JOIN public.ingestion_batches batch ON batch.tenant_id=obs.tenant_id AND batch.id=obs.batch_id
+      WHERE obs.tenant_id=c.tenant_id AND obs.subject_id=c.subject_id
       AND obs.id=(_payload->>'observation_id')::uuid AND obs.indicator_key='integration_status'
-      AND obs.profile_id=o.profile_id AND obs.unit='estado' AND obs.value_text='disabled'
+      AND batch.profile_id=o.profile_id AND obs.unit='estado' AND obs.value_text='disabled'
       AND obs.observed_at <= (a.details->>'period_end')::timestamptz
       AND obs.observed_at >= (a.details->>'period_start')::timestamptz
       AND NOT EXISTS(SELECT FROM public.observations cor WHERE cor.tenant_id=obs.tenant_id AND cor.corrects_observation_id=obs.id);
@@ -255,8 +257,10 @@ BEGIN
     IF (d->>'period_end')::timestamptz < deadline_at THEN
       d := d || jsonb_build_object('sufficient',false,'goal_achieved',false,'reason','post_execution_window_incomplete'); END IF;
     before_value := (a.details->>'value')::numeric;
-    SELECT * INTO proof FROM public.observations obs WHERE obs.tenant_id=c.tenant_id AND obs.subject_id=c.subject_id
-      AND obs.indicator_key='integration_status' AND obs.profile_id=o.profile_id AND obs.unit='estado'
+    SELECT obs.* INTO proof FROM public.observations obs
+      JOIN public.ingestion_batches batch ON batch.tenant_id=obs.tenant_id AND batch.id=obs.batch_id
+      WHERE obs.tenant_id=c.tenant_id AND obs.subject_id=c.subject_id
+      AND obs.indicator_key='integration_status' AND batch.profile_id=o.profile_id AND obs.unit='estado'
       AND obs.observed_at>=executed_at AND obs.observed_at <= (d->>'period_end')::timestamptz
       AND obs.ingested_at <= (SELECT data_cutoff FROM public.c03_bundles WHERE id=(_payload->>'bundle_id')::uuid)
       AND NOT EXISTS(SELECT FROM public.observations cor WHERE cor.tenant_id=obs.tenant_id AND cor.corrects_observation_id=obs.id)

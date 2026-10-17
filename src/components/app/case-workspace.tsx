@@ -35,6 +35,7 @@ function Workspace() {
   const { tenant, isAdmin, canWrite } = useTenant();
   const [subjectId, setSubjectId] = useState("");
   const [caseId, setCaseId] = useState("");
+  const [focusStep, setFocusStep] = useState("C04");
   const subjects = useQuery({ queryKey: tk(tenant.id, "journey", "subjects"), queryFn: async () => {
     const { data, error } = await supabase.from("subjects").select("id,display_name,external_ref").eq("tenant_id", tenant.id).order("created_at").limit(100);
     if (error) throw error; return data;
@@ -54,7 +55,7 @@ function Workspace() {
       <a href="/mvp-preview.html" className="mt-2 inline-block underline">Mapa visual de referência (somente leitura, dados ilustrativos)</a>
     </div>
     <div className="mb-6 grid grid-cols-2 gap-2 md:grid-cols-5">
-      {journeySteps.map(([code, title, description]) => <a key={code} href={Number(code.slice(1)) < 4 ? (subjectId ? `/app/clientes/${subjectId}` : "/app/clientes") : `#${code}`} className="rounded-md border border-border p-3 text-xs hover:bg-accent/50">
+      {journeySteps.map(([code, title, description]) => <a key={code} onClick={() => setFocusStep(code)} href={Number(code.slice(1)) < 4 ? (subjectId ? `/app/clientes/${subjectId}` : "/app/clientes") : code === "C04" ? "#C04" : "#case-dossier"} className="rounded-md border border-border p-3 text-xs hover:bg-accent/50">
         <span className="font-mono text-primary">{code}</span><strong className="ml-2">{title}</strong><p className="mt-1 text-muted-foreground">{description}</p>
       </a>)}
     </div>
@@ -77,7 +78,7 @@ function Workspace() {
               </button>)}</div>}
         </Panel>
       </div>
-      {selected ? <CaseDetail key={selected.id} current={selected} /> : <Panel title="Core · acompanhamento"><Empty title="Selecione um caso">O histórico, as autorizações, a janela e os resultados aparecem aqui.</Empty></Panel>}
+      <div id="case-dossier">{selected ? <CaseDetail key={selected.id} current={selected} focusStep={focusStep} /> : <Panel title="Core · acompanhamento"><Empty title="Selecione um caso">O histórico, as autorizações, a janela e os resultados aparecem aqui.</Empty></Panel>}</div>
     </div>
   </>;
 }
@@ -151,10 +152,14 @@ function ObjectivePanel({ subjectId, canWrite, isAdmin, onCase }: { subjectId: s
     <p className="text-xs text-muted-foreground">Sem interpretação automática de documentos ou conclusão global. Configuração incompatível produz bloqueio ou insuficiência.</p>
   </div></Panel>;
 }
-function CaseDetail({ current }: { current: JourneyCase }) {
+function CaseDetail({ current, focusStep }: { current: JourneyCase; focusStep: string }) {
   const { tenant, canWrite, isAdmin } = useTenant();
   const action = useJourneyAction();
   const [tab, setTab] = useState("percurso");
+  useEffect(() => {
+    const tabs: Record<string, string> = { C05: "investigate", C06: "plan", C07: "record_execution", C08: "record_execution", C09: "observe", C10: "decide" };
+    if (tabs[focusStep]) setTab(tabs[focusStep]!);
+  }, [focusStep]);
   const [proof, setProof] = useState("");
   const [receipt, setReceipt] = useState("");
   const [bundleId, setBundleId] = useState("");
@@ -189,6 +194,9 @@ function CaseDetail({ current }: { current: JourneyCase }) {
     <p><Mono>{current.id}</Mono> · versão {current.version}</p>
     <p className="text-xs text-muted-foreground">{current.policy_version} · dados sintéticos. Cada transição regista ator, política, referências e hora.</p>
     {action.error && <ErrorState message={action.error} />}
+    {events.data?.some(e => eventDetails(e)["fixture"] === "synthetic_retrospective_history") && <p className="rounded border border-primary/40 bg-primary/5 p-3 text-xs">
+      Histórico fictício carregado retrospectivamente para visualizar resultados. Não demonstra aprovação/execução histórica nem uma espera real de 14 dias. C09/C10 foram calculados sobre as medições sintéticas persistidas.
+    </p>}
     {!canWrite && <p>Modo de consulta. O papel leitor não pode alterar o caso.</p>}
     {canWrite && ["investigation", "needs_information"].includes(current.state) && <div id="C05" className="space-y-3">
       <Field title="C05 · Prova da integração desativada"><NativeSelect value={proof} onChange={e => setProof(e.target.value)}>
