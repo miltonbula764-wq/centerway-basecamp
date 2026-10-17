@@ -99,6 +99,7 @@ BEGIN
   IF i.id IS NULL OR i.status <> 'complete' OR i.snapshot->>'classification' <> 'outcome'
     OR p->>'unit' IS DISTINCT FROM 'h/semana' OR p->>'direction' IS DISTINCT FROM 'lower_is_better'
     OR p->>'aggregation' IS DISTINCT FROM 'mean' OR p->>'denominator_mode' IS DISTINCT FROM 'observation_count'
+    OR p->>'baseline_method' IS DISTINCT FROM 'fixed_value'
     OR (p->>'expected_cadence_days')::int IS DISTINCT FROM 7
     OR (p->>'observation_window_days')::int IS DISTINCT FROM 7
     OR (p->>'min_coverage_pct')::numeric IS DISTINCT FROM 100
@@ -135,8 +136,11 @@ BEGIN
     OR _deadline IS NULL OR NOT isfinite(_deadline) THEN RAISE EXCEPTION 'approved_profile_and_deadline_required' USING ERRCODE='22023'; END IF;
   IF NOT EXISTS (SELECT FROM public.profile_indicators WHERE tenant_id=_tenant_id AND profile_id=_profile_id
     AND key='report_hours' AND classification='outcome' AND unit='h/semana' AND direction='lower_is_better'
-    AND baseline_value=10 AND target_value=4 AND aggregation='mean' AND observation_window_days=7
+    AND baseline_method='fixed_value' AND baseline_value=10 AND target_value=4 AND aggregation='mean' AND observation_window_days=7
     AND expected_cadence_days=7 AND min_coverage_pct=100 AND denominator_mode='observation_count') THEN
+    RAISE EXCEPTION 'demo_profile_incompatible' USING ERRCODE='22023'; END IF;
+  IF NOT EXISTS (SELECT FROM public.profile_indicators WHERE tenant_id=_tenant_id AND profile_id=_profile_id
+    AND key='integration_status' AND classification='context' AND value_type='text' AND unit='estado') THEN
     RAISE EXCEPTION 'demo_profile_incompatible' USING ERRCODE='22023'; END IF;
   INSERT INTO public.cw_objectives(tenant_id,subject_id,profile_id,policy_version,deadline,measurement_source,
     capacity_ref,commitment_ref,customer_confirmation_ref,created_by)
@@ -187,7 +191,7 @@ CREATE FUNCTION public.command_demo_case(_tenant_id uuid,_case_id uuid,_expected
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE c public.cw_cases; a public.cw_assessments; o public.cw_objectives; e public.cw_case_events;
   proof public.observations; d jsonb; next_state text; h text; approved_at timestamptz; executed_at timestamptz;
-  before_value numeric; previous_result jsonb; deadline_at timestamptz;
+  before_value numeric; previous_result jsonb; deadline_at timestamptz; condition_state text;
 BEGIN
   IF NOT public.has_tenant_role(_tenant_id,ARRAY['admin','operator']::public.member_role[]) THEN
     RAISE EXCEPTION 'write_role_required' USING ERRCODE='42501'; END IF;
@@ -222,6 +226,13 @@ BEGIN
         ELSE 'Não foi possível confirmar o impedimento com a referência fornecida.' END,
       'missing_data',CASE WHEN proof.id IS NULL THEN 'Prova disabled do mesmo cliente/perfil e período, via C01.' ELSE NULL END);
   ELSIF _command='plan' AND c.state='impediment_found' THEN
+    SELECT obs.value_text INTO condition_state FROM public.observations obs
+      JOIN public.ingestion_batches batch ON batch.tenant_id=obs.tenant_id AND batch.id=obs.batch_id
+      WHERE obs.tenant_id=c.tenant_id AND obs.subject_id=c.subject_id AND batch.profile_id=o.profile_id
+        AND obs.indicator_key='integration_status' AND obs.unit='estado'
+        AND NOT EXISTS(SELECT FROM public.observations cor WHERE cor.tenant_id=obs.tenant_id AND cor.corrects_observation_id=obs.id)
+      ORDER BY obs.observed_at DESC,obs.ingested_at DESC LIMIT 1;
+    IF condition_state IS DISTINCT FROM 'disabled' THEN RAISE EXCEPTION 'blocker_no_longer_current' USING ERRCODE='22023'; END IF;
     next_state := 'awaiting_approval';
     d := jsonb_build_object('component','C06','action','manual_enable_integration',
       'instructions','Operador verifica a integração, reativa manualmente e confirma o estado no sistema de origem.',
