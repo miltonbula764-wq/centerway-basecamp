@@ -67,6 +67,11 @@ as regressões C02–C03 e acrescenta um smoke de montagem do MVP, além de tipo
 unitários e build. Consultar a execução do commit final, não presumir sucesso.
 Screenshots sintéticos e mapa HTML são artifacts; credenciais ficam excluídas.
 
+A montagem do código `aa4698c` foi aprovada: 12 testes de browser (11 regressões +
+1 smoke MVP), 110 unitários, tipos e build. Evidência em `docs/MVP_DELIVERY.md`.
+O launcher local não foi executado neste executor: faltam psql/Bun e o socket Docker
+está bloqueado. A montagem equivalente correu na stack descartável do GitHub CI.
+
 A campanha completa C01–C10 (roles por comando, concorrência, RLS de todas as
 novas entidades, replay/conflitos, respostas tardias, correções após cutoff,
 expiração/revogação e todos os critérios de fecho) fica para a fase seguinte.
@@ -75,7 +80,9 @@ Não considerar o piloto pronto para produção por o smoke passar.
 Limites: política apenas FlowReports, confirmação documental manual, um objetivo
 por avaliação, até 100 linhas nas listas / 300 eventos no dossier, sem conectores,
 scheduler, renegociação documental, revisão de planos, renovação de aprovação,
-cancelamento, fecho administrativo ou reabertura. Aprovação expirada bloqueia o
+cancelamento, fecho administrativo ou reabertura. A idempotência protege o mesmo
+caso; ainda não há coordenação global de ações entre casos de avaliações diferentes.
+Aprovação expirada bloqueia o
 caso neste piloto; pode criar novo caso de demonstração numa nova stack.
 Sem trabalho visual obrigatório no Lovable: os componentes existentes bastam;
 polimento visual e usabilidade podem ser avaliados depois pelo fundador.

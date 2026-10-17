@@ -21,7 +21,8 @@
 - [x] Página Casos integrada, dossier por etapa, histórico e estados/erros explícitos.
 - [x] Mapa visual autónomo de leitura em `public/mvp-preview.html`.
 - [x] Receita de base descartável e seis casos sintéticos; histórico retrospectivo explicitamente identificado.
-- [ ] Validação da montagem no commit final: consultar PR #8 e execução CI.
+- [x] Validação da montagem em `aa4698c`: 12 browser, 110 unitários, tipos e build;
+  execuções CI 39079882488 e 39079882496, PR #8. Documentação posterior não altera o código testado.
 - [ ] Campanha completa de segurança e E2E C01–C10 após montagem, conforme nova prioridade.
 - [ ] Classificação universal de valor, múltiplos objetivos, compatibilidade documental automática,
   reabertura e políticas gerais continuam pendentes das decisões A–H do manual.
