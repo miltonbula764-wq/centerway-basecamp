@@ -85,6 +85,12 @@ test('native auth/REST: historical C02 → explicit built/reused → stored indi
   await settled(page, await started(page, fixture.customerA.primary));
   const panel = evidence(page);
   await expect(panel.getByText(result.bundle_id, { exact: true })).toBeVisible();
+  const historical = panel.getByRole('region', { name: 'Promessa na análise', exact: true });
+  await expect(historical.getByText('Promessa histórica v1', { exact: true })).toBeVisible();
+  await expect(historical.getByText('Resultado esperado histórico v1', { exact: true })).toBeVisible();
+  await expect(historical.getByText('Perfil v1 · aprovado para esta análise', { exact: true })).toBeVisible();
+  await expect(historical).not.toContainText('Promessa atual v2');
+  await expect(historical).toContainText('Conclusão de valor não disponível');
   await expect(panel.getByText('Evidência íntegra', { exact: true })).toBeVisible();
   await expect(panel.getByText('Evidência insuficiente', { exact: true })).toBeVisible();
   await expect(panel.getByTestId('c03-snapshot-outcome')).toContainText('Baseline: 80');
@@ -192,6 +198,7 @@ test('native viewer login can read evidence but has no analyze/build controls', 
   await select(page).selectOption(fixture.customerA.readable);
   await expect(evidence(page).getByText(fixture.customerA.historicalBundle, { exact: true })).toBeVisible();
   await expect(evidence(page).getByText('Evidência íntegra', { exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Promessa na análise' })).toContainText('Promessa histórica v1');
   await expect(button(page)).toHaveCount(0);
   await expect(page.getByRole('button', { name: /Analisar agora/ })).toHaveCount(0);
 });
@@ -201,11 +208,33 @@ test('mobile native login and historical evidence detail', async ({ page }) => {
   await login(page, 'operator'); await detail(page);
   await select(page).selectOption(fixture.customerA.readable);
   await expect(evidence(page).getByText(fixture.customerA.historicalBundle, { exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Promessa na análise' })).toContainText('Promessa histórica v1');
   await expect(evidence(page).getByTestId('c03-snapshot-outcome')).toContainText('Baseline: 80');
   await evidence(page).getByRole('button', { name: /^outcome/ }).click();
   await evidence(page).getByRole('button', { name: 'Detalhe da referência 1', exact: true }).click();
   await expect(evidence(page).getByTestId('c03-ref-detail-1')).toBeVisible();
   await page.screenshot({ path: 'logs/browser-mobile.png', fullPage: true });
+});
+
+test('native historical promise follows tenant and customer without writing a C04 conclusion', async ({ page }) => {
+  await login(page);
+  let builds = 0;
+  page.on('request', request => { if (new URL(request.url()).pathname.endsWith('/rpc/build_evidence_bundle')) builds++; });
+  await detail(page);
+  await select(page).selectOption(fixture.customerA.readable);
+  await expect(page.getByRole('region', { name: 'Promessa na análise' })).toContainText('Promessa histórica v1');
+  await page.getByRole('button', { name: /E2E Tenant A/ }).click();
+  await page.getByRole('menuitem', { name: 'E2E Tenant B' }).click();
+  await expect(page.getByRole('button', { name: /E2E Tenant B/ })).toBeVisible();
+  await detail(page, fixture.customerB);
+  await select(page).selectOption(fixture.customerB.readable);
+  const context = page.getByRole('region', { name: 'Promessa na análise' });
+  await expect(context).toContainText('Promessa histórica B v1');
+  await expect(context).toContainText('Não registado neste perfil.');
+  await expect(context).not.toContainText('Resultado esperado histórico v1');
+  await expect(context).toContainText('Conclusão de valor não disponível');
+  await expect(button(page)).toHaveCount(0); // admin A is viewer B, from actual memberships.
+  expect(builds).toBe(0);
 });
 
 

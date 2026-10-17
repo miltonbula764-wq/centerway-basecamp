@@ -44,7 +44,11 @@ const indicator = {
   denominator_mode: 'observation_count',
 };
 async function profile(token, tenant) {
-  const id = await rpc(token, 'create_value_profile_draft', { _tenant_id: tenant, _promise: 'Promessa histórica v1' });
+  const id = await rpc(token, 'create_value_profile_draft', {
+    _tenant_id: tenant,
+    _promise: tenant === tenantA ? 'Promessa histórica v1' : 'Promessa histórica B v1',
+    _expected_outcome: tenant === tenantA ? 'Resultado esperado histórico v1' : null,
+  });
   for (const row of [
     { ...indicator, tenant_id: tenant, profile_id: id, key: 'outcome' },
     { ...indicator, name: 'Sem medições', tenant_id: tenant, profile_id: id, key: 'empty' },
@@ -91,6 +95,10 @@ await rpc(users.admin.token, 'approve_value_profile', { _profile_id: profileV2 }
 // Effective RLS and function authorization over REAL HTTP/JWT, not the owner connection.
 const invisible = await request(`/rest/v1/subjects?tenant_id=eq.${tenantB}&select=id`, users.viewer.token, undefined, 'GET');
 assert.deepEqual(invisible, []);
+for (const table of ['tenant_value_profiles', 'c02_runs']) {
+  const hidden = await request(`/rest/v1/${table}?tenant_id=eq.${tenantB}&select=id`, users.viewer.token, undefined, 'GET');
+  assert.deepEqual(hidden, [], `Viewer A must not read ${table} from tenant B`);
+}
 for (const [label, token, body] of [
   ['viewer', users.viewer.token, { _tenant_id: tenantA, _run_id: customerA.primary }],
   ['cross-tenant operator', users.operator.token, { _tenant_id: tenantB, _run_id: customerB.primary }],
@@ -117,7 +125,7 @@ fs.writeFileSync('e2e/fixtures.json', JSON.stringify(fixture, null, 2));
 fs.writeFileSync('e2e/private/users.json', JSON.stringify(Object.fromEntries(Object.entries(users).map(([role, u]) => [role, { email: u.email, password: u.password, id: u.id }]))));
 fs.writeFileSync('e2e/logs/auth-rls.json', JSON.stringify({
   real_password_grants: 4, get_user_verified: 4, invalid_jwt_rejected_by_auth_and_rest: true, cross_tenant_read_hidden: true,
-  viewer_build_sqlstate: '42501', cross_tenant_operator_sqlstate: '42501',
+  viewer_build_sqlstate: '42501', cross_tenant_operator_sqlstate: '42501', cross_tenant_profile_and_run_read_hidden: true,
   synthetic: true, production_contacted: false,
 }, null, 2));
 console.log('Synthetic fixtures created via real Auth/REST/RPC. Password auth, JWT and targeted RLS checks passed.');

@@ -15,4 +15,6 @@
 - [x] 18 testes controlados (red/green registado), suite 55/55, tipos e build OK. Ver supabase/tests/c03_ui.RESULTS.md.
 
 ## Pendente
-- [ ] C04–C10: não autorizados.
+- [ ] Core/C04: missão Engenharia #6 autoriza contexto histórico; ver docs/CORE_C04_CONTRACT.md.
+- [ ] Classificação de estado de valor: pendente do contrato aprovado (realização, gap, suficiência, agregação).
+- [ ] C05–C10: fora do escopo atual.
