@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, Play } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +22,8 @@ type Details = {
   parameters: { deterioration_kind?: string; deterioration_operator?: string; deterioration_value?: number; deterioration_consecutive_windows?: number; observation_window_days?: number; unit?: string; target_value?: number | null };
 };
 
+type AnalysisVars = { tenantId: string; subjectId: string; profileId: string | undefined; gen: number };
+
 const tone = (s: C02Status) =>
   s === "deterioration_candidate" ? "primary" : s === "no_deterioration" ? "success" : s === "persistent_condition" ? "neutral" : "muted";
 
@@ -33,6 +35,25 @@ export function DeteriorationPanel({ subjectId, profileId, onRunChange }: { subj
   const tenantId = tenant.id;
   const qc = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
+  const [runError, setRunError] = useState<unknown>(null);
+  const identity = `${tenantId}|${subjectId}|${profileId ?? ""}`;
+  const identityRef = useRef(identity);
+  identityRef.current = identity;
+  const genRef = useRef(0);
+  const aliveRef = useRef(true);
+  useEffect(() => {
+    aliveRef.current = true;
+    genRef.current += 1;
+    setRunError(null);
+    return () => {
+      genRef.current += 1;
+      aliveRef.current = false;
+    };
+  }, [identity]);
+  const isCurrent = (v: AnalysisVars) => {
+    if (!aliveRef.current || v.gen !== genRef.current || identityRef.current !== `${v.tenantId}|${v.subjectId}|${v.profileId ?? ""}`) return false;
+    try { assertActiveTenant(v.tenantId); return true; } catch { return false; }
+  };
 
   const runs = useQuery({
     queryKey: tk(tenantId, "c02_runs", subjectId),
@@ -65,23 +86,28 @@ export function DeteriorationPanel({ subjectId, profileId, onRunChange }: { subj
   });
 
   const run = useMutation({
-    mutationFn: async () => {
-      assertActiveTenant(tenantId);
-      if (!profileId) throw new Error("no_profile");
+    mutationFn: async (v: AnalysisVars) => {
+      assertActiveTenant(v.tenantId);
+      if (!v.profileId) throw new Error("no_profile");
       const { data, error } = await supabase.rpc("run_deterioration_analysis", {
-        _tenant_id: tenantId, _subject_id: subjectId, _expected_profile_id: profileId,
+        _tenant_id: v.tenantId, _subject_id: v.subjectId, _expected_profile_id: v.profileId,
       });
       if (error) throw error;
       return data as { run_id: string; reused: boolean };
     },
-    onSuccess: (d) => {
+    onMutate: (v) => { if (isCurrent(v)) setRunError(null); },
+    onSuccess: (d, v) => {
+      // Refresh the context captured at dispatch, even when its UI has gone away.
+      qc.invalidateQueries({ queryKey: tk(v.tenantId, "c02_runs") });
+      qc.invalidateQueries({ queryKey: tk(v.tenantId, "count") });
+      if (!isCurrent(v)) return;
       setSelected(d.run_id);
-      qc.invalidateQueries({ queryKey: tk(tenantId, "c02_runs") });
-      qc.invalidateQueries({ queryKey: tk(tenantId, "count") });
       toast.success(d.reused ? "Sem dados novos: foi reutilizada a análise existente." : "Análise concluída.");
     },
+    onError: (error, v) => { if (isCurrent(v)) setRunError(error); },
   });
-  const runErr = run.error as { message?: string } | null;
+  const pendingHere = run.isPending && !!run.variables && isCurrent(run.variables);
+  const runErr = runError as { message?: string } | null;
 
   const current = runs.data?.find((r) => r.id === runId);
   const summary = current?.summary as { outcome_candidates?: number; usage_candidates?: number; insufficient?: number } | undefined;
@@ -91,8 +117,8 @@ export function DeteriorationPanel({ subjectId, profileId, onRunChange }: { subj
       title="Deteção de deterioração (C02)"
       className="lg:col-span-2"
       actions={canWrite && (
-        <Button size="sm" onClick={() => run.mutate()} disabled={run.isPending || !profileId}>
-          {run.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Analisar agora
+        <Button size="sm" onClick={() => run.mutate({ tenantId, subjectId, profileId, gen: genRef.current })} disabled={pendingHere || !profileId}>
+          {pendingHere ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Analisar agora
         </Button>
       )}
     >
@@ -101,8 +127,8 @@ export function DeteriorationPanel({ subjectId, profileId, onRunChange }: { subj
         abrem casos, não indicam causa e um sinal só de uso nunca significa perda de valor.
       </p>
       {!profileId && <p className="text-sm text-muted-foreground">É preciso um perfil de valor aprovado para analisar.</p>}
-      {run.isError && (
-        <div className="mb-4"><ErrorState message={analysisErrorPt[runErr?.message ?? ""] ?? friendlyError(run.error)} /></div>
+      {runError != null && (
+        <div className="mb-4"><ErrorState message={analysisErrorPt[runErr?.message ?? ""] ?? friendlyError(runError)} /></div>
       )}
       {runs.isLoading ? <Loading /> : runs.isError ? (
         <ErrorState message="Não foi possível carregar as análises." onRetry={() => runs.refetch()} />
