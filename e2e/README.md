@@ -31,7 +31,7 @@ Os logs nativos do Actions seguem a política de retenção do repositório.
 | A→B→A, cliente, tenant, desmontagem/remontagem | Chromium real | A entrega/despacho de respostas é controlada pelo Playwright; o body é preservado e a RPC real é chamada através de route.fetch |
 | rejected e failed | Chromium real | Só o JSON da RPC C03 é simulado; login e leituras são reais. Não prova a persistência de uma tentativa falhada no SQL |
 | admin/operator/viewer na UI, desktop/mobile | Chromium real | Utilizadores e memberships reais na base efémera; controlos da interface observados |
-| RLS e permissões HTTP complementares no seed | HTTP real | JWT viewer: leitura de outro tenant devolve []; viewer e operator de outro tenant recebem 403/42501 ao montar; assinatura JWT inválida recebe 401 no Auth e REST |
+| RLS e permissões HTTP complementares no seed | HTTP real | JWT viewer: leitura de outro tenant devolve []; viewer e operator de outro tenant recebem 403/42501 ao montar; assinatura JWT inválida recebe 403/bad_jwt no Auth e 401/PGRST301 no REST |
 
 O `auth.uid()` do bootstrap lê o sub das claims PostgREST, e os papéis são instalados
 localmente; as tabelas e migrações Auth são criadas pelo GoTrue real. Não se desativa RLS.
@@ -75,6 +75,9 @@ a suite SQL de concorrência existente permanece separada e intocada.
   do container para search_path=auth,public; nenhuma migração do produto foi alterada.
 - Seed inicial: PostgREST recusou um lote com indicadores de campos diferentes (PGRST102).
   Inserções separadas mantêm os defaults e o contrato reais, sem enfraquecer validações.
+- Check adicional de JWT: o harness inicialmente esperava 401 nos dois serviços; GoTrue
+  2.177.0 devolve 403/bad_jwt, enquanto PostgREST devolve 401/PGRST301. Passou-se a exigir
+  cada status e código exatos, mantendo a rejeição obrigatória.
 - Primeira validação completa: execução 39015283962, commit
   5b712a589fcbe0b82f73e5d0f2409aa2c1333c6e — 9 E2E, 89 unitários, tipos e build aprovados.
   A suite atual acrescenta independência das fixtures de leitura e checks explícitos de

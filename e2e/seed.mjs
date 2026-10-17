@@ -103,9 +103,14 @@ for (const [label, token, body] of [
   assert.equal(error.code, '42501', label);
 }
 const tampered = users.viewer.token.slice(0, -5) + 'aaaaa';
-for (const path of ['/rest/v1/subjects?select=id', '/auth/v1/user']) {
+for (const [path, status, field, code] of [
+  ['/rest/v1/subjects?select=id', 401, 'code', 'PGRST301'],
+  ['/auth/v1/user', 403, 'error_code', 'bad_jwt'],
+]) {
   const invalid = await fetch(config.url + path, { headers: { apikey: config.anon, Authorization: `Bearer ${tampered}` } });
-  assert.equal(invalid.status, 401, 'Invalid JWT signature must be rejected by ' + path);
+  assert.equal(invalid.status, status, 'Invalid JWT signature must be rejected by ' + path);
+  const rejected = await invalid.json();
+  assert.equal(rejected[field], code, 'JWT rejection code for ' + path);
 }
 const fixture = { tenantA, tenantB, customerA, customerA2, customerB, profileA, profileV2 };
 fs.writeFileSync('e2e/fixtures.json', JSON.stringify(fixture, null, 2));

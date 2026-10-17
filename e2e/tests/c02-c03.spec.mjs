@@ -52,6 +52,7 @@ function holdBuilds(page) {
 test.beforeEach(async ({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push('console.error: ' + message.text()); });
   page.__cwErrors = errors;
   await page.route('**/*', async route => {
     const url = new URL(route.request().url());
