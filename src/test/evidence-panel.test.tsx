@@ -144,6 +144,7 @@ const refsHandler: Handler = (s) => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.rpc.mockReset(); // A red test may leave an unconsumed second RPC response; isolate each scenario.
   mocks.queries.length = 0;
   setActiveTenantId(TENANT);
   tableHandlers({ c03_bundles: bundlesHandler, c03_indicators: () => indicators, c03_attempts: () => [], c03_refs: refsHandler });
