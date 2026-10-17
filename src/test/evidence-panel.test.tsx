@@ -62,13 +62,13 @@ function ctx(role: "admin" | "operator" | "viewer", tenantId = TENANT): TenantCt
   };
 }
 
-function mount(role: "admin" | "viewer" = "admin", runId: string | null = RUN) {
+function mount(role: "admin" | "operator" | "viewer" = "admin", runId: string | null = RUN) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   const invalidate = vi.spyOn(qc, "invalidateQueries");
-  const tree = (tenantId: string, run: string | null) => (
+  const tree = (tenantId: string, run: string | null, subjectId = SUBJECT) => (
     <QueryClientProvider client={qc}>
       <TenantContext.Provider value={ctx(role, tenantId)}>
-        <EvidencePanel subjectId={SUBJECT} runId={run} />
+        <EvidencePanel subjectId={subjectId} runId={run} />
       </TenantContext.Provider>
     </QueryClientProvider>
   );
@@ -76,7 +76,7 @@ function mount(role: "admin" | "viewer" = "admin", runId: string | null = RUN) {
   return {
     qc,
     invalidate,
-    rerender: (tenantId: string, run: string | null) => r.rerender(tree(tenantId, run)),
+    rerender: (tenantId: string, run: string | null, subjectId = SUBJECT) => r.rerender(tree(tenantId, run, subjectId)),
     unmount: r.unmount,
   };
 }
@@ -144,6 +144,7 @@ const refsHandler: Handler = (s) => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.rpc.mockReset(); // A red test may leave an unconsumed second RPC response; isolate each scenario.
   mocks.queries.length = 0;
   setActiveTenantId(TENANT);
   tableHandlers({ c03_bundles: bundlesHandler, c03_indicators: () => indicators, c03_attempts: () => [], c03_refs: refsHandler });
@@ -411,5 +412,130 @@ describe("EvidencePanel late RPC races (controlled deferred RPC)", () => {
     await flush();
     await waitFor(() => expect(callbackRan(m.invalidate)).toBe(true));
     expect(mocks.toastSuccess).not.toHaveBeenCalled();
+  });
+});
+
+
+// A stale operation must not own the pending state of a NEW visit, even if IDs match again.
+// The customer route remounts on tenant/customer changes; changing only the C02 run reuses this panel.
+const contextKinds = ["tenant", "subject", "run"] as const;
+type ContextKind = (typeof contextKinds)[number];
+function moveAway(m: ReturnType<typeof mount>, kind: ContextKind) {
+  if (kind === "tenant") { setActiveTenantId(TENANT_B); m.rerender(TENANT_B, RUN_B); }
+  if (kind === "subject") m.rerender(TENANT, RUN_B, "fixture-subject-b");
+  if (kind === "run") m.rerender(TENANT, RUN_B);
+}
+const oldResponses = ["built", "reused", "rejected", "failed", "error"] as const;
+function response(status: (typeof oldResponses)[number]) {
+  return status === "error"
+    ? { data: null, error: { message: "network down", code: "08006" } }
+    : { data: { status, bundle_id: "old-bundle", code: status === "failed" ? "internal_error:XX000" : "ref_missing" }, error: null };
+}
+
+describe("C03 pending state belongs to a context generation", () => {
+  beforeEach(() => tableHandlers({ c03_bundles: () => [], c03_attempts: () => [] }));
+
+  for (const kind of contextKinds) {
+    it.each(oldResponses)(`${kind} A→B→A: old %s cannot block or settle the new operation`, async (oldStatus) => {
+      const old = deferred<unknown>();
+      const current = deferred<unknown>();
+      mocks.rpc.mockReturnValueOnce(old.promise).mockReturnValueOnce(current.promise);
+      const m = mount("operator");
+      fireEvent.click(await screen.findByRole("button", { name: /Montar pacote/ }));
+      await waitFor(() => expect(mocks.rpc).toHaveBeenCalledTimes(1));
+      expect(mocks.rpc).toHaveBeenNthCalledWith(1, "build_evidence_bundle", { _tenant_id: TENANT, _run_id: RUN });
+      const originalMutation = m.qc.getMutationCache().getAll()[0]!;
+      expect(originalMutation.state.status).toBe("pending");
+      expect(screen.getByRole("button", { name: /Montar pacote/ })).toBeDisabled();
+      moveAway(m, kind);
+      expect(mocks.rpc).toHaveBeenCalledTimes(1); // selection/navigation must not build automatically
+      setActiveTenantId(TENANT);
+      m.rerender(TENANT, RUN);
+      expect(originalMutation.state.status).toBe("pending"); // original request is STILL unresolved
+      const button = screen.getByRole("button", { name: /Montar pacote/ });
+      const enabledOnReturn = !(button as HTMLButtonElement).disabled;
+      if (enabledOnReturn) {
+        fireEvent.click(button);
+        await waitFor(() => expect(mocks.rpc).toHaveBeenCalledTimes(2));
+        expect(mocks.rpc).toHaveBeenNthCalledWith(2, "build_evidence_bundle", { _tenant_id: TENANT, _run_id: RUN });
+      }
+      try {
+        await act(async () => { old.resolve(response(oldStatus)); await old.promise; });
+        // The ORIGINAL mutation's terminal state is published after its callbacks finish.
+        // This remains reliable when a second mutation has replaced the hook's observer.
+        await waitFor(() => expect(originalMutation.state.status).toBe(oldStatus === "error" ? "error" : "success"));
+        expect(mocks.toastSuccess).not.toHaveBeenCalled();
+        expect(mocks.toastInfo).not.toHaveBeenCalled();
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+        expect(invalidatedAttemptsFor(m.invalidate, TENANT, RUN)).toBe(true);
+        if (oldStatus !== "error") expect(m.invalidate).toHaveBeenCalledWith({ queryKey: ["t", TENANT, "c03_bundle", SUBJECT, RUN] });
+        // Assert the state captured BEFORE resolving old: no false pass from waiting for it to finish.
+        expect(enabledOnReturn).toBe(true);
+        expect(mocks.rpc).toHaveBeenCalledTimes(2);
+        const currentMutation = m.qc.getMutationCache().getAll()[1]!;
+        expect(currentMutation.state.status).toBe("pending");
+        expect(screen.getByRole("button", { name: /Montar pacote/ })).toBeDisabled();
+        await act(async () => { current.resolve({ data: { status: "reused", bundle_id: "current-bundle" }, error: null }); await current.promise; });
+        await waitFor(() => expect(currentMutation.state.status).toBe("success"));
+        expect(mocks.toastInfo).toHaveBeenCalledTimes(1);
+        expect(mocks.toastSuccess).not.toHaveBeenCalled();
+        expect(screen.getByRole("button", { name: /Montar pacote/ })).toBeEnabled();
+      } finally {
+        // Release even a failing red test's deferred request; fixtures never escape this test.
+        current.resolve({ data: { status: "reused", bundle_id: "current-bundle" }, error: null });
+        await flush();
+      }
+    });
+  }
+
+  it.each(contextKinds)("new operation after changing %s keeps its own target and pending state", async (kind) => {
+    const old = deferred<unknown>();
+    const current = deferred<unknown>();
+    mocks.rpc.mockReturnValueOnce(old.promise).mockReturnValueOnce(current.promise);
+    const m = mount("admin");
+    fireEvent.click(await screen.findByRole("button", { name: /Montar pacote/ }));
+    await waitFor(() => expect(mocks.rpc).toHaveBeenCalledTimes(1));
+    const originalMutation = m.qc.getMutationCache().getAll()[0]!;
+    moveAway(m, kind);
+    expect(mocks.rpc).toHaveBeenCalledTimes(1);
+    const button = screen.getByRole("button", { name: /Montar pacote/ });
+    expect(button).toBeEnabled();
+    fireEvent.click(button);
+    await waitFor(() => expect(mocks.rpc).toHaveBeenCalledTimes(2));
+    const newTenant = kind === "tenant" ? TENANT_B : TENANT;
+    const newSubject = kind === "subject" ? "fixture-subject-b" : SUBJECT;
+    expect(mocks.rpc).toHaveBeenNthCalledWith(1, "build_evidence_bundle", { _tenant_id: TENANT, _run_id: RUN });
+    expect(mocks.rpc).toHaveBeenNthCalledWith(2, "build_evidence_bundle", { _tenant_id: newTenant, _run_id: RUN_B });
+    await act(async () => { old.resolve(response("built")); await old.promise; });
+    await waitFor(() => expect(originalMutation.state.status).toBe("success"));
+    expect(mocks.toastSuccess).not.toHaveBeenCalled();
+    expect(mocks.toastInfo).not.toHaveBeenCalled();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(m.invalidate).toHaveBeenCalledWith({ queryKey: ["t", TENANT, "c03_attempts", SUBJECT, RUN] });
+    expect(m.invalidate.mock.calls.every(([arg]) => arg?.queryKey?.[1] === TENANT && arg?.queryKey?.includes(RUN))).toBe(true);
+    expect(screen.getByRole("button", { name: /Montar pacote/ })).toBeDisabled();
+    const currentMutation = m.qc.getMutationCache().getAll()[1]!;
+    await act(async () => { current.resolve(response("built")); await current.promise; });
+    await waitFor(() => expect(currentMutation.state.status).toBe("success"));
+    expect(mocks.toastSuccess).toHaveBeenCalledTimes(1);
+    expect(m.invalidate).toHaveBeenCalledWith({ queryKey: ["t", newTenant, "c03_attempts", newSubject, RUN_B] });
+    expect(screen.getByRole("button", { name: /Montar pacote/ })).toBeEnabled();
+  });
+
+  it.each(["subject", "run", "unmount"] as const)("late transport error after %s has no feedback in the current UI", async (kind) => {
+    const old = deferred<unknown>();
+    mocks.rpc.mockReturnValue(old.promise);
+    const m = mount();
+    fireEvent.click(await screen.findByRole("button", { name: /Montar pacote/ }));
+    await waitFor(() => expect(mocks.rpc).toHaveBeenCalledTimes(1));
+    const originalMutation = m.qc.getMutationCache().getAll()[0]!;
+    if (kind === "unmount") m.unmount(); else moveAway(m, kind);
+    await act(async () => { old.resolve(response("error")); await old.promise; });
+    await waitFor(() => expect(originalMutation.state.status).toBe("error"));
+    expect(mocks.toastSuccess).not.toHaveBeenCalled();
+    expect(mocks.toastInfo).not.toHaveBeenCalled();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(m.invalidate).toHaveBeenCalledWith({ queryKey: ["t", TENANT, "c03_attempts", SUBJECT, RUN] });
+    expect(mocks.rpc).toHaveBeenCalledTimes(1);
   });
 });

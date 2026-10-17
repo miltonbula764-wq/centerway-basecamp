@@ -201,9 +201,8 @@ export function EvidencePanel({ subjectId, runId }: { subjectId: string; runId: 
     },
   });
 
-  // Pending state only belongs to the context that started it.
-  const pendingHere =
-    build.isPending && !!build.variables && `${build.variables.tenantId}|${build.variables.subjectId}|${build.variables.runId}` === identity;
+  // Matching IDs after A→B→A are a new visit: only its generation owns pending state.
+  const pendingHere = build.isPending && !!build.variables && isCurrent(build.variables);
 
   const bundles = bundleQ.data ?? [];
   const bundle = bundles[0] ?? null;

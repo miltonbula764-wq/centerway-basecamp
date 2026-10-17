@@ -1,7 +1,7 @@
-name: Frontend C02 feedback review
+name: Frontend C02-C03 lifecycle review
 on:
   push:
-    branches: [review/c02-feedback-frontend]
+    branches: [review/c02-feedback-frontend, review/c03-operation-lifecycle]
   pull_request:
     branches: [main]
     paths:
