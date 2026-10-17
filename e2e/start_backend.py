@@ -33,6 +33,8 @@ def wait(url):
                     return
         except Exception:
             time.sleep(1)
+    if ':9999/' in url:
+        subprocess.run(['docker', 'logs', '--tail', '30', 'cw-auth'], check=False)
     raise RuntimeError('Service not ready: ' + url)
 
 secret = secrets.token_hex(32)
@@ -59,7 +61,7 @@ auth_env = envfile('auth.env', {
     'API_EXTERNAL_URL': 'http://127.0.0.1:54321/auth/v1',
     'GOTRUE_SITE_URL': 'http://127.0.0.1:5173',
     'GOTRUE_URI_ALLOW_LIST': 'http://127.0.0.1:5173/**',
-    'GOTRUE_DB_DRIVER': 'postgres', 'GOTRUE_DB_DATABASE_URL': 'postgres://postgres@db:5432/cw_e2e',
+    'GOTRUE_DB_DRIVER': 'postgres', 'GOTRUE_DB_DATABASE_URL': 'postgres://postgres@db:5432/cw_e2e?search_path=auth,public',
     'GOTRUE_DB_NAMESPACE': 'auth', 'GOTRUE_JWT_SECRET': secret,
     'GOTRUE_JWT_EXP': '3600', 'GOTRUE_JWT_AUD': 'authenticated',
     'GOTRUE_JWT_DEFAULT_GROUP_NAME': 'authenticated', 'GOTRUE_JWT_ADMIN_ROLES': 'service_role',

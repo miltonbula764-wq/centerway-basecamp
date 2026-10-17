@@ -41,16 +41,34 @@ jobs:
           sha256sum bun.lock package.json > e2e/logs/locked-inputs.sha256
           bun install --frozen-lockfile 2>&1 | tee e2e/logs/install.log
           sha256sum --check e2e/logs/locked-inputs.sha256
-      - name: Browser toolchain lock preparation
+      - name: Install locked Playwright and Chromium
         working-directory: ${{ runner.temp }}/cw-browser/e2e
         run: |
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-          python3 -c "import pathlib,base64; print('CW_BROWSER_LOCK='+base64.b64encode(pathlib.Path('package-lock.json').read_bytes()).decode())"
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
       - name: Start disposable real auth and database services
         env:
           PG_CONTAINER: ${{ job.services.postgres.id }}
         working-directory: ${{ runner.temp }}/cw-browser
         run: python3 e2e/start_backend.py
+      - name: Seed synthetic data through real password grants and REST
+        working-directory: ${{ runner.temp }}/cw-browser
+        run: node e2e/seed.mjs
+      - name: Browser end-to-end scenarios
+        working-directory: ${{ runner.temp }}/cw-browser/e2e
+        run: |
+          set -euo pipefail
+          npx playwright test 2>&1 | tee logs/browser.log
+      - name: Unit regression suite, types and production build
+        if: ${{ !cancelled() }}
+        working-directory: ${{ runner.temp }}/cw-browser
+        run: |
+          set -euo pipefail
+          NODE_OPTIONS="--require=$PWD/scripts/ci/block-test-network.cjs" bun run test 2>&1 | tee e2e/logs/unit.log
+          bun run --bun tsc --noEmit 2>&1 | tee e2e/logs/types.log
+          bun run build 2>&1 | tee e2e/logs/build.log
+          sha256sum --check e2e/logs/locked-inputs.sha256
       - name: Collect safe infrastructure evidence
         if: always()
         run: |
@@ -63,7 +81,10 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: browser-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/cw-browser/e2e/logs/
+          path: |
+            ${{ runner.temp }}/cw-browser/e2e/logs/
+            ${{ runner.temp }}/cw-browser/e2e/report/
+            ${{ runner.temp }}/cw-browser/e2e/results/
           retention-days: 3
           if-no-files-found: warn
       - name: Stop only this job's disposable services
