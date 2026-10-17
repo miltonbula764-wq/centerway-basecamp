@@ -78,6 +78,8 @@ mudar tenant/cliente/run. Não comprovam RLS.
 O workflow browser existente foi alargado à branch de revisão. Testes Chromium com GoTrue,
 JWT, PostgREST e PostgreSQL descartáveis verificam promessa v1 depois da aprovação v2,
 admin/operator/viewer, mudança de empresa e resultado esperado ausente. A suite anterior
+é complementada por pedidos HTTP com JWT viewer A que não podem ler perfis ou runs B.
+A suite anterior
 continua a verificar indicadores insuficientes e ausência de dados, sem concluir valor.
 Os cenários rejected/failed continuam a simular apenas o JSON da RPC: não passam a ser
 prova SQL. Não há novos locks/escritas; não se repetem suites de concorrência SQL sem causa.
