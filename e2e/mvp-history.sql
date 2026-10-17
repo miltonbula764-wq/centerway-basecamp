@@ -13,7 +13,7 @@ BEGIN
       cmd := (ARRAY['open','investigate','plan','approve','record_execution'])[seq+1];
       st := (ARRAY['investigation','impediment_found','awaiting_approval','approved','waiting_observation'])[seq+1];
       d := jsonb_build_object('fixture','synthetic_retrospective_history','notice','Carga de histórico fictício, não execução observada nem prova de espera real.');
-      IF seq=0 THEN d:=d||jsonb_build_object('assessment_id',x->>'assessment_id','objective_id',x->>'objective_id); END IF;
+      IF seq=0 THEN d:=d||jsonb_build_object('assessment_id',x->>'assessment_id','objective_id',x->>'objective_id'); END IF;
       IF seq=1 THEN d:=d||jsonb_build_object('component','C05','status','confirmed_blocker','observation_id',x->>'proof_id','finding','[SINTÉTICO] Integração necessária desativada.'); END IF;
       IF seq=2 THEN d:=d||jsonb_build_object('component','C06','action','manual_enable_integration','instructions','[SINTÉTICO] Verificar, reativar manualmente e guardar recibo.','observation_days',14); END IF;
       IF seq=3 THEN d:=d||jsonb_build_object('component','C07','expires_at',exec_at+interval '24 hours'); END IF;
