@@ -12,6 +12,12 @@ A missão Engenharia #6 autoriza agora o primeiro bloco Core/C04; a anotação a
 “C04–C10 não autorizados” no roadmap era o limite da missão anterior, não uma
 especificação funcional nem uma proibição que substitua esta autorização.
 
+O fundador confirmou nesta missão que não há confirmação de um contrato completo aprovado
+para classificação/agregação C04. Autorizou expressamente continuar a base independente,
+sem conclusões de realização/gap, sem pesos/thresholds ou agregação arbitrária e sem
+inferir causas/impedimentos/intervenções. Essa confirmação não substitui os contratos
+existentes: o significado dos sinais C02 e da integridade C03 foi conferido no SQL.
+
 Não existe implementação prévia de Core/C04: há C02 (candidatos e below_target) e
 C03 (integridade e referências), sem modelo persistido de conclusão de valor.
 O perfil corrente mostrado no detalhe do cliente não é necessariamente o histórico.
@@ -20,6 +26,12 @@ O perfil corrente mostrado no detalhe do cliente não é necessariamente o hist�
 
 O pacote selecionado passa a mostrar a promessa e o resultado esperado do perfil
 efetivamente referenciado pelo seu run C02, no próprio painel de evidência existente.
+O módulo de queries existente disponibiliza uma projeção de leitura reutilizável
+historicalValueContextQuery: perfil histórico, run imutável e identidade do bundle.
+Os indicadores/snapshots e as referências continuam nas tabelas e consultas C03
+existentes, ligados por bundle/indicator_id, sem cópia paralela ou carregamento ilimitado
+de referências no browser. O futuro motor deve produzir as suas conclusões no servidor;
+esta projeção de interface não é uma autoridade de interpretação.
 
 1. Ler o run por tenant, cliente e id exatos, através do cliente autenticado/RLS.
 2. Verificar correspondência do hash de inputs, algoritmo C02 e corte com o pacote.

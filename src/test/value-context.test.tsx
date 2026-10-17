@@ -1,7 +1,8 @@
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ValueContext, type ValueContextBundle } from "@/components/app/value-context";
+import { ValueContext } from "@/components/app/value-context";
+import { historicalValueContextQuery, type ValueContextBundle } from "@/lib/queries";
 
 const mocks = vi.hoisted(() => ({ from: vi.fn(), calls: [] as { table: string; filters: Record<string, unknown> }[] }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: mocks.from } }));
@@ -42,6 +43,16 @@ beforeEach(() => { mocks.from.mockReset(); mocks.calls.length = 0; backend(); })
 afterEach(cleanup);
 
 describe("Core input: historical promise, never a value conclusion", () => {
+  it("exposes repeatable linked provenance through the existing query layer, without writes", async () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const query = historicalValueContextQuery("tenant-a", "subject-a", bundle);
+    const first = await qc.fetchQuery(query);
+    const second = await qc.fetchQuery(query);
+    expect(first).toEqual({ profile, run, bundle });
+    expect(second).toEqual(first);
+    expect(mocks.calls.every(c => ["c02_runs", "tenant_value_profiles"].includes(c.table))).toBe(true);
+    qc.clear();
+  });
   it("joins the exact superseded profile, preserving the promise and expected outcome", async () => {
     mount();
     await screen.findByText("Promessa histórica");
@@ -88,7 +99,7 @@ describe("Core input: historical promise, never a value conclusion", () => {
     let complete!: (v: unknown) => void;
     const pending = new Promise(resolve => { complete = resolve; });
     backend((table, filters) => {
-      if (table === "c02_runs") return filters.tenant_id === "tenant-a" && filters.subject_id === "subject-a" && filters.id === "run-a" ? [run] : [];
+      if (table === "c02_runs") return filters["tenant_id"] === "tenant-a" && filters["subject_id"] === "subject-a" && filters["id"] === "run-a" ? [run] : [];
       return pending;
     });
     const view = mount();
