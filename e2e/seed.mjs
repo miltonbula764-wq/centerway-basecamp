@@ -44,12 +44,12 @@ const indicator = {
 };
 async function profile(token, tenant) {
   const id = await rpc(token, 'create_value_profile_draft', { _tenant_id: tenant, _promise: 'Promessa histórica v1' });
-  await request('/rest/v1/profile_indicators', token, [
+  for (const row of [
     { ...indicator, tenant_id: tenant, profile_id: id, key: 'outcome' },
     { ...indicator, name: 'Sem medições', tenant_id: tenant, profile_id: id, key: 'empty' },
-    { name: 'Contexto sintético', classification: 'context', unit: 'texto', direction: 'higher_is_better',
+    { name: 'Contexto sintético', classification: 'context', value_type: 'text', unit: 'texto', direction: 'higher_is_better',
       tenant_id: tenant, profile_id: id, key: 'notes' },
-  ]);
+  ]) await request('/rest/v1/profile_indicators', token, row);
   await rpc(token, 'approve_value_profile', { _profile_id: id });
   return id;
 }

@@ -31,6 +31,7 @@ async function started(page, run) {
 async function settled(page, id, status = 'success') {
   // QueryClient dispatches terminal state after onSuccess/onError has completed.
   await page.waitForFunction(({id, status}) => window.__CW_E2E_STATE__().events.some(e => e.id === id && e.status === status), {id, status});
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 }
 function holdBuilds(page) {
   const calls = [];
