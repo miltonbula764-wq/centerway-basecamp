@@ -1,7 +1,7 @@
 name: Browser C02-C03 isolated E2E
 on:
   push:
-    branches: [review/c02-c03-browser-e2e]
+    branches: [review/c02-c03-browser-e2e, review/core-value-context]
   pull_request:
     branches: [main]
     paths: ['e2e/**', 'src/**', '.github/workflows/browser-e2e.yml']

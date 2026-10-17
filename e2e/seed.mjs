@@ -44,7 +44,11 @@ const indicator = {
   denominator_mode: 'observation_count',
 };
 async function profile(token, tenant) {
-  const id = await rpc(token, 'create_value_profile_draft', { _tenant_id: tenant, _promise: 'Promessa histórica v1' });
+  const id = await rpc(token, 'create_value_profile_draft', {
+    _tenant_id: tenant,
+    _promise: tenant === tenantA ? 'Promessa histórica v1' : 'Promessa histórica B v1',
+    _expected_outcome: tenant === tenantA ? 'Resultado esperado histórico v1' : null,
+  });
   for (const row of [
     { ...indicator, tenant_id: tenant, profile_id: id, key: 'outcome' },
     { ...indicator, name: 'Sem medições', tenant_id: tenant, profile_id: id, key: 'empty' },

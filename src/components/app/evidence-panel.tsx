@@ -19,6 +19,7 @@ import {
 } from "@/lib/c03";
 import { Button } from "@/components/ui/button";
 import { Empty, ErrorState, formatDate, Loading, Mono, Panel, StatusPill } from "./ui-bits";
+import { ValueContext } from "./value-context";
 
 const PAGE_SIZE = 50;
 
@@ -246,7 +247,7 @@ export function EvidencePanel({ subjectId, runId }: { subjectId: string; runId: 
               A análise selecionada ainda não tem pacote de evidência. A montagem é explícita e nunca automática.
             </Empty>
           ) : (
-            <BundleView tenantId={tenantId} bundle={bundle} otherVersions={bundles.length - 1} />
+            <BundleView tenantId={tenantId} subjectId={subjectId} bundle={bundle} otherVersions={bundles.length - 1} />
           )}
           <div>
             <h3 className="mb-2 text-xs font-medium text-muted-foreground">Últimas 20 tentativas de montagem nesta análise</h3>
@@ -274,7 +275,7 @@ export function EvidencePanel({ subjectId, runId }: { subjectId: string; runId: 
   );
 }
 
-function BundleView({ tenantId, bundle, otherVersions }: { tenantId: string; bundle: Bundle; otherVersions: number }) {
+function BundleView({ tenantId, subjectId, bundle, otherVersions }: { tenantId: string; subjectId: string; bundle: Bundle; otherVersions: number }) {
   const indicators = useQuery({
     queryKey: tk(tenantId, "c03_indicators", bundle.id),
     queryFn: async () => {
@@ -322,6 +323,7 @@ function BundleView({ tenantId, bundle, otherVersions }: { tenantId: string; bun
           Existem mais {otherVersions} pacote(s) desta análise com outra versão de algoritmo; mostra-se o mais recente.
         </p>
       )}
+      <ValueContext key={bundle.id} tenantId={tenantId} subjectId={subjectId} bundle={bundle} />
       {indicators.isLoading ? (
         <Loading />
       ) : indicators.isError ? (
