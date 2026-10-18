@@ -20,7 +20,7 @@ f = json.loads(Path('e2e/mvp-fixtures.json').read_text())
 users = json.loads(Path('e2e/private/mvp-users.json').read_text())
 f.update(operator=users['operator']['id'], viewer=users['viewer']['id'])
 f['foundation'] = json.loads(Path('e2e/fixtures.json').read_text()) if '--c04' in sys.argv else {}
-f['foundation_users'] = json.loads(Path('e2e/private/users.json').read_text()) if '--c04' in sys.argv else {}
+f['foundation_users'] = {role: {'id': user['id']} for role, user in json.loads(Path('e2e/private/users.json').read_text()).items()} if '--c04' in sys.argv else {}
 literal = json.dumps(f).replace("'", "''")
 statement = "BEGIN; SELECT set_config('cw.review_fixture','" + literal + "',true);\n" + Path('e2e/c04-review.sql' if '--c04' in sys.argv else 'e2e/mvp-review.sql').read_text() + '\nROLLBACK;'
 env = os.environ.copy()
