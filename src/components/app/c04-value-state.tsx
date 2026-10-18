@@ -77,7 +77,7 @@ function ValueState({ subjectId }: { subjectId: string }) {
       const value = String(fd.get(key) ?? "").trim();
       d[key] = value === "" ? null : ["target", "window_count"].includes(key) ? Number(value) : value;
     }
-    const payload = { _tenant_id: tenant.id, _subject_id: subjectId, _profile_id: activeProfile, _indicator_key: selected?.["indicator_key"] || indicatorKey, _previous_id: selected?.id ?? null, _definition: d as Json };
+    const payload = { _tenant_id: tenant.id, _subject_id: subjectId, _profile_id: activeProfile, _indicator_key: selected?.["indicator_key"] || indicatorKey, _previous_id: (selected?.id ?? null) as string, _definition: d as Json };
     const signature = JSON.stringify(payload);
     if (retry.current?.signature !== signature) retry.current = { signature, operation: crypto.randomUUID() };
     const operation = retry.current.operation;
