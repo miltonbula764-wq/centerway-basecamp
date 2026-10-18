@@ -4,7 +4,7 @@ DECLARE f jsonb:=current_setting('cw.review_fixture')::jsonb; sample jsonb; othe
   tenant uuid:=(f->>'tenant')::uuid; actor uuid:=(f->>'actor')::uuid; op uuid:=(f->>'operator')::uuid; viewer uuid:=(f->>'viewer')::uuid;
   stranger uuid:=gen_random_uuid(); foreign_tenant uuid; c uuid; prev uuid; evaluation uuid; operation uuid:=gen_random_uuid();
   definition jsonb; modified jsonb; e public.c04_evaluations; cases_before text; cases_after text; t text; u uuid; k text;
-  base jsonb:=f->'foundation'; fu jsonb:=f->'foundation_users'; independent uuid; empty_config uuid; q uuid; before_eval text;
+  base jsonb:=f->'foundation'; fu jsonb:=f->'foundation_users'; independent uuid; empty_config uuid; incomplete_profile uuid; incomplete_run jsonb; incomplete_bundle jsonb; q uuid; before_eval text;
 BEGIN
   CREATE FUNCTION pg_temp.run_as(_uid uuid,_sql text) RETURNS text LANGUAGE plpgsql AS $fn$
   DECLARE answer text;
@@ -78,6 +78,17 @@ BEGIN
   IF (SELECT result FROM public.c04_evaluations WHERE id=q)<>'inconclusive' THEN RAISE EXCEPTION 'empty indicator not inconclusive'; END IF;
   q:=pg_temp.run_as((fu#>>'{operator,id}')::uuid,format('SELECT public.evaluate_c04_configuration(%L,%L,%L)',base->>'tenantA',independent,base#>>'{customerA,historicalBundle}'))::uuid;
   IF (SELECT result FROM public.c04_evaluations WHERE id=q)<>'achieved' THEN RAISE EXCEPTION 'independent outcome blocked'; END IF;
+  -- Missing C02 configuration is not a documentary contradiction. Use genuine profile/analysis/bundle RPCs.
+  incomplete_profile:=pg_temp.run_as((fu#>>'{admin,id}')::uuid,format('SELECT public.create_value_profile_version(%L)',base->>'profileV2'))::uuid;
+  PERFORM pg_temp.run_as((fu#>>'{admin,id}')::uuid,format('UPDATE public.profile_indicators SET aggregation=NULL WHERE tenant_id=%L AND profile_id=%L AND key=''outcome'' RETURNING id',base->>'tenantA',incomplete_profile));
+  PERFORM pg_temp.run_as((fu#>>'{admin,id}')::uuid,format('SELECT public.approve_value_profile(%L)',incomplete_profile));
+  incomplete_run:=pg_temp.run_as((fu#>>'{admin,id}')::uuid,format('SELECT public.run_deterioration_analysis(%L,%L,%L,%L)',base->>'tenantA',base#>>'{customerA,id}',incomplete_profile,date_trunc('day',now())))::jsonb;
+  incomplete_bundle:=pg_temp.run_as((fu#>>'{admin,id}')::uuid,format('SELECT public.build_evidence_bundle(%L,%L)',base->>'tenantA',incomplete_run->>'run_id'))::jsonb;
+  IF incomplete_bundle->>'status'<>'built' THEN RAISE EXCEPTION 'incomplete fixture C03 build failed'; END IF;
+  q:=pg_temp.run_as((fu#>>'{admin,id}')::uuid,format('SELECT public.save_c04_configuration(%L,%L,%L,''outcome'',%L,%L,%L)',base->>'tenantA',base#>>'{customerA,id}',incomplete_profile,independent,gen_random_uuid(),definition||'{"unit":"count","source":"synthetic-ci","target":40,"comparator":"gte"}'::jsonb))::uuid;
+  q:=pg_temp.run_as((fu#>>'{operator,id}')::uuid,format('SELECT public.evaluate_c04_configuration(%L,%L,%L)',base->>'tenantA',q,incomplete_bundle->>'bundle_id'))::uuid;
+  SELECT * INTO e FROM public.c04_evaluations WHERE id=q;
+  IF e.result<>'inconclusive' OR e.configuration_state='contradiction' OR NOT (e.details->'reasons' ? 'historical_measurement_configuration_incomplete') THEN RAISE EXCEPTION 'missing historical configuration mislabeled: %',to_jsonb(e); END IF;
   -- Tenant isolation and roles, including authenticated users administering their own tenant.
   INSERT INTO auth.users(id,instance_id,aud,role,email) VALUES(stranger,'00000000-0000-0000-0000-000000000000','authenticated','authenticated','c04-review@example.invalid');
   foreign_tenant:=pg_temp.run_as(stranger,$$SELECT public.create_tenant('Synthetic C04 other tenant','organization')$$)::uuid;

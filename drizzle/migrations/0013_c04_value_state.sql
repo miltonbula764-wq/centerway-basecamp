@@ -132,11 +132,15 @@ BEGIN
   p:=i.snapshot#>'{details,parameters}'; required_n:=(d->>'window_count')::int;
   compatible_measurement:=r.profile_id=c.profile_id AND r.algorithm_version='c02-v2' AND b.algorithm_version='c03-v1'
     AND i.snapshot->>'classification'='outcome'
-    AND (d->>'unit' IS NULL OR p->>'unit'=d->>'unit')
-    AND (d->>'aggregation' IS NULL OR p->>'aggregation'=d->>'aggregation');
+    AND (d->>'unit' IS NULL OR p->>'unit' IS NULL OR p->>'unit'=d->>'unit')
+    AND (d->>'aggregation' IS NULL OR p->>'aggregation' IS NULL OR p->>'aggregation'=d->>'aggregation');
   IF compatible_measurement IS DISTINCT FROM true THEN
     enough:=false; reasons:=array_append(reasons,'historical_measurement_configuration_mismatch');
     cs:=CASE WHEN i.id IS NULL THEN 'not_checkable' ELSE 'contradiction' END;
+  END IF;
+  IF i.id IS NOT NULL AND (p->>'unit' IS NULL OR p->>'aggregation' IS NULL) THEN
+    enough:=false; reasons:=array_append(reasons,'historical_measurement_configuration_incomplete');
+    IF cs<>'contradiction' THEN cs:='not_checkable'; END IF;
   END IF;
   IF i.status IS DISTINCT FROM 'complete'::public.c03_indicator_status THEN enough:=false; reasons:=array_append(reasons,'indicator_evidence_insufficient'); END IF;
   -- Per-indicator only: no dependence on the bundle-wide status or other indicators.
