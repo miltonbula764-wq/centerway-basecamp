@@ -38,3 +38,10 @@ Contrato: `docs/MVP_JOURNEY_CONTRACT.md`. Arranque e limites: `docs/MVP_RUNNING.
 - [x] Orientação no estado vazio com ligações existentes, distinção do piloto e etapas legíveis em mobile.
 - [x] Browser autenticado dev local ligado à base hospedada: ligações Clientes/Novo cliente (sem guardar), Perfil e Dados, 10 etapas expandíveis, retorno à seleção; mobile 390×844 sem overflow, zero erros de consola/HTTP e zero escritas REST.
 - [x] Suite existente 110/110; build/typecheck gerido OK. Ajuste local das anotações de leitura de casos/eventos após tipos regenerados pela 0012, sem alteração de contrato ou dados.
+
+## C04 configurável — missão atual
+- [x] Configurações e avaliações persistentes e imutáveis por cliente/indicador; documentação separada de resultado medido.
+- [x] Painel integrado em Casos; metas explícitas e revisões, pendências e entrada de coordenação do Core sem transições automáticas.
+- [ ] Políticas gerais de casos, cumprimento agregado da promessa e migração de perfil na interface ficam pendentes.
+
+Contrato e execução: `docs/C04_CONFIGURABLE.md`.

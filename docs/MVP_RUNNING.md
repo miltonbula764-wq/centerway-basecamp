@@ -15,7 +15,7 @@ Os quatro containers são gratuitos e descartáveis. Não usar uma base existent
 As dependências são obtidas do npm público, com versões e hashes congelados;
 o arranque isolado não exige acesso à cache ou ao projeto Lovable.
 
-Na branch `review/mvp-core-journey`, com os ficheiros desta entrega commitados:
+Na branch da entrega que pretende testar, com os ficheiros commitados (o script usa HEAD):
 
 ```sh
 python3 scripts/mvp/start-local.py
@@ -44,6 +44,8 @@ As pastas temporárias com credenciais ficam locais; elimine a pasta indicada ap
 terminar. Um novo arranque cria uma stack e credenciais novas; não reutiliza dados.
 
 ## O que explorar
+
+- **C04 configurável:** selecionar um cliente e abrir o painel Value State. Registar factos conhecidos, consultar pendências, completar uma revisão e avaliar um pacote C03. Este bloco requer a 0013 e mantém o piloto abaixo separado; ver `docs/C04_CONFIGURABLE.md`.
 
 - **Investigar:** selecionar o caso, consultar o cliente C01–C03, escolher a prova
   `integration_status=disabled` e investigar. Sem prova fica à espera de informação.

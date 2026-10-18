@@ -67,7 +67,9 @@ jobs:
           python3 scripts/mvp/apply-review-migration.py
           node e2e/mvp-seed.mjs
           python3 scripts/mvp/load-history.py
+          python3 scripts/mvp/apply-review-migration.py --c04
           python3 scripts/mvp/review-database.py
+          python3 scripts/mvp/review-database.py --c04
       - name: Browser end-to-end scenarios
         working-directory: ${{ runner.temp }}/cw-browser/e2e
         run: |

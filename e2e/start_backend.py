@@ -86,7 +86,7 @@ wait('http://127.0.0.1:9999/health')
 # Apply actual repository migrations, unchanged, after GoTrue has created its own auth schema.
 journal = json.loads((root / 'drizzle/migrations/meta/_journal.json').read_text())
 for entry in journal['entries']:
-    if '--defer-mvp-review' in sys.argv and entry['tag'] == '0012_mvp_case_journey':
+    if '--defer-mvp-review' in sys.argv and entry['idx'] >= 12:
         continue
     run(entry['tag'], ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '--single-transaction', '-f',
                       'drizzle/migrations/' + entry['tag'] + '.sql'])
