@@ -9,6 +9,7 @@ import { caseStateLabel, eventDetails, journeyError, journeySteps, resultLabel, 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Empty, ErrorState, formatDate, Loading, Mono, NativeSelect, PageHeader, Panel, StatusPill } from "./ui-bits";
+import { CaseStartGuide } from "./case-start-guide";
 
 export function CaseWorkspace() {
   const { tenant } = useTenant();
@@ -43,26 +44,32 @@ function Workspace() {
   const cases = useQuery({ queryKey: tk(tenant.id, "journey", "cases", subjectId), queryFn: async () => {
     let query = supabase.from("cw_cases").select("*").eq("tenant_id", tenant.id).order("created_at", { ascending: false }).limit(100);
     if (subjectId) query = query.eq("subject_id", subjectId);
-    const { data, error } = await query; if (error) throw error; return data;
+    const { data, error } = await query.returns<JourneyCase[]>(); if (error) throw error; return data;
   } });
   const selected = cases.data?.find(c => c.id === caseId);
   return <>
     <PageHeader title="Casos · percurso CENTERWAY" description="Core: evidência → investigação → intervenção autorizada → resultado → decisão." />
-    <div className="mb-6 rounded-md border border-primary/40 bg-primary/5 p-4 text-sm">
-      <StatusPill tone="primary">Piloto sintético · flowreports-demo-v1</StatusPill>
-      <p className="mt-2">FlowReports / Loja Aurora · reduzir de 10 para 4 horas semanais. Estes critérios não são regras universais.</p>
-      <p className="mt-1 text-muted-foreground">Operações no PostgreSQL autenticado. Sem conectores externos. A execução é um registo humano.</p>
-      <a href="/mvp-preview.html" className="mt-2 inline-block underline">Mapa visual de referência (somente leitura, dados ilustrativos)</a>
+    {subjects.isSuccess && cases.isSuccess && !cases.data?.length && <CaseStartGuide subjectId={subjectId} noSubjects={!subjects.data?.length} />}
+    <div id="case-client" className="mb-5 scroll-mt-20">
+      <Field title="Cliente acompanhado"><NativeSelect className="h-11 min-w-0" value={subjectId} disabled={subjects.isLoading || subjects.isError || !subjects.data?.length} onChange={e => { setSubjectId(e.target.value); setCaseId(""); }}>
+        <option value="">{subjects.isLoading ? "A carregar clientes…" : subjects.isError ? "Clientes indisponíveis" : !subjects.data?.length ? "Ainda não há clientes" : "Todos os clientes (até 100)"}</option>{subjects.data?.map(s => <option key={s.id} value={s.id}>{s.display_name || s.external_ref}</option>)}
+      </NativeSelect></Field>
+      {subjects.isError && <ErrorState message="Não foi possível consultar os clientes." onRetry={() => subjects.refetch()} />}
+      {subjects.isSuccess && !!subjects.data?.length && <p className="mt-2 text-xs text-muted-foreground">Escolha um cliente para consultar os seus objetivos e casos.</p>}
     </div>
-    <div className="mb-6 grid grid-cols-2 gap-2 md:grid-cols-5">
-      {journeySteps.map(([code, title, description]) => <a key={code} onClick={() => setFocusStep(code)} href={Number(code.slice(1)) < 4 ? (subjectId ? `/app/clientes/${subjectId}` : "/app/clientes") : code === "C04" ? "#C04" : "#case-dossier"} className="rounded-md border border-border p-3 text-xs hover:bg-accent/50">
-        <span className="font-mono text-primary">{code}</span><strong className="ml-2">{title}</strong><p className="mt-1 text-muted-foreground">{description}</p>
+    <details className="mb-5 border-y border-border py-3">
+      <summary className="cursor-pointer text-sm font-medium">Percurso C01–C10 <span className="ml-2 text-xs font-normal text-muted-foreground">Recolha → decisão</span></summary>
+    <nav aria-label="Etapas do percurso" className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-5">
+      {journeySteps.map(([code, title, description]) => <a key={code} onClick={() => setFocusStep(code)} href={Number(code.slice(1)) < 4 ? (subjectId ? `/app/clientes/${subjectId}` : "/app/clientes") : code === "C04" ? (subjectId ? "#C04" : "#case-client") : "#case-dossier"} className="min-w-0 rounded-md border border-border p-3 text-sm hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <span className="block font-mono text-xs text-primary">{code}</span><strong className="mt-1 block font-medium">{title}</strong><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p>
       </a>)}
-    </div>
-    <Field title="Cliente acompanhado"><NativeSelect value={subjectId} onChange={e => { setSubjectId(e.target.value); setCaseId(""); }}>
-      <option value="">Todos os clientes (até 100)</option>{subjects.data?.map(s => <option key={s.id} value={s.id}>{s.display_name || s.external_ref}</option>)}
-    </NativeSelect></Field>
-    {subjects.isError && <ErrorState message="Não foi possível consultar os clientes." onRetry={() => subjects.refetch()} />}
+    </nav></details>
+    <aside aria-label="Limites da política do piloto" className="mb-6 border-l-2 border-primary/40 pl-4 text-sm">
+      <p className="font-medium">Regras exclusivas · <span className="break-all font-mono text-xs text-primary">flowreports-demo-v1</span></p>
+      <p className="mt-2 leading-relaxed text-muted-foreground">FlowReports / Loja Aurora: 10 → 4 h/semana, perfil compatível com report_hours e confirmação documental manual. C04–C10 aplicam apenas este cenário sintético, não regras universais de valor.</p>
+      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Sem conectores externos; a execução é um registo humano autorizado. A observação exige 14 dias e duas semanas completas.</p>
+      <a href="/mvp-preview.html" className="mt-2 inline-block text-xs text-muted-foreground underline underline-offset-4">Referência ilustrativa · não executa operações</a>
+    </aside>
     <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] [&>*]:min-w-0">
       <div className="space-y-6">
         {subjectId ? <ObjectivePanel key={subjectId} subjectId={subjectId} canWrite={canWrite} isAdmin={isAdmin} onCase={setCaseId} /> :
@@ -165,7 +172,7 @@ function CaseDetail({ current, focusStep }: { current: JourneyCase; focusStep: s
   const [bundleId, setBundleId] = useState("");
   const retry = useRef<{ signature: string; operation: string } | null>(null);
   const events = useQuery({ queryKey: tk(tenant.id, "journey", "events", current.id), queryFn: async () => {
-    const { data, error } = await supabase.from("cw_case_events").select("*").eq("tenant_id", tenant.id).eq("case_id", current.id).order("sequence").limit(300);
+    const { data, error } = await supabase.from("cw_case_events").select("*").eq("tenant_id", tenant.id).eq("case_id", current.id).order("sequence").limit(300).returns<CaseEvent[]>();
     if (error) throw error; return data;
   } });
   const observations = useQuery({ queryKey: tk(tenant.id, "journey", "integration", current.subject_id), queryFn: async () => {

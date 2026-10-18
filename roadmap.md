@@ -33,3 +33,8 @@
 Contrato: `docs/MVP_JOURNEY_CONTRACT.md`. Arranque e limites: `docs/MVP_RUNNING.md`.
 
 - [x] 0012 instalada no backend deste projeto (18/10/2026) pela ferramenta gerida; SQL idêntico (sha256 b1ace0b1…), histórico 13 entradas.
+
+## Polimento visual de Casos
+- [x] Orientação no estado vazio com ligações existentes, distinção do piloto e etapas legíveis em mobile.
+- [x] Browser autenticado dev local ligado à base hospedada: ligações Clientes/Novo cliente (sem guardar), Perfil e Dados, 10 etapas expandíveis, retorno à seleção; mobile 390×844 sem overflow, zero erros de consola/HTTP e zero escritas REST.
+- [x] Suite existente 110/110; build/typecheck gerido OK. Ajuste local das anotações de leitura de casos/eventos após tipos regenerados pela 0012, sem alteração de contrato ou dados.
