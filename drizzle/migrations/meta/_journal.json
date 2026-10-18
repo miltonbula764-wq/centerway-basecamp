@@ -99,6 +99,13 @@
       "when": 1792314625257,
       "tag": "0013_c04_value_state",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792316571467,
+      "tag": "0014_configurable_case_journey",
+      "breakpoints": true
     }
   ]
 }
