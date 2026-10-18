@@ -6,7 +6,7 @@ const core=page=>page.locator('section').filter({has:page.getByRole('heading',{n
 const dossier=page=>page.locator('section').filter({has:page.getByRole('heading',{name:'Dossier operacional C05–C10',exact:true})});
 async function login(page) {
  await page.addInitScript(tenant=>localStorage.setItem('centerway.selectedTenant',tenant),f.tenant); // Preference only; membership still verified by app + RLS.
- await page.route('**/*',route=>{ const u=new URL(route.request().url()); if(['127.0.0.1','localhost'].includes(u.hostname)) return route.continue(); if(u.hostname==='fonts.googleapis.com') return route.fulfill({contentType:'text/css',body:''}); return route.abort('blockedbyclient'); });
+ await page.route('**/*',route=>{ const u=new URL(route.request().url()); if(u.origin===new URL(process.env.CW_DEMO_BASE_URL || 'http://127.0.0.1:5173').origin) return route.continue(); if(u.hostname==='fonts.googleapis.com') return route.fulfill({contentType:'text/css',body:''}); return route.abort('blockedbyclient'); });
  await page.goto('/auth');await page.getByLabel('Email',{exact:true}).fill(users.admin.email);await page.getByLabel('Palavra-passe',{exact:true}).fill(users.admin.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page).toHaveURL(/\/app(?:$|[/?])/);
  await page.goto('/app/casos');
 }

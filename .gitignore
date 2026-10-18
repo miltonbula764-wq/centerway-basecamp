@@ -38,3 +38,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Isolated Codespaces runtime, credentials and local TLS test artifacts
+/.centerway-demo/
+__pycache__/
+/e2e/report-demo/
+/e2e/results-demo/

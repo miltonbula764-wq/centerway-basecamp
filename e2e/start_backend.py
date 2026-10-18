@@ -12,14 +12,10 @@ import time
 import urllib.request
 
 if '--local-mvp' in sys.argv:
-    # Explicit local mode accepts ONLY the freshly created, labelled disposable DB.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts/mvp'))
+    from disposable import require_local_database
     assert os.environ.get('PG_CONTAINER') == 'cw-mvp-db'
-    info = json.loads(subprocess.check_output(['docker', 'inspect', 'cw-mvp-db']))[0]
-    assert info['Config']['Image'] == 'postgres:17'
-    assert info['Config'].get('Labels', {}).get('centerway.disposable') == 'mvp'
-    assert all(m['Type'] == 'tmpfs' and m['Destination'] == '/var/lib/postgresql/data'
-               for m in info.get('Mounts', [])), 'No persistent database volumes accepted'
-    assert info['HostConfig']['PortBindings']['5432/tcp'] == [{'HostIp': '127.0.0.1', 'HostPort': '5432'}]
+    require_local_database()
 else:
     assert os.environ.get('GITHUB_ACTIONS') == 'true'
     assert os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
@@ -52,7 +48,7 @@ secret = secrets.token_hex(32)
 def b64(value):
     return base64.urlsafe_b64encode(value).decode().rstrip('=')
 header = b64(json.dumps({'alg': 'HS256', 'typ': 'JWT'}).encode())
-payload = b64(json.dumps({'role': 'anon', 'iss': 'supabase', 'iat': int(time.time()), 'exp': int(time.time()) + 7200}).encode())
+payload = b64(json.dumps({'role': 'anon', 'iss': 'supabase', 'iat': int(time.time()), 'exp': int(time.time()) + (604800 if os.environ.get('CW_CODESPACES_DEMO') == '1' else 7200)}).encode())
 unsigned = header + '.' + payload
 anon = unsigned + '.' + b64(hmac.new(secret.encode(), unsigned.encode(), hashlib.sha256).digest())
 # Only ephemeral keys; private files are outside the artifact allowlist and never printed.
@@ -67,11 +63,12 @@ def envfile(name, values):
 run('bootstrap', ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '-f', 'e2e/bootstrap.sql'])
 run('network', ['docker', 'network', 'create', '--label', 'centerway.disposable=true', 'cw-e2e'])
 run('attach-database', ['docker', 'network', 'connect', '--alias', 'db', 'cw-e2e', os.environ['PG_CONTAINER']])
+demo_origin = os.environ.get('CW_DEMO_ORIGIN') if os.environ.get('CW_CODESPACES_DEMO') == '1' else None
 auth_env = envfile('auth.env', {
     'GOTRUE_API_HOST': '0.0.0.0', 'GOTRUE_API_PORT': '9999',
-    'API_EXTERNAL_URL': 'http://127.0.0.1:54321/auth/v1',
-    'GOTRUE_SITE_URL': 'http://127.0.0.1:5173',
-    'GOTRUE_URI_ALLOW_LIST': 'http://127.0.0.1:5173/**',
+    'API_EXTERNAL_URL': demo_origin + '/auth/v1' if demo_origin else 'http://127.0.0.1:54321/auth/v1',
+    'GOTRUE_SITE_URL': demo_origin or 'http://127.0.0.1:5173',
+    'GOTRUE_URI_ALLOW_LIST': (demo_origin or 'http://127.0.0.1:5173') + '/**',
     'GOTRUE_DB_DRIVER': 'postgres', 'GOTRUE_DB_DATABASE_URL': 'postgres://postgres@db:5432/cw_e2e?search_path=auth,public',
     'GOTRUE_DB_NAMESPACE': 'auth', 'GOTRUE_JWT_SECRET': secret,
     'GOTRUE_JWT_EXP': '3600', 'GOTRUE_JWT_AUD': 'authenticated',

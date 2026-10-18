@@ -6,11 +6,8 @@ import subprocess
 import sys
 
 if os.environ.get('CW_LOCAL_MVP') == '1':
-    info = json.loads(subprocess.check_output(['docker', 'inspect', 'cw-mvp-db']))[0]
-    assert info['Config']['Image'] == 'postgres:17'
-    assert info['Config'].get('Labels', {}).get('centerway.disposable') == 'mvp'
-    assert all(m['Type'] == 'tmpfs' and m['Destination'] == '/var/lib/postgresql/data' for m in info.get('Mounts', []))
-    assert info['HostConfig']['PortBindings']['5432/tcp'] == [{'HostIp': '127.0.0.1', 'HostPort': '5432'}]
+    from disposable import require_local_database
+    require_local_database()
 else:
     assert os.environ.get('GITHUB_ACTIONS') == 'true'
     assert os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
