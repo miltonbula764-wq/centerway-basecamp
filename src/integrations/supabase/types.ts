@@ -490,6 +490,153 @@ export type Database = {
           },
         ]
       }
+      c04_configurations: {
+        Row: {
+          created_at: string
+          created_by: string
+          definition: Json
+          id: string
+          indicator_key: string
+          operation_id: string
+          pending_fields: string[]
+          previous_id: string | null
+          profile_id: string
+          request_hash: string
+          subject_id: string
+          tenant_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          definition: Json
+          id?: string
+          indicator_key: string
+          operation_id: string
+          pending_fields: string[]
+          previous_id?: string | null
+          profile_id: string
+          request_hash: string
+          subject_id: string
+          tenant_id: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          definition?: Json
+          id?: string
+          indicator_key?: string
+          operation_id?: string
+          pending_fields?: string[]
+          previous_id?: string | null
+          profile_id?: string
+          request_hash?: string
+          subject_id?: string
+          tenant_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "c04_configurations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "c04_configurations_tenant_id_profile_id_fkey"
+            columns: ["tenant_id", "profile_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_value_profiles"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c04_configurations_tenant_id_subject_id_fkey"
+            columns: ["tenant_id", "subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "c04_configurations_tenant_id_subject_id_previous_id_fkey"
+            columns: ["tenant_id", "subject_id", "previous_id"]
+            isOneToOne: false
+            referencedRelation: "c04_configurations"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+        ]
+      }
+      c04_evaluations: {
+        Row: {
+          algorithm_version: string
+          bundle_id: string
+          configuration_id: string
+          configuration_state: string
+          core_disposition: string
+          created_at: string
+          created_by: string
+          details: Json
+          evidence: string
+          id: string
+          result: string
+          subject_id: string
+          tenant_id: string
+        }
+        Insert: {
+          algorithm_version: string
+          bundle_id: string
+          configuration_id: string
+          configuration_state: string
+          core_disposition: string
+          created_at?: string
+          created_by: string
+          details: Json
+          evidence: string
+          id?: string
+          result: string
+          subject_id: string
+          tenant_id: string
+        }
+        Update: {
+          algorithm_version?: string
+          bundle_id?: string
+          configuration_id?: string
+          configuration_state?: string
+          core_disposition?: string
+          created_at?: string
+          created_by?: string
+          details?: Json
+          evidence?: string
+          id?: string
+          result?: string
+          subject_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "c04_evaluations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "c04_evaluations_tenant_id_subject_id_bundle_id_fkey"
+            columns: ["tenant_id", "subject_id", "bundle_id"]
+            isOneToOne: false
+            referencedRelation: "c03_bundles"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+          {
+            foreignKeyName: "c04_evaluations_tenant_id_subject_id_configuration_id_fkey"
+            columns: ["tenant_id", "subject_id", "configuration_id"]
+            isOneToOne: false
+            referencedRelation: "c04_configurations"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+        ]
+      }
       cw_assessments: {
         Row: {
           bundle_id: string
@@ -1555,6 +1702,14 @@ export type Database = {
         Returns: string
       }
       effective_value_profile: { Args: { _tenant_id: string }; Returns: string }
+      evaluate_c04_configuration: {
+        Args: {
+          _bundle_id: string
+          _configuration_id: string
+          _tenant_id: string
+        }
+        Returns: string
+      }
       has_tenant_role: {
         Args: {
           _roles: Database["public"]["Enums"]["member_role"][]
@@ -1596,6 +1751,18 @@ export type Database = {
           _tenant_id: string
         }
         Returns: Json
+      }
+      save_c04_configuration: {
+        Args: {
+          _definition: Json
+          _indicator_key: string
+          _operation_id: string
+          _previous_id: string
+          _profile_id: string
+          _subject_id: string
+          _tenant_id: string
+        }
+        Returns: string
       }
       set_member_role: {
         Args: {
