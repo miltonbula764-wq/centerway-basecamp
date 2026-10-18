@@ -327,3 +327,7 @@ GRANT EXECUTE ON FUNCTION public.create_demo_objective(uuid,uuid,uuid,timestampt
 GRANT EXECUTE ON FUNCTION public.assess_demo_objective(uuid,uuid,uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.open_demo_case(uuid,uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.command_demo_case(uuid,uuid,int,uuid,text,jsonb) TO authenticated;
+
+-- Delivered only after the migration transaction commits. Existing API servers
+-- must reload their schema cache before exposing the newly added RPCs/tables.
+NOTIFY pgrst, 'reload schema';

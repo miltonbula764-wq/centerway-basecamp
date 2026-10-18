@@ -18,6 +18,15 @@ for(const role of ['admin','operator','viewer']) {
   assert.ok(session.access_token); users[role]={email,password,id:session.user.id,token:session.access_token};
 }
 const token=users.admin.token;
+// Upgrade review applies 0012 to an already running API. Wait only on a read;
+// never repeat a mutating command to probe PostgREST schema-cache readiness.
+for(let attempt=0;attempt<80;attempt++) {
+  const ready=await fetch(config.url+'/rest/v1/cw_cases?select=id&limit=0',{headers:{apikey:config.anon,Authorization:`Bearer ${token}`}});
+  if(ready.ok) break;
+  const error=await ready.json();
+  if(error.code!=='PGRST205' || attempt===79) throw Error('Migration 0012 API schema not ready: '+error.code);
+  await new Promise(resolve=>setTimeout(resolve,250));
+}
 const tenant=await rpc(token,'create_tenant',{_name:'FlowReports · MVP SINTÉTICO',_subject_unit_type:'organization'});
 for(const role of ['operator','viewer']) await rpc(token,'add_tenant_member',{_tenant_id:tenant,_user_id:users[role].id,_role:role});
 const profile=await rpc(token,'create_value_profile_draft',{_tenant_id:tenant,_promise:'[SINTÉTICO] Automatização de relatórios com integração ativa.',_expected_outcome:'Objetivo individual confirmado: reduzir de 10 para 4 h/semana.'});
