@@ -47,6 +47,7 @@ Contrato: `docs/MVP_JOURNEY_CONTRACT.md`. Arranque e limites: `docs/MVP_RUNNING.
 Contrato e execução: `docs/C04_CONFIGURABLE.md`.
 
 ## Core e percurso operacional configurável
+- [x] 0014 instalada em 18/10/2026 pela ferramenta gerida numa única chamada: SQL byte-idêntico ao PR #10 (SHA-256 3f8a9202e3e50c67dc0a8406ffdb3968264915fa2b2288560778812731d6c63a), 15 registos e 24 tabelas; journal idx14/timestamp 1792316571467 e snapshots encadeados, 0000–0013 intactos. RLS/ACL e lock tenant C04 confirmados por SELECT; dados preservados. Tipos regenerados automaticamente, build/typecheck OK e Vitest 110/110. Browser autenticado dev local ligado ao backend hospedado: /app/casos e reload, “Sem casos”, mobile sem overflow, zero erros/HTTP ≥400/escritas REST. Com 0 clientes, os painéis C04/Core por cliente não foram exercitados; sem seed ou publicação.
 - [x] C04 persistido como entrada sem exigir candidato C02; pendências visíveis e abertura humana documentada.
 - [x] C05–C10 por indicador, janela e critérios explícitos por caso, autorização, histórico e isolamento.
 - [x] Percurso integrado em Casos, preservando o piloto e as migrações instaladas.
