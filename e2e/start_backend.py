@@ -7,11 +7,22 @@ import os
 from pathlib import Path
 import secrets
 import subprocess
+import sys
 import time
 import urllib.request
 
-assert os.environ.get('GITHUB_ACTIONS') == 'true'
-assert os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
+if '--local-mvp' in sys.argv:
+    # Explicit local mode accepts ONLY the freshly created, labelled disposable DB.
+    assert os.environ.get('PG_CONTAINER') == 'cw-mvp-db'
+    info = json.loads(subprocess.check_output(['docker', 'inspect', 'cw-mvp-db']))[0]
+    assert info['Config']['Image'] == 'postgres:17'
+    assert info['Config'].get('Labels', {}).get('centerway.disposable') == 'mvp'
+    assert all(m['Type'] == 'tmpfs' and m['Destination'] == '/var/lib/postgresql/data'
+               for m in info.get('Mounts', [])), 'No persistent database volumes accepted'
+    assert info['HostConfig']['PortBindings']['5432/tcp'] == [{'HostIp': '127.0.0.1', 'HostPort': '5432'}]
+else:
+    assert os.environ.get('GITHUB_ACTIONS') == 'true'
+    assert os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
 root = Path.cwd()
 logs = root / 'e2e/logs'
 logs.mkdir(exist_ok=True)
@@ -54,7 +65,7 @@ def envfile(name, values):
     return str(p)
 
 run('bootstrap', ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '-f', 'e2e/bootstrap.sql'])
-run('network', ['docker', 'network', 'create', 'cw-e2e'])
+run('network', ['docker', 'network', 'create', '--label', 'centerway.disposable=true', 'cw-e2e'])
 run('attach-database', ['docker', 'network', 'connect', '--alias', 'db', 'cw-e2e', os.environ['PG_CONTAINER']])
 auth_env = envfile('auth.env', {
     'GOTRUE_API_HOST': '0.0.0.0', 'GOTRUE_API_PORT': '9999',
@@ -69,12 +80,14 @@ auth_env = envfile('auth.env', {
     # Disposable test instance ONLY. Password grants and signed JWT validation remain real.
     'GOTRUE_MAILER_AUTOCONFIRM': 'true', 'GOTRUE_RATE_LIMIT_EMAIL_SENT': '1000',
 })
-run('start-auth', ['docker', 'run', '-d', '--name', 'cw-auth', '--network', 'cw-e2e',
+run('start-auth', ['docker', 'run', '-d', '--name', 'cw-auth', '--label', 'centerway.disposable=true', '--network', 'cw-e2e',
                    '-p', '127.0.0.1:9999:9999', '--env-file', auth_env, 'supabase/gotrue:v2.177.0'])
 wait('http://127.0.0.1:9999/health')
 # Apply actual repository migrations, unchanged, after GoTrue has created its own auth schema.
 journal = json.loads((root / 'drizzle/migrations/meta/_journal.json').read_text())
 for entry in journal['entries']:
+    if '--defer-mvp-review' in sys.argv and entry['tag'] == '0012_mvp_case_journey':
+        continue
     run(entry['tag'], ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '--single-transaction', '-f',
                       'drizzle/migrations/' + entry['tag'] + '.sql'])
 run('effective-acl', ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '-f', 'supabase/tests/client_privileges_test.sql'])
@@ -82,7 +95,7 @@ rest_env = envfile('rest.env', {
     'PGRST_DB_URI': 'postgres://authenticator@db:5432/cw_e2e', 'PGRST_DB_SCHEMAS': 'public',
     'PGRST_DB_ANON_ROLE': 'anon', 'PGRST_JWT_SECRET': secret, 'PGRST_SERVER_PORT': '3000',
 })
-run('start-rest', ['docker', 'run', '-d', '--name', 'cw-rest', '--network', 'cw-e2e',
+run('start-rest', ['docker', 'run', '-d', '--name', 'cw-rest', '--label', 'centerway.disposable=true', '--network', 'cw-e2e',
                    '-p', '127.0.0.1:54322:3000', '--env-file', rest_env, 'postgrest/postgrest:v12.2.3'])
 wait('http://127.0.0.1:54322/')
 nginx = private / 'nginx.conf'
@@ -90,11 +103,12 @@ nginx.write_text('''events {}\nhttp { access_log off; server { listen 80;
 location /auth/v1/ { proxy_pass http://cw-auth:9999/; proxy_set_header Host $host; }
 location /rest/v1/ { proxy_pass http://cw-rest:3000/; }
 } }''')
-run('start-gateway', ['docker', 'run', '-d', '--name', 'cw-gateway', '--network', 'cw-e2e',
+run('start-gateway', ['docker', 'run', '-d', '--name', 'cw-gateway', '--label', 'centerway.disposable=true', '--network', 'cw-e2e',
                      '-p', '127.0.0.1:54321:80', '-v', str(nginx) + ':/etc/nginx/nginx.conf:ro', 'nginx:1.27-alpine'])
 wait('http://127.0.0.1:54321/auth/v1/health')
 (root / '.env.local').write_text('VITE_SUPABASE_URL=http://127.0.0.1:54321\nVITE_SUPABASE_PUBLISHABLE_KEY=' + anon + '\n')
 (private / 'public.json').write_text(json.dumps({'url': 'http://127.0.0.1:54321', 'anon': anon}))
 (logs / 'backend.json').write_text(json.dumps({'postgres': 17, 'auth': 'GoTrue v2.177.0', 'rest': 'PostgREST v12.2.3',
     'auth_method': 'real password grants; test-only auto-confirm', 'data': 'synthetic only', 'production': False}, indent=2))
-print('Disposable GoTrue, PostgreSQL and PostgREST ready; migrations and effective ACL assertions passed.')
+print('Disposable GoTrue, PostgreSQL and PostgREST ready; selected migrations and effective ACL assertions passed.'
+      + (' Migration 0012 deferred for non-empty upgrade review.' if '--defer-mvp-review' in sys.argv else ''))

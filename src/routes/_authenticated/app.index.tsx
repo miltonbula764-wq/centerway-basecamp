@@ -40,7 +40,7 @@ function Overview() {
     { done: !!approved || hasOutcomeDraft, label: "Adicionar pelo menos um indicador de resultado", to: "/app/perfil" as const },
     { done: !!approved, label: "Aprovar o perfil de valor (administrador)", to: "/app/perfil" as const },
     { done: (subjects.data ?? 0) > 0, label: "Registar clientes acompanhados", to: "/app/clientes" as const },
-    { done: (obs.data ?? 0) > 0, label: "Importar observações — disponível numa próxima etapa", to: "/app/dados" as const },
+    { done: (obs.data ?? 0) > 0, label: "Importar observações pelo C01", to: "/app/dados" as const },
   ];
 
   return (
@@ -90,8 +90,9 @@ function Overview() {
           </div>
           <Panel title="Casos">
             <p className="text-sm text-muted-foreground">
-              A deteção de deterioração já pode ser corrida na página de cada cliente e produz apenas sinais candidatos. A abertura de casos chega numa próxima etapa.
+              Acompanhe objetivos, investigações, planos, aprovações, intervenções e resultados do piloto sintético, coordenados pelo Core.
             </p>
+            <Link to="/app/casos" className="mt-3 inline-flex items-center gap-2 text-sm text-primary underline">Abrir percurso C01–C10 <ArrowRight className="h-4 w-4" /></Link>
           </Panel>
         </div>
       )}

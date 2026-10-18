@@ -20,6 +20,13 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Disposable backend credentials and generated synthetic fixtures/reports
+/e2e/private/
+/e2e/fixtures.json
+/e2e/mvp-fixtures.json
+/e2e/report/
+/e2e/results/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -4,7 +4,7 @@ on:
     branches: [review/c02-c03-browser-e2e, review/core-value-context]
   pull_request:
     branches: [main]
-    paths: ['e2e/**', 'src/**', '.github/workflows/browser-e2e.yml']
+    paths: ['e2e/**', 'src/**', 'drizzle/migrations/**', 'scripts/mvp/**', 'package.json', 'bun.lock', '*config*', '.github/workflows/browser-e2e.yml']
 permissions:
   contents: read
 concurrency:
@@ -51,10 +51,23 @@ jobs:
         env:
           PG_CONTAINER: ${{ job.services.postgres.id }}
         working-directory: ${{ runner.temp }}/cw-browser
-        run: python3 e2e/start_backend.py
+        run: python3 e2e/start_backend.py --defer-mvp-review
       - name: Seed synthetic data through real password grants and REST
         working-directory: ${{ runner.temp }}/cw-browser
         run: node e2e/seed.mjs
+      - name: Mount synthetic MVP cases and explicit retrospective outcome fixtures
+        working-directory: ${{ runner.temp }}/cw-browser
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGDATABASE: cw_e2e
+          PGPASSFILE: /dev/null
+        run: |
+          python3 scripts/mvp/apply-review-migration.py
+          node e2e/mvp-seed.mjs
+          python3 scripts/mvp/load-history.py
+          python3 scripts/mvp/review-database.py
       - name: Browser end-to-end scenarios
         working-directory: ${{ runner.temp }}/cw-browser/e2e
         run: |
@@ -85,6 +98,7 @@ jobs:
             ${{ runner.temp }}/cw-browser/e2e/logs/
             ${{ runner.temp }}/cw-browser/e2e/report/
             ${{ runner.temp }}/cw-browser/e2e/results/
+            ${{ runner.temp }}/cw-browser/public/mvp-preview.html
           retention-days: 3
           if-no-files-found: warn
       - name: Stop only this job's disposable services
