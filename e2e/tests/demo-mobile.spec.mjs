@@ -7,7 +7,7 @@ const config=JSON.parse(fs.readFileSync(new URL('../private/public.json',import.
 const origin=process.env.CW_DEMO_BASE_URL;
 test.skip(!origin, 'Local HTTPS demo suite only; not a remote Codespaces check.');
 async function login(page){
- await page.addInitScript(id=>localStorage.setItem('centerway.selectedTenant',id),f.tenant);
+ await page.addInitScript(id=>{if(!localStorage.getItem('centerway.selectedTenant'))localStorage.setItem('centerway.selectedTenant',id);},f.tenant);
  await page.goto('/auth');await page.getByLabel('Email',{exact:true}).fill(users.admin.email);await page.getByLabel('Palavra-passe',{exact:true}).fill(users.admin.password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page).toHaveURL(/\/app(?:$|[/?])/);
 }
 test('mobile HTTPS: same-origin auth/RPC, persisted session, navigation and private files blocked',async({page,request})=>{
@@ -20,8 +20,17 @@ test('mobile HTTPS: same-origin auth/RPC, persisted session, navigation and priv
  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
  await page.reload();await expect(page).toHaveURL(/\/app\/casos/);await expect(page.getByRole('heading',{name:'Casos · percurso CENTERWAY',exact:true})).toBeVisible();
  for(const path of ['/app/clientes','/app/perfil','/app/dados','/app/casos']){await page.goto(path);await expect(page).toHaveURL(new RegExp(path));}
+ const flow=JSON.parse(fs.readFileSync(new URL('../mvp-fixtures.json',import.meta.url)));
+ async function switchCompany(current,next){
+  await page.getByRole('button',{name:'Abrir menu',exact:true}).click();await page.getByRole('button',{name:new RegExp(current)}).click();await page.getByRole('menuitem',{name:new RegExp(next)}).click();
+  await page.getByRole('button',{name:'Abrir menu',exact:true}).click();await page.getByRole('link',{name:'Casos',exact:true}).click();
+ }
+ await switchCompany('Atlas SaaS','FlowReports');
+ await expect(page.getByText('Cliente acompanhado',{exact:true}).locator('..').locator(`option[value="${flow.cases[0].subject_id}"]`)).toHaveCount(1);
+ await expect(page.getByText('Cliente acompanhado',{exact:true}).locator('..').locator(`option[value="${f.customers[0].subject_id}"]`)).toHaveCount(0);
+ await switchCompany('FlowReports','Atlas SaaS');
  await expect.poll(()=>api).toBeGreaterThan(5);expect(unexpected).toEqual([]);
- expect(sockets.length).toBeGreaterThan(0);for(const url of sockets){expect(new URL(url).hostname).toBe('demo.centerway.test');expect(new URL(url).protocol).toBe('wss:');}
+ expect(sockets.length).toBeGreaterThan(0);for(const url of sockets){expect(new URL(url).hostname).toBe('demo.centerway.test');expect(new URL(url).protocol).toBe('wss:');expect(new URL(url).host).toBe(new URL(origin).host);}
  // No credentials, migration files, config secrets or arbitrary workspace files over Vite.
  for(const path of ['/e2e/private/mvp-users.json','/e2e/private/auth.env','/e2e/private/mvp-users.json?import','/e2e/private/auth.env?raw','/.env.local','/drizzle/migrations/0014_configurable_case_journey.sql','/@fs'+process.cwd().replace(/\/e2e$/,'')+'/e2e/private/mvp-users.json']){
   const response=await request.get(origin+path);expect([403,404]).toContain(response.status());

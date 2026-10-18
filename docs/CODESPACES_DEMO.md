@@ -62,4 +62,4 @@ O workflow `Isolated Codespaces configuration and mobile HTTPS` constrói e exec
 
 Esse hostname de teste resolve para loopback **dentro do devcontainer de teste**. Não é uma URL remota Codespaces. A emulação Chromium Android não equivale a um teste num telemóvel físico.
 
-Nesta sessão a API GitHub recusou listar Codespaces (`Forbidden`); não foi possível abrir ou verificar uma URL HTTPS real do Codespaces nem o login GitHub da conta do fundador no Android. Esta verificação remota permanece pendente e deve ser feita nos passos acima. Resultados efetivos do CI e commit validado constam do PR; a existência do workflow não é por si só prova de sucesso.
+Nesta sessão o proxy de rede recusou a ligação CONNECT a `api.github.com` (HTTP 403), impedindo listar ou gerir Codespaces; não foi possível abrir ou verificar uma URL HTTPS real do Codespaces nem o login GitHub da conta do fundador no Android. Esta verificação remota permanece pendente e deve ser feita nos passos acima. Resultados efetivos do CI e commit validado constam do PR; a existência do workflow não é por si só prova de sucesso.

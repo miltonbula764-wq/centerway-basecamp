@@ -105,8 +105,14 @@ def stop_frontend():
 
 def start(background):
     stop_frontend()
-    public_origin = origin()
     ready = STATE / 'ready.json'
+    try:
+        public_origin = origin()
+    except (RuntimeError,subprocess.CalledProcessError):
+        if ready.exists():
+            check_containers()
+            subprocess.run(['docker','stop',*reversed(CONTAINERS)],check=True,stdout=subprocess.DEVNULL)
+        raise
     if not ready.exists():
         if APP.exists(): raise RuntimeError('Incomplete provisioning. Inspect demo.log; explicit reset required, no automatic data deletion.')
         stage_source(ROOT, APP)
@@ -156,19 +162,23 @@ def stop():
 def reset():
     import shutil
     # Explicit operation only. Preflight ALL resources before removing anything.
+    existing = []
     for name in CONTAINERS:
         r = subprocess.run(['docker','inspect',name],capture_output=True,text=True)
         if not r.returncode:
             label = json.loads(r.stdout)[0]['Config'].get('Labels',{}).get('centerway.disposable')
             if label != ('codespaces' if name=='cw-mvp-db' else 'true') or (name!='cw-mvp-db' and json.loads(r.stdout)[0]['Config'].get('Labels',{}).get('centerway.demo')!='codespaces'): raise RuntimeError('Refuse reset of another stack: '+name)
+            existing.append(name)
     r = subprocess.run(['docker','volume','inspect',DEMO_VOLUME],capture_output=True,text=True)
-    if not r.returncode and json.loads(r.stdout)[0].get('Labels',{}).get('centerway.disposable') != 'codespaces': raise RuntimeError('Unlabelled volume')
+    has_volume = r.returncode == 0
+    if has_volume and json.loads(r.stdout)[0].get('Labels',{}).get('centerway.disposable') != 'codespaces': raise RuntimeError('Unlabelled volume')
     r = subprocess.run(['docker','network','inspect','cw-e2e'],capture_output=True,text=True)
-    if not r.returncode and (json.loads(r.stdout)[0].get('Labels',{}).get('centerway.disposable') != 'true' or json.loads(r.stdout)[0].get('Labels',{}).get('centerway.demo') != 'codespaces'): raise RuntimeError('Unlabelled network')
+    has_network = r.returncode == 0
+    if has_network and (json.loads(r.stdout)[0].get('Labels',{}).get('centerway.disposable') != 'true' or json.loads(r.stdout)[0].get('Labels',{}).get('centerway.demo') != 'codespaces'): raise RuntimeError('Unlabelled network')
     stop_frontend()
-    for name in reversed(CONTAINERS): subprocess.run(['docker','rm','-f',name],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-    subprocess.run(['docker','network','rm','cw-e2e'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-    subprocess.run(['docker','volume','rm',DEMO_VOLUME],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    for name in reversed(existing): subprocess.run(['docker','rm','-f',name],check=True,stdout=subprocess.DEVNULL)
+    if has_network: subprocess.run(['docker','network','rm','cw-e2e'],check=True,stdout=subprocess.DEVNULL)
+    if has_volume: subprocess.run(['docker','volume','rm',DEMO_VOLUME],check=True,stdout=subprocess.DEVNULL)
     shutil.rmtree(APP,ignore_errors=True)
     (STATE/'ready.json').unlink(missing_ok=True)
     print('Dados sintéticos desta demo eliminados. O próximo start cria uma stack nova de HEAD.')

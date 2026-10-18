@@ -20,13 +20,13 @@ def clean_env():
 
 def stage_source(root, stage):
     stage.mkdir(parents=True, exist_ok=False)
-    archive = stage.parent / 'source.tar'
-    subprocess.run(['git', 'archive', '--format=tar', '-o', str(archive), 'HEAD'], cwd=root, check=True)
-    try:
-        with tarfile.open(archive) as tar:
-            tar.extractall(stage, members=[m for m in tar.getmembers() if not Path(m.name).name.startswith('.env')], filter='data')
-    finally:
-        archive.unlink(missing_ok=True)
+    # Stream the archive: excluded .env files never become a temporary archive on disk.
+    with subprocess.Popen(['git','archive','--format=tar','HEAD'],cwd=root,stdout=subprocess.PIPE) as process:
+        with tarfile.open(fileobj=process.stdout,mode='r|') as tar:
+            for member in tar:
+                if not Path(member.name).name.startswith('.env'):
+                    tar.extract(member,stage,filter='data')
+        if process.wait(): raise RuntimeError('Could not export committed application source.')
 
 def provision(stage, *, persistent=False, origin=None):
     for tool in ['docker', 'psql', 'bun', 'node']:
