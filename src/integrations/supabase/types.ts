@@ -14,47 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      cw_operational_cases: {
-        Row: {
-          id: string
-          tenant_id: string
-          subject_id: string
-          evaluation_id: string
-          configuration_id: string
-          contract_version: string
-          opening_definition: Json
-          operation_id: string
-          request_hash: string
-          state: string
-          version: number
-          created_by: string
-          created_at: string
-        }
-        Insert: never
-        Update: never
-        Relationships: []
-      }
-      cw_operational_events: {
-        Row: {
-          id: string
-          tenant_id: string
-          subject_id: string
-          case_id: string
-          sequence: number
-          operation_id: string
-          request_hash: string
-          command: string
-          from_state: string | null
-          to_state: string
-          details: Json
-          created_by: string
-          created_at: string
-        }
-        Insert: never
-        Update: never
-        Relationships: []
-      }
-
       audit_log: {
         Row: {
           action: string
@@ -1526,15 +1485,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      open_operational_case: {
-        Args: { _tenant_id: string; _evaluation_id: string; _operation_id: string; _definition: Json }
-        Returns: string
-      }
-      command_operational_case: {
-        Args: { _tenant_id: string; _case_id: string; _expected_version: number; _operation_id: string; _command: string; _payload: Json }
-        Returns: string
-      }
-
       _c02_cmp: {
         Args: {
           _a: number
