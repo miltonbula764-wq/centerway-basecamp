@@ -1,47 +1,39 @@
-# C03 Evidence Builder: servidor apenas (`c03-v1`)
+# Diagnóstico 0012 (somente leitura) — não autoriza instalação
 
-Neste passo não há interface, C04/C05, IA nem casos.
+## 1. Estado confirmado
+- Base: `drizzle.__drizzle_migrations` tem 12 entradas (0000–0011); a última é o hash ad64c139…a1f1f (0011). Não há 0012 aplicada.
+- 16 tabelas e 40 funções em `public`; nenhuma tabela `cw_*`, nenhuma função `*_demo_*`.
+- Dados: 2 empresas, 2 memberships, 4 linhas de auditoria; 0 clientes, observações, análises C02 e pacotes C03.
+- `c03_bundles` tem as chaves únicas `(tenant_id,id)` e `(tenant_id,run_id,algorithm_version)`. A nova `(tenant_id,subject_id,id)` não existe: não há conflito de nome.
+- Repositório: o ficheiro 0012 existe e o journal já tem a entrada idx 12 (`0012_mvp_case_journey`, when 1792274400000), escrita à mão no PR. Não existe `0012_snapshot.json`.
+- O SQL 0012 é aditivo: 1 chave UNIQUE, 4 tabelas `cw_*`, RLS só de leitura para membros (`is_tenant_member`), RPCs SECURITY DEFINER com REVOKE de PUBLIC/anon e EXECUTE só para authenticated, e `NOTIFY pgrst`. Não tem BEGIN/COMMIT nem INSERT de dados de exemplo. Os INSERT existem apenas dentro das funções.
 
-## 1. Transações: duas chamadas separadas
-- Mantém-se `run_deterioration_analysis`: corre na sua própria transação e o C02 fica gravado de forma independente.
-- Nova função `build_evidence_bundle(_tenant_id, _run_id)` (SECURITY DEFINER, apenas admin/operator, revalida o tenant e a análise). Não recalcula o C02 e não altera `c02_runs`.
-- Por dentro, a montagem corre num bloco `BEGIN … EXCEPTION` (subtransação):
-  - **Sucesso:** grava o pacote e os itens.
-  - **Erro de integridade** (ref inexistente, de outro tenant ou cliente, hash ou valor divergente, importada depois do corte): a subtransação desfaz só o pacote. Fora dela grava-se uma tentativa falhada, e a função devolve `{status:'rejected', code}`. Não levanta um erro que apagaria o registo da tentativa e não declara o pacote completo.
-  - **Erros inesperados:** são também registados como tentativa falhada e voltam a ser lançados.
-- Nova tabela `c03_attempts`, só de acréscimo: análise, ator, resultado, código e hora. O C02 nunca é atualizado.
-- **Idempotência:** fica `UNIQUE(run_id, algorithm)`. Repetir a montagem devolve o pacote existente. Depois de uma tentativa falhada pode-se tentar de novo, e cada tentativa fica registada.
-- O estado mostrado ao utilizador vem de "existe pacote" ou "última tentativa", nunca de um campo do C02.
+## 2. Mecanismo suportado e conflito
+- A sincronização com o GitHub não aplica migrations. O único caminho suportado é a ferramenta de migration do agente: cria um ficheiro e uma entrada no journal novos, escreve o SQL, corre `drizzle-kit check` e aplica numa transação. O Drizzle regista depois o hash e o `created_at`.
+- **Bloqueio factual:** a entrada 0012 escrita à mão já está no journal. Por isso, a ferramenta geraria uma segunda entrada (idx 13).
+- **Hipótese (não verificada):** o migrator aplicaria então a 0012 do repositório e a nova, ou seja, o mesmo SQL duas vezes. A segunda falharia por objetos duplicados e a transação seria revertida. No melhor caso, o SQL ficaria registado com o nome errado.
+- Sequência recomendada (igual à usada para a 0011):
+  1. Num commit no GitHub, retirar do repositório o ficheiro 0012 e a sua entrada no journal.
+  2. Confirmar aqui que o journal termina na 0011.
+  3. Aplicar o SQL 0012, byte a byte, pela ferramenta, com o nome `mvp_case_journey`.
+  4. Integrar de volta o ficheiro e o journal gerados.
+  Assim não se fabrica nenhum hash nem se reescrevem as migrations 0000–0011.
 
-## 2. Contratos
-- **`c03_bundles`:** tenant, cliente, análise, `algorithm_version` do C02, `as_of`, `data_cutoff`, `profile_id` e versão do perfil, `input_hash`, `content_hash`, resumo e ator.
-  - O resumo é derivado por uma regra explícita: contagens por estado. Nunca rebaixa um indicador por causa de outro.
-- **`c03_indicators`:** um por indicador, com a classificação e uma cópia dos parâmetros, impressão digital e cópia dos detalhes do C02 com o respetivo hash. Assim o histórico pode ser verificado sem consultar o perfil atual.
-  - **Estado:**
-    - `complete`;
-    - `insufficient` com motivos guardados (insuficiência herdada do C02, `budget_exceeded`, `c02_v1_known_gaps` para análises v1 com indicadores avaliados);
-    - `context_facts` para indicadores de contexto ou texto: só factos, sem avaliação temporal.
-    - Não haverá estado `not_applicable` a esconder insuficiências reais.
-- **`c03_refs`:** linhas pagináveis.
-  - Cada linha tem a etiqueta da janela e o papel: numerador, denominador ou substituída por correção.
-  - Guarda também `observation_id`, `payload_hash`, valor citado, unidade, fonte, `observed_at` e `ingested_at`.
-  - Cada linha vem só dos ids guardados na análise C02. Nada importado depois do `data_cutoff` entra no pacote.
-- **Limite:** 5000 refs por indicador. Acima disso o indicador fica `insufficient` com as contagens e não se grava uma prova parcial.
-- **Segurança:** RLS de leitura para membros do tenant; ninguém tem permissão de escrita; gatilhos de imutabilidade e de auditoria.
+## 3. Pré-condições, impacto, backup e rollback
+- Pré-condições: confirmar de novo as 12 entradas, a ausência de `cw_*` e que ninguém está a aplicar outra migration ao mesmo tempo.
+- Impacto: sem alteração de dados nem de grants das 16 tabelas existentes, segundo o teste de CI. Isto não foi provado nesta base.
+- Backup: não existe aqui backup gerido acessível ao agente. O rollback depende da transação atómica da ferramenta. Depois de aplicada, reverter exige uma migration compensatória (DROP), sujeita a aprovação.
+- Verificações depois da aplicação, só com SELECT:
+  - 13 entradas no histórico, com as 12 anteriores iguais;
+  - 20 tabelas, todas com RLS;
+  - ACL das funções novas: só authenticated;
+  - grants e políticas das 16 tabelas antigas iguais a antes;
+  - contagens de dados iguais.
 
-## 3. Testes SQL a correr (fixtures próprias, sempre revertidas)
-- **Pacote correto:** refs, hashes e valores coincidem com o C02; repetir reutiliza o mesmo pacote.
-- **Refs forjadas:** ref forjada ou de outro tenant (injetada por um teste com privilégios) → rejeitada, sem pacote gravado e com a tentativa registada.
-- **Corte respeitado:**
-  - correção ou dado tardio depois do corte → fica fora do pacote antigo;
-  - a nova análise C02 gera um pacote novo e o antigo fica igual byte a byte.
-- **Estados por indicador:**
-  - fontes incompatíveis → `insufficient` com o motivo herdado;
-  - análise v1 → `c02_v1_known_gaps`;
-  - contexto ou texto → `context_facts`;
-  - limite ultrapassado → `insufficient: budget_exceeded`;
-  - um indicador insuficiente não afeta os outros.
-- **Permissões:** anónimo e leitor não montam pacotes; tenant B não lê nada; a escrita direta é recusada.
+## 4. Página /app/casos
+- Hoje: a consulta a `cw_cases` falha porque a tabela não existe; a página mostra a limitação documentada.
+- Depois da instalação: deve abrir e mostrar "Sem casos". Os dados reais estão vazios: 0 clientes, observações, análises e pacotes.
+- Ainda faltará, para ver o percurso: clientes, um perfil aprovado, observações importadas, análise C02, pacote C03 e um objetivo. A política é apenas sintética (`flowreports-demo-v1`). O seed do PR é só para a stack descartável e não deve correr aqui.
 
-## Pontos em aberto
-- Para testar o limite de 5000 sem importar 5000 linhas, o teste baixa o limite com um parâmetro interno visível apenas a quem tem privilégios.
+## 5. Recomendação
+Não aplicar a 0012 enquanto a entrada escrita à mão estiver no journal. Primeiro, um commit separado a retirar o ficheiro e a entrada; depois, autorização explícita para aplicar pela ferramenta. Aguardo essa autorização.
