@@ -10,7 +10,7 @@ export default defineConfig(async env => {
     server: {
       host: '127.0.0.1', port: 8080, strictPort: true,
       allowedHosts: [url.hostname],
-      fs: { strict: true, deny: ['.env', '.env.*', '*.{crt,pem,key}', '**/.git/**', '**/e2e/private/**', '**/e2e/*fixtures.json', '**/scripts/**', '**/drizzle/**', '**/.centerway-demo/**'] },
+      fs: { strict: true, deny: ['.env', '.env.*', '*.{crt,pem,key}', '**/.git/**', '**/e2e/private/**', '**/e2e/*fixtures.json', '**/scripts/**', '**/drizzle/**'] },
       hmr: { host: url.hostname, protocol: url.protocol === 'https:' ? 'wss' : 'ws', clientPort: Number(url.port) || (url.protocol === 'https:' ? 443 : 80) },
       proxy: {
         '/auth/v1': { target: 'http://127.0.0.1:54321', changeOrigin: false },

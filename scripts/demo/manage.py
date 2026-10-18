@@ -142,6 +142,8 @@ def start(background):
                 if r.status == 200: break
         except Exception: time.sleep(1)
     else: raise RuntimeError('Single-origin frontend/API not ready.')
+    with urllib.request.urlopen('http://127.0.0.1:8080/src/router.tsx',timeout=30) as response:
+        if response.status != 200: raise RuntimeError('Frontend module is not reachable; refusing a visual-only boot.')
     print('CENTERWAY · demonstração privada · apenas dados sintéticos',flush=True)
     print(public_origin+'/app/casos',flush=True)
     print('Credenciais locais: .centerway-demo/app/e2e/private/mvp-users.json',flush=True)
