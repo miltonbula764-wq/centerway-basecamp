@@ -61,7 +61,7 @@ def check_containers():
         raise RuntimeError('Refuse to manage another local stack.')
     for name in CONTAINERS[1:]:
         info = json.loads(subprocess.check_output(['docker', 'inspect', name]))[0]
-        if info['Config'].get('Labels', {}).get('centerway.disposable') != 'true':
+        if info['Config'].get('Labels', {}).get('centerway.disposable') != 'true' or info['Config'].get('Labels', {}).get('centerway.demo') != 'codespaces':
             raise RuntimeError('Refuse to manage unlabelled container ' + name)
         bindings = info['HostConfig'].get('PortBindings', {})
         if any(p['HostIp'] != '127.0.0.1' for values in bindings.values() for p in values):
@@ -82,7 +82,7 @@ def refresh_config(public_origin):
     (APP / 'e2e/private/public.json').write_text(json.dumps({'url':'http://127.0.0.1:54321','anon':anon}))
     # Recreate only this own auth container to apply redirect origin / disable signup. DB and users remain intact.
     subprocess.run(['docker','rm','-f','cw-auth'],check=True,stdout=subprocess.DEVNULL)
-    subprocess.run(['docker','run','-d','--name','cw-auth','--label','centerway.disposable=true','--network','cw-e2e','-p','127.0.0.1:9999:9999','--env-file',str(auth_file),'supabase/gotrue:v2.177.0'],check=True,stdout=subprocess.DEVNULL)
+    subprocess.run(['docker','run','-d','--name','cw-auth','--label','centerway.disposable=true','--label','centerway.demo=codespaces','--network','cw-e2e','-p','127.0.0.1:9999:9999','--env-file',str(auth_file),'supabase/gotrue:v2.177.0'],check=True,stdout=subprocess.DEVNULL)
     subprocess.run(['docker','restart','cw-gateway'],check=True,stdout=subprocess.DEVNULL)
     return anon
 
@@ -160,11 +160,11 @@ def reset():
         r = subprocess.run(['docker','inspect',name],capture_output=True,text=True)
         if not r.returncode:
             label = json.loads(r.stdout)[0]['Config'].get('Labels',{}).get('centerway.disposable')
-            if label != ('codespaces' if name=='cw-mvp-db' else 'true'): raise RuntimeError('Refuse reset of another stack: '+name)
+            if label != ('codespaces' if name=='cw-mvp-db' else 'true') or (name!='cw-mvp-db' and json.loads(r.stdout)[0]['Config'].get('Labels',{}).get('centerway.demo')!='codespaces'): raise RuntimeError('Refuse reset of another stack: '+name)
     r = subprocess.run(['docker','volume','inspect',DEMO_VOLUME],capture_output=True,text=True)
     if not r.returncode and json.loads(r.stdout)[0].get('Labels',{}).get('centerway.disposable') != 'codespaces': raise RuntimeError('Unlabelled volume')
     r = subprocess.run(['docker','network','inspect','cw-e2e'],capture_output=True,text=True)
-    if not r.returncode and json.loads(r.stdout)[0].get('Labels',{}).get('centerway.disposable') != 'true': raise RuntimeError('Unlabelled network')
+    if not r.returncode and (json.loads(r.stdout)[0].get('Labels',{}).get('centerway.disposable') != 'true' or json.loads(r.stdout)[0].get('Labels',{}).get('centerway.demo') != 'codespaces'): raise RuntimeError('Unlabelled network')
     stop_frontend()
     for name in reversed(CONTAINERS): subprocess.run(['docker','rm','-f',name],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     subprocess.run(['docker','network','rm','cw-e2e'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)

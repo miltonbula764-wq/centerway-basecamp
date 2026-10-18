@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 # Runs INSIDE the configured devcontainer, with its own Docker daemon and volume.
+python3 scripts/demo/test_runtime.py
 export CW_DEMO_TLS_TEST=1
 python3 scripts/demo/manage.py start --background
 cd .centerway-demo/app

@@ -23,7 +23,7 @@ test('mobile HTTPS: same-origin auth/RPC, persisted session, navigation and priv
  await expect.poll(()=>api).toBeGreaterThan(5);expect(unexpected).toEqual([]);
  expect(sockets.length).toBeGreaterThan(0);for(const url of sockets){expect(new URL(url).hostname).toBe('demo.centerway.test');expect(new URL(url).protocol).toBe('wss:');}
  // No credentials, migration files, config secrets or arbitrary workspace files over Vite.
- for(const path of ['/e2e/private/mvp-users.json','/e2e/private/auth.env','/.env.local','/drizzle/migrations/0014_configurable_case_journey.sql','/@fs'+process.cwd().replace(/\/e2e$/,'')+'/e2e/private/mvp-users.json']){
+ for(const path of ['/e2e/private/mvp-users.json','/e2e/private/auth.env','/e2e/private/mvp-users.json?import','/e2e/private/auth.env?raw','/.env.local','/drizzle/migrations/0014_configurable_case_journey.sql','/@fs'+process.cwd().replace(/\/e2e$/,'')+'/e2e/private/mvp-users.json']){
   const response=await request.get(origin+path);expect([403,404]).toContain(response.status());
  }
  const signup=await request.post(origin+'/auth/v1/signup',{headers:{apikey:config.anon},data:{email:'synthetic-disabled@example.invalid',password:'NotAnActualAccount-123!'}});expect(signup.ok()).toBe(false);
