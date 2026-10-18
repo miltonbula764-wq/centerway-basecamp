@@ -33,3 +33,7 @@
 Contrato: `docs/MVP_JOURNEY_CONTRACT.md`. Arranque e limites: `docs/MVP_RUNNING.md`.
 
 - [x] 0012 instalada no backend deste projeto (18/10/2026) pela ferramenta gerida; SQL idêntico (sha256 b1ace0b1…), histórico 13 entradas.
+
+## Polimento visual de Casos
+- [x] Orientação no estado vazio com ligações existentes, distinção do piloto e etapas legíveis em mobile.
+- [ ] Verificar navegação autenticada, ecrãs desktop/mobile e resultado dos testes/build gerido.
