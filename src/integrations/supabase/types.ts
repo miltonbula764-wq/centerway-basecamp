@@ -14,47 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      cw_operational_cases: {
-        Row: {
-          id: string
-          tenant_id: string
-          subject_id: string
-          evaluation_id: string
-          configuration_id: string
-          contract_version: string
-          opening_definition: Json
-          operation_id: string
-          request_hash: string
-          state: string
-          version: number
-          created_by: string
-          created_at: string
-        }
-        Insert: never
-        Update: never
-        Relationships: []
-      }
-      cw_operational_events: {
-        Row: {
-          id: string
-          tenant_id: string
-          subject_id: string
-          case_id: string
-          sequence: number
-          operation_id: string
-          request_hash: string
-          command: string
-          from_state: string | null
-          to_state: string
-          details: Json
-          created_by: string
-          created_at: string
-        }
-        Insert: never
-        Update: never
-        Relationships: []
-      }
-
       audit_log: {
         Row: {
           action: string
@@ -926,6 +885,139 @@ export type Database = {
           },
         ]
       }
+      cw_operational_cases: {
+        Row: {
+          configuration_id: string
+          contract_version: string
+          created_at: string
+          created_by: string
+          evaluation_id: string
+          id: string
+          opening_definition: Json
+          operation_id: string
+          request_hash: string
+          state: string
+          subject_id: string
+          tenant_id: string
+          version: number
+        }
+        Insert: {
+          configuration_id: string
+          contract_version: string
+          created_at?: string
+          created_by: string
+          evaluation_id: string
+          id?: string
+          opening_definition: Json
+          operation_id: string
+          request_hash: string
+          state: string
+          subject_id: string
+          tenant_id: string
+          version?: number
+        }
+        Update: {
+          configuration_id?: string
+          contract_version?: string
+          created_at?: string
+          created_by?: string
+          evaluation_id?: string
+          id?: string
+          opening_definition?: Json
+          operation_id?: string
+          request_hash?: string
+          state?: string
+          subject_id?: string
+          tenant_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_operational_cases_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cw_operational_cases_tenant_id_subject_id_configuration_id_fkey"
+            columns: ["tenant_id", "subject_id", "configuration_id"]
+            isOneToOne: false
+            referencedRelation: "c04_configurations"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+          {
+            foreignKeyName: "cw_operational_cases_tenant_id_subject_id_evaluation_id_fkey"
+            columns: ["tenant_id", "subject_id", "evaluation_id"]
+            isOneToOne: false
+            referencedRelation: "c04_evaluations"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+        ]
+      }
+      cw_operational_events: {
+        Row: {
+          case_id: string
+          command: string
+          created_at: string
+          created_by: string
+          details: Json
+          from_state: string | null
+          id: string
+          operation_id: string
+          request_hash: string
+          sequence: number
+          subject_id: string
+          tenant_id: string
+          to_state: string
+        }
+        Insert: {
+          case_id: string
+          command: string
+          created_at?: string
+          created_by: string
+          details: Json
+          from_state?: string | null
+          id?: string
+          operation_id: string
+          request_hash: string
+          sequence: number
+          subject_id: string
+          tenant_id: string
+          to_state: string
+        }
+        Update: {
+          case_id?: string
+          command?: string
+          created_at?: string
+          created_by?: string
+          details?: Json
+          from_state?: string | null
+          id?: string
+          operation_id?: string
+          request_hash?: string
+          sequence?: number
+          subject_id?: string
+          tenant_id?: string
+          to_state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_operational_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cw_operational_events_tenant_id_subject_id_case_id_fkey"
+            columns: ["tenant_id", "subject_id", "case_id"]
+            isOneToOne: false
+            referencedRelation: "cw_operational_cases"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+        ]
+      }
       indicators: {
         Row: {
           baseline: number | null
@@ -1526,15 +1618,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      open_operational_case: {
-        Args: { _tenant_id: string; _evaluation_id: string; _operation_id: string; _definition: Json }
-        Returns: string
-      }
-      command_operational_case: {
-        Args: { _tenant_id: string; _case_id: string; _expected_version: number; _operation_id: string; _command: string; _payload: Json }
-        Returns: string
-      }
-
       _c02_cmp: {
         Args: {
           _a: number
@@ -1669,6 +1752,9 @@ export type Database = {
         Returns: Json
       }
       _cw_is_privileged: { Args: never; Returns: boolean }
+      _cwop_keys: { Args: { _d: Json; _keys: string[] }; Returns: undefined }
+      _cwop_reference: { Args: { _d: Json; _key: string }; Returns: string }
+      _cwop_text: { Args: { _d: Json; _key: string }; Returns: string }
       add_tenant_member: {
         Args: {
           _role: Database["public"]["Enums"]["member_role"]
@@ -1718,6 +1804,17 @@ export type Database = {
           _tenant_id: string
         }
         Returns: Json
+      }
+      command_operational_case: {
+        Args: {
+          _case_id: string
+          _command: string
+          _expected_version: number
+          _operation_id: string
+          _payload: Json
+          _tenant_id: string
+        }
+        Returns: string
       }
       create_demo_objective: {
         Args: {
@@ -1787,6 +1884,15 @@ export type Database = {
       }
       open_demo_case: {
         Args: { _assessment_id: string; _tenant_id: string }
+        Returns: string
+      }
+      open_operational_case: {
+        Args: {
+          _definition: Json
+          _evaluation_id: string
+          _operation_id: string
+          _tenant_id: string
+        }
         Returns: string
       }
       remove_tenant_member: {
