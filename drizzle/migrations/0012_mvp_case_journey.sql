@@ -192,6 +192,7 @@ RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE c public.cw_cases; a public.cw_assessments; o public.cw_objectives; e public.cw_case_events;
   proof public.observations; d jsonb; next_state text; h text; approved_at timestamptz; executed_at timestamptz;
   before_value numeric; previous_result jsonb; deadline_at timestamptz; condition_state text;
+  evidence_cutoff timestamptz; has_pending_evidence boolean := false;
 BEGIN
   IF NOT public.has_tenant_role(_tenant_id,ARRAY['admin','operator']::public.member_role[]) THEN
     RAISE EXCEPTION 'write_role_required' USING ERRCODE='42501'; END IF;
@@ -265,6 +266,8 @@ BEGIN
       FROM public.cw_case_events WHERE case_id=c.id AND command='record_execution' ORDER BY sequence DESC LIMIT 1;
     IF deadline_at IS NULL OR clock_timestamp()<deadline_at THEN RAISE EXCEPTION 'observation_window_not_due' USING ERRCODE='22023'; END IF;
     d := public._cw_demo_evaluate(o,(_payload->>'bundle_id')::uuid,executed_at);
+    SELECT data_cutoff INTO evidence_cutoff FROM public.c03_bundles
+      WHERE tenant_id=c.tenant_id AND subject_id=c.subject_id AND id=(_payload->>'bundle_id')::uuid;
     IF (d->>'period_end')::timestamptz < deadline_at THEN
       d := d || jsonb_build_object('sufficient',false,'goal_achieved',false,'reason','post_execution_window_incomplete'); END IF;
     before_value := (a.details->>'value')::numeric;
@@ -273,8 +276,9 @@ BEGIN
       WHERE obs.tenant_id=c.tenant_id AND obs.subject_id=c.subject_id
       AND obs.indicator_key='integration_status' AND batch.profile_id=o.profile_id AND obs.unit='estado'
       AND obs.observed_at>=executed_at AND obs.observed_at <= (d->>'period_end')::timestamptz
-      AND obs.ingested_at <= (SELECT data_cutoff FROM public.c03_bundles WHERE id=(_payload->>'bundle_id')::uuid)
-      AND NOT EXISTS(SELECT FROM public.observations cor WHERE cor.tenant_id=obs.tenant_id AND cor.corrects_observation_id=obs.id)
+      AND obs.ingested_at <= evidence_cutoff
+      AND NOT EXISTS(SELECT FROM public.observations cor WHERE cor.tenant_id=obs.tenant_id
+        AND cor.corrects_observation_id=obs.id AND cor.ingested_at <= evidence_cutoff)
       ORDER BY obs.observed_at DESC,obs.ingested_at DESC LIMIT 1;
     d := d || jsonb_build_object('component','C09','before_value',before_value,
       'change',CASE WHEN NOT (d->>'sufficient')::boolean THEN 'inconclusive'
@@ -284,11 +288,26 @@ BEGIN
     next_state := 'observed';
   ELSIF _command='decide' AND c.state='observed' THEN
     SELECT details INTO previous_result FROM public.cw_case_events WHERE case_id=c.id AND command='observe' ORDER BY sequence DESC LIMIT 1;
+    SELECT b.data_cutoff INTO evidence_cutoff FROM public.c03_bundles b
+      WHERE b.tenant_id=c.tenant_id AND b.subject_id=c.subject_id AND b.id=(previous_result->>'bundle_id')::uuid;
+    SELECT (details->>'executed_at')::timestamptz INTO executed_at FROM public.cw_case_events
+      WHERE case_id=c.id AND command='record_execution' ORDER BY sequence DESC LIMIT 1;
+    -- C09 remains a reproducible historical snapshot. New relevant facts require
+    -- a new comparison before closure; do not silently discard known pendencies.
+    SELECT EXISTS (SELECT FROM public.observations obs
+      JOIN public.ingestion_batches batch ON batch.tenant_id=obs.tenant_id AND batch.id=obs.batch_id
+      WHERE obs.tenant_id=c.tenant_id AND obs.subject_id=c.subject_id AND batch.profile_id=o.profile_id
+        AND obs.ingested_at>evidence_cutoff AND obs.observed_at<=clock_timestamp()
+        AND ((obs.indicator_key='report_hours' AND obs.observed_at>=(previous_result->>'period_start')::timestamptz)
+          OR (obs.indicator_key='integration_status' AND obs.observed_at>=executed_at))) INTO has_pending_evidence;
     next_state := CASE WHEN coalesce((previous_result->>'sufficient')::boolean,false)
       AND coalesce((previous_result->>'goal_achieved')::boolean,false)
-      AND coalesce((previous_result->>'integration_verified')::boolean,false) THEN 'closed_resolved' ELSE 'remain_open' END;
+      AND coalesce((previous_result->>'integration_verified')::boolean,false)
+      AND evidence_cutoff IS NOT NULL AND NOT has_pending_evidence THEN 'closed_resolved' ELSE 'remain_open' END;
     d := jsonb_build_object('component','C10','decision',next_state,'observation',previous_result,
-      'reason',CASE WHEN next_state='closed_resolved' THEN 'Critérios sintéticos satisfeitos; sem atribuição causal.'
+      'pending_evidence',has_pending_evidence,
+      'reason',CASE WHEN has_pending_evidence THEN 'Há nova evidência relevante após o corte do C09. É necessária nova comparação antes do encerramento.'
+      WHEN next_state='closed_resolved' THEN 'Critérios sintéticos satisfeitos; sem atribuição causal.'
       ELSE 'Objetivo, suficiência ou eliminação do impedimento ainda não demonstrados.' END);
   END IF;
   IF next_state IS NULL THEN RAISE EXCEPTION 'transition_not_allowed' USING ERRCODE='22023'; END IF;

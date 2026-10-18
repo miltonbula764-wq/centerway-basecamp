@@ -30,7 +30,7 @@ for k in list(env):
 env.update(PGHOST='127.0.0.1', PGPORT='5432', PGUSER='postgres', PGDATABASE='cw_e2e',
            PGPASSFILE='/dev/null', PG_CONTAINER='cw-mvp-db', CW_LOCAL_MVP='1')
 print('Isolated working copy:', stage, flush=True)
-subprocess.run(['bun', 'install', '--frozen-lockfile'], cwd=stage, env=env, check=True)
+subprocess.run(['bun', 'install', '--frozen-lockfile', '--registry', 'https://registry.npmjs.org'], cwd=stage, env=env, check=True)
 subprocess.run(['docker', 'run', '-d', '--name', 'cw-mvp-db', '--label', 'centerway.disposable=mvp',
                 '-p', '127.0.0.1:5432:5432', '-e', 'POSTGRES_USER=postgres', '-e', 'POSTGRES_DB=cw_e2e',
                 '-e', 'POSTGRES_HOST_AUTH_METHOD=trust', '--tmpfs', '/var/lib/postgresql/data', 'postgres:17'], check=True)

@@ -86,6 +86,8 @@ wait('http://127.0.0.1:9999/health')
 # Apply actual repository migrations, unchanged, after GoTrue has created its own auth schema.
 journal = json.loads((root / 'drizzle/migrations/meta/_journal.json').read_text())
 for entry in journal['entries']:
+    if '--defer-mvp-review' in sys.argv and entry['tag'] == '0012_mvp_case_journey':
+        continue
     run(entry['tag'], ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '--single-transaction', '-f',
                       'drizzle/migrations/' + entry['tag'] + '.sql'])
 run('effective-acl', ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '-f', 'supabase/tests/client_privileges_test.sql'])
@@ -108,4 +110,5 @@ wait('http://127.0.0.1:54321/auth/v1/health')
 (private / 'public.json').write_text(json.dumps({'url': 'http://127.0.0.1:54321', 'anon': anon}))
 (logs / 'backend.json').write_text(json.dumps({'postgres': 17, 'auth': 'GoTrue v2.177.0', 'rest': 'PostgREST v12.2.3',
     'auth_method': 'real password grants; test-only auto-confirm', 'data': 'synthetic only', 'production': False}, indent=2))
-print('Disposable GoTrue, PostgreSQL and PostgREST ready; migrations and effective ACL assertions passed.')
+print('Disposable GoTrue, PostgreSQL and PostgREST ready; selected migrations and effective ACL assertions passed.'
+      + (' Migration 0012 deferred for non-empty upgrade review.' if '--defer-mvp-review' in sys.argv else ''))

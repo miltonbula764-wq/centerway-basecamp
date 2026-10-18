@@ -4,8 +4,10 @@ import fs from 'node:fs';
 const users=JSON.parse(fs.readFileSync(new URL('../private/mvp-users.json',import.meta.url)));
 test('assembled MVP: actual login, persisted cases, result dossiers and open alternative', async ({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  let illustrationRequests=0;
   await page.route('**/*',route=>{
     const u=new URL(route.request().url());
+    if(u.pathname==='/mvp-preview.html') { illustrationRequests++; return route.abort('blockedbyclient'); }
     if(u.hostname==='fonts.googleapis.com') return route.fulfill({contentType:'text/css',body:''});
     if(['127.0.0.1','localhost'].includes(u.hostname)) return route.continue();
     return route.abort('blockedbyclient');
@@ -37,4 +39,5 @@ test('assembled MVP: actual login, persisted cases, result dossiers and open alt
   await expect(page.getByText('Operador verifica a integração, reativa manualmente e confirma o estado no sistema de origem.',{exact:true})).toBeVisible();
   await page.screenshot({path:'logs/mvp-plan.png',fullPage:true});
   expect(errors).toEqual([]);
+  expect(illustrationRequests,'The operational application must not request the illustrative map').toBe(0);
 });

@@ -12,6 +12,8 @@ Também é servido em `/mvp-preview.html` quando a aplicação está a correr.
 Pré-requisitos: Python >=3.12, Docker local funcional, cliente `psql`, Node 22+
 e Bun 1.3.0. Portas locais livres: 5432, 9999, 54322, 54321 e 5173.
 Os quatro containers são gratuitos e descartáveis. Não usar uma base existente.
+As dependências são obtidas do npm público, com versões e hashes congelados;
+o arranque isolado não exige acesso à cache ou ao projeto Lovable.
 
 Na branch `review/mvp-core-journey`, com os ficheiros desta entrega commitados:
 
@@ -69,13 +71,21 @@ Screenshots sintéticos e mapa HTML são artifacts; credenciais ficam excluídas
 
 A montagem do código `aa4698c` foi aprovada: 12 testes de browser (11 regressões +
 1 smoke MVP), 110 unitários, tipos e build. Evidência em `docs/MVP_DELIVERY.md`.
-O launcher local não foi executado neste executor: faltam psql/Bun e o socket Docker
-está bloqueado. A montagem equivalente correu na stack descartável do GitHub CI.
+Na revisão final foram disponibilizados Bun/psql temporários e Docker local;
+o arranque isolado é verificado sem usar o `.env` original. Consulte
+`docs/MVP_FINAL_REVIEW.md` e os checks do HEAD para o resultado final.
 
 A campanha completa C01–C10 (roles por comando, concorrência, RLS de todas as
 novas entidades, replay/conflitos, respostas tardias, correções após cutoff,
 expiração/revogação e todos os critérios de fecho) fica para a fase seguinte.
 Não considerar o piloto pronto para produção por o smoke passar.
+
+A revisão final acrescenta 76 verificações SQL com roles `authenticated`/`anon`
+e rollback, incluindo leitura entre empresas, escrita direta, RPCs, ligações
+tenant/cliente, versões/aprovação e encerramento com evidência nova pendente.
+O CI aplica a 0012 sobre fixtures C01–C03 não vazias e compara hashes de todas
+as tabelas anteriores e respetivos grants antes/depois. Isto não substitui uma
+auditoria do esquema hospedado, que não foi consultado.
 
 Limites: política apenas FlowReports, confirmação documental manual, um objetivo
 por avaliação, até 100 linhas nas listas / 300 eventos no dossier, sem conectores,

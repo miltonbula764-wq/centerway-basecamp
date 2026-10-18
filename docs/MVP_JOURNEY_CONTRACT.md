@@ -73,6 +73,10 @@ C09 usa novo bundle do mesmo cliente e perfil, duas janelas integralmente poster
 à execução, mesma fonte/unidade/método e prova enabled posterior à execução e anterior
 ao fim da medição. Se faltarem dados, persiste inconclusive; execução não é valor.
 C10 fecha apenas o ramo resolved descrito. Continuidade permite nova observação.
+Antes de fechar, C10 verifica se foram importadas novas medições relevantes ou
+novos estados/correções da integração após o corte do C09. Havendo pendências,
+mantém aberto e exige nova comparação. O C09 anterior continua imutável e resolve
+correções da integração apenas até ao seu próprio corte, preservando a leitura histórica.
 Outros fechos, cancelamento, reabertura, revisão de planos e aprovações delegadas são
 limitações explícitas deste incremento, não funcionalidades escondidas.
 
