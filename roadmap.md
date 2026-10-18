@@ -24,6 +24,9 @@
 - [x] Validação da montagem em `aa4698c`: 12 browser, 110 unitários, tipos e build;
   execuções CI 39079882488 e 39079882496, PR #8. Documentação posterior não altera o código testado.
 - [ ] Campanha completa de segurança e E2E C01–C10 após montagem, conforme nova prioridade.
+- [x] Revisão final em `7f6f08a`: 12 browser, 110 unitários, tipos/build,
+  upgrade não vazio preservando 16 tabelas/grants e 76 verificações SQL com rollback.
+  Arranque local real verificado; C10 bloqueia fecho com evidência nova pendente.
 - [ ] Classificação universal de valor, múltiplos objetivos, compatibilidade documental automática,
   reabertura e políticas gerais continuam pendentes das decisões A–H do manual.
 

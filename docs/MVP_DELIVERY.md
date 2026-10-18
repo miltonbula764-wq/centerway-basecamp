@@ -46,8 +46,9 @@ fase seguinte; esta entrega não é uma publicação nem uma aprovação de prod
    de plano, renovação de aprovação, cancelamento, fecho administrativo ou reabertura.
    Idempotência é por caso; um caso por avaliação, sem coordenação global de ações
    entre casos de avaliações diferentes. Listas limitadas a 100 linhas e dossier a
-   300 eventos. O arranque local não foi executado neste executor, que não tem psql
-   nem Bun e bloqueia o socket Docker; a mesma montagem foi exercitada no CI isolado.
+   300 eventos. Na entrega inicial, o executor não permitia o arranque local; essa
+   limitação foi resolvida na revisão final, que executou o launcher numa stack nova.
+   Ver [MVP_FINAL_REVIEW.md](MVP_FINAL_REVIEW.md) para os checks e correções atuais.
 10. **Como abrir.** `public/mvp-preview.html` abre já, sem instalação, como mapa
     ilustrativo de leitura. Para a aplicação operacional, seguir
     [MVP_RUNNING.md](MVP_RUNNING.md): `python3 scripts/mvp/start-local.py`, abrir
