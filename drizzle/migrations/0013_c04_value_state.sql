@@ -80,7 +80,7 @@ BEGIN
   IF (_definition->>'window_count')::numeric NOT BETWEEN 1 AND 100
     OR (_definition->>'window_count')::numeric<>trunc((_definition->>'window_count')::numeric)
     OR _definition->>'comparator' NOT IN ('lt','lte','gt','gte','eq')
-    OR _definition->>'aggregation' NOT IN ('mean','sum','last','rate')
+    OR _definition->>'aggregation' NOT IN ('mean','sum','last')
     OR _definition->>'compatibility' NOT IN ('compatible','contradiction','not_checkable') THEN
     RAISE EXCEPTION 'unsupported_configuration' USING ERRCODE='22023'; END IF;
   FOREACH k IN ARRAY ARRAY['deadline','observation_start'] LOOP

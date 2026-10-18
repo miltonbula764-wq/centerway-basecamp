@@ -19,6 +19,15 @@ const fields = [
   ["observation_start", "Início admissível da observação (ISO com fuso)"], ["deadline", "Prazo do objetivo (ISO com fuso)"],
 ] as const;
 const fieldLabels: Record<string, string> = { ...Object.fromEntries(fields), compatibility: "Revisão documental humana", aggregation: "Agregação", comparator: "Comparador" };
+const errors: Record<string, string> = {
+  configuration_version_conflict: "Esta configuração já tem uma revisão mais recente. Atualize a página e selecione a última versão antes de criar outra.",
+  idempotency_conflict: "Este identificador de operação já foi usado com outros dados. Abra novamente o formulário.",
+  approved_outcome_required: "Selecione um indicador de resultado de um perfil aprovado ou histórico.",
+  timestamp_with_timezone_required: "As datas exigem formato ISO 8601 com fuso, por exemplo 2026-10-18T00:00:00Z.",
+  invalid_goal_period: "O início da observação tem de ser anterior ao prazo.",
+  write_role_required: "A avaliação exige permissão de administrador ou operador.",
+  admin_required: "A configuração exige permissão de administrador.",
+};
 const labels: Record<string, string> = {
   achieved: "Objetivo atingido", not_achieved: "Objetivo não atingido", pending_deadline: "Prazo ainda não atingido", inconclusive: "Avaliação inconclusiva",
   compatible: "Compatível · revisão humana", contradiction: "Contradição de configuração", missing_documentation: "Documentação pendente", not_checkable: "Compatibilidade não verificável",
@@ -82,7 +91,7 @@ function ValueState({ subjectId }: { subjectId: string }) {
   return <Panel title="C04 · Value State configurável"><div className="space-y-4 text-sm">
     <p>Regras explícitas por cliente e indicador de resultado. Promessa, plano, objetivo e medições são registos distintos. Campos desconhecidos ficam pendentes; nenhum contacto é enviado.</p>
     {readError && <ErrorState message={`C04 indisponível: ${readError.message}. A migração 0013 é necessária para este bloco.`} onRetry={() => { void configurations.refetch(); void evaluations.refetch(); void bundles.refetch(); void profiles.refetch(); void indicators.refetch(); }} />}
-    {action.error && <ErrorState message={action.error.message} />}
+    {action.error && <ErrorState message={errors[action.error.message] || action.error.message} />}
     {configurations.isLoading && <Loading />}
     <label className="block">Configuração histórica (até 100)<NativeSelect aria-label="Configuração histórica (até 100)" value={configurationId} onChange={e => { setConfigurationId(e.target.value); setEdit(false); action.reset(); }}>
       <option value="">Nova configuração</option>{configurations.data?.map(c => <option key={c.id} value={c.id}>{c.indicator_key} · v{c.version} · {formatDate(c.created_at)}</option>)}
@@ -95,7 +104,7 @@ function ValueState({ subjectId }: { subjectId: string }) {
       <label className="block">Perfil histórico<NativeSelect aria-label="Perfil histórico" required value={activeProfile} disabled={!!selected} onChange={e => { setProfileId(e.target.value); setIndicatorKey(""); }}><option value="">Selecionar perfil aprovado</option>{profiles.data?.filter(p => p.status !== "draft").map(p => <option key={p.id} value={p.id}>Perfil v{p.version} · {p.status}</option>)}</NativeSelect></label>
       <label className="block">Indicador outcome<NativeSelect aria-label="Indicador outcome" required value={selected?.["indicator_key"] || indicatorKey} disabled={!!selected || !activeProfile} onChange={e => setIndicatorKey(e.target.value)}><option value="">Selecionar indicador</option>{indicators.data?.filter(i => i.classification === "outcome").map(i => <option key={i.id} value={i.key}>{i.name} · {i.key} · {i.unit} · {i.aggregation}</option>)}</NativeSelect></label>
       {fields.map(([key, label]) => <label key={key} className="block">{label}<Input aria-label={label} name={key} defaultValue={definition[key] ?? ""} maxLength={4000} type={["target", "window_count"].includes(key) ? "number" : "text"} step={key === "target" ? "any" : key === "window_count" ? "1" : undefined} min={key === "window_count" ? 1 : undefined} max={key === "window_count" ? 100 : undefined} /></label>)}
-      {([ ["compatibility", "Revisão documental humana", [["compatible", "Compatível"], ["contradiction", "Contradição documentada"], ["not_checkable", "Não verificável"]]], ["aggregation", "Agregação (igual ao perfil C02)", [["mean", "Média"], ["sum", "Soma"], ["last", "Último valor"], ["rate", "Taxa"]]], ["comparator", "Comparação de cada janela com a meta", [["lt", "Menor que"], ["lte", "Menor ou igual"], ["gt", "Maior que"], ["gte", "Maior ou igual"], ["eq", "Igual"]]] ] as const).map(([key, label, options]) => <label key={key} className="block">{label}<NativeSelect aria-label={label} name={key} defaultValue={definition[key] ?? ""}><option value="">Pendente</option>{options.map(([v, text]) => <option key={v} value={v}>{text}</option>)}</NativeSelect></label>)}
+      {([ ["compatibility", "Revisão documental humana", [["compatible", "Compatível"], ["contradiction", "Contradição documentada"], ["not_checkable", "Não verificável"]]], ["aggregation", "Agregação (igual ao perfil C02)", [["mean", "Média"], ["sum", "Soma"], ["last", "Último valor"]]], ["comparator", "Comparação de cada janela com a meta", [["lt", "Menor que"], ["lte", "Menor ou igual"], ["gt", "Maior que"], ["gte", "Maior ou igual"], ["eq", "Igual"]]] ] as const).map(([key, label, options]) => <label key={key} className="block">{label}<NativeSelect aria-label={label} name={key} defaultValue={definition[key] ?? ""}><option value="">Pendente</option>{options.map(([v, text]) => <option key={v} value={v}>{text}</option>)}</NativeSelect></label>)}
       <p className="text-xs text-muted-foreground">São exigidas todas as janelas current_1…N do pacote C03, suficientes segundo o perfil, na fonte e período indicados. Não há média entre metas nem inferência de causalidade.</p>
       <Button disabled={action.isPending || !activeProfile || !(selected?.["indicator_key"] || indicatorKey)} type="submit">Guardar nova versão</Button>
     </form>}
