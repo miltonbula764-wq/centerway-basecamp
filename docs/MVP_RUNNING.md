@@ -45,6 +45,8 @@ terminar. Um novo arranque cria uma stack e credenciais novas; não reutiliza da
 
 ## O que explorar
 
+- **Percurso operacional configurável:** selecionar a empresa Atlas SaaS sintética e um cliente para decisões C04 → Core → C10. Critérios, dados retrospectivos e limites em `docs/OPERATIONAL_JOURNEY.md`; o piloto abaixo permanece separado.
+
 - **C04 configurável:** selecionar um cliente e abrir o painel Value State. Registar factos conhecidos, consultar pendências, completar uma revisão e avaliar um pacote C03. Este bloco requer a 0013 e mantém o piloto abaixo separado; ver `docs/C04_CONFIGURABLE.md`.
 
 - **Investigar:** selecionar o caso, consultar o cliente C01–C03, escolher a prova

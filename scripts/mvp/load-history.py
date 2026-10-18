@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 if os.environ.get('CW_LOCAL_MVP') == '1':
     info=json.loads(subprocess.check_output(['docker','inspect','cw-mvp-db']))[0]
     assert info['Config'].get('Labels',{}).get('centerway.disposable') == 'mvp'
@@ -14,9 +15,9 @@ else:
     assert os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
 assert os.environ.get('PGHOST') == '127.0.0.1'
 assert os.environ.get('PGDATABASE') == 'cw_e2e'
-fixture=json.dumps(json.loads(Path('e2e/mvp-fixtures.json').read_text()))
+fixture=json.dumps(json.loads(Path('e2e/operational-fixtures.json' if '--operational' in sys.argv else 'e2e/mvp-fixtures.json').read_text()))
 # SQL literal escaping, not shell interpolation; fixture has no credentials.
-statement="BEGIN; SELECT set_config('cw.mvp_fixture', '"+fixture.replace("'","''")+"', true);\n"+Path('e2e/mvp-history.sql').read_text()+"\nCOMMIT;"
+statement="BEGIN; SELECT set_config('cw.mvp_fixture', '"+fixture.replace("'","''")+"', true);\n"+Path('e2e/operational-history.sql' if '--operational' in sys.argv else 'e2e/mvp-history.sql').read_text()+"\nCOMMIT;"
 env=os.environ.copy()
 for key in ('PGPASSWORD','PGSERVICE','PGSERVICEFILE','PGHOSTADDR','PGOPTIONS'):
     env.pop(key,None)
@@ -25,4 +26,4 @@ result=subprocess.run(['psql','-X','-h','127.0.0.1','-p','5432','-U','postgres',
 if result.returncode:
     print(result.stderr)
     raise SystemExit(result.returncode)
-print('Synthetic retrospective fixture persisted. Core C09/C10 produced resolved and remain_open from actual C01-C03 evidence; this does not prove a real elapsed observation window or historical approvals.')
+print('Operational C05-C08 synthetic retrospective history loaded; real C09-C10 will run separately.' if '--operational' in sys.argv else 'Synthetic retrospective fixture persisted. Core C09/C10 produced resolved and remain_open from actual C01-C03 evidence; this does not prove a real elapsed observation window or historical approvals.')

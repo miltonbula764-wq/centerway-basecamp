@@ -119,7 +119,7 @@ function ValueState({ subjectId }: { subjectId: string }) {
       <p className="text-xs text-muted-foreground">{formatDate(e.created_at)} · c04-numeric-v1 · promessa cumprida: não determinada</p>
       <details><summary className="cursor-pointer">Medições, pendências e proveniência</summary><pre className="mt-2 max-h-96 overflow-auto whitespace-pre-wrap break-all text-xs">{JSON.stringify(e.details, null, 2)}</pre></details>
     </article>)}
-    <p className="text-xs text-muted-foreground">O Core recebe avaliações individuais e pendências persistidas. A política geral de abertura/encerramento de casos ainda não está aprovada; este bloco não altera casos. O percurso C05–C10 abaixo mantém exclusivamente flowreports-demo-v1.</p>
+    <p className="text-xs text-muted-foreground">O Core recebe avaliações e pendências persistidas no percurso operacional abaixo. A abertura exige elegibilidade e decisão humana documentadas, sem política comercial universal. O piloto FlowReports permanece separado.</p>
   </div></Panel>;
 }
 

@@ -9,6 +9,7 @@ import { caseStateLabel, eventDetails, journeyError, journeySteps, resultLabel, 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Empty, ErrorState, formatDate, Loading, Mono, NativeSelect, PageHeader, Panel, StatusPill } from "./ui-bits";
+import { OperationalCases } from "./operational-cases";
 import { C04ValueState } from "./c04-value-state";
 import { CaseStartGuide } from "./case-start-guide";
 
@@ -47,10 +48,13 @@ function Workspace() {
     if (subjectId) query = query.eq("subject_id", subjectId);
     const { data, error } = await query.returns<JourneyCase[]>(); if (error) throw error; return data;
   } });
+  const operationalCount = useQuery({ queryKey: tk(tenant.id, "operational-count"), queryFn: async () => {
+    const { count, error } = await supabase.from("cw_operational_cases").select("id", { count: "exact", head: true }).eq("tenant_id", tenant.id); if (error) throw error; return count ?? 0;
+  } });
   const selected = cases.data?.find(c => c.id === caseId);
   return <>
     <PageHeader title="Casos · percurso CENTERWAY" description="Core: evidência → investigação → intervenção autorizada → resultado → decisão." />
-    {subjects.isSuccess && cases.isSuccess && !cases.data?.length && <CaseStartGuide subjectId={subjectId} noSubjects={!subjects.data?.length} />}
+    {subjects.isSuccess && cases.isSuccess && operationalCount.isSuccess && !operationalCount.data && !cases.data?.length && <CaseStartGuide subjectId={subjectId} noSubjects={!subjects.data?.length} />}
     <div id="case-client" className="mb-5 scroll-mt-20">
       <Field title="Cliente acompanhado"><NativeSelect className="h-11 min-w-0" value={subjectId} disabled={subjects.isLoading || subjects.isError || !subjects.data?.length} onChange={e => { setSubjectId(e.target.value); setCaseId(""); }}>
         <option value="">{subjects.isLoading ? "A carregar clientes…" : subjects.isError ? "Clientes indisponíveis" : !subjects.data?.length ? "Ainda não há clientes" : "Todos os clientes (até 100)"}</option>{subjects.data?.map(s => <option key={s.id} value={s.id}>{s.display_name || s.external_ref}</option>)}
@@ -59,6 +63,7 @@ function Workspace() {
       {subjects.isSuccess && !!subjects.data?.length && <p className="mt-2 text-xs text-muted-foreground">Escolha um cliente para consultar os seus objetivos e casos.</p>}
     </div>
     {subjectId && <div id="C04-configurable" className="mb-6 scroll-mt-20"><C04ValueState subjectId={subjectId} /></div>}
+    {subjectId && <div className="mb-6"><OperationalCases subjectId={subjectId} /></div>}
     <details className="mb-5 border-y border-border py-3">
       <summary className="cursor-pointer text-sm font-medium">Percurso C01–C10 <span className="ml-2 text-xs font-normal text-muted-foreground">Recolha → decisão</span></summary>
     <nav aria-label="Etapas do percurso" className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-5">
