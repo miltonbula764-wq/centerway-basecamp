@@ -1,3 +1,5 @@
+> Extensão posterior: o percurso configurável C05–C10 autorizado na missão seguinte está em [OPERATIONAL_JOURNEY.md](OPERATIONAL_JOURNEY.md). As fronteiras históricas abaixo descrevem a entrega C04 inicial.
+
 # C04 configurável — primeiro bloco funcional
 
 Base: main `54e4a43`, incluindo orientação de Casos, journal e snapshot da 0012 instalada. A migração 0012 e os snapshots 0000–0012 ficam intactos. O PDF v2 referido na conversa não está acessível no caminho anexado nesta sessão; esta entrega usa os contratos SQL/documentação existentes e os requisitos atuais do fundador. As restrições históricas do contrato CORE_C04_CONTRACT descrevem a missão anterior; a missão atual autoriza a avaliação configurável por indicador, sem autorizar uma conclusão global da promessa.

@@ -45,3 +45,11 @@ Contrato: `docs/MVP_JOURNEY_CONTRACT.md`. Arranque e limites: `docs/MVP_RUNNING.
 - [ ] Políticas gerais de casos, cumprimento agregado da promessa e migração de perfil na interface ficam pendentes.
 
 Contrato e execução: `docs/C04_CONFIGURABLE.md`.
+
+## Core e percurso operacional configurável
+- [x] C04 persistido como entrada sem exigir candidato C02; pendências visíveis e abertura humana documentada.
+- [x] C05–C10 por indicador, janela e critérios explícitos por caso, autorização, histórico e isolamento.
+- [x] Percurso integrado em Casos, preservando o piloto e as migrações instaladas.
+- [ ] Políticas universais, múltiplos ciclos, reabertura e migração de contrato do caso continuam pendentes.
+
+Contrato e testes: `docs/OPERATIONAL_JOURNEY.md`.
