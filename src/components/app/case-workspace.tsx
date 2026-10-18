@@ -44,7 +44,7 @@ function Workspace() {
   const cases = useQuery({ queryKey: tk(tenant.id, "journey", "cases", subjectId), queryFn: async () => {
     let query = supabase.from("cw_cases").select("*").eq("tenant_id", tenant.id).order("created_at", { ascending: false }).limit(100);
     if (subjectId) query = query.eq("subject_id", subjectId);
-    const { data, error } = await query; if (error) throw error; return data;
+    const { data, error } = await query.returns<JourneyCase[]>(); if (error) throw error; return data;
   } });
   const selected = cases.data?.find(c => c.id === caseId);
   return <>
@@ -172,7 +172,7 @@ function CaseDetail({ current, focusStep }: { current: JourneyCase; focusStep: s
   const [bundleId, setBundleId] = useState("");
   const retry = useRef<{ signature: string; operation: string } | null>(null);
   const events = useQuery({ queryKey: tk(tenant.id, "journey", "events", current.id), queryFn: async () => {
-    const { data, error } = await supabase.from("cw_case_events").select("*").eq("tenant_id", tenant.id).eq("case_id", current.id).order("sequence").limit(300);
+    const { data, error } = await supabase.from("cw_case_events").select("*").eq("tenant_id", tenant.id).eq("case_id", current.id).order("sequence").limit(300).returns<CaseEvent[]>();
     if (error) throw error; return data;
   } });
   const observations = useQuery({ queryKey: tk(tenant.id, "journey", "integration", current.subject_id), queryFn: async () => {
