@@ -9,6 +9,7 @@ import { caseStateLabel, eventDetails, journeyError, journeySteps, resultLabel, 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Empty, ErrorState, formatDate, Loading, Mono, NativeSelect, PageHeader, Panel, StatusPill } from "./ui-bits";
+import { C04ValueState } from "./c04-value-state";
 import { CaseStartGuide } from "./case-start-guide";
 
 export function CaseWorkspace() {
@@ -57,6 +58,7 @@ function Workspace() {
       {subjects.isError && <ErrorState message="Não foi possível consultar os clientes." onRetry={() => subjects.refetch()} />}
       {subjects.isSuccess && !!subjects.data?.length && <p className="mt-2 text-xs text-muted-foreground">Escolha um cliente para consultar os seus objetivos e casos.</p>}
     </div>
+    {subjectId && <div className="mb-6"><C04ValueState subjectId={subjectId} /></div>}
     <details className="mb-5 border-y border-border py-3">
       <summary className="cursor-pointer text-sm font-medium">Percurso C01–C10 <span className="ml-2 text-xs font-normal text-muted-foreground">Recolha → decisão</span></summary>
     <nav aria-label="Etapas do percurso" className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-5">
@@ -66,7 +68,7 @@ function Workspace() {
     </nav></details>
     <aside aria-label="Limites da política do piloto" className="mb-6 border-l-2 border-primary/40 pl-4 text-sm">
       <p className="font-medium">Regras exclusivas · <span className="break-all font-mono text-xs text-primary">flowreports-demo-v1</span></p>
-      <p className="mt-2 leading-relaxed text-muted-foreground">FlowReports / Loja Aurora: 10 → 4 h/semana, perfil compatível com report_hours e confirmação documental manual. C04–C10 aplicam apenas este cenário sintético, não regras universais de valor.</p>
+      <p className="mt-2 leading-relaxed text-muted-foreground">FlowReports / Loja Aurora: 10 → 4 h/semana, perfil compatível com report_hours e confirmação documental manual. O percurso de casos C05–C10 e o C04 do piloto aplicam apenas este cenário sintético, não regras universais de valor.</p>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Sem conectores externos; a execução é um registo humano autorizado. A observação exige 14 dias e duas semanas completas.</p>
       <a href="/mvp-preview.html" className="mt-2 inline-block text-xs text-muted-foreground underline underline-offset-4">Referência ilustrativa · não executa operações</a>
     </aside>

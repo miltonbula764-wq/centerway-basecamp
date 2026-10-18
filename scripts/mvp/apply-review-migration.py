@@ -1,5 +1,7 @@
-"""Apply 0012 only in the disposable GitHub database, proving old rows/ACLs survive."""
+"""Apply 0012, or subsequent additive C04 migrations with --c04, only in the disposable GitHub database, proving old rows/ACLs survive."""
 import os
+import json
+import sys
 from pathlib import Path
 import subprocess
 assert os.environ.get('GITHUB_ACTIONS') == 'true'
@@ -31,7 +33,7 @@ DO $$ DECLARE r record; n int:=0; BEGIN
       RAISE EXCEPTION 'migration changed historical table grants: %',r.relname; END IF;
     n:=n+1;
   END LOOP;
-  RAISE NOTICE 'Migration 0012 non-empty upgrade passed: historical rows and table grants unchanged in % tables.',n;
+  RAISE NOTICE 'Non-empty upgrade passed: historical rows and table grants unchanged in % tables.',n;
 END $$;
 COMMIT;
 '''
@@ -40,9 +42,9 @@ for k in ('PGPASSWORD','PGSERVICE','PGSERVICEFILE','PGHOSTADDR','PGOPTIONS'):
     env.pop(k,None)
 env['PGPASSFILE']='/dev/null'
 r=subprocess.run(['psql','-X','-h','127.0.0.1','-p','5432','-U','postgres','-d','cw_e2e','-v','ON_ERROR_STOP=1'],
-    input=prelude+Path('drizzle/migrations/0012_mvp_case_journey.sql').read_text()+postlude,
+    input=prelude+''.join(Path('drizzle/migrations/'+e['tag']+'.sql').read_text()+'\n' for e in json.loads(Path('drizzle/migrations/meta/_journal.json').read_text())['entries'] if (e['idx']>12 if '--c04' in sys.argv else e['idx']==12))+postlude,
     text=True,capture_output=True,env=env)
 print(r.stderr.strip())
 if r.returncode:
     raise SystemExit(r.returncode)
-print('Migration 0012 applied atomically ONLY in the disposable database; pre-existing data preserved.')
+print('Selected migration(s) applied atomically ONLY in the disposable database; pre-existing data preserved.')

@@ -14,6 +14,46 @@ export type Database = {
   }
   public: {
     Tables: {
+      c04_configurations: {
+        Row: {
+          id: string
+          tenant_id: string
+          subject_id: string
+          profile_id: string
+          indicator_key: string
+          version: number
+          previous_id: string | null
+          operation_id: string
+          request_hash: string
+          definition: Json
+          created_by: string
+          created_at: string
+        }
+        Insert: never
+        Update: never
+        Relationships: []
+      }
+      c04_evaluations: {
+        Row: {
+          id: string
+          tenant_id: string
+          subject_id: string
+          configuration_id: string
+          bundle_id: string
+          algorithm_version: string
+          configuration_state: string
+          result: string
+          evidence: string
+          core_disposition: string
+          details: Json
+          created_by: string
+          created_at: string
+        }
+        Insert: never
+        Update: never
+        Relationships: []
+      }
+
       audit_log: {
         Row: {
           action: string
@@ -1338,6 +1378,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      save_c04_configuration: {
+        Args: { _tenant_id: string; _subject_id: string; _profile_id: string; _indicator_key: string; _previous_id: string | null; _operation_id: string; _definition: Json }
+        Returns: string
+      }
+      evaluate_c04_configuration: {
+        Args: { _tenant_id: string; _configuration_id: string; _bundle_id: string }
+        Returns: string
+      }
+
       _c02_cmp: {
         Args: {
           _a: number

@@ -1,3 +1,5 @@
+> Contexto histórico da missão anterior. A extensão configurável autorizada posteriormente está em [C04_CONFIGURABLE.md](C04_CONFIGURABLE.md); preserva esta projeção e não introduz conclusão global de promessa.
+
 # Core/C04 — primeiro bloco: contexto histórico de valor
 
 ## Fontes disponíveis e fronteira
