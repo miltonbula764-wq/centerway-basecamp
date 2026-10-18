@@ -26,6 +26,7 @@ export type Database = {
           operation_id: string
           request_hash: string
           definition: Json
+          pending_fields: string[]
           created_by: string
           created_at: string
         }

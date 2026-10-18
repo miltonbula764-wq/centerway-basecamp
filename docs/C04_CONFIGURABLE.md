@@ -4,7 +4,7 @@ Base: main `54e4a43`, incluindo orientação de Casos, journal e snapshot da 001
 
 ## Operações reais
 
-Em `/app/casos`, selecionar um cliente abre **C04 · Value State configurável**. O administrador escolhe um indicador outcome de um perfil aprovado ou superseded, regista apenas os factos que possui e guarda uma versão. Campos desconhecidos podem ficar vazios. Promessa/ref, capacidade do plano/ref e objetivo do cliente/confirmação são campos separados; nenhum é preenchido pelo sistema a partir dos outros. A revisão humana da compatibilidade exige referência documental. Não há interpretação automática de texto nem contacto com clientes.
+Em `/app/casos`, selecionar um cliente abre **C04 · Value State configurável**. O administrador escolhe um indicador outcome de um perfil aprovado ou superseded, regista apenas os factos que possui e guarda uma versão. Campos desconhecidos podem ficar vazios; `pending_fields` identifica e persiste as pendências imediatamente, sem depender de um pacote C03. Promessa/ref, capacidade do plano/ref e objetivo do cliente/confirmação são campos separados; nenhum é preenchido pelo sistema a partir dos outros. A revisão humana da compatibilidade exige referência documental. Não há interpretação automática de texto nem contacto com clientes.
 
 Cada cliente/indicador tem uma sequência de versões imutáveis. Uma revisão parte da última versão e preserva as anteriores, incluindo documentos, meta, regras e perfil histórico. Outro perfil pode ser ligado numa revisão pela RPC; a interface desta primeira versão mantém o perfil ao copiar uma revisão. Uma migração de perfil pela interface fica para um bloco posterior.
 

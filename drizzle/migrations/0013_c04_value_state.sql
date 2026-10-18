@@ -6,6 +6,7 @@ CREATE TABLE public.c04_configurations (
   version integer NOT NULL CHECK(version > 0), previous_id uuid,
   operation_id uuid NOT NULL, request_hash text NOT NULL,
   definition jsonb NOT NULL CHECK(jsonb_typeof(definition)='object'),
+  pending_fields text[] NOT NULL,
   created_by uuid NOT NULL, created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   UNIQUE(tenant_id,id), UNIQUE(tenant_id,subject_id,id),
   UNIQUE(tenant_id,operation_id), UNIQUE(tenant_id,subject_id,indicator_key,version),
@@ -44,7 +45,7 @@ END $$;
 CREATE FUNCTION public.save_c04_configuration(_tenant_id uuid,_subject_id uuid,_profile_id uuid,
   _indicator_key text,_previous_id uuid,_operation_id uuid,_definition jsonb)
 RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
-DECLARE old public.c04_configurations; latest public.c04_configurations; v_id uuid; h text; k text; v jsonb;
+DECLARE old public.c04_configurations; latest public.c04_configurations; v_id uuid; h text; k text; v jsonb; pending text[]:='{}';
 BEGIN
   IF NOT public.has_tenant_role(_tenant_id,ARRAY['admin']::public.member_role[]) THEN
     RAISE EXCEPTION 'admin_required' USING ERRCODE='42501'; END IF;
@@ -90,11 +91,15 @@ BEGIN
   END LOOP;
   IF (_definition->>'observation_start')::timestamptz >= (_definition->>'deadline')::timestamptz THEN
     RAISE EXCEPTION 'invalid_goal_period' USING ERRCODE='22023'; END IF;
+  FOREACH k IN ARRAY ARRAY['promise','promise_ref','plan_capability','plan_ref','customer_goal','customer_ref','compatibility','compatibility_ref',
+    'unit','source','aggregation','comparator','target','deadline','window_count','observation_start'] LOOP
+    IF _definition->>k IS NULL THEN pending:=array_append(pending,k); END IF;
+  END LOOP;
   SELECT * INTO latest FROM public.c04_configurations WHERE tenant_id=_tenant_id AND subject_id=_subject_id
     AND indicator_key=_indicator_key ORDER BY version DESC LIMIT 1;
   IF latest.id IS DISTINCT FROM _previous_id THEN RAISE EXCEPTION 'configuration_version_conflict' USING ERRCODE='22023'; END IF;
-  INSERT INTO public.c04_configurations(tenant_id,subject_id,profile_id,indicator_key,version,previous_id,operation_id,request_hash,definition,created_by)
-    VALUES(_tenant_id,_subject_id,_profile_id,_indicator_key,coalesce(latest.version,0)+1,_previous_id,_operation_id,h,_definition,auth.uid()) RETURNING id INTO v_id;
+  INSERT INTO public.c04_configurations(tenant_id,subject_id,profile_id,indicator_key,version,previous_id,operation_id,request_hash,definition,pending_fields,created_by)
+    VALUES(_tenant_id,_subject_id,_profile_id,_indicator_key,coalesce(latest.version,0)+1,_previous_id,_operation_id,h,_definition,pending,auth.uid()) RETURNING id INTO v_id;
   RETURN v_id;
 END $$;
 

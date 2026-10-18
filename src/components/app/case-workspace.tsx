@@ -58,11 +58,11 @@ function Workspace() {
       {subjects.isError && <ErrorState message="Não foi possível consultar os clientes." onRetry={() => subjects.refetch()} />}
       {subjects.isSuccess && !!subjects.data?.length && <p className="mt-2 text-xs text-muted-foreground">Escolha um cliente para consultar os seus objetivos e casos.</p>}
     </div>
-    {subjectId && <div className="mb-6"><C04ValueState subjectId={subjectId} /></div>}
+    {subjectId && <div id="C04-configurable" className="mb-6 scroll-mt-20"><C04ValueState subjectId={subjectId} /></div>}
     <details className="mb-5 border-y border-border py-3">
       <summary className="cursor-pointer text-sm font-medium">Percurso C01–C10 <span className="ml-2 text-xs font-normal text-muted-foreground">Recolha → decisão</span></summary>
     <nav aria-label="Etapas do percurso" className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-5">
-      {journeySteps.map(([code, title, description]) => <a key={code} onClick={() => setFocusStep(code)} href={Number(code.slice(1)) < 4 ? (subjectId ? `/app/clientes/${subjectId}` : "/app/clientes") : code === "C04" ? (subjectId ? "#C04" : "#case-client") : "#case-dossier"} className="min-w-0 rounded-md border border-border p-3 text-sm hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      {journeySteps.map(([code, title, description]) => <a key={code} onClick={() => setFocusStep(code)} href={Number(code.slice(1)) < 4 ? (subjectId ? `/app/clientes/${subjectId}` : "/app/clientes") : code === "C04" ? (subjectId ? "#C04-configurable" : "#case-client") : "#case-dossier"} className="min-w-0 rounded-md border border-border p-3 text-sm hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <span className="block font-mono text-xs text-primary">{code}</span><strong className="mt-1 block font-medium">{title}</strong><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p>
       </a>)}
     </nav></details>

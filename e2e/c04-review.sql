@@ -59,6 +59,9 @@ BEGIN
     IF e.details->>'promise_fulfillment'<>'not_determined' OR e.details->>'causality'<>'not_established' THEN RAISE EXCEPTION 'invented fulfillment/causality'; END IF;
   END LOOP;
   IF (SELECT to_jsonb(x)::text FROM public.c04_evaluations x WHERE id=evaluation)<>before_eval THEN RAISE EXCEPTION 'historical evaluation changed'; END IF;
+  prev:=c;
+  c:=pg_temp.run_as(actor,format('SELECT public.save_c04_configuration(%L,%L,%L,''report_hours'',%L,%L,''{}'')',tenant,sample->>'subject_id',f->>'profile',prev,gen_random_uuid()))::uuid;
+  IF (SELECT cardinality(pending_fields) FROM public.c04_configurations WHERE id=c)<>16 THEN RAISE EXCEPTION 'partial information must expose pending fields before C03'; END IF;
   -- Independent indicators share a real C03 bundle: empty remains inconclusive; outcome is assessed.
   modified:=definition||'{"unit":"count","source":"synthetic-ci","target":40,"comparator":"gte"}'::jsonb;
   independent:=pg_temp.run_as((fu#>>'{admin,id}')::uuid,format('SELECT public.save_c04_configuration(%L,%L,%L,''outcome'',NULL,%L,%L)',base->>'tenantA',base#>>'{customerA,id}',base->>'profileA',gen_random_uuid(),modified))::uuid;

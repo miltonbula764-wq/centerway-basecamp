@@ -21,6 +21,10 @@ test('C04: real configuration, persisted evaluation, revision and independent hi
   await panel.getByRole('button',{name:'Registar informação conhecida',exact:true}).click();
   await panel.getByLabel('Perfil histórico',{exact:true}).selectOption(fixture.profile);
   await panel.getByLabel('Indicador outcome',{exact:true}).selectOption('report_hours');
+  await panel.getByRole('button',{name:'Guardar nova versão',exact:true}).click();
+  await expect(panel.getByText('Consultar definição v1',{exact:true})).toBeVisible();
+  await expect(panel.getByText('Informação pendente nesta versão',{exact:true})).toBeVisible();
+  await panel.getByRole('button',{name:'Criar revisão desta configuração',exact:true}).click();
   for(const [label,value] of [
     ['Promessa documentada da SaaS','SYNTHETIC: reporting automation'],['Referência da promessa','synthetic:promise'],
     ['Capacidade permitida pelo plano contratado','SYNTHETIC: reporting included'],['Referência do plano','synthetic:plan'],
@@ -33,7 +37,7 @@ test('C04: real configuration, persisted evaluation, revision and independent hi
   await panel.getByLabel('Agregação (igual ao perfil C02)',{exact:true}).selectOption('mean');
   await panel.getByLabel('Comparação de cada janela com a meta',{exact:true}).selectOption('lte');
   await panel.getByRole('button',{name:'Guardar nova versão',exact:true}).click();
-  await expect(panel.getByText('Consultar definição v1',{exact:true})).toBeVisible();
+  await expect(panel.getByText('Consultar definição v2',{exact:true})).toBeVisible();
   await panel.getByLabel('Pacote C03 persistido',{exact:true}).selectOption(subject.bundle_id);
   await panel.getByRole('button',{name:'Avaliar indicador no servidor',exact:true}).click();
   await expect(panel.getByText('Objetivo atingido · report_hours',{exact:true})).toBeVisible();
@@ -45,7 +49,7 @@ test('C04: real configuration, persisted evaluation, revision and independent hi
   await panel.getByRole('button',{name:'Criar revisão desta configuração',exact:true}).click();
   await panel.getByLabel('Meta numérica',{exact:true}).fill('5');
   await panel.getByRole('button',{name:'Guardar nova versão',exact:true}).click();
-  await expect(panel.getByText('Consultar definição v2',{exact:true})).toBeVisible();
+  await expect(panel.getByText('Consultar definição v3',{exact:true})).toBeVisible();
   await panel.getByLabel('Pacote C03 persistido',{exact:true}).selectOption(subject.bundle_id);
   await panel.getByRole('button',{name:'Avaliar indicador no servidor',exact:true}).click();
   await expect(panel.getByText('Objetivo não atingido · report_hours',{exact:true})).toBeVisible();
