@@ -1,0 +1,39 @@
+name: Isolated Codespaces configuration and mobile HTTPS
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.devcontainer/**', 'scripts/demo/**', 'scripts/mvp/**', 'e2e/**', 'vite.config.ts', 'package.json', 'bun.lock', '.github/workflows/codespaces-demo.yml']
+permissions:
+  contents: read
+concurrency:
+  group: codespaces-demo-${{ github.head_ref }}
+  cancel-in-progress: true
+jobs:
+  devcontainer-mobile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: '22'}
+      - name: Install fixed devcontainer CLI
+        run: npm install --global @devcontainers/cli@0.80.1 --ignore-scripts --no-audit --no-fund
+      - name: Build and start the actual devcontainer with its own Docker daemon
+        run: devcontainer up --workspace-folder "$PWD" --skip-post-create
+      - name: Install the Codespaces tools
+        run: devcontainer exec --workspace-folder "$PWD" bash .devcontainer/install.sh
+      - name: Full isolated boot, RLS, local test TLS, Android emulation and restart persistence
+        run: devcontainer exec --workspace-folder "$PWD" bash scripts/demo/test.sh
+      - name: Preserve safe evidence only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: isolated-mobile-${{ github.run_id }}
+          path: |
+            .centerway-demo/app/e2e/logs/
+            .centerway-demo/app/e2e/report-demo/
+            .centerway-demo/app/e2e/results-demo/
+            .centerway-demo/frontend.log
+          retention-days: 3
+          if-no-files-found: warn

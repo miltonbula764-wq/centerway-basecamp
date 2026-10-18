@@ -12,14 +12,10 @@ import time
 import urllib.request
 
 if '--local-mvp' in sys.argv:
-    # Explicit local mode accepts ONLY the freshly created, labelled disposable DB.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts/mvp'))
+    from disposable import require_local_database
     assert os.environ.get('PG_CONTAINER') == 'cw-mvp-db'
-    info = json.loads(subprocess.check_output(['docker', 'inspect', 'cw-mvp-db']))[0]
-    assert info['Config']['Image'] == 'postgres:17'
-    assert info['Config'].get('Labels', {}).get('centerway.disposable') == 'mvp'
-    assert all(m['Type'] == 'tmpfs' and m['Destination'] == '/var/lib/postgresql/data'
-               for m in info.get('Mounts', [])), 'No persistent database volumes accepted'
-    assert info['HostConfig']['PortBindings']['5432/tcp'] == [{'HostIp': '127.0.0.1', 'HostPort': '5432'}]
+    require_local_database()
 else:
     assert os.environ.get('GITHUB_ACTIONS') == 'true'
     assert os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
@@ -52,7 +48,7 @@ secret = secrets.token_hex(32)
 def b64(value):
     return base64.urlsafe_b64encode(value).decode().rstrip('=')
 header = b64(json.dumps({'alg': 'HS256', 'typ': 'JWT'}).encode())
-payload = b64(json.dumps({'role': 'anon', 'iss': 'supabase', 'iat': int(time.time()), 'exp': int(time.time()) + 7200}).encode())
+payload = b64(json.dumps({'role': 'anon', 'iss': 'supabase', 'iat': int(time.time()), 'exp': int(time.time()) + (604800 if os.environ.get('CW_CODESPACES_DEMO') == '1' else 7200)}).encode())
 unsigned = header + '.' + payload
 anon = unsigned + '.' + b64(hmac.new(secret.encode(), unsigned.encode(), hashlib.sha256).digest())
 # Only ephemeral keys; private files are outside the artifact allowlist and never printed.
@@ -64,14 +60,16 @@ def envfile(name, values):
     p.chmod(0o600)
     return str(p)
 
+demo_labels = ['--label','centerway.demo=codespaces'] if os.environ.get('CW_CODESPACES_DEMO') == '1' else []
 run('bootstrap', ['psql', '-X', '-v', 'ON_ERROR_STOP=1', '-f', 'e2e/bootstrap.sql'])
-run('network', ['docker', 'network', 'create', '--label', 'centerway.disposable=true', 'cw-e2e'])
+run('network', ['docker', 'network', 'create', '--label', 'centerway.disposable=true', *demo_labels, 'cw-e2e'])
 run('attach-database', ['docker', 'network', 'connect', '--alias', 'db', 'cw-e2e', os.environ['PG_CONTAINER']])
+demo_origin = os.environ.get('CW_DEMO_ORIGIN') if os.environ.get('CW_CODESPACES_DEMO') == '1' else None
 auth_env = envfile('auth.env', {
     'GOTRUE_API_HOST': '0.0.0.0', 'GOTRUE_API_PORT': '9999',
-    'API_EXTERNAL_URL': 'http://127.0.0.1:54321/auth/v1',
-    'GOTRUE_SITE_URL': 'http://127.0.0.1:5173',
-    'GOTRUE_URI_ALLOW_LIST': 'http://127.0.0.1:5173/**',
+    'API_EXTERNAL_URL': demo_origin + '/auth/v1' if demo_origin else 'http://127.0.0.1:54321/auth/v1',
+    'GOTRUE_SITE_URL': demo_origin or 'http://127.0.0.1:5173',
+    'GOTRUE_URI_ALLOW_LIST': (demo_origin or 'http://127.0.0.1:5173') + '/**',
     'GOTRUE_DB_DRIVER': 'postgres', 'GOTRUE_DB_DATABASE_URL': 'postgres://postgres@db:5432/cw_e2e?search_path=auth,public',
     'GOTRUE_DB_NAMESPACE': 'auth', 'GOTRUE_JWT_SECRET': secret,
     'GOTRUE_JWT_EXP': '3600', 'GOTRUE_JWT_AUD': 'authenticated',
@@ -80,7 +78,7 @@ auth_env = envfile('auth.env', {
     # Disposable test instance ONLY. Password grants and signed JWT validation remain real.
     'GOTRUE_MAILER_AUTOCONFIRM': 'true', 'GOTRUE_RATE_LIMIT_EMAIL_SENT': '1000',
 })
-run('start-auth', ['docker', 'run', '-d', '--name', 'cw-auth', '--label', 'centerway.disposable=true', '--network', 'cw-e2e',
+run('start-auth', ['docker', 'run', '-d', '--name', 'cw-auth', '--label', 'centerway.disposable=true', *demo_labels, '--network', 'cw-e2e',
                    '-p', '127.0.0.1:9999:9999', '--env-file', auth_env, 'supabase/gotrue:v2.177.0'])
 wait('http://127.0.0.1:9999/health')
 # Apply actual repository migrations, unchanged, after GoTrue has created its own auth schema.
@@ -95,7 +93,7 @@ rest_env = envfile('rest.env', {
     'PGRST_DB_URI': 'postgres://authenticator@db:5432/cw_e2e', 'PGRST_DB_SCHEMAS': 'public',
     'PGRST_DB_ANON_ROLE': 'anon', 'PGRST_JWT_SECRET': secret, 'PGRST_SERVER_PORT': '3000',
 })
-run('start-rest', ['docker', 'run', '-d', '--name', 'cw-rest', '--label', 'centerway.disposable=true', '--network', 'cw-e2e',
+run('start-rest', ['docker', 'run', '-d', '--name', 'cw-rest', '--label', 'centerway.disposable=true', *demo_labels, '--network', 'cw-e2e',
                    '-p', '127.0.0.1:54322:3000', '--env-file', rest_env, 'postgrest/postgrest:v12.2.3'])
 wait('http://127.0.0.1:54322/')
 nginx = private / 'nginx.conf'
@@ -103,7 +101,7 @@ nginx.write_text('''events {}\nhttp { access_log off; server { listen 80;
 location /auth/v1/ { proxy_pass http://cw-auth:9999/; proxy_set_header Host $host; }
 location /rest/v1/ { proxy_pass http://cw-rest:3000/; }
 } }''')
-run('start-gateway', ['docker', 'run', '-d', '--name', 'cw-gateway', '--label', 'centerway.disposable=true', '--network', 'cw-e2e',
+run('start-gateway', ['docker', 'run', '-d', '--name', 'cw-gateway', '--label', 'centerway.disposable=true', *demo_labels, '--network', 'cw-e2e',
                      '-p', '127.0.0.1:54321:80', '-v', str(nginx) + ':/etc/nginx/nginx.conf:ro', 'nginx:1.27-alpine'])
 wait('http://127.0.0.1:54321/auth/v1/health')
 (root / '.env.local').write_text('VITE_SUPABASE_URL=http://127.0.0.1:54321\nVITE_SUPABASE_PUBLISHABLE_KEY=' + anon + '\n')

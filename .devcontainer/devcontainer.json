@@ -1,0 +1,19 @@
+{
+  "name": "CENTERWAY · demonstração isolada",
+  "build": { "dockerfile": "Dockerfile" },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "remoteUser": "vscode",
+  "hostRequirements": { "cpus": 2, "memory": "8gb" },
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": { "label": "CENTERWAY · demo privada", "onAutoForward": "notify", "protocol": "http" }
+  },
+  "otherPortsAttributes": { "onAutoForward": "ignore" },
+  "customizations": { "vscode": { "settings": { "remote.autoForwardPorts": false } } },
+  "postCreateCommand": "bash .devcontainer/install.sh",
+  "postStartCommand": "python3 scripts/demo/manage.py start --background"
+}
