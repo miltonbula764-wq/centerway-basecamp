@@ -31,3 +31,5 @@
   reabertura e políticas gerais continuam pendentes das decisões A–H do manual.
 
 Contrato: `docs/MVP_JOURNEY_CONTRACT.md`. Arranque e limites: `docs/MVP_RUNNING.md`.
+
+- [x] 0012 instalada no backend deste projeto (18/10/2026) pela ferramenta gerida; SQL idêntico (sha256 b1ace0b1…), histórico 13 entradas.

@@ -490,6 +490,254 @@ export type Database = {
           },
         ]
       }
+      cw_assessments: {
+        Row: {
+          bundle_id: string
+          created_at: string
+          created_by: string
+          details: Json
+          evidence: string
+          id: string
+          objective_id: string
+          policy_version: string
+          result: string
+          subject_id: string
+          tenant_id: string
+        }
+        Insert: {
+          bundle_id: string
+          created_at?: string
+          created_by: string
+          details: Json
+          evidence: string
+          id?: string
+          objective_id: string
+          policy_version: string
+          result: string
+          subject_id: string
+          tenant_id: string
+        }
+        Update: {
+          bundle_id?: string
+          created_at?: string
+          created_by?: string
+          details?: Json
+          evidence?: string
+          id?: string
+          objective_id?: string
+          policy_version?: string
+          result?: string
+          subject_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_assessments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cw_assessments_tenant_id_subject_id_bundle_id_fkey"
+            columns: ["tenant_id", "subject_id", "bundle_id"]
+            isOneToOne: false
+            referencedRelation: "c03_bundles"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+          {
+            foreignKeyName: "cw_assessments_tenant_id_subject_id_objective_id_fkey"
+            columns: ["tenant_id", "subject_id", "objective_id"]
+            isOneToOne: false
+            referencedRelation: "cw_objectives"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+        ]
+      }
+      cw_case_events: {
+        Row: {
+          case_id: string
+          command: string
+          created_at: string
+          created_by: string
+          details: Json
+          from_state: string | null
+          id: string
+          operation_id: string
+          policy_version: string
+          request_hash: string
+          sequence: number
+          subject_id: string
+          tenant_id: string
+          to_state: string
+        }
+        Insert: {
+          case_id: string
+          command: string
+          created_at?: string
+          created_by: string
+          details: Json
+          from_state?: string | null
+          id?: string
+          operation_id: string
+          policy_version: string
+          request_hash: string
+          sequence: number
+          subject_id: string
+          tenant_id: string
+          to_state: string
+        }
+        Update: {
+          case_id?: string
+          command?: string
+          created_at?: string
+          created_by?: string
+          details?: Json
+          from_state?: string | null
+          id?: string
+          operation_id?: string
+          policy_version?: string
+          request_hash?: string
+          sequence?: number
+          subject_id?: string
+          tenant_id?: string
+          to_state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_case_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cw_case_events_tenant_id_subject_id_case_id_fkey"
+            columns: ["tenant_id", "subject_id", "case_id"]
+            isOneToOne: false
+            referencedRelation: "cw_cases"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+        ]
+      }
+      cw_cases: {
+        Row: {
+          assessment_id: string
+          created_at: string
+          created_by: string
+          id: string
+          policy_version: string
+          state: string
+          subject_id: string
+          tenant_id: string
+          version: number
+        }
+        Insert: {
+          assessment_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          policy_version: string
+          state: string
+          subject_id: string
+          tenant_id: string
+          version?: number
+        }
+        Update: {
+          assessment_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          policy_version?: string
+          state?: string
+          subject_id?: string
+          tenant_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_cases_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cw_cases_tenant_id_subject_id_assessment_id_fkey"
+            columns: ["tenant_id", "subject_id", "assessment_id"]
+            isOneToOne: false
+            referencedRelation: "cw_assessments"
+            referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+        ]
+      }
+      cw_objectives: {
+        Row: {
+          capacity_ref: string
+          commitment_ref: string
+          created_at: string
+          created_by: string
+          customer_confirmation_ref: string
+          deadline: string
+          id: string
+          measurement_source: string
+          policy_version: string
+          profile_id: string
+          subject_id: string
+          tenant_id: string
+        }
+        Insert: {
+          capacity_ref: string
+          commitment_ref: string
+          created_at?: string
+          created_by: string
+          customer_confirmation_ref: string
+          deadline: string
+          id?: string
+          measurement_source: string
+          policy_version: string
+          profile_id: string
+          subject_id: string
+          tenant_id: string
+        }
+        Update: {
+          capacity_ref?: string
+          commitment_ref?: string
+          created_at?: string
+          created_by?: string
+          customer_confirmation_ref?: string
+          deadline?: string
+          id?: string
+          measurement_source?: string
+          policy_version?: string
+          profile_id?: string
+          subject_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_objectives_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cw_objectives_tenant_id_profile_id_fkey"
+            columns: ["tenant_id", "profile_id"]
+            isOneToOne: false
+            referencedRelation: "tenant_value_profiles"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "cw_objectives_tenant_id_subject_id_fkey"
+            columns: ["tenant_id", "subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       indicators: {
         Row: {
           baseline: number | null
@@ -1215,6 +1463,14 @@ export type Database = {
         }
         Returns: string[]
       }
+      _cw_demo_evaluate: {
+        Args: {
+          _after?: string
+          _bundle: string
+          _objective: Database["public"]["Tables"]["cw_objectives"]["Row"]
+        }
+        Returns: Json
+      }
       _cw_is_privileged: { Args: never; Returns: boolean }
       add_tenant_member: {
         Args: {
@@ -1247,9 +1503,37 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      assess_demo_objective: {
+        Args: { _bundle_id: string; _objective_id: string; _tenant_id: string }
+        Returns: string
+      }
       build_evidence_bundle: {
         Args: { _run_id: string; _tenant_id: string }
         Returns: Json
+      }
+      command_demo_case: {
+        Args: {
+          _case_id: string
+          _command: string
+          _expected_version: number
+          _operation_id: string
+          _payload: Json
+          _tenant_id: string
+        }
+        Returns: Json
+      }
+      create_demo_objective: {
+        Args: {
+          _capacity_ref: string
+          _commitment_ref: string
+          _customer_ref: string
+          _deadline: string
+          _profile_id: string
+          _source: string
+          _subject_id: string
+          _tenant_id: string
+        }
+        Returns: string
       }
       create_tenant: {
         Args: {
@@ -1295,6 +1579,10 @@ export type Database = {
       my_tenant_role: {
         Args: { _tenant_id: string }
         Returns: Database["public"]["Enums"]["member_role"]
+      }
+      open_demo_case: {
+        Args: { _assessment_id: string; _tenant_id: string }
+        Returns: string
       }
       remove_tenant_member: {
         Args: { _tenant_id: string; _user_id: string }
