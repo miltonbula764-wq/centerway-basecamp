@@ -86,7 +86,7 @@ function Workspace() {
           <Panel title="C04 · Objetivos do exemplo"><p className="text-sm text-muted-foreground">Selecione um cliente para registar o objetivo sintético deste exemplo, avaliar evidências e abrir um caso de demonstração.</p></Panel>}
         <Panel title="Casos persistidos" actions={<Button size="sm" variant="secondary" onClick={() => cases.refetch()}>Atualizar</Button>}>
           {cases.isLoading ? <Loading /> : cases.isError ? <ErrorState message={journeyError(cases.error)} onRetry={() => cases.refetch()} /> :
-            !cases.data?.length ? <Empty title="Sem casos">Um caso exige C04 suficiente e objetivo não atingido. C02 candidato não abre casos.</Empty> :
+            !cases.data?.length ? <Empty title="Sem casos de demonstração">Neste exemplo, um caso exige C04 suficiente e objetivo não atingido. C02 candidato não abre casos.</Empty> :
               <div className="space-y-2">{cases.data.map(c => <button key={c.id} onClick={() => setCaseId(c.id)} aria-pressed={c.id === caseId}
                 className={`w-full rounded-md border p-3 text-left text-sm ${c.id === caseId ? "border-primary bg-primary/5" : "border-border"}`}>
                 <strong>{subjects.data?.find(s => s.id === c.subject_id)?.display_name || "Cliente"}</strong>
@@ -95,8 +95,10 @@ function Workspace() {
               </button>)}</div>}
         </Panel>
       </div>
-      <div id="case-dossier">{selected ? <CaseDetail key={selected.id} current={selected} focusStep={focusStep} /> : <Panel title="Core · acompanhamento"><Empty title="Selecione um caso">O histórico, as autorizações, a janela e os resultados aparecem aqui.</Empty></Panel>}</div>
+      <div id="case-dossier">{selected ? <CaseDetail key={selected.id} current={selected} focusStep={focusStep} /> : <Panel title="Core · acompanhamento do exemplo"><Empty title="Selecione um caso de demonstração">O histórico, as autorizações, a janela e os resultados do exemplo aparecem aqui.</Empty></Panel>}</div>
     </div>
+      </div>
+    </details>
   </>;
 }
 function ObjectivePanel({ subjectId, canWrite, isAdmin, onCase }: { subjectId: string; canWrite: boolean; isAdmin: boolean; onCase: (id: string) => void }) {
