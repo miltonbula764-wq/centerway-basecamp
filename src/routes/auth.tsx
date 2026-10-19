@@ -33,6 +33,10 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
+  return <AuthForm onAuthenticated={() => navigate({ href: safeRedirect(search.redirect), replace: true })} />;
+}
+
+export function AuthForm({ onAuthenticated }: { onAuthenticated: () => void | Promise<void> }) {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,7 +60,7 @@ function AuthPage() {
           setError("Não foi possível iniciar sessão. Verifique os dados ou confirme primeiro o seu email.");
           return;
         }
-        navigate({ href: safeRedirect(search.redirect), replace: true });
+        await onAuthenticated();
       } else {
         const { error } = await supabase.auth.signUp({
           email: email.trim(),

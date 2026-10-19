@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { TeamManagement } from "@/components/app/team-management";
 import { roleLabel, tk, unitLabel, useTenant } from "@/lib/tenant";
 import { Button } from "@/components/ui/button";
-import { Empty, ErrorState, formatDate, Loading, Mono, PageHeader, Panel, StatusPill } from "@/components/app/ui-bits";
+import { Empty, ErrorState, formatDate, Loading, Mono, PageHeader, Panel } from "@/components/app/ui-bits";
 
 export const Route = createFileRoute("/_authenticated/app/configuracoes")({
   head: () => ({
@@ -22,18 +23,6 @@ export const Route = createFileRoute("/_authenticated/app/configuracoes")({
 
 function Settings() {
   const { tenant, user, signOut } = useTenant();
-  const members = useQuery({
-    queryKey: tk(tenant.id, "members"),
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("memberships")
-        .select("id, user_id, role, created_at")
-        .eq("tenant_id", tenant.id)
-        .order("created_at");
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
   const audit = useQuery({
     queryKey: tk(tenant.id, "audit"),
     queryFn: async () => {
@@ -70,26 +59,7 @@ function Settings() {
             <LogOut className="h-4 w-4" /> Terminar sessão
           </Button>
         </Panel>
-        <Panel title="Membros" className="lg:col-span-2">
-          <p className="mb-3 text-xs text-muted-foreground">
-            Convites e alteração de papéis ainda não estão disponíveis nesta interface. Os papéis são aplicados pelo servidor.
-          </p>
-          {members.isLoading ? (
-            <Loading />
-          ) : members.isError ? (
-            <ErrorState message="Não foi possível carregar os membros." onRetry={() => members.refetch()} />
-          ) : (
-            <ul className="divide-y divide-border text-sm">
-              {members.data!.map((m) => (
-                <li key={m.id} className="flex flex-wrap items-center gap-3 py-2">
-                  <Mono className="text-muted-foreground">{m.user_id.slice(0, 8)}…</Mono>
-                  {m.user_id === user.id && <StatusPill tone="primary">Você</StatusPill>}
-                  <span className="ml-auto">{roleLabel[m.role]}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
+        <TeamManagement />
         <Panel title="Auditoria (só leitura)" className="lg:col-span-2">
           {audit.isLoading ? (
             <Loading />

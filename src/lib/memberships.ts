@@ -6,12 +6,14 @@ export const membershipsQuery = (userId: string) =>
   queryOptions({
     queryKey: ["memberships", userId],
     staleTime: 0,
-    queryFn: async (): Promise<TenantInfo[]> => {
+    refetchInterval: 30000,
+    refetchOnWindowFocus: "always",
+    queryFn: async ({ signal }): Promise<TenantInfo[]> => {
       const { data, error } = await supabase
         .from("memberships")
         .select("role, tenants(id, name, subject_unit_type)")
         .eq("user_id", userId)
-        .order("created_at");
+        .order("created_at").abortSignal(signal);
       if (error) throw error;
       return (data ?? [])
         .filter((m) => m.tenants)

@@ -26,6 +26,7 @@ dist-ssr
 /e2e/mvp-fixtures.json
 /e2e/operational-fixtures.json
 /e2e/followup-fixtures.json
+/e2e/team-fixtures.json
 /e2e/report/
 /e2e/results/
 

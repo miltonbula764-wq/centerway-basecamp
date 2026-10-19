@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Check,
   ChevronsUpDown,
@@ -87,6 +87,18 @@ function AppLayout() {
 
   const tenant: TenantInfo | undefined = memberships.data?.find((t) => t.id === selected);
   setActiveTenantId(tenant?.id ?? null);
+  const previousAccess = useRef<string | null>(null);
+  const access = tenant ? `${tenant.id}:${tenant.role}` : null;
+  useEffect(() => {
+    if (previousAccess.current !== null && previousAccess.current !== access) {
+      const [oldTenant, oldRole] = previousAccess.current.split(":");
+      const key = tenant?.id === oldTenant ? ["t", oldTenant, "team", oldRole] : ["t", oldTenant];
+      void qc.cancelQueries({ queryKey: key });
+      qc.removeQueries({ queryKey: key });
+    }
+    previousAccess.current = access;
+  }, [access, qc, tenant?.id]);
+
 
   const switchTenant = useCallback(
     (id: string) => {
