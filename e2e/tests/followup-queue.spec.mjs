@@ -19,6 +19,7 @@ test('queue: real auth, independent C04 states, pagination and client beyond the
  await filter(page,'queue-000');await expect(rows).toHaveCount(3);
  await expect(rows.filter({hasText:'Contradição identificada'})).toHaveCount(1);await expect(rows.filter({hasText:'Avaliação disponível para revisão'})).toHaveCount(1);await expect(rows.filter({hasText:'Informação pendente'})).toHaveCount(1);
  const entry=rows.filter({has:page.getByRole('heading',{name:/independent_minutes/})});await entry.getByRole('link',{name:'Abrir objetivo e avaliação'}).click();await expect(page.getByLabel('Entrada C04',{exact:true})).toHaveValue(f.evaluations.independent_minutes);
+ await expect(page.getByLabel('Configuração histórica (até 100)',{exact:true})).not.toHaveValue('');
  await expect(page.getByText('Cliente acompanhado',{exact:true}).locator('..').locator('select')).toHaveValue(f.customer.id);
  await page.getByRole('link',{name:'Acompanhamento',exact:true}).click();await filter(page,'queue-101','independent');await expect(rows).toHaveCount(1);
  const last=f.subjects.find(s=>s.external_ref==='queue-101');await rows.getByRole('link',{name:'Abrir objetivo e avaliação'}).click();await expect(page.getByText('Cliente acompanhado',{exact:true}).locator('..').locator('select')).toHaveValue(last.id);

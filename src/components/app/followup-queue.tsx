@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTenant } from "@/lib/tenant";
-import { followupQuery, queueActions, queueCategories, queueReasons } from "@/lib/followup";
+import { followupQuery, queueActions, queueCategories, queueReasonText } from "@/lib/followup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Empty, ErrorState, Loading, NativeSelect, PageHeader, Panel, formatDate } from "./ui-bits";
@@ -48,7 +48,7 @@ function Queue() {
         </label>
         <label>
           Estado
-          <NativeSelect name="category">
+          <NativeSelect name="category" aria-label="Estado">
             <option value="">Todos os estados</option>
             {Object.entries(queueCategories).map(([key, label]) => (
               <option key={key} value={key}>
@@ -126,9 +126,7 @@ function Queue() {
                         )}
                         <ul className="list-disc pl-5">
                           {item.reasons.map((reason, i) => (
-                            <li key={`${reason}:${i}`}>
-                              {queueReasons[reason] || `Pendência documentada: ${reason}`}
-                            </li>
+                            <li key={`${reason}:${i}`}>{queueReasonText(reason)}</li>
                           ))}
                         </ul>
                         <p>
@@ -171,7 +169,12 @@ function Queue() {
                               subject: item.subject_id,
                               case: item.case_id || undefined,
                               kind: item.kind,
-                              evaluation: item.evaluation_id || undefined,
+                              configuration: !item.case_id
+                                ? item.configuration_id || undefined
+                                : undefined,
+                              evaluation: !item.case_id
+                                ? item.evaluation_id || undefined
+                                : undefined,
                             }}
                           >
                             {item.case_id ? "Abrir caso" : "Abrir objetivo e avaliação"}

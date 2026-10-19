@@ -53,6 +53,31 @@ export const queueReasons: Record<string, string> = {
   measurement_rules_not_satisfied: "As regras documentadas de medição não foram satisfeitas.",
   specific_pilot_contract: "Cenário específico flowreports-demo-v1; consultar as regras do piloto.",
 };
+const pendingLabels: Record<string, string> = {
+  promise: "promessa da SaaS",
+  promise_ref: "referência da promessa",
+  plan_capability: "capacidade do plano contratado",
+  plan_ref: "referência do plano",
+  customer_goal: "objetivo do cliente",
+  customer_ref: "referência de confirmação do objetivo",
+  compatibility: "revisão de compatibilidade",
+  compatibility_ref: "referência da revisão documental",
+  unit: "unidade",
+  source: "fonte das medições",
+  aggregation: "agregação",
+  comparator: "comparador",
+  target: "meta numérica",
+  deadline: "prazo do objetivo",
+  window_count: "quantidade de janelas exigidas",
+  observation_start: "início admissível da observação",
+};
+export function queueReasonText(reason: string): string {
+  const field = pendingLabels[reason.replace(/^missing_/, "")];
+  return (
+    queueReasons[reason] ||
+    (field ? `Informação pendente: ${field}.` : `Pendência documentada: ${reason}`)
+  );
+}
 export type QueueItem = {
   entry_key: string;
   kind: "c04" | "operational" | "legacy";

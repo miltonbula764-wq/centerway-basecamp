@@ -108,7 +108,7 @@ BEGIN
         WHEN k.state IN ('investigation','impediment_found') THEN 'investigation_planning'
         WHEN k.state IN ('awaiting_approval','approved') THEN 'authorization_execution'
         WHEN k.state='waiting_observation' AND (ex.details->>'wait_until')::timestamptz>now_at THEN 'waiting_observation'
-        WHEN k.state='remain_open' THEN 'result_open' ELSE 'results_review' END,
+        WHEN k.state='remain_open' OR (k.state='observed' AND ev.details->>'sufficient' IS DISTINCT FROM 'true') THEN 'result_open' ELSE 'results_review' END,
       'consult_pilot',jsonb_build_array('specific_pilot_contract'),jsonb_build_object('last_event',ev.details),
       (ex.details->>'wait_until')::timestamptz,'observation_window',ev.created_at,false,k.policy_version
     FROM public.cw_cases k JOIN subjects s ON s.id=k.subject_id

@@ -62,6 +62,7 @@ function Workspace({ subjectId, initialCaseId, initialEvaluationId }: Target) {
     const id = operation.current.id;
     action.mutate(async () => { const { data, error } = await supabase.rpc("open_operational_case", { _tenant_id: tenant.id, _evaluation_id: evaluationId, _operation_id: id, _definition: definition }); if (error) throw error; if (alive.current) setCaseId(data); });
   }
+  if ((initialCaseId && cases.isPending) || (initialEvaluationId && evaluations.isPending)) return <Loading />;
   if (initialCaseId && cases.isSuccess && !cases.data.some(c => c.id === initialCaseId)) return <ErrorState message="Caso não encontrado para este cliente e empresa." />;
   if (initialEvaluationId && evaluations.isSuccess && !evaluations.data.some(a => a.id === initialEvaluationId)) return <ErrorState message="Avaliação não encontrada para este cliente e empresa." />;
   return <div id="operational-core" className="space-y-5 scroll-mt-20"><Panel title="Core · Percurso operacional configurável"><div className="space-y-4 text-sm">

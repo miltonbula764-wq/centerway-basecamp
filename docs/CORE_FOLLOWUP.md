@@ -23,7 +23,7 @@ Filtros por nome/referência do cliente, chave do indicador e categoria. Pagina�
 
 Query keys começam por `["t", tenantId]`; cancelamento por AbortSignal, identidade da resposta validada, desmontagem e remoção de cache ao mudar empresa. Atualização manual, ao voltar ao ecrã/foco e a cada minuto; invalidação após C04/Core. Nada usa o relógio do navegador para permitir transições. Datas exibidas no fuso do navegador.
 
-Ligações para Casos incluem tenant, subject, case/kind e avaliação quando existentes. O destino revalida RLS e identidade completa; consulta diretamente registos referenciados fora das antigas listas de 100. Uma ligação de outra empresa não muda silenciosamente a empresa ativa. Não há abertura automática de formulários de execução.
+Ligações para Casos incluem tenant, subject, case/kind ou configuração/avaliação quando existentes. O destino revalida RLS e identidade completa; consulta diretamente registos referenciados fora das antigas listas de 100. Uma ligação de outra empresa não muda silenciosamente a empresa ativa. Não há abertura automática de formulários de execução.
 
 ## Executar e verificar numa base descartável
 
