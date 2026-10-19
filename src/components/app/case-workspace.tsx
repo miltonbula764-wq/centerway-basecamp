@@ -71,6 +71,9 @@ function Workspace() {
         <span className="block font-mono text-xs text-primary">{code}</span><strong className="mt-1 block font-medium">{title}</strong><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p>
       </a>)}
     </nav></details>
+    <details className="mb-6 rounded-md border border-border">
+      <summary className="cursor-pointer p-4 text-sm font-medium">Exemplo legado · FlowReports · apenas demonstração <span className="ml-2 text-xs font-normal text-muted-foreground">flowreports-demo-v1 · dados sintéticos · não é regra geral da aplicação</span></summary>
+      <div className="border-t border-border p-4">
     <aside aria-label="Limites da política do piloto" className="mb-6 border-l-2 border-primary/40 pl-4 text-sm">
       <p className="font-medium">Regras exclusivas · <span className="break-all font-mono text-xs text-primary">flowreports-demo-v1</span></p>
       <p className="mt-2 leading-relaxed text-muted-foreground">FlowReports / Loja Aurora: 10 → 4 h/semana, perfil compatível com report_hours e confirmação documental manual. O percurso de casos C05–C10 e o C04 do piloto aplicam apenas este cenário sintético, não regras universais de valor.</p>
@@ -80,10 +83,10 @@ function Workspace() {
     <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] [&>*]:min-w-0">
       <div className="space-y-6">
         {subjectId ? <ObjectivePanel key={subjectId} subjectId={subjectId} canWrite={canWrite} isAdmin={isAdmin} onCase={setCaseId} /> :
-          <Panel title="C04 · Objetivos"><p className="text-sm text-muted-foreground">Selecione um cliente para registar um objetivo sintético, avaliar evidências e abrir um caso.</p></Panel>}
+          <Panel title="C04 · Objetivos do exemplo"><p className="text-sm text-muted-foreground">Selecione um cliente para registar o objetivo sintético deste exemplo, avaliar evidências e abrir um caso de demonstração.</p></Panel>}
         <Panel title="Casos persistidos" actions={<Button size="sm" variant="secondary" onClick={() => cases.refetch()}>Atualizar</Button>}>
           {cases.isLoading ? <Loading /> : cases.isError ? <ErrorState message={journeyError(cases.error)} onRetry={() => cases.refetch()} /> :
-            !cases.data?.length ? <Empty title="Sem casos">Um caso exige C04 suficiente e objetivo não atingido. C02 candidato não abre casos.</Empty> :
+            !cases.data?.length ? <Empty title="Sem casos de demonstração">Neste exemplo, um caso exige C04 suficiente e objetivo não atingido. C02 candidato não abre casos.</Empty> :
               <div className="space-y-2">{cases.data.map(c => <button key={c.id} onClick={() => setCaseId(c.id)} aria-pressed={c.id === caseId}
                 className={`w-full rounded-md border p-3 text-left text-sm ${c.id === caseId ? "border-primary bg-primary/5" : "border-border"}`}>
                 <strong>{subjects.data?.find(s => s.id === c.subject_id)?.display_name || "Cliente"}</strong>
@@ -92,8 +95,10 @@ function Workspace() {
               </button>)}</div>}
         </Panel>
       </div>
-      <div id="case-dossier">{selected ? <CaseDetail key={selected.id} current={selected} focusStep={focusStep} /> : <Panel title="Core · acompanhamento"><Empty title="Selecione um caso">O histórico, as autorizações, a janela e os resultados aparecem aqui.</Empty></Panel>}</div>
+      <div id="case-dossier">{selected ? <CaseDetail key={selected.id} current={selected} focusStep={focusStep} /> : <Panel title="Core · acompanhamento do exemplo"><Empty title="Selecione um caso de demonstração">O histórico, as autorizações, a janela e os resultados do exemplo aparecem aqui.</Empty></Panel>}</div>
     </div>
+      </div>
+    </details>
   </>;
 }
 function ObjectivePanel({ subjectId, canWrite, isAdmin, onCase }: { subjectId: string; canWrite: boolean; isAdmin: boolean; onCase: (id: string) => void }) {

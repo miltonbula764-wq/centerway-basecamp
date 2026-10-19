@@ -29,7 +29,7 @@ export function CaseStartGuide({ subjectId, noSubjects }: { subjectId: string; n
         <span className="font-mono text-sm text-primary">05</span><div className="min-w-0 text-sm"><h3 className="font-medium">C03 · Montar o pacote</h3><p className="mt-1 leading-relaxed text-muted-foreground">Na análise escolhida, um administrador ou operador pode montar explicitamente o pacote. Evidência íntegra não prova recuperação nem causa.</p><div className="mt-2">{clientLink("Abrir evidência do cliente")}</div></div>
       </li>
       <li className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 border-t border-border py-4">
-        <span className="font-mono text-sm text-primary">06</span><div className="min-w-0 text-sm"><h3 className="font-medium">C04 · Voltar a Casos</h3><p className="mt-1 leading-relaxed text-muted-foreground">Selecione o cliente, registe o objetivo sintético e avalie o pacote. Só uma avaliação suficiente com objetivo não atingido permite abrir o caso.</p><a href="#case-client" className="mt-2 inline-block text-primary underline underline-offset-4">Ir para a escolha de cliente</a></div>
+        <span className="font-mono text-sm text-primary">06</span><div className="min-w-0 text-sm"><h3 className="font-medium">C04 · Voltar a Casos</h3><p className="mt-1 leading-relaxed text-muted-foreground">Selecione o cliente, configure a avaliação do indicador e avalie o pacote C03. Só uma avaliação elegível, com decisão documentada de administrador, abre um caso operacional.</p><a href="#case-client" className="mt-2 inline-block text-primary underline underline-offset-4">Ir para a escolha de cliente</a></div>
       </li>
     </ol>
   </section>;
