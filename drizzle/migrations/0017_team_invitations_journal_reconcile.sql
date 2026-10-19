@@ -1,0 +1,2 @@
+-- Reconciliation marker: the pending repository migration 0016_team_invitations.sql is applied by the migrator in the same run; this entry intentionally contains no statements so 0016 is applied exactly once, byte-identical to the repository file.
+SELECT 1;
