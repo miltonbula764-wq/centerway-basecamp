@@ -1618,13 +1618,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_tenant_invitation: { Args: { _tenant_id:string; _email:string; _role:Database["public"]["Enums"]["member_role"]; _expires_at:string; _operation_id:string }; Returns:Json }
-      revoke_tenant_invitation: { Args: { _tenant_id:string; _invitation_id:string }; Returns:undefined }
-      inspect_tenant_invitation: { Args: { _token:string }; Returns:Json }
-      accept_tenant_invitation: { Args: { _token:string; _operation_id:string }; Returns:Json }
-      list_team_members: { Args: { _tenant_id:string; _after?:string; _limit?:number }; Returns: {id:string;tenant_id:string;user_id:string;role:Database["public"]["Enums"]["member_role"];created_at:string;email:string|null}[] }
-      list_tenant_invitations: { Args: { _tenant_id:string; _after?:string; _limit?:number }; Returns: {id:string;tenant_id:string;email:string;role:Database["public"]["Enums"]["member_role"];status:string;expires_at:string;created_at:string;server_now:string}[] }
-
       _c02_cmp: {
         Args: {
           _a: number
