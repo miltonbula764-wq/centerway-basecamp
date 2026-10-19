@@ -58,6 +58,7 @@ const nav = [
   { to: "/app/clientes", label: "Clientes", icon: Users },
   { to: "/app/perfil", label: "Perfil de valor", icon: Target },
   { to: "/app/dados", label: "Dados", icon: Database },
+  { to: "/app/acompanhamento", label: "Acompanhamento", icon: LayoutDashboard },
   { to: "/app/casos", label: "Casos", icon: FolderKanban },
   { to: "/app/configuracoes", label: "Configurações", icon: Settings },
 ] as const;

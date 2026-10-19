@@ -25,21 +25,32 @@ function useAction(subjectId: string) {
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   return useMutation({ mutationFn: async (fn: () => Promise<void>) => { assertActiveTenant(tenant.id); await fn(); }, onSuccess: async () => {
     if (!alive.current) return;
-    await Promise.all([qc.invalidateQueries({ queryKey: tk(tenant.id, "operational", subjectId) }), qc.invalidateQueries({ queryKey: tk(tenant.id, "c04", subjectId) }), qc.invalidateQueries({ queryKey: tk(tenant.id, "operational-count") })]);
+    await Promise.all([qc.invalidateQueries({ queryKey: tk(tenant.id, "operational", subjectId) }), qc.invalidateQueries({ queryKey: tk(tenant.id, "c04", subjectId) }), qc.invalidateQueries({ queryKey: tk(tenant.id, "operational-count") }), qc.invalidateQueries({ queryKey: tk(tenant.id, "followup") })]);
   } });
 }
-export function OperationalCases({ subjectId }: { subjectId: string }) {
-  const { tenant } = useTenant(); return <Workspace key={`${tenant.id}:${subjectId}`} subjectId={subjectId} />;
+type Target = { subjectId: string; initialCaseId?: string | undefined; initialEvaluationId?: string | undefined };
+export function OperationalCases({ subjectId, initialCaseId, initialEvaluationId }: Target) {
+  const { tenant } = useTenant(); return <Workspace key={`${tenant.id}:${subjectId}:${initialCaseId}:${initialEvaluationId}`} subjectId={subjectId} initialCaseId={initialCaseId} initialEvaluationId={initialEvaluationId} />;
 }
-function Workspace({ subjectId }: { subjectId: string }) {
+function Workspace({ subjectId, initialCaseId, initialEvaluationId }: Target) {
   const { tenant, isAdmin } = useTenant(); const action = useAction(subjectId); const alive = useRef(true);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
-  const [evaluationId, setEvaluationId] = useState(""); const [caseId, setCaseId] = useState(""); const operation = useRef<{ signature: string; id: string } | null>(null);
-  const evaluations = useQuery({ queryKey: tk(tenant.id, "c04", subjectId, "evaluations"), queryFn: async () => {
-    const { data, error } = await supabase.from("c04_evaluations").select("*").eq("tenant_id", tenant.id).eq("subject_id", subjectId).order("created_at", { ascending: false }).limit(100); if (error) throw error; return data;
+  const [evaluationId, setEvaluationId] = useState(initialEvaluationId || ""); const [caseId, setCaseId] = useState(initialCaseId || ""); const operation = useRef<{ signature: string; id: string } | null>(null);
+  const evaluations = useQuery({ queryKey: tk(tenant.id, "c04", subjectId, "evaluations", initialEvaluationId), queryFn: async () => {
+    const { data, error } = await supabase.from("c04_evaluations").select("*").eq("tenant_id", tenant.id).eq("subject_id", subjectId).order("created_at", { ascending: false }).limit(100); if (error) throw error;
+    if (initialEvaluationId && !data.some(row => row.id === initialEvaluationId)) {
+      const extra = await supabase.from("c04_evaluations").select("*").eq("tenant_id", tenant.id).eq("subject_id", subjectId).eq("id", initialEvaluationId).maybeSingle();
+      if (extra.error) throw extra.error;
+      if (extra.data) data.push(extra.data);
+    } return data;
   } });
-  const cases = useQuery({ queryKey: tk(tenant.id, "operational", subjectId, "cases"), queryFn: async () => {
-    const { data, error } = await supabase.from("cw_operational_cases").select("*").eq("tenant_id", tenant.id).eq("subject_id", subjectId).order("created_at", { ascending: false }).limit(100); if (error) throw error; return data;
+  const cases = useQuery({ queryKey: tk(tenant.id, "operational", subjectId, "cases", initialCaseId), queryFn: async () => {
+    const { data, error } = await supabase.from("cw_operational_cases").select("*").eq("tenant_id", tenant.id).eq("subject_id", subjectId).order("created_at", { ascending: false }).limit(100); if (error) throw error;
+    if (initialCaseId && !data.some(row => row.id === initialCaseId)) {
+      const extra = await supabase.from("cw_operational_cases").select("*").eq("tenant_id", tenant.id).eq("subject_id", subjectId).eq("id", initialCaseId).maybeSingle();
+      if (extra.error) throw extra.error;
+      if (extra.data) data.push(extra.data);
+    } return data;
   } });
   const selected = cases.data?.find(c => c.id === caseId); const evaluation = evaluations.data?.find(a => a.id === evaluationId);
   const eligible = evaluation?.evidence === "sufficient" && evaluation.configuration_state === "compatible" && ["achieved", "not_achieved"].includes(evaluation.result);
@@ -51,6 +62,9 @@ function Workspace({ subjectId }: { subjectId: string }) {
     const id = operation.current.id;
     action.mutate(async () => { const { data, error } = await supabase.rpc("open_operational_case", { _tenant_id: tenant.id, _evaluation_id: evaluationId, _operation_id: id, _definition: definition }); if (error) throw error; if (alive.current) setCaseId(data); });
   }
+  if ((initialCaseId && cases.isPending) || (initialEvaluationId && evaluations.isPending)) return <Loading />;
+  if (initialCaseId && cases.isSuccess && !cases.data.some(c => c.id === initialCaseId)) return <ErrorState message="Caso não encontrado para este cliente e empresa." />;
+  if (initialEvaluationId && evaluations.isSuccess && !evaluations.data.some(a => a.id === initialEvaluationId)) return <ErrorState message="Avaliação não encontrada para este cliente e empresa." />;
   return <div id="operational-core" className="space-y-5 scroll-mt-20"><Panel title="Core · Percurso operacional configurável"><div className="space-y-4 text-sm">
     <p>Um caso acompanha um indicador. O Core recebe avaliações C04 persistidas, incluindo pendências; nenhum sinal C02 ou resultado abre uma intervenção automaticamente.</p>
     {(cases.error || evaluations.error) && <ErrorState message={(cases.error || evaluations.error)!.message + " · O percurso requer a migração 0014."} onRetry={() => { void cases.refetch(); void evaluations.refetch(); }} />}

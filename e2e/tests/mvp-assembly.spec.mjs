@@ -19,6 +19,8 @@ test('assembled MVP: actual login, persisted cases, result dossiers and open alt
   await expect(page).toHaveURL(/\/app(?:$|[/?])/);
   await page.goto('/app/casos');
   await expect(page.getByRole('heading',{name:'Casos · percurso CENTERWAY',exact:true})).toBeVisible();
+  // The current main groups the preserved pilot in a collapsed section. Exercise the actual control.
+  await page.locator('summary').filter({hasText:'Exemplo legado · FlowReports · apenas demonstração'}).click();
   for(const name of ['Loja Aurora · investigar','Loja Aurora · aprovar','Loja Aurora · executar','Loja Aurora · em observação','Loja Aurora · resultado atingido','Loja Aurora · objetivo por atingir'])
     await expect(page.getByRole('button').filter({hasText:name})).toBeVisible();
   await page.getByRole('button').filter({hasText:'Loja Aurora · resultado atingido'}).click();

@@ -33,29 +33,40 @@ const labels: Record<string, string> = {
   compatible: "Compatível · revisão humana", contradiction: "Contradição de configuração", missing_documentation: "Documentação pendente", not_checkable: "Compatibilidade não verificável",
   sufficient: "Suficiente para estas regras", insufficient: "Insuficiente", needs_information: "Informação pendente", configuration_review: "Revisão de configuração necessária", assessment_available: "Avaliação disponível para revisão",
 };
-export function C04ValueState({ subjectId }: { subjectId: string }) {
+type ValueTarget = { subjectId: string; initialConfigurationId?: string | undefined; initialEvaluationId?: string | undefined };
+export function C04ValueState({ subjectId, initialConfigurationId, initialEvaluationId }: ValueTarget) {
   const { tenant } = useTenant();
-  return <ValueState key={`${tenant.id}:${subjectId}`} subjectId={subjectId} />;
+  return <ValueState key={`${tenant.id}:${subjectId}:${initialConfigurationId}:${initialEvaluationId}`} subjectId={subjectId} initialConfigurationId={initialConfigurationId} initialEvaluationId={initialEvaluationId} />;
 }
-function ValueState({ subjectId }: { subjectId: string }) {
+function ValueState({ subjectId, initialConfigurationId, initialEvaluationId }: ValueTarget) {
   const { tenant, isAdmin, canWrite } = useTenant();
   const qc = useQueryClient();
   const alive = useRef(true);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
-  const [configurationId, setConfigurationId] = useState("");
+  const [configurationId, setConfigurationId] = useState(initialConfigurationId || "");
   const [profileId, setProfileId] = useState("");
   const [indicatorKey, setIndicatorKey] = useState("");
   const [bundleId, setBundleId] = useState("");
   const [edit, setEdit] = useState(false);
   const retry = useRef<{ signature: string; operation: string } | null>(null);
   const profiles = useQuery(profilesQuery(tenant.id));
-  const configurations = useQuery({ queryKey: tk(tenant.id, "c04", subjectId, "configurations"), queryFn: async () => {
+  const configurations = useQuery({ queryKey: tk(tenant.id, "c04", subjectId, "configurations", initialConfigurationId), queryFn: async () => {
     const { data, error } = await supabase.from("c04_configurations").select("*").eq("tenant_id", tenant.id).eq("subject_id", subjectId).order("created_at", { ascending: false }).limit(100);
-    if (error) throw error; return data;
+    if (error) throw error;
+    if (initialConfigurationId && !data.some(row => row.id === initialConfigurationId)) {
+      const extra = await supabase.from("c04_configurations").select("*").eq("tenant_id", tenant.id).eq("subject_id", subjectId).eq("id", initialConfigurationId).maybeSingle();
+      if (extra.error) throw extra.error;
+      if (extra.data) data.push(extra.data);
+    } return data;
   } });
-  const evaluations = useQuery({ queryKey: tk(tenant.id, "c04", subjectId, "evaluations"), queryFn: async () => {
+  const evaluations = useQuery({ queryKey: tk(tenant.id, "c04", subjectId, "evaluations", initialEvaluationId), queryFn: async () => {
     const { data, error } = await supabase.from("c04_evaluations").select("*").eq("tenant_id", tenant.id).eq("subject_id", subjectId).order("created_at", { ascending: false }).limit(100);
-    if (error) throw error; return data;
+    if (error) throw error;
+    if (initialEvaluationId && !data.some(row => row.id === initialEvaluationId)) {
+      const extra = await supabase.from("c04_evaluations").select("*").eq("tenant_id", tenant.id).eq("subject_id", subjectId).eq("id", initialEvaluationId).maybeSingle();
+      if (extra.error) throw extra.error;
+      if (extra.data) data.push(extra.data);
+    } return data;
   } });
   const bundles = useQuery({ queryKey: tk(tenant.id, "c04", subjectId, "bundles"), queryFn: async () => {
     const { data, error } = await supabase.from("c03_bundles").select("id,created_at").eq("tenant_id", tenant.id).eq("subject_id", subjectId).order("created_at", { ascending: false }).limit(100);
@@ -68,6 +79,7 @@ function ValueState({ subjectId }: { subjectId: string }) {
   const action = useMutation({ mutationFn: async (fn: () => Promise<void>) => { assertActiveTenant(tenant.id); await fn(); }, onSuccess: async () => {
     if (!alive.current) return;
     await qc.invalidateQueries({ queryKey: tk(tenant.id, "c04", subjectId) });
+    await qc.invalidateQueries({ queryKey: tk(tenant.id, "followup") });
   } });
   function save(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -88,6 +100,9 @@ function ValueState({ subjectId }: { subjectId: string }) {
     });
   }
   const readError = configurations.error || evaluations.error || bundles.error || profiles.error || indicators.error;
+  if ((initialConfigurationId && configurations.isPending) || (initialEvaluationId && evaluations.isPending)) return <Loading />;
+  if (initialConfigurationId && configurations.isSuccess && !configurations.data.some(c => c.id === initialConfigurationId)) return <ErrorState message="Configuração não encontrada para este cliente e empresa." />;
+  if (initialEvaluationId && evaluations.isSuccess && !evaluations.data.some(a => a.id === initialEvaluationId && (!initialConfigurationId || a.configuration_id === initialConfigurationId))) return <ErrorState message="Avaliação não corresponde à configuração deste cliente e empresa." />;
   return <Panel title="C04 · Value State configurável"><div className="space-y-4 text-sm">
     <p>Regras explícitas por cliente e indicador de resultado. Promessa, plano, objetivo e medições são registos distintos. Campos desconhecidos ficam pendentes; nenhum contacto é enviado.</p>
     {readError && <ErrorState message={`C04 indisponível: ${readError.message}. A migração 0013 é necessária para este bloco.`} onRetry={() => { void configurations.refetch(); void evaluations.refetch(); void bundles.refetch(); void profiles.refetch(); void indicators.refetch(); }} />}

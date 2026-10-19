@@ -1,5 +1,6 @@
 """Stage the existing application without .env and mount a new disposable MVP stack."""
 import os
+import sys
 from pathlib import Path
 import shutil
 import subprocess
@@ -45,6 +46,8 @@ subprocess.run(['node', 'e2e/mvp-seed.mjs'], cwd=stage, env=env, check=True)
 subprocess.run(['python3', 'scripts/mvp/load-history.py'], cwd=stage, env=env, check=True)
 subprocess.run(['node', 'e2e/operational-seed.mjs'], cwd=stage, env=env, check=True)
 subprocess.run(['python3', 'scripts/mvp/load-history.py', '--operational'], cwd=stage, env=env, check=True)
+if '--followup' in sys.argv:
+    subprocess.run(['node', 'e2e/followup-seed.mjs'], cwd=stage, env=env, check=True)
 print('\nOpen http://127.0.0.1:5173/app/casos\nOnly synthetic data in a new local database.', flush=True)
 print('Demo accounts and temporary passwords are in the PRIVATE local file:', stage / 'e2e/private/mvp-users.json', flush=True)
 print('Stop the app with Ctrl+C; remove ONLY this stack with python3 scripts/mvp/stop-local.py', flush=True)
