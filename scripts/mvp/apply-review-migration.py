@@ -42,7 +42,7 @@ for k in ('PGPASSWORD','PGSERVICE','PGSERVICEFILE','PGHOSTADDR','PGOPTIONS'):
     env.pop(k,None)
 env['PGPASSFILE']='/dev/null'
 r=subprocess.run(['psql','-X','-h','127.0.0.1','-p','5432','-U','postgres','-d','cw_e2e','-v','ON_ERROR_STOP=1'],
-    input=prelude+''.join(Path('drizzle/migrations/'+e['tag']+'.sql').read_text()+'\n' for e in json.loads(Path('drizzle/migrations/meta/_journal.json').read_text())['entries'] if (e['idx']>=14 if '--operational' in sys.argv else e['idx']==13 if '--c04' in sys.argv else e['idx']==12))+postlude,
+    input=prelude+''.join(Path('drizzle/migrations/'+e['tag']+'.sql').read_text()+'\n' for e in json.loads(Path('drizzle/migrations/meta/_journal.json').read_text())['entries'] if (e['idx']>=15 if '--followup' in sys.argv else e['idx']==14 if '--operational' in sys.argv else e['idx']==13 if '--c04' in sys.argv else e['idx']==12))+postlude,
     text=True,capture_output=True,env=env)
 print(r.stderr.strip())
 if r.returncode:

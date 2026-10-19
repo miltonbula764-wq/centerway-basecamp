@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppAcompanhamentoRouteImport } from './routes/_authenticated/app.acompanhamento'
 import { Route as AuthenticatedAppCasosRouteImport } from './routes/_authenticated/app.casos'
 import { Route as AuthenticatedAppConfiguracoesRouteImport } from './routes/_authenticated/app.configuracoes'
 import { Route as AuthenticatedAppDadosRouteImport } from './routes/_authenticated/app.dados'
@@ -51,6 +52,12 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppAcompanhamentoRoute =
+  AuthenticatedAppAcompanhamentoRouteImport.update({
+    id: '/acompanhamento',
+    path: '/acompanhamento',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppCasosRoute = AuthenticatedAppCasosRouteImport.update({
   id: '/casos',
   path: '/casos',
@@ -90,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/app/acompanhamento': typeof AuthenticatedAppAcompanhamentoRoute
   '/app/casos': typeof AuthenticatedAppCasosRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/app/dados': typeof AuthenticatedAppDadosRoute
@@ -102,6 +110,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/app/acompanhamento': typeof AuthenticatedAppAcompanhamentoRoute
   '/app/casos': typeof AuthenticatedAppCasosRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/app/dados': typeof AuthenticatedAppDadosRoute
@@ -117,6 +126,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/app/acompanhamento': typeof AuthenticatedAppAcompanhamentoRoute
   '/_authenticated/app/casos': typeof AuthenticatedAppCasosRoute
   '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/_authenticated/app/dados': typeof AuthenticatedAppDadosRoute
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/app'
     | '/onboarding'
+    | '/app/acompanhamento'
     | '/app/casos'
     | '/app/configuracoes'
     | '/app/dados'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/onboarding'
+    | '/app/acompanhamento'
     | '/app/casos'
     | '/app/configuracoes'
     | '/app/dados'
@@ -158,6 +170,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/app'
     | '/_authenticated/onboarding'
+    | '/_authenticated/app/acompanhamento'
     | '/_authenticated/app/casos'
     | '/_authenticated/app/configuracoes'
     | '/_authenticated/app/dados'
@@ -217,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/acompanhamento': {
+      id: '/_authenticated/app/acompanhamento'
+      path: '/acompanhamento'
+      fullPath: '/app/acompanhamento'
+      preLoaderRoute: typeof AuthenticatedAppAcompanhamentoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/casos': {
       id: '/_authenticated/app/casos'
       path: '/casos'
@@ -263,6 +283,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppAcompanhamentoRoute: typeof AuthenticatedAppAcompanhamentoRoute
   AuthenticatedAppCasosRoute: typeof AuthenticatedAppCasosRoute
   AuthenticatedAppConfiguracoesRoute: typeof AuthenticatedAppConfiguracoesRoute
   AuthenticatedAppDadosRoute: typeof AuthenticatedAppDadosRoute
@@ -273,6 +294,7 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppAcompanhamentoRoute: AuthenticatedAppAcompanhamentoRoute,
   AuthenticatedAppCasosRoute: AuthenticatedAppCasosRoute,
   AuthenticatedAppConfiguracoesRoute: AuthenticatedAppConfiguracoesRoute,
   AuthenticatedAppDadosRoute: AuthenticatedAppDadosRoute,

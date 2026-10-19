@@ -16,13 +16,15 @@ else:
     assert os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted'
 assert os.environ.get('PGHOST') == '127.0.0.1'
 assert os.environ.get('PGDATABASE') == 'cw_e2e'
-f = json.loads(Path('e2e/operational-fixtures.json' if '--operational' in sys.argv else 'e2e/mvp-fixtures.json').read_text())
+f = json.loads(Path('e2e/operational-fixtures.json' if '--operational' in sys.argv or '--followup' in sys.argv else 'e2e/mvp-fixtures.json').read_text())
 users = json.loads(Path('e2e/private/mvp-users.json').read_text())
 f.update(operator=users['operator']['id'], viewer=users['viewer']['id'])
 f['foundation'] = json.loads(Path('e2e/fixtures.json').read_text()) if '--c04' in sys.argv else {}
 f['foundation_users'] = {role: {'id': user['id']} for role, user in json.loads(Path('e2e/private/users.json').read_text()).items()} if '--c04' in sys.argv else {}
+if '--followup' in sys.argv:
+    f['queue'] = json.loads(Path('e2e/followup-fixtures.json').read_text())
 literal = json.dumps(f).replace("'", "''")
-statement = "BEGIN; SELECT set_config('cw.review_fixture','" + literal + "',true);\n" + Path('e2e/operational-review.sql' if '--operational' in sys.argv else 'e2e/c04-review.sql' if '--c04' in sys.argv else 'e2e/mvp-review.sql').read_text() + '\nROLLBACK;'
+statement = "BEGIN; SELECT set_config('cw.review_fixture','" + literal + "',true);\n" + Path('e2e/followup-review.sql' if '--followup' in sys.argv else 'e2e/operational-review.sql' if '--operational' in sys.argv else 'e2e/c04-review.sql' if '--c04' in sys.argv else 'e2e/mvp-review.sql').read_text() + '\nROLLBACK;'
 env = os.environ.copy()
 for key in ('PGPASSWORD', 'PGSERVICE', 'PGSERVICEFILE', 'PGHOSTADDR', 'PGOPTIONS'):
     env.pop(key, None)

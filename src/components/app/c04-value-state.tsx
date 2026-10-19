@@ -68,6 +68,7 @@ function ValueState({ subjectId }: { subjectId: string }) {
   const action = useMutation({ mutationFn: async (fn: () => Promise<void>) => { assertActiveTenant(tenant.id); await fn(); }, onSuccess: async () => {
     if (!alive.current) return;
     await qc.invalidateQueries({ queryKey: tk(tenant.id, "c04", subjectId) });
+    await qc.invalidateQueries({ queryKey: tk(tenant.id, "followup") });
   } });
   function save(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
