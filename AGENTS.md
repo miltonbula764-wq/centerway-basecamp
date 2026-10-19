@@ -11,7 +11,8 @@
 
 # CENTERWAY – engineering rules
 
-- Case preparation guidance is a presentation-only component driven by existing subject/case queries; it links to existing screens and never seeds or performs actions — why: empty-state guidance must not duplicate journey logic or simulate data.
+- Case guidance only presents existing queries/links, never seeds/actions — why: do not duplicate journey logic.
+- CaseWorkspace orders deep-link blocks, keeping C04 mounted and original identity guards — why: presentation must not change case contracts.
 
 - Tenant isolation is enforced in PostgreSQL (RLS + composite `(tenant_id, id)` FKs + immutable `tenant_id` triggers); never trust a tenant_id sent by the browser — why: authorization must hold even if the client is hostile.
 - Membership changes, onboarding and Value Profile approval go only through SECURITY DEFINER RPCs (`create_tenant`, `add_tenant_member`, `set_member_role`, `remove_tenant_member`, `approve_value_profile`, `create_value_profile_version`) — why: clients have no direct write grants on these state transitions.

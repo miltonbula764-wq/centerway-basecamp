@@ -40,6 +40,8 @@ function Workspace({ target }: { target: { tenant?: string | undefined; subject?
   const [subjectId, setSubjectId] = useState(target.tenant === tenant.id ? target.subject || "" : "");
   const [caseId, setCaseId] = useState(target.tenant === tenant.id && target.kind === "legacy" ? target.case || "" : "");
   const [focusStep, setFocusStep] = useState("C04");
+  const c04History = useRef<HTMLDetailsElement>(null);
+  const operationalTarget = subjectId === target.subject && target.kind === "operational" && !!target.case;
   const subjects = useQuery({ queryKey: tk(tenant.id, "journey", "subjects", target.subject), queryFn: async () => {
     const { data, error } = await supabase.from("subjects").select("id,display_name,external_ref").eq("tenant_id", tenant.id).order("created_at").limit(100);
     if (error) throw error;
@@ -70,6 +72,8 @@ function Workspace({ target }: { target: { tenant?: string | undefined; subject?
   if (target.subject && subjects.isSuccess && !subjects.data?.some(s => s.id === target.subject)) return <ErrorState message="Cliente não encontrado nesta empresa ou sem acesso." />;
   if (target.subject && !subjects.isSuccess) return subjects.isError ? <ErrorState message={subjects.error.message} /> : <Loading />;
   if (subjectId === target.subject && target.kind === "legacy" && target.case && cases.isSuccess && !cases.data?.some(c => c.id === target.case)) return <ErrorState message="Caso não encontrado para este cliente e empresa." />;
+  const c04 = <C04ValueState subjectId={subjectId} initialConfigurationId={subjectId === target.subject && target.kind === "c04" ? target.configuration : undefined} initialEvaluationId={subjectId === target.subject && target.kind === "c04" ? target.evaluation : undefined} />;
+  const operational = <div className="mb-6"><OperationalCases subjectId={subjectId} initialCaseId={subjectId === target.subject && target.kind === "operational" ? target.case : undefined} initialEvaluationId={subjectId === target.subject && target.kind === "c04" ? target.evaluation : undefined} /></div>;
   return <>
     <PageHeader title="Casos · percurso CENTERWAY" description="Core: evidência → investigação → intervenção autorizada → resultado → decisão." />
     {subjects.isSuccess && cases.isSuccess && operationalCount.isSuccess && !operationalCount.data && !cases.data?.length && <CaseStartGuide subjectId={subjectId} noSubjects={!subjects.data?.length} />}
@@ -78,14 +82,22 @@ function Workspace({ target }: { target: { tenant?: string | undefined; subject?
         <option value="">{subjects.isLoading ? "A carregar clientes…" : subjects.isError ? "Clientes indisponíveis" : !subjects.data?.length ? "Ainda não há clientes" : "Todos os clientes (até 100)"}</option>{subjects.data?.map(s => <option key={s.id} value={s.id}>{s.display_name || s.external_ref}</option>)}
       </NativeSelect></Field>
       {subjects.isError && <ErrorState message="Não foi possível consultar os clientes." onRetry={() => subjects.refetch()} />}
-      {subjects.isSuccess && !!subjects.data?.length && <p className="mt-2 text-xs text-muted-foreground">Escolha um cliente para consultar os seus objetivos e casos.</p>}
+      {subjects.isSuccess && !!subjects.data?.length && <p className="mt-2 text-xs text-muted-foreground">Escolha um cliente → consulte as avaliações C04 → abra ou selecione um caso no Core.</p>}
     </div>
-    {subjectId && <div id="C04-configurable" className="mb-6 scroll-mt-20"><C04ValueState subjectId={subjectId} initialConfigurationId={subjectId === target.subject && target.kind === "c04" ? target.configuration : undefined} initialEvaluationId={subjectId === target.subject && target.kind === "c04" ? target.evaluation : undefined} /></div>}
-    {subjectId && <div className="mb-6"><OperationalCases subjectId={subjectId} initialCaseId={subjectId === target.subject && target.kind === "operational" ? target.case : undefined} initialEvaluationId={subjectId === target.subject && target.kind === "c04" ? target.evaluation : undefined} /></div>}
+    {subjectId && (operationalTarget ? <>
+      {operational}
+      <details ref={c04History} id="C04-configurable" className="mb-6 scroll-mt-20 border-y border-border py-3">
+        <summary className="cursor-pointer text-sm font-medium">C04 · avaliações e configurações históricas</summary>
+        <div className="mt-4">{c04}</div>
+      </details>
+    </> : <>
+      <div id="C04-configurable" className="mb-6 scroll-mt-20">{c04}</div>
+      {operational}
+    </>)}
     <details className="mb-5 border-y border-border py-3">
       <summary className="cursor-pointer text-sm font-medium">Percurso C01–C10 <span className="ml-2 text-xs font-normal text-muted-foreground">Recolha → decisão</span></summary>
     <nav aria-label="Etapas do percurso" className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-5">
-      {journeySteps.map(([code, title, description]) => <a key={code} onClick={() => setFocusStep(code)} href={Number(code.slice(1)) < 4 ? (subjectId ? `/app/clientes/${subjectId}` : "/app/clientes") : code === "C04" ? (subjectId ? "#C04-configurable" : "#case-client") : "#case-dossier"} className="min-w-0 rounded-md border border-border p-3 text-sm hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      {journeySteps.map(([code, title, description]) => <a key={code} onClick={() => { setFocusStep(code); if (code === "C04" && c04History.current) c04History.current.open = true; }} href={Number(code.slice(1)) < 4 ? (subjectId ? `/app/clientes/${subjectId}` : "/app/clientes") : code === "C04" ? (subjectId ? "#C04-configurable" : "#case-client") : target.kind === "legacy" ? "#case-dossier" : "#operational-core"} className="min-w-0 rounded-md border border-border p-3 text-sm hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <span className="block font-mono text-xs text-primary">{code}</span><strong className="mt-1 block font-medium">{title}</strong><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p>
       </a>)}
     </nav></details>

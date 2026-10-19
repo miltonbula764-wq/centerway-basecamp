@@ -90,7 +90,7 @@ function Overview() {
           </div>
           <Panel title="Casos">
             <p className="text-sm text-muted-foreground">
-              Acompanhe objetivos, investigações, planos, aprovações, intervenções e resultados do piloto sintético, coordenados pelo Core.
+              Acompanhe avaliações C04, investigações, planos, autorizações, intervenções e resultados no Core configurável, com dados reais ou sintéticos conforme a empresa.
             </p>
             <Link to="/app/casos" className="mt-3 inline-flex items-center gap-2 text-sm text-primary underline">Abrir percurso C01–C10 <ArrowRight className="h-4 w-4" /></Link>
           </Panel>
