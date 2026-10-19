@@ -120,6 +120,13 @@
       "when": 1792451133917,
       "tag": "0016_team_invitations",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792452694273,
+      "tag": "0017_team_invitations_journal_reconcile",
+      "breakpoints": true
     }
   ]
 }

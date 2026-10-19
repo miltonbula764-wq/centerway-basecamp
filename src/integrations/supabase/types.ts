@@ -1476,6 +1476,71 @@ export type Database = {
           },
         ]
       }
+      tenant_invitations: {
+        Row: {
+          acceptance_operation_id: string | null
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          created_by: string
+          email: string
+          expires_at: string
+          id: string
+          operation_id: string
+          request_hash: string
+          revoked_at: string | null
+          revoked_by: string | null
+          role: Database["public"]["Enums"]["member_role"]
+          status: string
+          tenant_id: string
+          token_hash: string
+        }
+        Insert: {
+          acceptance_operation_id?: string | null
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          created_by: string
+          email: string
+          expires_at: string
+          id?: string
+          operation_id: string
+          request_hash: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role: Database["public"]["Enums"]["member_role"]
+          status?: string
+          tenant_id: string
+          token_hash: string
+        }
+        Update: {
+          acceptance_operation_id?: string | null
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          created_by?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          operation_id?: string
+          request_hash?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role?: Database["public"]["Enums"]["member_role"]
+          status?: string
+          tenant_id?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_invitations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_value_profiles: {
         Row: {
           approved_at: string | null
@@ -1618,13 +1683,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_tenant_invitation: { Args: { _tenant_id:string; _email:string; _role:Database["public"]["Enums"]["member_role"]; _expires_at:string; _operation_id:string }; Returns:Json }
-      revoke_tenant_invitation: { Args: { _tenant_id:string; _invitation_id:string }; Returns:undefined }
-      inspect_tenant_invitation: { Args: { _token:string }; Returns:Json }
-      accept_tenant_invitation: { Args: { _token:string; _operation_id:string }; Returns:Json }
-      list_team_members: { Args: { _tenant_id:string; _after?:string; _limit?:number }; Returns: {id:string;tenant_id:string;user_id:string;role:Database["public"]["Enums"]["member_role"];created_at:string;email:string|null}[] }
-      list_tenant_invitations: { Args: { _tenant_id:string; _after?:string; _limit?:number }; Returns: {id:string;tenant_id:string;email:string;role:Database["public"]["Enums"]["member_role"];status:string;expires_at:string;created_at:string;server_now:string}[] }
-
       _c02_cmp: {
         Args: {
           _a: number
@@ -1762,6 +1820,12 @@ export type Database = {
       _cwop_keys: { Args: { _d: Json; _keys: string[] }; Returns: undefined }
       _cwop_reference: { Args: { _d: Json; _key: string }; Returns: string }
       _cwop_text: { Args: { _d: Json; _key: string }; Returns: string }
+      _team_token_hash: { Args: { _token: string }; Returns: string }
+      _team_verified_email: { Args: never; Returns: string }
+      accept_tenant_invitation: {
+        Args: { _operation_id: string; _token: string }
+        Returns: Json
+      }
       add_tenant_member: {
         Args: {
           _role: Database["public"]["Enums"]["member_role"]
@@ -1854,6 +1918,16 @@ export type Database = {
         }
         Returns: string
       }
+      create_tenant_invitation: {
+        Args: {
+          _email: string
+          _expires_at: string
+          _operation_id: string
+          _role: Database["public"]["Enums"]["member_role"]
+          _tenant_id: string
+        }
+        Returns: Json
+      }
       create_value_profile_draft: {
         Args: {
           _expected_outcome?: string
@@ -1895,7 +1969,32 @@ export type Database = {
         }
         Returns: Json
       }
+      inspect_tenant_invitation: { Args: { _token: string }; Returns: Json }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
+      list_team_members: {
+        Args: { _after?: string; _limit?: number; _tenant_id: string }
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          role: Database["public"]["Enums"]["member_role"]
+          tenant_id: string
+          user_id: string
+        }[]
+      }
+      list_tenant_invitations: {
+        Args: { _after?: string; _limit?: number; _tenant_id: string }
+        Returns: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          role: Database["public"]["Enums"]["member_role"]
+          server_now: string
+          status: string
+          tenant_id: string
+        }[]
+      }
       my_tenant_role: {
         Args: { _tenant_id: string }
         Returns: Database["public"]["Enums"]["member_role"]
@@ -1915,6 +2014,10 @@ export type Database = {
       }
       remove_tenant_member: {
         Args: { _tenant_id: string; _user_id: string }
+        Returns: undefined
+      }
+      revoke_tenant_invitation: {
+        Args: { _invitation_id: string; _tenant_id: string }
         Returns: undefined
       }
       run_deterioration_analysis: {
