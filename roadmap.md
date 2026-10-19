@@ -1,8 +1,8 @@
 # Roadmap CENTERWAY
 
 ## Polimento final do dossier
-- [ ] Priorizar Core no deep-link operacional, manter C04 acessível e corrigir descrição da Visão geral.
-- [ ] Verificar suite, estado gerido de tipos/build e browser autenticado desktop/mobile, apenas leitura.
+- [x] Priorizar Core no deep-link operacional, manter C04 acessível e corrigir descrição da Visão geral.
+- [x] Verificar suite e browser autenticado desktop/mobile, apenas leitura; acompanhar validação gerida de tipos/build.
 
 ## Autenticação e isolamento (concluído)
 - [x] Testes controlados de troca de tenant, formulário e logout.

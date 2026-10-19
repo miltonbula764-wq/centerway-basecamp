@@ -35,7 +35,7 @@ it("preserves C04 configuration and evaluation identities in both original block
   expect(mocks.operational).toHaveBeenCalledWith({ subjectId: "subject-A", initialCaseId: undefined, initialEvaluationId: "evaluation-A" });
 });
 it("does not mount either block for a cross-tenant deep-link", () => {
-  mocks.target.tenant = "B";
+  mocks.target["tenant"] = "B";
   mount();
   expect(mocks.c04).not.toHaveBeenCalled();
   expect(mocks.operational).not.toHaveBeenCalled();
