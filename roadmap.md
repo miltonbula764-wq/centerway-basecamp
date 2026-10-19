@@ -1,5 +1,9 @@
 # Roadmap CENTERWAY
 
+## Polimento final do dossier
+- [ ] Priorizar Core no deep-link operacional, manter C04 acessível e corrigir descrição da Visão geral.
+- [ ] Verificar suite, estado gerido de tipos/build e browser autenticado desktop/mobile, apenas leitura.
+
 ## Autenticação e isolamento (concluído)
 - [x] Testes controlados de troca de tenant, formulário e logout.
 - [x] Verificação autenticada no browser (dev local ligado ao backend real, conta existente do fundador): rota protegida, reload, troca A↔B, logout e back, mobile. Ver supabase/tests/auth_tenant_ui.RESULTS.md.
