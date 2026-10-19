@@ -1816,6 +1816,17 @@ export type Database = {
         }
         Returns: string
       }
+      core_followup_queue: {
+        Args: {
+          _after?: string
+          _category?: string
+          _client?: string
+          _indicator?: string
+          _limit?: number
+          _tenant_id: string
+        }
+        Returns: Json
+      }
       create_demo_objective: {
         Args: {
           _capacity_ref: string
