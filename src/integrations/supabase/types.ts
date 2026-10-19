@@ -1618,11 +1618,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      core_followup_queue: {
-        Args: { _tenant_id: string; _client?: string; _indicator?: string; _category?: string; _after?: string; _limit?: number }
-        Returns: Json
-      }
-
       _c02_cmp: {
         Args: {
           _a: number
