@@ -1,0 +1,2 @@
+-- Journal reconciliation marker only: the managed migrator applies the pending repository files 0025_operational_onboarding and 0026_operational_reliability byte-identical before this entry. No schema or data effect.
+SELECT 1;
