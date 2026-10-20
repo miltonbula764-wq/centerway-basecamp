@@ -701,6 +701,59 @@ export type Database = {
           },
         ]
       }
+      cw_case_assignments: {
+        Row: {
+          assignee_id: string | null
+          assignee_membership_id: string | null
+          case_id: string
+          created_at: string
+          created_by: string
+          id: string
+          operation_id: string
+          reason: string
+          reference: string
+          request_hash: string
+          revision: number
+          tenant_id: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          assignee_membership_id?: string | null
+          case_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          operation_id: string
+          reason: string
+          reference: string
+          request_hash: string
+          revision: number
+          tenant_id: string
+        }
+        Update: {
+          assignee_id?: string | null
+          assignee_membership_id?: string | null
+          case_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          operation_id?: string
+          reason?: string
+          reference?: string
+          request_hash?: string
+          revision?: number
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_case_assignments_tenant_id_case_id_fkey"
+            columns: ["tenant_id", "case_id"]
+            isOneToOne: false
+            referencedRelation: "cw_operational_cases"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       cw_case_events: {
         Row: {
           case_id: string
@@ -815,6 +868,187 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "cw_assessments"
             referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+        ]
+      }
+      cw_notification_attempts: {
+        Row: {
+          created_at: string
+          error_code: string | null
+          id: string
+          job_id: string
+          number: number
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_code?: string | null
+          id?: string
+          job_id: string
+          number: number
+          status: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          error_code?: string | null
+          id?: string
+          job_id?: string
+          number?: number
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_notification_attempts_tenant_id_job_id_fkey"
+            columns: ["tenant_id", "job_id"]
+            isOneToOne: false
+            referencedRelation: "cw_notification_jobs"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      cw_notification_jobs: {
+        Row: {
+          attempts: number
+          created_at: string
+          error_code: string | null
+          finished_at: string | null
+          id: string
+          next_try_at: string
+          source_id: string
+          source_kind: string
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          error_code?: string | null
+          finished_at?: string | null
+          id?: string
+          next_try_at?: string
+          source_id: string
+          source_kind: string
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          error_code?: string | null
+          finished_at?: string | null
+          id?: string
+          next_try_at?: string
+          source_id?: string
+          source_kind?: string
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_notification_jobs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cw_notification_reads: {
+        Row: {
+          created_at: string
+          notification_id: string
+          recipient_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          notification_id: string
+          recipient_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          notification_id?: string
+          recipient_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_notification_reads_tenant_id_notification_id_fkey"
+            columns: ["tenant_id", "notification_id"]
+            isOneToOne: false
+            referencedRelation: "cw_notifications"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      cw_notifications: {
+        Row: {
+          case_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          payload: Json
+          recipient_id: string
+          recipient_membership_id: string
+          required_role: string
+          source_id: string
+          source_kind: string
+          subject_id: string | null
+          tenant_id: string
+        }
+        Insert: {
+          case_id?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          payload: Json
+          recipient_id: string
+          recipient_membership_id: string
+          required_role: string
+          source_id: string
+          source_kind: string
+          subject_id?: string | null
+          tenant_id: string
+        }
+        Update: {
+          case_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          payload?: Json
+          recipient_id?: string
+          recipient_membership_id?: string
+          required_role?: string
+          source_id?: string
+          source_kind?: string
+          subject_id?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_notifications_tenant_id_case_id_fkey"
+            columns: ["tenant_id", "case_id"]
+            isOneToOne: false
+            referencedRelation: "cw_operational_cases"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "cw_notifications_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cw_notifications_tenant_id_subject_id_fkey"
+            columns: ["tenant_id", "subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["tenant_id", "id"]
           },
         ]
       }
@@ -955,6 +1189,60 @@ export type Database = {
           },
         ]
       }
+      cw_operational_cycles: {
+        Row: {
+          case_id: string
+          created_at: string
+          created_by: string
+          id: string
+          number: number
+          previous_decision_id: string | null
+          reason: string
+          reference: string
+          start_sequence: number
+          tenant_id: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          number: number
+          previous_decision_id?: string | null
+          reason: string
+          reference: string
+          start_sequence: number
+          tenant_id: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          number?: number
+          previous_decision_id?: string | null
+          reason?: string
+          reference?: string
+          start_sequence?: number
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_operational_cycles_tenant_id_case_id_fkey"
+            columns: ["tenant_id", "case_id"]
+            isOneToOne: false
+            referencedRelation: "cw_operational_cases"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "cw_operational_cycles_tenant_id_case_id_previous_decision__fkey"
+            columns: ["tenant_id", "case_id", "previous_decision_id"]
+            isOneToOne: false
+            referencedRelation: "cw_operational_events"
+            referencedColumns: ["tenant_id", "case_id", "id"]
+          },
+        ]
+      }
       cw_operational_events: {
         Row: {
           case_id: string
@@ -1015,6 +1303,195 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "cw_operational_cases"
             referencedColumns: ["tenant_id", "subject_id", "id"]
+          },
+        ]
+      }
+      cw_review_attempts: {
+        Row: {
+          actor_id: string | null
+          actor_kind: string
+          cursor_after: string
+          cursor_before: string
+          error_code: string | null
+          finished_at: string
+          id: string
+          processed: number
+          started_at: string
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_kind: string
+          cursor_after: string
+          cursor_before: string
+          error_code?: string | null
+          finished_at: string
+          id: string
+          processed: number
+          started_at: string
+          status: string
+          tenant_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          actor_kind?: string
+          cursor_after?: string
+          cursor_before?: string
+          error_code?: string | null
+          finished_at?: string
+          id?: string
+          processed?: number
+          started_at?: string
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_review_attempts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cw_review_entries: {
+        Row: {
+          checked_at: string
+          entry_key: string
+          facts: Json
+          fingerprint: string
+          id: string
+          indicator_key: string
+          revision: number
+          seen_cycle: string
+          source: Json
+          subject_id: string
+          tenant_id: string
+        }
+        Insert: {
+          checked_at: string
+          entry_key: string
+          facts: Json
+          fingerprint: string
+          id?: string
+          indicator_key: string
+          revision: number
+          seen_cycle: string
+          source: Json
+          subject_id: string
+          tenant_id: string
+        }
+        Update: {
+          checked_at?: string
+          entry_key?: string
+          facts?: Json
+          fingerprint?: string
+          id?: string
+          indicator_key?: string
+          revision?: number
+          seen_cycle?: string
+          source?: Json
+          subject_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_review_entries_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cw_review_entries_tenant_id_subject_id_fkey"
+            columns: ["tenant_id", "subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      cw_review_events: {
+        Row: {
+          created_at: string
+          entry_id: string
+          facts: Json
+          id: string
+          revision: number
+          source: Json
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id: string
+          facts: Json
+          id?: string
+          revision: number
+          source: Json
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string
+          facts?: Json
+          id?: string
+          revision?: number
+          source?: Json
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_review_events_tenant_id_entry_id_fkey"
+            columns: ["tenant_id", "entry_id"]
+            isOneToOne: false
+            referencedRelation: "cw_review_entries"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      cw_review_scans: {
+        Row: {
+          cursor: string
+          cycle_id: string
+          last_attempt_at: string | null
+          last_cycle_at: string | null
+          last_error: string | null
+          last_success_at: string | null
+          next_poll_at: string
+          phase: string
+          tenant_id: string
+        }
+        Insert: {
+          cursor?: string
+          cycle_id?: string
+          last_attempt_at?: string | null
+          last_cycle_at?: string | null
+          last_error?: string | null
+          last_success_at?: string | null
+          next_poll_at?: string
+          phase?: string
+          tenant_id: string
+        }
+        Update: {
+          cursor?: string
+          cycle_id?: string
+          last_attempt_at?: string | null
+          last_cycle_at?: string | null
+          last_error?: string | null
+          last_success_at?: string | null
+          next_poll_at?: string
+          phase?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cw_review_scans_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1894,6 +2371,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _assignment_valid: {
+        Args: { a: Database["public"]["Tables"]["cw_case_assignments"]["Row"] }
+        Returns: boolean
+      }
       _c01_import: {
         Args: {
           _coverage_declared: boolean
@@ -2020,6 +2501,30 @@ export type Database = {
         Returns: string
       }
       _c03_reject: { Args: { _code: string }; Returns: undefined }
+      _core_followup_engine: {
+        Args: {
+          _after: string
+          _case_id: string
+          _category: string
+          _client: string
+          _indicator: string
+          _limit: number
+          _subject_id: string
+          _tenant_id: string
+        }
+        Returns: Json
+      }
+      _core_followup_projection: {
+        Args: {
+          _after?: string
+          _category?: string
+          _client?: string
+          _indicator?: string
+          _limit?: number
+          _tenant_id: string
+        }
+        Returns: Json
+      }
       _cw_correction_issues: {
         Args: {
           _corr: string
@@ -2045,6 +2550,41 @@ export type Database = {
       _cwop_keys: { Args: { _d: Json; _keys: string[] }; Returns: undefined }
       _cwop_reference: { Args: { _d: Json; _key: string }; Returns: string }
       _cwop_text: { Args: { _d: Json; _key: string }; Returns: string }
+      _notification_deliver: {
+        Args: { j: Database["public"]["Tables"]["cw_notification_jobs"]["Row"] }
+        Returns: boolean
+      }
+      _notification_process: {
+        Args: { _limit?: number; _tenant: string }
+        Returns: Json
+      }
+      _notification_put: {
+        Args: {
+          _case: string
+          _kind: string
+          _payload: Json
+          _role: string
+          _source: string
+          _source_id: string
+          _subject: string
+          _tenant: string
+          _user: string
+        }
+        Returns: undefined
+      }
+      _review_facts: { Args: { _tenant: string; q: Json }; Returns: Json }
+      _review_process: {
+        Args: { _actor: string; _request: string; _tenant: string }
+        Returns: Json
+      }
+      _review_sources: {
+        Args: { _after: string; _tenant: string }
+        Returns: Json
+      }
+      _review_store: {
+        Args: { _cycle: string; _tenant: string; f: Json; q: Json }
+        Returns: undefined
+      }
       _team_token_hash: { Args: { _token: string }; Returns: string }
       _team_verified_email: { Args: never; Returns: string }
       accept_tenant_invitation: {
@@ -2086,8 +2626,29 @@ export type Database = {
         Args: { _bundle_id: string; _objective_id: string; _tenant_id: string }
         Returns: string
       }
+      assign_operational_case: {
+        Args: {
+          _assignee_id: string
+          _case_id: string
+          _expected_revision: number
+          _operation_id: string
+          _reason: string
+          _reference: string
+          _tenant_id: string
+        }
+        Returns: string
+      }
       build_evidence_bundle: {
         Args: { _run_id: string; _tenant_id: string }
+        Returns: Json
+      }
+      case_responsibility: {
+        Args: {
+          _before?: number
+          _case_id: string
+          _limit?: number
+          _tenant_id: string
+        }
         Returns: Json
       }
       command_demo_case: {
@@ -2235,9 +2796,27 @@ export type Database = {
           tenant_id: string
         }[]
       }
+      mark_notification_read: {
+        Args: { _notification_id: string; _tenant_id: string }
+        Returns: undefined
+      }
+      my_operational_work: {
+        Args: { _after?: string; _limit?: number; _tenant_id: string }
+        Returns: Json
+      }
       my_tenant_role: {
         Args: { _tenant_id: string }
         Returns: Database["public"]["Enums"]["member_role"]
+      }
+      notification_inbox: {
+        Args: {
+          _before?: string
+          _before_id?: string
+          _limit?: number
+          _tenant_id: string
+          _unread_only?: boolean
+        }
+        Returns: Json
       }
       open_demo_case: {
         Args: { _assessment_id: string; _tenant_id: string }
@@ -2252,6 +2831,26 @@ export type Database = {
         }
         Returns: string
       }
+      operational_cycle_history: {
+        Args: {
+          _after_event?: number
+          _before_cycle?: number
+          _case_id: string
+          _cycle_id?: string
+          _limit?: number
+          _tenant_id: string
+        }
+        Returns: Json
+      }
+      prepare_operational_notifications: {
+        Args: { _tenant_id: string }
+        Returns: Json
+      }
+      prepare_scheduled_reviews: {
+        Args: { _operation_id: string; _tenant_id: string }
+        Returns: Json
+      }
+      process_review_schedule: { Args: { _limit?: number }; Returns: Json }
       remove_tenant_member: {
         Args: { _tenant_id: string; _user_id: string }
         Returns: undefined
@@ -2284,6 +2883,16 @@ export type Database = {
           _tenant_id: string
         }
         Returns: string
+      }
+      scheduled_reviews: {
+        Args: {
+          _after?: string
+          _indicator?: string
+          _limit?: number
+          _status?: string
+          _tenant_id: string
+        }
+        Returns: Json
       }
       set_member_role: {
         Args: {
