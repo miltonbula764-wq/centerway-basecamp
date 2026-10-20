@@ -39,7 +39,8 @@ function Responsibility({ caseId }: { caseId: string }) {
       const { error } = await supabase.rpc("assign_operational_case", {
         _tenant_id: tenant.id,
         _case_id: caseId,
-        _assignee_id: payload.assignee === "__remove" ? null : payload.assignee,
+        // A RPC aceita NULL para remover o responsável; o tipo gerado não marca o parâmetro como anulável.
+        _assignee_id: (payload.assignee === "__remove" ? null : payload.assignee) as string,
         _reason: payload.reason,
         _reference: payload.reference,
         _expected_revision: revision,
