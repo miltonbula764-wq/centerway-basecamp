@@ -48,6 +48,13 @@ def ok(name,args,role='admin'):
     s,r=rpc(name,args,role);assert s==200,(name,s,r);return r
 def get(path,role='admin'):
     s,r=rest('/rest/v1/'+path,None,role,'GET');assert s==200,(s,r);return r
+# Previous SQL/security suites must also pass after 0021.
+for suite, marker in [('permissions','CW_TEST_RESULTS'),('ingestion','CW_INGEST_RESULTS'),('c02','CW_C02_RESULTS'),('c03','CW_C03_RESULTS')]:
+    r=subprocess.run(['psql','-X','-v','ON_ERROR_STOP=1','-f','supabase/tests/'+suite+'_test.sql'],env=env,text=True,capture_output=True)
+    output=r.stdout+r.stderr
+    Path('e2e/logs/cycles-regression-'+suite+'.log').write_text(output)
+    assert r.returncode==3 and re.search(marker+r' pass=\d+ fail=0(?: |$)',output) and not re.search(r'not_run=[1-9]',output),suite+' regression failed (see log)'
+    print(re.search(marker+r' pass=\d+ fail=0(?: not_run=0)?',output).group(0))
 # Dedicated synthetic subject, preserving all existing journey/browser fixtures.
 ref='cycles-'+newid();s,subjects=rest('/rest/v1/subjects?select=id',{'tenant_id':t,'external_ref':ref,'display_name':'[SINTÉTICO] Continuidade por ciclos'});assert s==201;subject=subjects[0]['id']
 rows=get('observations?select=indicator_key,observed_at,value_numeric,value_text,unit,source&tenant_id=eq.'+t+'&subject_id=eq.'+template['subject_id'])
@@ -197,3 +204,6 @@ BEGIN
 END $probe$;
 ROLLBACK;
 ''')
+
+sql("BEGIN; SELECT set_config('cw.cycle_history_fixture',"+lit(json.dumps(f))+",true);"+Path('e2e/cycles-history-review.sql').read_text()+"\nROLLBACK;")
+print('PASS second-cycle closure: explicitly synthetic retrospective fixture, real SQL roles/claims for C09-C10, sufficient evidence required and reopening denied; all writes rolled back.')
