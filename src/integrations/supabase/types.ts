@@ -14,10 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      ingestion_credentials: { Row: { id: string; tenant_id: string; name: string; source: string; expires_at: string; revoked_at: string | null; rotated_from: string | null; created_at: string; last_used_at: string | null; last_status: number | null }; Insert: never; Update: never; Relationships: [] }
-
-      ingestion_api_events: { Row: { id: string; tenant_id: string; credential_id: string; operation_id: string | null; batch_id: string | null; created_at: string; code: string; http_status: number }; Insert: never; Update: never; Relationships: [] }
-
       audit_log: {
         Row: {
           action: string
@@ -1093,7 +1089,6 @@ export type Database = {
       }
       ingestion_batches: {
         Row: {
-          integration_credential_id: string | null
           committed_at: string | null
           contract_snapshot: Json | null
           coverage_declared: boolean
@@ -1118,7 +1113,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          integration_credential_id?: string | null
           committed_at?: string | null
           contract_snapshot?: Json | null
           coverage_declared?: boolean
@@ -1143,7 +1137,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          integration_credential_id?: string | null
           committed_at?: string | null
           contract_snapshot?: Json | null
           coverage_declared?: boolean
@@ -1221,7 +1214,6 @@ export type Database = {
       }
       observations: {
         Row: {
-          integration_credential_id: string | null
           batch_id: string
           corrects_observation_id: string | null
           created_by: string | null
@@ -1240,7 +1232,6 @@ export type Database = {
           value_text: string | null
         }
         Insert: {
-          integration_credential_id?: string | null
           batch_id: string
           corrects_observation_id?: string | null
           created_by?: string | null
@@ -1259,7 +1250,6 @@ export type Database = {
           value_text?: string | null
         }
         Update: {
-          integration_credential_id?: string | null
           batch_id?: string
           corrects_observation_id?: string | null
           created_by?: string | null
@@ -1693,9 +1683,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_ingestion_credential: { Args: { _tenant_id: string; _name: string; _source: string; _expires_at: string; _operation_id: string; _rotate_from?: string }; Returns: Json }
-      revoke_ingestion_credential: { Args: { _tenant_id: string; _credential_id: string }; Returns: undefined }
-
       _c02_cmp: {
         Args: {
           _a: number
