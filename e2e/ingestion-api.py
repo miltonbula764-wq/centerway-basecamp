@@ -77,7 +77,7 @@ def date(days):return (midnight+dt.timedelta(days=days)).isoformat().replace('+0
 def row(day=-2,value='50',key=None):return {'line':1,'subject_external_ref':external_ref,'indicator_key':'cycle_minutes','observed_at':date(day),'value_numeric':value,'unit':'min','idempotency_key':key or newid()}
 def payload(rows=None):return {'profile_id':profile,'source':source,'coverage':{'start':date(-40),'end':date(0),'declared':True},'rows':rows if rows is not None else [row()]}
 # Every business table other than C01 must remain byte-for-byte unchanged during ingestion.
-tables=sql("SELECT tablename FROM pg_tables WHERE schemaname='public' AND (tablename LIKE 'c0%' OR tablename LIKE 'core%') ORDER BY tablename").splitlines()
+tables=sql("SELECT tablename FROM pg_tables WHERE schemaname='public' AND (tablename LIKE 'c0%' OR tablename LIKE 'cw_%') ORDER BY tablename").splitlines()
 def snapshot():return [sql('SELECT encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text),\'[]\')::text,\'UTF8\')),\'hex\') FROM public."'+t+'" x') for t in tables]
 before=snapshot()
 subprocess.run(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=localhost','-addext','subjectAltName=IP:127.0.0.1,DNS:localhost','-keyout',str(private/'ingestion-key.pem'),'-out',str(private/'ingestion-cert.pem')],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=True)
@@ -152,6 +152,8 @@ try:
     status,run,_=rpc('run_deterioration_analysis',{'_tenant_id':tenant,'_subject_id':subject,'_expected_profile_id':profile,'_as_of':date(0)});assert status==200
     status,bundle,_=rpc('build_evidence_bundle',{'_tenant_id':tenant,'_run_id':run['run_id']});assert status==200 and bundle['status']=='built',(status,bundle)
     assert int(sql('SELECT count(*) FROM c03_refs WHERE bundle_id='+literal(bundle['bundle_id'])))>0
+    after=snapshot()
+    assert all(after[i]==before[i] for i,t in enumerate(tables) if t.startswith(('cw_','c04_'))),'Explicit C02/C03 must not change C04/Core/C05-C10'
     # Private engine and all writes are denied, even to authenticated users.
     assert rest('/rest/v1/rpc/_c01_import',body={'_tenant_id':tenant})[0] in (401,403,404)
     assert rest('/rest/v1/observations',body={'tenant_id':tenant})[0]==403
