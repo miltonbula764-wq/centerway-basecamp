@@ -84,6 +84,7 @@ jobs:
           python3 scripts/mvp/apply-review-migration.py --api
           python3 e2e/ingestion-api.py
           python3 scripts/mvp/apply-review-migration.py --monitoring
+          python3 e2e/scheduled-reviews.py --defer-temporal
           python3 scripts/mvp/apply-review-migration.py --cycles
           python3 scripts/mvp/review-database.py --followup
           python3 e2e/operational-cycles.py
@@ -105,7 +106,7 @@ jobs:
           python3 e2e/reliability/plan.py --baseline
           python3 scripts/mvp/apply-review-migration.py --reliability
           python3 e2e/reliability/plan.py
-          python3 e2e/scheduled-reviews.py
+          python3 e2e/scheduled-reviews.py --temporal-only
       - name: Browser end-to-end scenarios
         working-directory: ${{ runner.temp }}/cw-browser/e2e
         run: |
