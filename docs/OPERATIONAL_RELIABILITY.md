@@ -70,3 +70,10 @@ NULL default. Owners, grantors, grantees, grant options and every permission rem
 checked. Auth/REST are quiesced before the abrupt-crash fingerprint, avoiding
 legitimate session writes during the comparison interval; real login/RLS are
 verified both before and after recovery.
+
+Logical restore requires exact table rows and sequence values. After an abrupt
+PostgreSQL crash, sequences can legitimately advance over unused WAL-preallocated
+values (observed: GoTrue `refresh_tokens_id_seq` +31), unlike transactional rows.
+The crash test requires identical committed rows/catalog, non-cyclic sequences,
+no backward movement/reuse, and reports those gaps. Contiguous identifiers are
+not a PostgreSQL guarantee; gaps are not evidence of lost application records.

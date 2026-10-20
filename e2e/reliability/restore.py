@@ -83,7 +83,20 @@ try:
  restored_data=data('cw-recovery-db');restored_catalog=catalog('cw-recovery-db')
  # An abrupt PostgreSQL immediate stop produces WAL recovery, preserving committed product data.
  started=time.monotonic();run(['docker','exec','--user','postgres','cw-recovery-db','pg_ctl','-D','/var/lib/postgresql/data','stop','-m','immediate','-w'],stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
- ready();assert catalog('cw-recovery-db')==restored_catalog and data('cw-recovery-db')==restored_data
+ ready();assert catalog('cw-recovery-db')==restored_catalog,'Crash changed catalog/security'
+ recovered=data('cw-recovery-db')
+ sequences=json.loads(db('cw-recovery-db',"SELECT coalesce(jsonb_object_agg(quote_ident(schemaname)||'.'||quote_ident(sequencename),jsonb_build_object('increment',increment_by,'cycle',cycle)),'{}') FROM pg_sequences WHERE schemaname IN ('public','auth')"))
+ assert {k:v for k,v in recovered.items() if k not in sequences}=={k:v for k,v in restored_data.items() if k not in sequences},'Crash lost committed rows/history'
+ gaps={}
+ for name,definition in sequences.items():
+  old,old_called=restored_data[name].split(':');new,new_called=recovered[name].split(':')
+  # PostgreSQL pre-logs sequence reservations in WAL. Crash recovery may skip
+  # unused numbers, but must not move backwards or reuse committed identities.
+  assert not definition['cycle'],'Cyclic sequences need an explicit identity recovery contract'
+  assert (int(new)-int(old))*definition['increment']>=0,(name,'sequence moved backwards')
+  assert old_called!='true' or new_called=='true',(name,'sequence would reuse its last identity')
+  if new!=old:gaps[name]=int(new)-int(old)
+ report['sequence_wal_reservation_gaps']=gaps
  assert 'automatic recovery' in subprocess.check_output(['docker','logs','cw-recovery-db'],stderr=subprocess.STDOUT,text=True)
  report['abrupt_postgres_recovery_seconds']=round(time.monotonic()-started,3)
  run(['docker','start','cw-recovery-auth','cw-recovery-rest'],stdout=subprocess.DEVNULL)
