@@ -26,6 +26,7 @@ function Setup({ target }: { target: Target }) {
   const nav = useNavigate();
   const [clients, setClients] = useState([""]);
   const [indicators, setIndicators] = useState([""]);
+  const incomplete = !!target.subject && !target.tenant;
   const mismatch = !!target.tenant && target.tenant !== tenant.id;
   const q = useQuery({
     ...onboardingQuery(
@@ -35,8 +36,10 @@ function Setup({ target }: { target: Target }) {
       clients.at(-1)!,
       indicators.at(-1)!,
     ),
-    enabled: !mismatch,
+    enabled: !mismatch && !incomplete,
   });
+  if (incomplete)
+    return <ErrorState message="Ligação incompleta: indique a empresa do cliente selecionado." />;
   if (mismatch)
     return (
       <ErrorState message="Esta configuração pertence a outra empresa. Selecione a empresa correta ou volte à visão geral sem os parâmetros da ligação." />
@@ -60,7 +63,7 @@ function Setup({ target }: { target: Target }) {
         {q.isPending && !mismatch && <Loading />}
         {q.error && (
           <ErrorState
-            message={`Configuração indisponível (requer migração 0025). ${q.error.message}`}
+            message={`Configuração indisponível (requer migração 0025). ${q.error.message === "subject_unavailable" ? "Cliente não encontrado nesta empresa ou sem acesso." : q.error.message}`}
             onRetry={() => q.refetch()}
           />
         )}

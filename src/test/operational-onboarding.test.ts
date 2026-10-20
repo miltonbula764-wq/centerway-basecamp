@@ -24,6 +24,12 @@ const item: SetupIndicator = {
 };
 it("counts only persisted milestones, without inventing sufficiency before C04", () => {
   expect(indicatorSetup(item)).toMatchObject({ stage: "measurements", valid: false });
+  expect(
+    indicatorSetup({
+      ...item,
+      configuration: { ...item.configuration!, pending_fields: ["customer_ref"] },
+    }).stage,
+  ).toBe("goal");
   const measured = { ...item, has_observations: true };
   expect(indicatorSetup(measured).stage).toBe("analysis");
   const run = { id: "run", as_of: "x", data_cutoff: "x", status: "insufficient_data", reasons: [] };
@@ -62,12 +68,10 @@ it("counts only persisted milestones, without inventing sufficiency before C04",
 });
 it("rejects foreign tenant/subject/role replies and propagates cancellation", async () => {
   const signal = new AbortController().signal;
-  const abort = vi
-    .fn()
-    .mockResolvedValue({
-      data: { tenant_id: "B", role: "admin", subjects: [], indicators: [] },
-      error: null,
-    });
+  const abort = vi.fn().mockResolvedValue({
+    data: { tenant_id: "B", role: "admin", subjects: [], indicators: [] },
+    error: null,
+  });
   mock.rpc.mockReturnValue({ abortSignal: abort });
   const q = onboardingQuery("A", "admin", "customer", "", "");
   await expect((q.queryFn as Function)({ signal })).rejects.toThrow(/Resposta/);

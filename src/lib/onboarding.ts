@@ -102,7 +102,10 @@ export function indicatorSetup(i: SetupIndicator) {
     i.evaluation!.evidence === "sufficient" &&
     i.evaluation!.configuration_state === "compatible";
   const stage: keyof typeof setupActions =
-    !i.configuration || i.profile_changed
+    !i.configuration ||
+    i.profile_changed ||
+    !!i.configuration.pending_fields.length ||
+    i.configuration.compatibility !== "compatible"
       ? "goal"
       : !i.has_observations
         ? "measurements"
