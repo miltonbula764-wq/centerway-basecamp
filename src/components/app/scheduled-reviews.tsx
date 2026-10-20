@@ -36,6 +36,7 @@ function Reviews() {
       if (attempt.tenant_id !== tenant.id) throw new Error("Resposta de outra empresa rejeitada.");
       setOperation(null);
       await cache.invalidateQueries({ queryKey: tk(tenant.id, "scheduled-reviews") });
+      await cache.invalidateQueries({ queryKey: tk(tenant.id, "notifications") });
       if (attempt.status === "failed")
         throw new Error(
           `Preparação falhou (${attempt.error_code}). A tentativa está registada; pode tentar novamente.`,
@@ -44,7 +45,7 @@ function Reviews() {
     },
   });
   return (
-    <section aria-label="Revisões programadas" className="mb-8">
+    <section id="revisoes-programadas" aria-label="Revisões programadas" className="mb-8">
       <Panel title="Monitorização e revisões programadas">
         <p className="mb-3 text-sm">
           Preparação de revisão humana, sem executar avaliações ou intervenções. Estados registados

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { assertActiveTenant, tk, useTenant } from "@/lib/tenant";
+import { CaseResponsibility } from "./case-responsibility";
 import { cycleHistoryQuery } from "@/lib/operational-cycles";
 import { resultLabel } from "@/lib/journey-types";
 import { Button } from "@/components/ui/button";
@@ -416,6 +417,7 @@ function Dossier({ current }: { current: Case }) {
           Contrato por indicador · individual-review-v1. Ciclos independentes no mesmo caso; sem
           conectores e sem causalidade automática.
         </p>
+        <CaseResponsibility caseId={current.id} />
         {history.isPending && <p aria-live="polite">A carregar histórico dos ciclos…</p>}
         {selectedCycle && (
           <section aria-label="Ciclos do caso" className="space-y-3 rounded border p-3">

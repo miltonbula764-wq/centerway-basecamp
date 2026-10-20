@@ -27,6 +27,7 @@ import {
   type TenantCtx,
   type TenantInfo,
 } from "@/lib/tenant";
+import { NotificationBadge } from "@/components/app/operational-inbox";
 import { ErrorState, Loading } from "@/components/app/ui-bits";
 import { Button } from "@/components/ui/button";
 import {
@@ -234,6 +235,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <NotificationBadge onNavigate={onNavigate} />
       <nav className="mt-4 flex-1 space-y-0.5 px-3" aria-label="Principal">
         {nav.map((item) => (
           <Link
