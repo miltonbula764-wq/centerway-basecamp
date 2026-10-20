@@ -165,7 +165,7 @@ function Setup({ target }: { target: Target }) {
                     ))}
                   </NativeSelect>
                 </label>
-                <div className="flex gap-2 my-2">
+                <div className="flex flex-wrap gap-2 my-2">
                   <Button
                     variant="secondary"
                     disabled={clients.length === 1 || q.isFetching}
@@ -260,7 +260,7 @@ function Setup({ target }: { target: Target }) {
             )}
             {subject &&
               data.indicators.map((i) => <IndicatorProgress key={i.indicator_key} item={i} />)}
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button
                 variant="secondary"
                 disabled={indicators.length === 1 || q.isFetching}
