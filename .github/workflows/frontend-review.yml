@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'src/**'
+      - 'supabase/functions/**'
       - '*config*'
       - 'package.json'
       - 'bun.lock'

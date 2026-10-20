@@ -1,1 +1,4 @@
 project_id = "wrbkdwzmdlgtqjudqner"
+# Custom, tenant-bound integration credentials; NOT user JWTs.
+[functions.ingest-v1]
+verify_jwt = false

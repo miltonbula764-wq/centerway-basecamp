@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { IntegrationManagement } from "@/components/app/integration-management";
 import { TeamManagement } from "@/components/app/team-management";
 import { roleLabel, tk, unitLabel, useTenant } from "@/lib/tenant";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,7 @@ function Settings() {
           </Button>
         </Panel>
         <TeamManagement />
+        <IntegrationManagement />
         <Panel title="Auditoria (só leitura)" className="lg:col-span-2">
           {audit.isLoading ? (
             <Loading />
