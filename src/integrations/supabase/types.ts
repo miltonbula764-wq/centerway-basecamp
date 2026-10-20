@@ -2112,6 +2112,14 @@ export type Database = {
         }
         Returns: string
       }
+      prepare_scheduled_reviews: {
+        Args: { _tenant_id: string; _operation_id: string }
+        Returns: Json
+      }
+      scheduled_reviews: {
+        Args: { _tenant_id: string; _status?: string; _indicator?: string; _after?: string; _limit?: number }
+        Returns: Json
+      }
       core_followup_queue: {
         Args: {
           _after?: string

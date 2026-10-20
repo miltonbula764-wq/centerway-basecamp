@@ -154,6 +154,9 @@ try:
     assert int(sql('SELECT count(*) FROM c03_refs WHERE bundle_id='+literal(bundle['bundle_id'])))>0
     after=snapshot()
     assert all(after[i]==before[i] for i,t in enumerate(tables) if t.startswith(('cw_','c04_'))),'Explicit C02/C03 must not change C04/Core/C05-C10'
+    # A later real HTTPS API measurement remains unanalysed for monitoring; no automatic C02/Core work.
+    status,new_measurement,_=ingest(payload([row(-1,'65')]),foreign_key['secret']);assert status==200
+    assert snapshot()==after,'New API measurement must not automatically analyse or change cases'
     # Private engine and all writes are denied, even to authenticated users.
     assert rest('/rest/v1/rpc/_c01_import',body={'_tenant_id':tenant})[0] in (401,403,404)
     assert rest('/rest/v1/observations',body={'tenant_id':tenant})[0]==403

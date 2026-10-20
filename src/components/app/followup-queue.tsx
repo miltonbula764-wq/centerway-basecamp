@@ -6,6 +6,7 @@ import { followupQuery, queueActions, queueCategories, queueReasonText } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Empty, ErrorState, Loading, NativeSelect, PageHeader, Panel, formatDate } from "./ui-bits";
+import { ScheduledReviews } from "./scheduled-reviews";
 export function FollowupQueue() {
   const { tenant } = useTenant();
   return <Queue key={tenant.id} />;
@@ -33,6 +34,7 @@ function Queue() {
         title="Central de acompanhamento"
         description={`${tenant.name} · Estados persistidos, pendências e orientação para o próximo trabalho humano.`}
       />
+      <ScheduledReviews />
       <form
         onSubmit={filter}
         className="mb-5 grid gap-3 sm:grid-cols-2"

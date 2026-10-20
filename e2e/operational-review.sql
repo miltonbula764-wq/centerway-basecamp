@@ -26,6 +26,16 @@ BEGIN
   SELECT * INTO c FROM public.cw_operational_cases WHERE id=_case;
   RETURN pg_temp.run_as(_actor,format('SELECT public.command_operational_case(%L,%L,%s,%L,%L,%L)',c.tenant_id,c.id,c.version,gen_random_uuid(),_command,_payload))::uuid;
  END $fn$;
+ -- Optional additive monitoring assertions: same real Core transitions, never a parallel state engine.
+ CREATE FUNCTION pg_temp.review_state(_tenant uuid,_case uuid,_expected text) RETURNS void LANGUAGE plpgsql AS $fn$
+ DECLARE q jsonb; f jsonb; before_row jsonb; BEGIN
+  IF to_regprocedure('public.prepare_scheduled_reviews(uuid,uuid)') IS NULL THEN RETURN; END IF;
+  SELECT to_jsonb(c) INTO before_row FROM public.cw_operational_cases c WHERE id=_case;
+  SELECT value INTO q FROM jsonb_array_elements(public._core_followup_projection(_tenant,'','','','',100)->'items') WHERE value->>'case_id'=_case::text;
+  f:=public._review_facts(_tenant,q);
+  IF q IS NULL OR f->>'status' IS DISTINCT FROM _expected THEN RAISE EXCEPTION 'monitor state expected %, got % / %',_expected,q,f; END IF;
+  IF before_row IS DISTINCT FROM (SELECT to_jsonb(c) FROM public.cw_operational_cases c WHERE id=_case) THEN RAISE EXCEPTION 'monitor changed case'; END IF;
+ END $fn$;
  SELECT value INTO sample FROM jsonb_array_elements(f->'customers') WHERE value->>'stage'='prospective';
  SELECT value INTO resolved FROM jsonb_array_elements(f->'customers') WHERE value->>'stage'='historical_resolved';
  SELECT value INTO unmet FROM jsonb_array_elements(f->'customers') WHERE value->>'stage'='historical_unmet';
@@ -77,13 +87,18 @@ BEGIN
  PERFORM pg_temp.expect_error('premature observation',operator_id,format('SELECT public.command_operational_case(%L,%L,8,%L,''observe'',%L)',t,c,gen_random_uuid(),jsonb_build_object('bundle_id',sample->>'after_bundle_id')),'22023');
  PERFORM pg_temp.expect_error('stale version',operator_id,format('SELECT public.command_operational_case(%L,%L,0,%L,''plan'',%L)',t,c,gen_random_uuid(),plan),'40001');
  PERFORM pg_temp.expect_error('second execution',operator_id,format('SELECT public.command_operational_case(%L,%L,8,%L,''record_execution'',%L)',t,c,gen_random_uuid(),payload),'22023');
+ PERFORM pg_temp.review_state(t,c,'waiting');
  PERFORM pg_sleep(2.1); -- Actual elapsed small synthetic window, not a mocked clock or bypass.
+ PERFORM pg_temp.review_state(t,c,'available');
  event_id:=pg_temp.cmd(operator_id,c,'observe',jsonb_build_object('bundle_id',sample->>'after_bundle_id'));
  SELECT * INTO ev FROM public.cw_operational_events WHERE id=event_id;
  IF ev.details->>'result'<>'inconclusive' OR (ev.details->>'sufficient')::boolean THEN RAISE EXCEPTION 'pre-execution measurements treated as recovery'; END IF;
  payload:='{"close_requested":true,"criteria_met":true,"material_contradiction":false,"reason":"[SYNTHETIC] explicit closure review","reference":"urn:atlas:test:decision"}';
  event_id:=pg_temp.cmd(actor,c,'decide',payload);
  IF (SELECT state FROM public.cw_operational_cases WHERE id=c)<>'remain_open' THEN RAISE EXCEPTION 'insufficient case closed'; END IF;
+ IF to_regprocedure('public.prepare_scheduled_reviews(uuid,uuid)') IS NOT NULL THEN
+  IF NOT (public._review_facts(t,(SELECT value FROM jsonb_array_elements(public._core_followup_projection(t,'','','','',100)->'items') WHERE value->>'case_id'=c::text))->'reasons' ? 'new_evidence_required') THEN RAISE EXCEPTION 'open case lost evidence pending'; END IF;
+ END IF;
  -- Retrospective history is ONLY fixture setup. These comparisons and decisions run under actual roles.
  event_id:=pg_temp.cmd(operator_id,hc,'observe',jsonb_build_object('bundle_id',resolved->>'after_bundle_id'));
  SELECT * INTO ev FROM public.cw_operational_events WHERE id=event_id;
@@ -108,6 +123,7 @@ BEGIN
  EXCEPTION WHEN SQLSTATE 'CWOP1' THEN NULL; END;
  event_id:=pg_temp.cmd(actor,hc,'decide',payload);
  IF (SELECT state FROM public.cw_operational_cases WHERE id=hc)<>'closed_resolved' THEN RAISE EXCEPTION 'satisfied specific criteria did not close'; END IF;
+ PERFORM pg_temp.review_state(t,hc,'closed');
  event_id:=pg_temp.cmd(operator_id,uc,'observe',jsonb_build_object('bundle_id',unmet->>'after_bundle_id'));
  event_id:=pg_temp.cmd(actor,uc,'decide',payload);
  IF (SELECT state FROM public.cw_operational_cases WHERE id=uc)<>'remain_open' THEN RAISE EXCEPTION 'unmet goal closed'; END IF;
