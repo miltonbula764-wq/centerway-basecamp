@@ -2112,27 +2112,6 @@ export type Database = {
         }
         Returns: string
       }
-      assign_operational_case: {
-        Args: { _tenant_id: string; _case_id: string; _assignee_id: string | null; _reason: string; _reference: string; _expected_revision: number; _operation_id: string }
-        Returns: string
-      }
-      case_responsibility: { Args: { _tenant_id: string; _case_id: string; _before?: number; _limit?: number }; Returns: Json }
-      my_operational_work: { Args: { _tenant_id: string; _after?: string; _limit?: number }; Returns: Json }
-      notification_inbox: { Args: { _tenant_id: string; _unread_only?: boolean; _before?: string; _before_id?: string; _limit?: number }; Returns: Json }
-      mark_notification_read: { Args: { _tenant_id: string; _notification_id: string }; Returns: undefined }
-      prepare_operational_notifications: { Args: { _tenant_id: string }; Returns: Json }
-      operational_cycle_history: {
-        Args: { _tenant_id: string; _case_id: string; _cycle_id?: string; _before_cycle?: number; _after_event?: number; _limit?: number }
-        Returns: Json
-      }
-      prepare_scheduled_reviews: {
-        Args: { _tenant_id: string; _operation_id: string }
-        Returns: Json
-      }
-      scheduled_reviews: {
-        Args: { _tenant_id: string; _status?: string; _indicator?: string; _after?: string; _limit?: number }
-        Returns: Json
-      }
       core_followup_queue: {
         Args: {
           _after?: string
