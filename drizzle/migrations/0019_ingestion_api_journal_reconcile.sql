@@ -1,0 +1,2 @@
+-- Journal reconciliation marker: the managed migrator applies the pending repository file 0018_ingestion_api.sql (byte-identical to GitHub) before this entry. This file intentionally contains no schema changes.
+SELECT 1;
