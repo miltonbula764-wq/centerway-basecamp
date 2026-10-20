@@ -15,7 +15,7 @@ async function login(page, user = users.admin, tenant = f.tenant) {
   await page.addInitScript((t) => {
     if (!localStorage.getItem("centerway.selectedTenant"))
       localStorage.setItem("centerway.selectedTenant", t);
-  }, f.tenant);
+  }, tenant);
   await page.goto("/auth");
   await page.getByLabel("Email", { exact: true }).fill(user.email);
   await page.getByLabel("Palavra-passe", { exact: true }).fill(user.password);
