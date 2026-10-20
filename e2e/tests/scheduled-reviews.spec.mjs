@@ -23,9 +23,12 @@ test('real admin: bounded monitoring, mobile filters, persisted history and corr
  await section.getByLabel('Estado da revisão',{exact:true}).selectOption('closed');await section.getByRole('button',{name:'Filtrar revisões',exact:true}).click();
  const entry=section.getByTestId('scheduled-review');await expect(entry).toHaveCount(1);await expect(entry).toContainText('Caso encerrado');
  await section.getByRole('button',{name:'Atualizar revisões',exact:true}).click();await expect(entry).toHaveCount(1);
+ const target=new URL(await entry.getByRole('link',{name:'Consultar registo operacional',exact:true}).getAttribute('href'),'http://127.0.0.1');
  await entry.getByRole('link',{name:'Consultar registo operacional',exact:true}).click();
  await expect(page).toHaveURL(/\/app\/casos/);await expect(page.getByText('Cliente acompanhado',{exact:true}).locator('..').locator('select')).toHaveValue(atlas.customers.find(s=>s.stage==='historical_resolved').subject_id);
- await expect(page.getByText('Encerrado com critérios satisfeitos',{exact:false}).first()).toBeVisible();
+ await expect(page.getByLabel('Caso operacional',{exact:true})).toHaveValue(target.searchParams.get('case'));
+ const dossier=page.locator('section').filter({has:page.getByRole('heading',{name:'Dossier operacional C05–C10',exact:true})});
+ await expect(dossier.getByRole('status')).toContainText('Encerrado com critérios satisfeitos');
 });
 test('real viewer: no preparation, late monitoring response cannot survive tenant switch or logout',async({page})=>{
  await login(page,'viewer',central.tenant);const section=panel(page);

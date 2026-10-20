@@ -2,6 +2,7 @@
 import concurrent.futures
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import urllib.request
@@ -40,6 +41,13 @@ def prepare(tenant,role='admin',operation=None):
     return rpc('prepare_scheduled_reviews',{'_tenant_id':tenant,'_operation_id':operation or newid()},role)
 def page(tenant,**kw):
     s,r=rpc('scheduled_reviews',{'_tenant_id':tenant,**kw});assert s==200,(s,r);return r
+# Re-run previous security/SQL suites after 0020, not merely before the upgrade.
+for suite, marker in [('permissions','CW_TEST_RESULTS'),('ingestion','CW_INGEST_RESULTS'),('c02','CW_C02_RESULTS'),('c03','CW_C03_RESULTS')]:
+    r=subprocess.run(['psql','-X','-v','ON_ERROR_STOP=1','-f','supabase/tests/'+suite+'_test.sql'],env=env,text=True,capture_output=True)
+    output=r.stdout+r.stderr
+    Path('e2e/logs/monitoring-regression-'+suite+'.log').write_text(output)
+    assert r.returncode==3 and re.search(marker+r' pass=\d+ fail=0(?: |$)',output) and not re.search(r'not_run=[1-9]',output),suite+' regression failed (see log)'
+    print(re.search(marker+r' pass=\d+ fail=0(?: not_run=0)?',output).group(0))
 # ACL: no generic admin/service token or fabricated human session for the worker.
 for role in ['admin','operator','viewer','ownerB',None]:
     assert rpc('process_review_schedule',{'_limit':1},role)[0] in (401,403,404)
@@ -101,14 +109,16 @@ for output in out:
         assert attempt['actor_kind']=='scheduler' and attempt['actor_id'] is None and attempt['processed']<=50 and attempt['status']=='completed'
 # Inject a failure only in our disposable instance; SQLSTATE persisted, no message/secret leakage.
 cycle(atlas['tenant'])
-body=sql("SELECT pg_get_functiondef('public._review_facts(uuid,jsonb)'::regprocedure)")
-sql("CREATE OR REPLACE FUNCTION public._review_facts(_tenant uuid,q jsonb) RETURNS jsonb LANGUAGE plpgsql STABLE SET search_path=public AS $$ BEGIN RAISE EXCEPTION 'synthetic private failure detail' USING ERRCODE='P0099'; END $$;")
+# Fault after the first actual entry update proves rollback of partial page progress.
+entries_before=sql('SELECT md5(jsonb_agg(to_jsonb(e) ORDER BY id)::text) FROM cw_review_entries e WHERE tenant_id='+lit(atlas['tenant']))
+sql("CREATE SEQUENCE public.cw_review_test_fault; CREATE FUNCTION public.cw_review_test_fault() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF nextval('public.cw_review_test_fault')=2 THEN RAISE EXCEPTION 'synthetic private failure detail' USING ERRCODE='P0099'; END IF; RETURN NEW; END $$; CREATE TRIGGER cw_review_test_fault BEFORE UPDATE ON public.cw_review_entries FOR EACH ROW EXECUTE FUNCTION public.cw_review_test_fault();")
 try:
     s,r=prepare(atlas['tenant']);assert s==200 and r['status']=='failed' and r['error_code']=='P0099' and r['processed']==0
+    assert entries_before==sql('SELECT md5(jsonb_agg(to_jsonb(e) ORDER BY id)::text) FROM cw_review_entries e WHERE tenant_id='+lit(atlas['tenant']))
     failed=r['id'];assert prepare(atlas['tenant'],operation=failed)[1]==r
     assert page(atlas['tenant'])['scan']['last_error']=='P0099'
     assert 'synthetic private failure detail' not in json.dumps(r)
-finally:sql(body)
+finally:sql("DROP TRIGGER cw_review_test_fault ON public.cw_review_entries; DROP FUNCTION public.cw_review_test_fault(); DROP SEQUENCE public.cw_review_test_fault;")
 s,r=prepare(atlas['tenant']);assert s==200 and r['status']=='completed';assert page(atlas['tenant'])['scan']['last_error'] is None
 assert sql('SELECT count(*) FROM cw_review_attempts WHERE id='+lit(failed)+" AND status='failed'")=='1'
 # Reads do not change attempts, entries, events, or any existing business data.
