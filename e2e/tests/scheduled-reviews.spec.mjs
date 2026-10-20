@@ -8,6 +8,7 @@ async function login(page,role='admin',tenant=atlas.tenant){
  await page.addInitScript(t=>{if(!localStorage.getItem('centerway.selectedTenant'))localStorage.setItem('centerway.selectedTenant',t);},tenant);
  await page.route('**/*',route=>{const u=new URL(route.request().url());if(['127.0.0.1','localhost'].includes(u.hostname))return route.continue();if(u.hostname==='fonts.googleapis.com')return route.fulfill({contentType:'text/css',body:''});return route.abort();});
  await page.goto('/auth');await page.getByLabel('Email',{exact:true}).fill(users[role].email);await page.getByLabel('Palavra-passe',{exact:true}).fill(users[role].password);await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page).toHaveURL(/\/app(?:$|[/?])/);
+ if(page.viewportSize().width<768)await page.getByRole('button',{name:'Abrir menu',exact:true}).click();
  await page.getByRole('link',{name:'Acompanhamento',exact:true}).click();
 }
 test('real admin: bounded monitoring, mobile filters, persisted history and correct closed case link',async({page})=>{
@@ -33,9 +34,11 @@ test('real viewer: no preparation, late monitoring response cannot survive tenan
  await page.route('**/rest/v1/rpc/scheduled_reviews',async route=>{if(route.request().postDataJSON()._tenant_id!==central.tenant)return route.continue();const response=await route.fetch();started();await gate;await route.fulfill({response}).catch(()=>{});});
  await section.getByRole('button',{name:'Atualizar revisões',exact:true}).click();await dispatched;
  await page.getByRole('button',{name:/Central SaaS/}).click();await page.getByRole('menuitem',{name:/Atlas SaaS/}).click();release();
- await expect(page.getByText(/Atlas SaaS · Estados persistidos/)).toBeVisible();await expect(section.getByText('[SINTÉTICO] Cliente 000',{exact:false})).toHaveCount(0);
+ await expect(page).toHaveURL(/\/app$/);
+ await page.getByRole('link',{name:'Acompanhamento',exact:true}).click();
+ await expect(page.getByText(/Atlas SaaS.*Estados persistidos/)).toBeVisible();await expect(section.getByText('[SINTÉTICO] Cliente 000',{exact:false})).toHaveCount(0);
  await expect.poll(()=>page.evaluate(()=>window.__CW_E2E_STATE__().keys.filter(k=>k[0]==='t').every(k=>k[1]===localStorage.getItem('centerway.selectedTenant')))).toBe(true);
- await page.reload();await expect(page.getByText(/Atlas SaaS · Estados persistidos/)).toBeVisible();
+ await page.reload();await expect(page.getByText(/Atlas SaaS.*Estados persistidos/)).toBeVisible();
  await page.getByRole('button',{name:'Terminar sessão',exact:true}).first().click();await expect(page).toHaveURL(/\/auth/);
  await expect.poll(()=>page.evaluate(()=>window.__CW_E2E_STATE__().keys.filter(k=>k[0]==='t').length)).toBe(0);
 });
