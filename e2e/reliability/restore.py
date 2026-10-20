@@ -69,13 +69,18 @@ try:
    if s==200:assert r['user']['id']==users[role]['id'] and r['user']['email_confirmed_at'];return r['access_token']
    time.sleep(1)
   raise AssertionError('Restored Auth password grant failed')
+ def wait_rest(token,tenant):
+  # GoTrue health does not imply PostgREST has rebuilt its schema cache.
+  # Retry only transport/readiness failures, never authorization/data errors.
+  for attempt in range(35):
+   try:s,r=http(54323,'/rpc/operational_onboarding',{'_tenant_id':tenant},token)
+   except (urllib.error.URLError,TimeoutError,ConnectionError):time.sleep(1);continue
+   if s==200:assert r['tenant_id']==tenant;return attempt+1
+   assert s in (502,503,504),('Restored REST authorization/contract failed',s,r.get('code'))
+   time.sleep(1)
+  raise AssertionError('Restored REST readiness deadline exceeded')
  token=signin('admin');foreign=signin('ownerB');tenant=atlas['tenant']
- for _ in range(35):
-  try:s,r=http(54323,'/rpc/operational_onboarding',{'_tenant_id':tenant},token)
-  except (urllib.error.URLError,TimeoutError):time.sleep(1);continue
-  if s==200:break
-  time.sleep(1)
- assert s==200 and r['tenant_id']==tenant
+ report['initial_rest_readiness_attempts']=wait_rest(token,tenant)
  assert http(54323,'/rpc/operational_onboarding',{'_tenant_id':tenant},foreign)[0]==403
  # Quiesce clients before the comparison snapshot: Auth can legitimately write
  # sessions between fingerprinting and the crash, which is not lost data.
@@ -100,7 +105,8 @@ try:
  assert 'automatic recovery' in subprocess.check_output(['docker','logs','cw-recovery-db'],stderr=subprocess.STDOUT,text=True)
  report['abrupt_postgres_recovery_seconds']=round(time.monotonic()-started,3)
  run(['docker','start','cw-recovery-auth','cw-recovery-rest'],stdout=subprocess.DEVNULL)
- token=signin('admin');assert http(54323,'/rpc/operational_onboarding',{'_tenant_id':tenant},token)[0]==200
+ token=signin('admin');report['restarted_rest_readiness_attempts']=wait_rest(token,tenant)
+ assert http(54323,'/rpc/operational_onboarding',{'_tenant_id':tenant},signin('ownerB'))[0]==403
  report.update(status='passed',auth='real restored GoTrue password grant',rls='restored PostgREST allows member, rejects foreign user',scope='all public/auth rows, sequences, role memberships, owners, grants, policies, functions, constraints, indexes and non-internal triggers',limits=['Disposable PostgreSQL17 logical snapshot; not Supabase hosted backup/PITR verification.','JWT/provider secrets and external storage/configuration are not supplied by pg_dump; ephemeral test env copied privately.','Cluster roles exported without passwords; production connection credentials require a separate secure recovery procedure.'])
  Path('e2e/logs/reliability-restore.json').write_text(json.dumps(report,indent=2));print('PASS backup/restore:',json.dumps(report),flush=True)
 finally:

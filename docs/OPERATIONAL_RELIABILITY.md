@@ -98,3 +98,9 @@ drena o backlog com um máximo explícito de chamadas, exige entrega/attempt ún
 do plano interrompido, ausência de trabalhos pendentes/falhados no tenant de
 ensaio, e compara o hash integral das notificações em três chamadas sem trabalho.
 Crescimento por processamento de eventos diferentes não é confundido com duplicação.
+
+Após o reinício, GoTrue e PostgREST ficam disponíveis independentemente. O ensaio
+aguarda a reconstrução da cache do PostgREST por até 35 tentativas de 1 segundo,
+repetindo apenas falhas de transporte/502/503/504. Erros de autorização/contrato
+falham imediatamente; o acesso próprio e a recusa do utilizador estrangeiro são
+verificados novamente após o reinício, sem desativar autenticação ou RLS.
