@@ -85,7 +85,7 @@ BEGIN
  SELECT * INTO ev FROM public.cw_operational_events WHERE id=event_id;
  IF ev.details->>'value_recovery'<>'not_proven' OR (ev.details->>'wait_until')::timestamptz-(ev.details->>'executed_at')::timestamptz<>interval '2 seconds' THEN RAISE EXCEPTION 'execution conflated with value / wrong window'; END IF;
  PERFORM pg_temp.expect_error('premature observation',operator_id,format('SELECT public.command_operational_case(%L,%L,8,%L,''observe'',%L)',t,c,gen_random_uuid(),jsonb_build_object('bundle_id',sample->>'after_bundle_id')),'22023');
- PERFORM pg_temp.expect_error('stale version',operator_id,format('SELECT public.command_operational_case(%L,%L,0,%L,''plan'',%L)',t,c,gen_random_uuid(),plan),'40001');
+ PERFORM pg_temp.expect_error('stale version',operator_id,format('SELECT public.command_operational_case(%L,%L,0,%L,''plan'',%L)',t,c,gen_random_uuid(),plan),CASE WHEN to_regclass('public.cw_operational_cycles') IS NULL THEN '40001' ELSE 'PT409' END);
  PERFORM pg_temp.expect_error('second execution',operator_id,format('SELECT public.command_operational_case(%L,%L,8,%L,''record_execution'',%L)',t,c,gen_random_uuid(),payload),'22023');
  PERFORM pg_temp.review_state(t,c,'waiting');
  PERFORM pg_sleep(2.1); -- Actual elapsed small synthetic window, not a mocked clock or bypass.
@@ -124,6 +124,9 @@ BEGIN
  event_id:=pg_temp.cmd(actor,hc,'decide',payload);
  IF (SELECT state FROM public.cw_operational_cases WHERE id=hc)<>'closed_resolved' THEN RAISE EXCEPTION 'satisfied specific criteria did not close'; END IF;
  PERFORM pg_temp.review_state(t,hc,'closed');
+ IF to_regclass('public.cw_operational_cycles') IS NOT NULL THEN
+  PERFORM pg_temp.expect_error('closed case cannot start cycle',actor,format('SELECT public.command_operational_case(%L,%L,%s,%L,''start_cycle'',''{"reason":"[SYNTHETIC] denied reopening","reference":"urn:cycles:closed"}'')',t,hc,(SELECT version FROM public.cw_operational_cases WHERE id=hc),gen_random_uuid()),'22023');
+ END IF;
  event_id:=pg_temp.cmd(operator_id,uc,'observe',jsonb_build_object('bundle_id',unmet->>'after_bundle_id'));
  event_id:=pg_temp.cmd(actor,uc,'decide',payload);
  IF (SELECT state FROM public.cw_operational_cases WHERE id=uc)<>'remain_open' THEN RAISE EXCEPTION 'unmet goal closed'; END IF;

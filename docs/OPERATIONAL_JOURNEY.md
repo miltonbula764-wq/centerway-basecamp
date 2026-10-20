@@ -4,7 +4,7 @@ Base: main `ee30c7d`, com 0012–0013 instaladas e metadados reconciliados. Nenh
 
 ## Contrato funcional limitado e explícito
 
-Um caso acompanha **um indicador e uma versão histórica C04**, com um ciclo de intervenção humana. Não há score de cliente, agregação de metas, conectores, execução remota, contacto automático ou inferência de causalidade. O FlowReports continua nas tabelas/RPCs anteriores, sem alterações. O novo percurso utiliza `cw_operational_cases` e `cw_operational_events`, evitando reinterpretar contratos históricos do piloto.
+Um caso acompanha **um indicador e uma versão histórica C04**, com ciclos de intervenção humana independentes a partir da [migração 0021](OPERATIONAL_CYCLES.md); a versão 0014 original suportava apenas um ciclo. Não há score de cliente, agregação de metas, conectores, execução remota, contacto automático ou inferência de causalidade. O FlowReports continua nas tabelas/RPCs anteriores, sem alterações. O novo percurso utiliza `cw_operational_cases` e `cw_operational_events`, evitando reinterpretar contratos históricos do piloto.
 
 O Core recebe C04 através das avaliações persistidas e da lista de entradas em Casos, incluindo pendências. A abertura não consulta o sinal C02: uma meta pode não estar demonstrada apesar de `no_deterioration`. C04 ainda utiliza os pacotes C03 e os snapshots de medição existentes; esta entrega remove a dependência de um **sinal candidato**, não substitui a cadeia de evidências por uma fonte nova.
 
@@ -64,4 +64,4 @@ A revisão SQL usa JWT claims e papéis reais authenticated/anon e termina com r
 
 ## Limites que permanecem
 
-Um ciclo de intervenção por caso; sem reabertura, cancelamento, transferência de contrato, política universal de elegibilidade, catálogo de impedimentos ou avaliador de condições textuais. Aprovador e executor podem ser a mesma pessoa: não se inventa uma regra de segregação ainda não aprovada. Listas limitadas a 100 registos e histórico UI até 500 eventos; persistência mantém todos. O fecho atesta apenas os critérios deste indicador/caso, não cumprimento global da promessa. Nenhuma migração é aplicada ao backend hospedado por esta entrega.
+A migração 0021 permite vários ciclos por caso com decisão humana documentada; sem reabertura de encerrados, cancelamento, transferência de contrato, política universal de elegibilidade, catálogo de impedimentos ou avaliador de condições textuais. Aprovador e executor podem ser a mesma pessoa: não se inventa uma regra de segregação ainda não aprovada. As listas existentes mantêm os seus limites; a consulta de ciclos e eventos passa a ser paginada e conserva a persistência completa. O fecho atesta apenas os critérios deste indicador/caso, não cumprimento global da promessa. Nenhuma migração é aplicada ao backend hospedado por esta entrega.
