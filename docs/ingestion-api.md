@@ -117,7 +117,7 @@ Esta missão não acedeu à Lovable, não aplicou migrações hospedadas, não p
 Pré-requisitos: Docker, PostgreSQL client (`psql`), Bun 1.3, Node 22, OpenSSL, Chromium/Playwright. Nunca definir credenciais hospedadas.
 
 ```sh
-python3 scripts/mvp/start-local.py --team
+python3 scripts/mvp/start-local.py --api
 ```
 
 O script mostra a pasta isolada criada, instala **todas** as migrações nessa base tmpfs e inicia a aplicação em 127.0.0.1:5173. Noutro terminal, nessa pasta, executar:
