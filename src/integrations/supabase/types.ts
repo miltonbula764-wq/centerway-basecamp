@@ -1087,6 +1087,119 @@ export type Database = {
           },
         ]
       }
+      ingestion_api_events: {
+        Row: {
+          batch_id: string | null
+          code: string
+          created_at: string
+          credential_id: string
+          http_status: number
+          id: string
+          operation_id: string | null
+          tenant_id: string
+        }
+        Insert: {
+          batch_id?: string | null
+          code: string
+          created_at?: string
+          credential_id: string
+          http_status: number
+          id?: string
+          operation_id?: string | null
+          tenant_id: string
+        }
+        Update: {
+          batch_id?: string | null
+          code?: string
+          created_at?: string
+          credential_id?: string
+          http_status?: number
+          id?: string
+          operation_id?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingestion_api_events_tenant_id_batch_id_fkey"
+            columns: ["tenant_id", "batch_id"]
+            isOneToOne: false
+            referencedRelation: "ingestion_batches"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "ingestion_api_events_tenant_id_credential_id_fkey"
+            columns: ["tenant_id", "credential_id"]
+            isOneToOne: false
+            referencedRelation: "ingestion_credentials"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "ingestion_api_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ingestion_api_requests: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          credential_id: string
+          http_status: number
+          id: string
+          operation_id: string
+          payload_hash: string
+          result: Json
+          tenant_id: string
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          credential_id: string
+          http_status: number
+          id?: string
+          operation_id: string
+          payload_hash: string
+          result: Json
+          tenant_id: string
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          credential_id?: string
+          http_status?: number
+          id?: string
+          operation_id?: string
+          payload_hash?: string
+          result?: Json
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingestion_api_requests_tenant_id_batch_id_fkey"
+            columns: ["tenant_id", "batch_id"]
+            isOneToOne: false
+            referencedRelation: "ingestion_batches"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "ingestion_api_requests_tenant_id_credential_id_fkey"
+            columns: ["tenant_id", "credential_id"]
+            isOneToOne: false
+            referencedRelation: "ingestion_credentials"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "ingestion_api_requests_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ingestion_batches: {
         Row: {
           committed_at: string | null
@@ -1102,6 +1215,7 @@ export type Database = {
           file_name: string | null
           id: string
           inserted_count: number
+          integration_credential_id: string | null
           notes: string | null
           profile_id: string | null
           profile_version: number | null
@@ -1126,6 +1240,7 @@ export type Database = {
           file_name?: string | null
           id?: string
           inserted_count?: number
+          integration_credential_id?: string | null
           notes?: string | null
           profile_id?: string | null
           profile_version?: number | null
@@ -1150,6 +1265,7 @@ export type Database = {
           file_name?: string | null
           id?: string
           inserted_count?: number
+          integration_credential_id?: string | null
           notes?: string | null
           profile_id?: string | null
           profile_version?: number | null
@@ -1161,6 +1277,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "batch_integration_fk"
+            columns: ["tenant_id", "integration_credential_id"]
+            isOneToOne: false
+            referencedRelation: "ingestion_credentials"
+            referencedColumns: ["tenant_id", "id"]
+          },
           {
             foreignKeyName: "batches_profile_fkey"
             columns: ["tenant_id", "profile_id"]
@@ -1174,6 +1297,84 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      ingestion_credentials: {
+        Row: {
+          bucket_at: string | null
+          bucket_count: number
+          created_at: string
+          created_by: string
+          expires_at: string
+          id: string
+          last_status: number | null
+          last_used_at: string | null
+          limit_logged: boolean
+          name: string
+          operation_id: string
+          request_hash: string
+          revoked_at: string | null
+          revoked_by: string | null
+          rotated_from: string | null
+          secret_hash: string
+          source: string
+          tenant_id: string
+        }
+        Insert: {
+          bucket_at?: string | null
+          bucket_count?: number
+          created_at?: string
+          created_by: string
+          expires_at: string
+          id?: string
+          last_status?: number | null
+          last_used_at?: string | null
+          limit_logged?: boolean
+          name: string
+          operation_id: string
+          request_hash: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          rotated_from?: string | null
+          secret_hash: string
+          source: string
+          tenant_id: string
+        }
+        Update: {
+          bucket_at?: string | null
+          bucket_count?: number
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          id?: string
+          last_status?: number | null
+          last_used_at?: string | null
+          limit_logged?: boolean
+          name?: string
+          operation_id?: string
+          request_hash?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          rotated_from?: string | null
+          secret_hash?: string
+          source?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingestion_credentials_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ingestion_credentials_tenant_id_rotated_from_fkey"
+            columns: ["tenant_id", "rotated_from"]
+            isOneToOne: false
+            referencedRelation: "ingestion_credentials"
+            referencedColumns: ["tenant_id", "id"]
           },
         ]
       }
@@ -1221,6 +1422,7 @@ export type Database = {
           idempotency_key: string
           indicator_key: string
           ingested_at: string
+          integration_credential_id: string | null
           observed_at: string
           payload: Json
           payload_hash: string
@@ -1239,6 +1441,7 @@ export type Database = {
           idempotency_key: string
           indicator_key: string
           ingested_at?: string
+          integration_credential_id?: string | null
           observed_at: string
           payload?: Json
           payload_hash?: string
@@ -1257,6 +1460,7 @@ export type Database = {
           idempotency_key?: string
           indicator_key?: string
           ingested_at?: string
+          integration_credential_id?: string | null
           observed_at?: string
           payload?: Json
           payload_hash?: string
@@ -1268,6 +1472,13 @@ export type Database = {
           value_text?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "observation_integration_fk"
+            columns: ["tenant_id", "integration_credential_id"]
+            isOneToOne: false
+            referencedRelation: "ingestion_credentials"
+            referencedColumns: ["tenant_id", "id"]
+          },
           {
             foreignKeyName: "observations_tenant_id_batch_id_fkey"
             columns: ["tenant_id", "batch_id"]
@@ -1683,6 +1894,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _c01_import: {
+        Args: {
+          _coverage_declared: boolean
+          _coverage_end: string
+          _coverage_start: string
+          _expected_profile_id: string
+          _file_name: string
+          _integration_credential_id: string
+          _rows: Json
+          _source: string
+          _tenant_id: string
+        }
+        Returns: Json
+      }
       _c02_cmp: {
         Args: {
           _a: number
@@ -1911,6 +2136,17 @@ export type Database = {
         }
         Returns: string
       }
+      create_ingestion_credential: {
+        Args: {
+          _expires_at: string
+          _name: string
+          _operation_id: string
+          _rotate_from?: string
+          _source: string
+          _tenant_id: string
+        }
+        Returns: Json
+      }
       create_tenant: {
         Args: {
           _name: string
@@ -1969,6 +2205,10 @@ export type Database = {
         }
         Returns: Json
       }
+      ingest_external_observations: {
+        Args: { _credential: string; _operation_id: string; _payload: Json }
+        Returns: Json
+      }
       inspect_tenant_invitation: { Args: { _token: string }; Returns: Json }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
       list_team_members: {
@@ -2014,6 +2254,10 @@ export type Database = {
       }
       remove_tenant_member: {
         Args: { _tenant_id: string; _user_id: string }
+        Returns: undefined
+      }
+      revoke_ingestion_credential: {
+        Args: { _credential_id: string; _tenant_id: string }
         Returns: undefined
       }
       revoke_tenant_invitation: {
