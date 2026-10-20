@@ -162,6 +162,20 @@
       "when": 1792506493973,
       "tag": "0022_responsibilities_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792508451610,
+      "tag": "0023_scheduled_reviews_journal_reconcile",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792508476579,
+      "tag": "0024_operational_cycles_journal_reconcile",
+      "breakpoints": true
     }
   ]
 }
