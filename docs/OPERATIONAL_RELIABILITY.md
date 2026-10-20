@@ -45,3 +45,28 @@ O ambiente local usa quota de dois CPUs, limite de memória 8 GiB e tmpfs; o run
 A migração **0026 é provisória**: a **0025 ainda aguarda instalação hospedada**, conforme contexto recebido. Instalar 0025 e depois a alteração nova, apenas após revisão e confirmação/reconciliação da numeração. Não reescrever 0000–0025, snapshots ou marcadores existentes. Esta missão não aplica nada no serviço hospedado.
 
 O teste lógico não configura nem verifica backups Supabase hospedados. A integração responsável precisa de definir frequência, retenção, cifragem/acesso, capacidade de restauração, RPO/RTO e eventual PITR conforme o plano efetivamente disponível, sem ativar serviços pagos sem autorização. JWT/provider secrets, configuração de GoTrue/Edge Functions, credenciais de conexão e objetos de Storage requerem recuperação própria; pg_dump não os fornece. Globals são exportados sem passwords de roles. Roles especiais e procedimentos de restauração do Supabase gerido não podem ser presumidos idênticos ao laboratório PostgreSQL. Repetir um ensaio autorizado na infraestrutura de destino antes de afirmar prontidão de recuperação em produção.
+
+## Review freshness regression found during validation
+
+The unchanged 0020 implementation on main can miss new immutable inputs:
+`ingested_at`/`created_at` use transaction start, but `checked_at` uses wall time.
+A long/concurrent transaction (or the same SQL transaction) can therefore add an
+observation after preparation whose timestamp is earlier than `checked_at`.
+The temporal regression now refreshes entries immediately before import, so an
+unrelated already-stale entry cannot mask this defect. It asserts current → stale
+→ current without modifying clocks, deleting checks or editing old observations.
+
+Provisional 0026 adds an invoker/RLS-protected immutable-input identity token to
+new review snapshots and compares it during reads. Existing snapshots without a
+token require preparation once; old events are preserved. This is invalidation,
+not a second classifier: `_review_facts`, C02/C04/Core decisions are unchanged.
+It covers observations, analyses, configurations, evaluations and case events,
+including transactions with timestamps predating preparation. No cases are
+modified by reads. The original temporal regression runs after 0026 in CI.
+
+Restore verification compares effective table ACLs (`aclexplode` with PostgreSQL
+defaults), since pg_dump can restore an explicit owner-only ACL as the equivalent
+NULL default. Owners, grantors, grantees, grant options and every permission remain
+checked. Auth/REST are quiesced before the abrupt-crash fingerprint, avoiding
+legitimate session writes during the comparison interval; real login/RLS are
+verified both before and after recovery.

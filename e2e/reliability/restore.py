@@ -9,7 +9,7 @@ resources=['cw-recovery-rest','cw-recovery-auth','cw-recovery-db'];private=Path(
 for name in resources:assert subprocess.run(['docker','inspect',name],capture_output=True).returncode!=0,'Refuse to replace existing '+name
 manifest_sql=r"""
 SELECT jsonb_build_object(
- 'tables',(SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'name',c.relname,'owner',pg_get_userbyid(c.relowner),'acl',c.relacl::text,'rls',c.relrowsecurity,'force_rls',c.relforcerowsecurity) ORDER BY n.nspname,c.relname) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('public','auth') AND c.relkind='r'),
+ 'tables',(SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'name',c.relname,'owner',pg_get_userbyid(c.relowner),'acl',(SELECT jsonb_agg(jsonb_build_array(pg_get_userbyid(a.grantor),CASE WHEN a.grantee=0 THEN 'PUBLIC' ELSE pg_get_userbyid(a.grantee) END,a.privilege_type,a.is_grantable) ORDER BY pg_get_userbyid(a.grantor),CASE WHEN a.grantee=0 THEN 'PUBLIC' ELSE pg_get_userbyid(a.grantee) END,a.privilege_type) FROM aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) a),'rls',c.relrowsecurity,'force_rls',c.relforcerowsecurity) ORDER BY n.nspname,c.relname) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN ('public','auth') AND c.relkind='r'),
  'policies',(SELECT jsonb_agg(to_jsonb(x) ORDER BY schemaname,tablename,policyname) FROM pg_policies x WHERE schemaname IN ('public','auth')),
  'functions',(SELECT jsonb_agg(jsonb_build_object('name',p.oid::regprocedure::text,'owner',pg_get_userbyid(p.proowner),'acl',p.proacl::text,'def',pg_get_functiondef(p.oid)) ORDER BY p.oid::regprocedure::text) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname IN ('public','auth') AND p.prokind='f'),
  'triggers',(SELECT jsonb_agg(pg_get_triggerdef(t.oid) ORDER BY n.nspname,c.relname,t.tgname) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE NOT t.tgisinternal AND n.nspname IN ('public','auth')),
@@ -77,12 +77,16 @@ try:
   time.sleep(1)
  assert s==200 and r['tenant_id']==tenant
  assert http(54323,'/rpc/operational_onboarding',{'_tenant_id':tenant},foreign)[0]==403
+ # Quiesce clients before the comparison snapshot: Auth can legitimately write
+ # sessions between fingerprinting and the crash, which is not lost data.
+ run(['docker','stop','cw-recovery-auth','cw-recovery-rest'],stdout=subprocess.DEVNULL)
  restored_data=data('cw-recovery-db');restored_catalog=catalog('cw-recovery-db')
  # An abrupt PostgreSQL immediate stop produces WAL recovery, preserving committed product data.
  started=time.monotonic();run(['docker','exec','--user','postgres','cw-recovery-db','pg_ctl','-D','/var/lib/postgresql/data','stop','-m','immediate','-w'],stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
  ready();assert catalog('cw-recovery-db')==restored_catalog and data('cw-recovery-db')==restored_data
  assert 'automatic recovery' in subprocess.check_output(['docker','logs','cw-recovery-db'],stderr=subprocess.STDOUT,text=True)
  report['abrupt_postgres_recovery_seconds']=round(time.monotonic()-started,3)
+ run(['docker','start','cw-recovery-auth','cw-recovery-rest'],stdout=subprocess.DEVNULL)
  token=signin('admin');assert http(54323,'/rpc/operational_onboarding',{'_tenant_id':tenant},token)[0]==200
  report.update(status='passed',auth='real restored GoTrue password grant',rls='restored PostgREST allows member, rejects foreign user',scope='all public/auth rows, sequences, role memberships, owners, grants, policies, functions, constraints, indexes and non-internal triggers',limits=['Disposable PostgreSQL17 logical snapshot; not Supabase hosted backup/PITR verification.','JWT/provider secrets and external storage/configuration are not supplied by pg_dump; ephemeral test env copied privately.','Cluster roles exported without passwords; production connection credentials require a separate secure recovery procedure.'])
  Path('e2e/logs/reliability-restore.json').write_text(json.dumps(report,indent=2));print('PASS backup/restore:',json.dumps(report),flush=True)

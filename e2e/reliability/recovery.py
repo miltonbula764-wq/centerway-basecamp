@@ -20,7 +20,8 @@ def terminate_transaction(statement):
   if line.strip()=='CW_UNCOMMITTED':break
  else:raise AssertionError('Transaction did not reach fault barrier')
  assert sql('SELECT pg_terminate_backend('+str(pid)+')')=='t'
- p.stdin.close();p.wait(timeout=20);assert p.returncode!=0
+ p.stdin.close();p.wait(timeout=20)
+ assert sql('SELECT NOT EXISTS(SELECT FROM pg_stat_activity WHERE pid='+str(pid)+')')=='t'  # An idle psql can exit 0 on EOF despite backend termination.
 before=sql('SELECT count(*) FROM observations');audit=sql('SELECT count(*) FROM audit_log')
 args=','.join([lit(t),lit(profile),lit(body['_source']),lit(body['_coverage_start']),lit(body['_coverage_end']),'true',lit(body['_file_name']),lit(json.dumps(body['_rows']))])
 terminate_transaction('SELECT public.import_observations('+args+')')

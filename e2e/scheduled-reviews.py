@@ -133,7 +133,7 @@ fixture=lit(json.dumps(f))
 sql("BEGIN; SELECT set_config('cw.monitor_fixture',"+fixture+",true);"+r'''
 DO $test$
 DECLARE f jsonb:=current_setting('cw.monitor_fixture')::jsonb;t uuid:=(f->>'tenant')::uuid;
- c public.c04_configurations;future uuid;past uuid;q jsonb;facts jsonb;fresh jsonb;answer jsonb;old_count integer;
+ c public.c04_configurations;future uuid;past uuid;q jsonb;facts jsonb;fresh jsonb;answer jsonb;old_count integer;e record;
 BEGIN
  SELECT * INTO c FROM public.c04_configurations WHERE tenant_id=t AND subject_id=(f->'customer'->>'id')::uuid AND indicator_key='independent_minutes' ORDER BY version DESC LIMIT 1;
  PERFORM set_config('request.jwt.claims',jsonb_build_object('role','authenticated','sub',f->>'actor')::text,true);
@@ -151,6 +151,15 @@ BEGIN
  -- A historical configuration with a newer version cannot become executable through monitoring.
  facts:=public._review_facts(t,q);
  IF facts->>'status'<>'pending' OR NOT facts->'reasons' ? 'configuration_revision_requires_review' THEN RAISE EXCEPTION 'historical guard lost'; END IF;
+ -- Isolate this import: a pre-existing stale entry must not mask the bug.
+ -- now()/ingested_at is earlier than checked_at in this same transaction.
+ FOR e IN SELECT * FROM public.cw_review_entries WHERE tenant_id=t AND subject_id=c.subject_id AND indicator_key=c.indicator_key LOOP
+  PERFORM public._review_store(t,e.source,public._review_facts(t,e.source),gen_random_uuid());
+ END LOOP;
+ SET LOCAL ROLE authenticated;
+ answer:=public.scheduled_reviews(t,'','independent_minutes','',100);
+ RESET ROLE;
+ IF EXISTS(SELECT FROM jsonb_array_elements(answer->'items') x WHERE x->>'subject_id'=c.subject_id::text AND (x->>'needs_refresh')::boolean) THEN RAISE EXCEPTION 'fresh snapshot incorrectly marked stale'; END IF;
  -- Fresh CSV record after C02: real import contract, no direct observation writes.
  SET LOCAL ROLE authenticated;
  answer:=public.import_observations(t,c.profile_id,'synthetic-atlas',clock_timestamp()-interval '3 days',clock_timestamp(),true,'synthetic-monitoring.csv',jsonb_build_array(jsonb_build_object('line',1,'subject_external_ref',f->'customer'->>'external_ref','indicator_key','independent_minutes','observed_at',clock_timestamp()-interval '1 hour','value_numeric','70','unit','min','idempotency_key',gen_random_uuid())));
@@ -163,6 +172,15 @@ BEGIN
  answer:=public.scheduled_reviews(t,'','independent_minutes','',100);
  RESET ROLE;
  IF NOT EXISTS(SELECT FROM jsonb_array_elements(answer->'items') x WHERE x->>'subject_id'=c.subject_id::text AND (x->>'needs_refresh')::boolean) THEN RAISE EXCEPTION 'stale snapshot not identified'; END IF;
+ -- Refreshing the snapshot consumes the new identity; an idempotent import
+ -- or repeated reads cannot keep creating artificial revisions.
+ FOR e IN SELECT * FROM public.cw_review_entries WHERE tenant_id=t AND subject_id=c.subject_id AND indicator_key=c.indicator_key LOOP
+  PERFORM public._review_store(t,e.source,public._review_facts(t,e.source),gen_random_uuid());
+ END LOOP;
+ SET LOCAL ROLE authenticated;
+ answer:=public.scheduled_reviews(t,'','independent_minutes','',100);
+ RESET ROLE;
+ IF EXISTS(SELECT FROM jsonb_array_elements(answer->'items') x WHERE x->>'subject_id'=c.subject_id::text AND (x->>'needs_refresh')::boolean) THEN RAISE EXCEPTION 'consumed measurement remains stale'; END IF;
  -- Historical event/attempt mutation is forbidden even for the scheduler owner.
  BEGIN UPDATE public.cw_review_events SET revision=revision; RAISE EXCEPTION 'immutable event updated'; EXCEPTION WHEN SQLSTATE '42501' THEN NULL; END;
  BEGIN DELETE FROM public.cw_review_attempts; RAISE EXCEPTION 'immutable attempt deleted'; EXCEPTION WHEN SQLSTATE '42501' THEN NULL; END;
