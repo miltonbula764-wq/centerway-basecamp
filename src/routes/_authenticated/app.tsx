@@ -92,9 +92,15 @@ function AppLayout() {
   const access = tenant ? `${tenant.id}:${tenant.role}` : null;
   useEffect(() => {
     if (previousAccess.current !== null && previousAccess.current !== access) {
-      const [oldTenant] = previousAccess.current.split(":");
-      // A role change can invalidate private notices as well as administrative team data.
-      const key = ["t", oldTenant];
+      const [oldTenant, oldRole] = previousAccess.current.split(":");
+      const key = tenant?.id === oldTenant ? ["t", oldTenant, "team", oldRole] : ["t", oldTenant];
+      if (tenant?.id === oldTenant) {
+        const privateRole = { predicate: (q: { queryKey: readonly unknown[] }) =>
+          q.queryKey[0] === "t" && q.queryKey[1] === oldTenant &&
+          ["notifications", "my-work"].includes(String(q.queryKey[2])) && q.queryKey.at(-1) === oldRole };
+        void qc.cancelQueries(privateRole);
+        qc.removeQueries(privateRole);
+      }
       void qc.cancelQueries({ queryKey: key });
       qc.removeQueries({ queryKey: key });
     }
