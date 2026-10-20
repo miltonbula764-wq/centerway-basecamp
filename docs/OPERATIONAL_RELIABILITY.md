@@ -57,8 +57,10 @@ unrelated already-stale entry cannot mask this defect. It asserts current → st
 → current without modifying clocks, deleting checks or editing old observations.
 
 Provisional 0026 adds an invoker/RLS-protected immutable-input identity token to
-new review snapshots and compares it during reads. Existing snapshots without a
-token require preparation once; old events are preserved. This is invalidation,
+the mutable review cache and compares it during reads. Existing snapshots without a
+token require preparation once; old events are preserved. The token is outside
+business facts/fingerprints: adding or updating it alone creates no review event
+or notification. This is invalidation,
 not a second classifier: `_review_facts`, C02/C04/Core decisions are unchanged.
 It covers observations, analyses, configurations, evaluations and case events,
 including transactions with timestamps predating preparation. No cases are
@@ -77,3 +79,16 @@ values (observed: GoTrue `refresh_tokens_id_seq` +31), unlike transactional rows
 The crash test requires identical committed rows/catalog, non-cyclic sequences,
 no backward movement/reuse, and reports those gaps. Contiguous identifiers are
 not a PostgreSQL guarantee; gaps are not evidence of lost application records.
+
+## Logout e respostas não autorizadas
+
+O ensaio de browser verifica login GoTrue, logout HTTP bem-sucedido, remoção da
+cache e bloqueio de nova navegação protegida. Uma chamada deliberada a `/user`
+com a sessão acabada de revogar devolve 403 `session_not_found` nesta versão do
+GoTrue; uma chamada anónima à RPC protegida devolve 401 sem dados da empresa.
+Essas recusas são proteção esperada, não sucesso de uma operação protegida.
+O 401 intermitente do ensaio local anterior não incluía a URL: não foi possível
+atribuir retrospectivamente a sua origem. O teste original mantém a verificação
+estrita de erros de consola e agora regista somente método/caminho de qualquer
+401 inesperado, sem headers, query strings, tokens ou corpos. Repetições locais
+do percurso de logout passaram; o resultado da campanha limpa Actions é separado.

@@ -50,6 +50,10 @@ function holdBuilds(page) {
 }
 
 test.beforeEach(async ({ page }) => {
+  // Safe provenance for an unexpected 401; retain the strict console-error check.
+  page.on('response', response => {
+    if (response.status() === 401) console.log('Unexpected HTTP 401:', response.request().method(), new URL(response.url()).pathname);
+  });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type() === 'error') errors.push('console.error: ' + message.text()); });

@@ -158,6 +158,10 @@ if '--defer-temporal' not in sys.argv:
      -- now()/ingested_at is earlier than checked_at in this same transaction.
      FOR e IN SELECT * FROM public.cw_review_entries WHERE tenant_id=t AND subject_id=c.subject_id AND indicator_key=c.indicator_key LOOP
       PERFORM public._review_store(t,e.source,public._review_facts(t,e.source),gen_random_uuid());
+      SELECT count(*) INTO old_count FROM public.cw_review_events WHERE tenant_id=t AND entry_id=e.id;
+      UPDATE public.cw_review_entries SET data_token=NULL WHERE id=e.id;
+      PERFORM public._review_store(t,e.source,public._review_facts(t,e.source),gen_random_uuid());
+      IF (SELECT count(*) FROM public.cw_review_events WHERE tenant_id=t AND entry_id=e.id)<>old_count THEN RAISE EXCEPTION 'cache watermark created artificial review event'; END IF;
      END LOOP;
      SET LOCAL ROLE authenticated;
      answer:=public.scheduled_reviews(t,'','independent_minutes','',100);
