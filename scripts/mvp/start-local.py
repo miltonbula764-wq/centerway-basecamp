@@ -42,6 +42,8 @@ for _ in range(60):
 else:
     raise SystemExit('Disposable database did not start; inspect docker logs cw-mvp-db.')
 subprocess.run(['python3', 'e2e/start_backend.py', '--local-mvp'], cwd=stage, env=env, check=True)
+if '--monitoring' in sys.argv and '--api' not in sys.argv:
+    sys.argv.append('--api')
 if '--api' in sys.argv:
     subprocess.run(['node', 'e2e/seed.mjs'], cwd=stage, env=env, check=True)
 subprocess.run(['node', 'e2e/mvp-seed.mjs'], cwd=stage, env=env, check=True)
@@ -53,6 +55,10 @@ if '--followup' in sys.argv or '--team' in sys.argv or '--api' in sys.argv:
 if '--team' in sys.argv or '--api' in sys.argv:
     subprocess.run(['node', 'e2e/team-seed.mjs'], cwd=stage, env=env, check=True)
     print('Team synthetic credentials:', stage / 'e2e/private/team-users.json', flush=True)
+if '--monitoring' in sys.argv:
+    subprocess.run(['python3', 'e2e/ingestion-api.py'], cwd=stage, env=env, check=True)
+    subprocess.run(['python3', 'e2e/scheduled-reviews.py'], cwd=stage, env=env, check=True)
+    print('Open /app/acompanhamento for prepared monitoring snapshots. Cron is NOT installed by this local script.', flush=True)
 print('\nOpen http://127.0.0.1:5173/app/casos\nOnly synthetic data in a new local database.', flush=True)
 print('Demo accounts and temporary passwords are in the PRIVATE local file:', stage / 'e2e/private/mvp-users.json', flush=True)
 print('Stop the app with Ctrl+C; remove ONLY this stack with python3 scripts/mvp/stop-local.py', flush=True)

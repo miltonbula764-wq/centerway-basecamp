@@ -141,6 +141,13 @@
       "when": 1792483231949,
       "tag": "0019_ingestion_api_journal_reconcile",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792486117355,
+      "tag": "0020_scheduled_reviews",
+      "breakpoints": true
     }
   ]
 }

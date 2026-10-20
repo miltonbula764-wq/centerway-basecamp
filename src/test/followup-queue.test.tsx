@@ -122,3 +122,65 @@ it("refresh preserves active tenant and filters; mismatched response identities 
     expect.objectContaining({ _tenant_id: "A", _client: "client-42", _indicator: "minutes" }),
   );
 });
+it("monitoring filters and refresh use tenant keys; read queries never invoke preparation", async () => {
+  mocks.rpc.mockImplementation((name, args) => ({
+    abortSignal: () =>
+      Promise.resolve({
+        data:
+          name === "scheduled_reviews"
+            ? { ...page(args._tenant_id), scan: null, attempts: [] }
+            : page(args._tenant_id),
+        error: null,
+      }),
+  }));
+  mount();
+  await screen.findByText("Sem revisões preparadas para estes filtros.");
+  fireEvent.change(screen.getByLabelText("Estado da revisão"), { target: { value: "waiting" } });
+  fireEvent.change(screen.getByLabelText("Indicador da revisão"), { target: { value: "cycle" } });
+  fireEvent.click(screen.getByRole("button", { name: "Filtrar revisões" }));
+  await waitFor(() =>
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "scheduled_reviews",
+      expect.objectContaining({ _tenant_id: "A", _status: "waiting", _indicator: "cycle" }),
+    ),
+  );
+  expect(mocks.rpc.mock.calls.every(([name]) => name !== "prepare_scheduled_reviews")).toBe(true);
+});
+it("late monitoring preparation after tenant switch cannot publish a success or repopulate old tenant cache", async () => {
+  let finish: (value: unknown) => void = () => {};
+  mocks.rpc.mockImplementation((name, args) =>
+    name === "prepare_scheduled_reviews"
+      ? new Promise((resolve) => {
+          finish = resolve;
+        })
+      : {
+          abortSignal: () =>
+            Promise.resolve({
+              data:
+                name === "scheduled_reviews"
+                  ? { ...page(args._tenant_id), scan: null, attempts: [] }
+                  : page(args._tenant_id),
+              error: null,
+            }),
+        },
+  );
+  const client = mount();
+  await screen.findByText("Sem revisões preparadas para estes filtros.");
+  fireEvent.click(screen.getByRole("button", { name: "Preparar próximo lote de revisões" }));
+  await waitFor(() =>
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "prepare_scheduled_reviews",
+      expect.objectContaining({ _tenant_id: "A" }),
+    ),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Empresa B" }));
+  await screen.findByText(/Empresa B · Estados persistidos/);
+  await act(async () =>
+    finish({ data: { tenant_id: "A", status: "completed", processed: 50 }, error: null }),
+  );
+  expect(screen.queryByText(/Lote preparado:/)).not.toBeInTheDocument();
+  expect(client.getQueryCache().findAll({ queryKey: ["t", "A"] })).toHaveLength(0);
+  expect(
+    screen.queryByRole("button", { name: "Preparar próximo lote de revisões" }),
+  ).not.toBeInTheDocument();
+});
