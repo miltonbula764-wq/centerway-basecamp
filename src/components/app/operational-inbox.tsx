@@ -16,7 +16,7 @@ import { ErrorState, Panel, formatDate } from "./ui-bits";
 
 export function NotificationBadge({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const { tenant, user } = useTenant();
-  const q = useQuery(inboxQuery(tenant.id, user.id, false, null, 1));
+  const q = useQuery(inboxQuery(tenant.id, user.id, false, null, 1, tenant.role));
   return (
     <Link
       to="/app/acompanhamento"
@@ -44,7 +44,7 @@ function Inbox() {
   }, []);
   const [unread, setUnread] = useState(false);
   const [pages, setPages] = useState<(Notice | null)[]>([null]);
-  const q = useQuery(inboxQuery(tenant.id, user.id, unread, pages.at(-1)!));
+  const q = useQuery(inboxQuery(tenant.id, user.id, unread, pages.at(-1)!, 25, tenant.role));
   const action = useMutation({
     mutationFn: async (id: string | null) => {
       assertActiveTenant(tenant.id);
@@ -206,7 +206,7 @@ export function MyOperationalWork() {
 function MyWork() {
   const { tenant, user } = useTenant();
   const [pages, setPages] = useState([""]);
-  const q = useQuery(myWorkQuery(tenant.id, user.id, pages.at(-1)!));
+  const q = useQuery(myWorkQuery(tenant.id, user.id, pages.at(-1)!, tenant.role));
   return (
     <section id="minhas-pendencias" aria-label="As minhas pendências" className="mb-8">
       <Panel title="As minhas pendências">

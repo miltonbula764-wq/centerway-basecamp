@@ -27,6 +27,7 @@ assert not inbox('viewer')['items'] and not inbox('admin')['items']
 assert get('cw_notifications?select=id&tenant_id=eq.'+t,'viewer')==[]
 assert rpc('mark_notification_read',{'_tenant_id':t,'_notification_id':notification},'admin')[0]==403
 assert rpc('notification_inbox',{'_tenant_id':t},'ownerB')[0]==403
+assert get('cw_notifications?select=id&tenant_id=eq.'+t,'ownerB')==[]
 for _ in range(2):ok('mark_notification_read',{'_tenant_id':t,'_notification_id':notification},'operator')
 assert inbox()['unread_count']==0 and inbox()['items'][0]['is_read'] and inbox(_unread_only=True)['items']==[]
 assert rpc('assign_operational_case',{**args,'_reason':'conflict'})[0]==400
@@ -70,6 +71,13 @@ assert sql("SELECT count(*) FROM cw_notification_attempts WHERE status='failed' 
 for table in ['cw_case_assignments','cw_notifications','cw_notification_reads','cw_notification_jobs','cw_notification_attempts']:
  assert rest('/rest/v1/'+table,{},'admin')[0]==403
 for name,args2 in [('_notification_process',{'_tenant':t,'_limit':25}),('_notification_put',{})]:assert rpc(name,args2)[0] in (403,404)
+# The dedicated scheduler still works after 0022 without a human impersonation or generic grants.
+with concurrent.futures.ThreadPoolExecutor(2) as pool:
+ results=list(pool.map(lambda _:sql('SET ROLE centerway_review_scheduler; SELECT public.process_review_schedule(2);'),range(2)))
+for result in results:
+ for attempt in json.loads(result)['attempts']:
+  assert attempt['actor_kind']=='scheduler' and attempt['actor_id'] is None and attempt['status']=='completed'
+assert sql("SELECT has_table_privilege('centerway_review_scheduler','public.cw_notifications','SELECT')")=='f'
 assert fingerprint()==before,'Assignment/notification processing changed C01-C10'
 # SQL tests cover real database roles/claims; independent from real GoTrue above.
 for suite,marker in [('permissions','CW_TEST_RESULTS'),('ingestion','CW_INGEST_RESULTS'),('c02','CW_C02_RESULTS'),('c03','CW_C03_RESULTS')]:

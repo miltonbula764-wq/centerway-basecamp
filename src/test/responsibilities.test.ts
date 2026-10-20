@@ -24,6 +24,9 @@ it("rejects private notifications for a different recipient or company", async (
 });
 it("scopes cache to tenant, account, cursor; rejects a foreign case response", async () => {
   expect(inboxQuery("A", "me").queryKey.slice(0, 4)).toEqual(["t", "A", "notifications", "me"]);
+  expect(inboxQuery("A", "me", false, null, 25, "admin").queryKey).not.toEqual(
+    inboxQuery("A", "me", false, null, 25, "viewer").queryKey,
+  );
   expect(myWorkQuery("A", "me", "").queryKey).not.toEqual(myWorkQuery("B", "me", "").queryKey);
   mock.rpc.mockReturnValue({
     abortSignal: () =>

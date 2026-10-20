@@ -107,12 +107,18 @@ BEGIN
    IF c.version IS DISTINCT FROM (source->>'case_version')::int THEN RETURN false;END IF;
   END IF;
   kind:=CASE WHEN source->>'next_action'='authorize' THEN 'authorization_needed'
-    WHEN facts->>'status'='available' AND facts->'reasons' ? 'observation_window_elapsed_not_proof' THEN 'observation_ended'
+    WHEN source->>'state'='waiting_observation' AND facts->>'status'='available' AND facts->'reasons' ? 'observation_window_elapsed_not_proof' THEN 'observation_ended'
     WHEN facts->'reasons' ? 'new_measurements_not_analysed' THEN 'evidence_review'
     WHEN facts->>'status'='available' THEN 'review_available' ELSE NULL END;
   IF kind IS NULL OR facts->>'status' IN ('closed','retired') THEN RETURN false;END IF;
   required:=CASE WHEN source->>'required_role'='admin' THEN 'admin' ELSE 'admin_or_operator' END;
   p:=jsonb_build_object('entry_id',r.entry_id,'revision',r.revision,'source',source,'facts',facts);
+  -- Revisions caused by later evidence must not repeat the same elapsed C08 window.
+  IF kind='observation_ended' THEN
+   SELECT ev.id INTO origin_id FROM public.cw_operational_events ev WHERE ev.tenant_id=j.tenant_id AND ev.case_id=cid AND ev.command='record_execution'
+    AND ev.sequence>=(SELECT max(start_sequence) FROM public.cw_operational_cycles WHERE case_id=cid) ORDER BY sequence DESC LIMIT 1;
+   IF origin_id IS NULL THEN RETURN false;END IF;origin:='core';
+  END IF;
   -- The plan and its monitor snapshot share the same persisted occurrence.
   IF kind='authorization_needed' AND cid IS NOT NULL THEN
    SELECT ev.id INTO origin_id FROM public.cw_operational_events ev WHERE ev.tenant_id=j.tenant_id AND ev.case_id=cid

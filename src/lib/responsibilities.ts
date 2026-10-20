@@ -108,9 +108,10 @@ export const inboxQuery = (
   unread = false,
   cursor: Notice | null = null,
   limit = 25,
+  role = "unknown",
 ) =>
   queryOptions({
-    queryKey: tk(tenant, "notifications", user, unread, cursor?.id, limit),
+    queryKey: tk(tenant, "notifications", user, unread, cursor?.id, limit, role),
     staleTime: 0,
     refetchInterval: 30000,
     queryFn: async ({ signal }) => {
@@ -133,9 +134,9 @@ export const inboxQuery = (
       return p;
     },
   });
-export const myWorkQuery = (tenant: string, user: string, after: string) =>
+export const myWorkQuery = (tenant: string, user: string, after: string, role = "unknown") =>
   queryOptions({
-    queryKey: tk(tenant, "my-work", user, after),
+    queryKey: tk(tenant, "my-work", user, after, role),
     staleTime: 0,
     refetchInterval: 30000,
     queryFn: async ({ signal }) => {

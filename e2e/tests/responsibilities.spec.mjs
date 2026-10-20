@@ -26,5 +26,5 @@ test('private inbox late response cannot survive company change or logout',async
  await page.getByRole('button',{name:'Atualizar notificações',exact:true}).click();await dispatched;
  await page.getByRole('button',{name:/Atlas SaaS/}).click();await page.getByRole('menuitem',{name:/Central SaaS/}).click();release();await expect(page).toHaveURL(/\/app$/);await expect(page.getByTestId('notification')).toHaveCount(0);
  await expect.poll(()=>page.evaluate(()=>window.__CW_E2E_STATE__().keys.filter(k=>k[0]==='t').every(k=>k[1]===localStorage.getItem('centerway.selectedTenant')))).toBe(true);
- await page.getByRole('button',{name:'Sair',exact:true}).click();await expect(page).toHaveURL(/\/auth/);await expect(page.getByText('Notificações internas',{exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Terminar sessão',exact:true}).click();await expect(page).toHaveURL(/\/auth/);await expect(page.getByText('Notificações internas',{exact:true})).toHaveCount(0);
 });
