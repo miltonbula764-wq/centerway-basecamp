@@ -1,24 +1,42 @@
 /** Shared by the Supabase Edge Function and the disposable HTTPS test server. */
-export function ingestionHandler(config: { url: string; anonKey: string; fetch?: typeof fetch }) {
+export function ingestionHandler(config: {
+  url: string;
+  anonKey: string;
+  fetch?: typeof fetch;
+  bodyTimeoutMs?: number;
+}) {
   const transport = config.fetch ?? fetch;
   return async (request: Request): Promise<Response> => {
     const requestId = crypto.randomUUID();
+    const started = performance.now();
     const reply = (status: number, body: unknown, retry?: string) => {
-      // Never log headers, body, integration keys or upstream errors.
-      if (status >= 400)
-        console.warn(
-          JSON.stringify({ event: "ingestion_rejected", status, request_id: requestId }),
-        );
-      return new Response(JSON.stringify(body), {
-        status,
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-store",
-          "X-Content-Type-Options": "nosniff",
-          "X-Request-ID": requestId,
-          ...(retry ? { "Retry-After": retry } : {}),
+      // Only bounded technical metadata. No headers, payload, upstream details or credential identifiers.
+      const operation = request.headers.get("idempotency-key");
+      const code =
+        body && typeof body === "object" && "code" in body ? String(body.code) : "completed";
+      console.info(
+        JSON.stringify({
+          event: "c01_http",
+          status,
+          request_id: requestId,
+          duration_ms: Math.round(performance.now() - started),
+          code: /^[a-z_]{1,80}$/.test(code) ? code : "response",
+          ...(operation && /^[0-9a-f-]{36}$/i.test(operation) ? { operation_id: operation } : {}),
+        }),
+      );
+      return new Response(
+        JSON.stringify({ ...(body as Record<string, unknown>), request_id: requestId }),
+        {
+          status,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+            "X-Request-ID": requestId,
+            ...(retry ? { "Retry-After": retry } : {}),
+          },
         },
-      });
+      );
     };
     if (!new URL(request.url).pathname.endsWith("/ingest-v1/observations"))
       return reply(404, { code: "not_found" });
@@ -42,17 +60,37 @@ export function ingestionHandler(config: { url: string; anonKey: string; fetch?:
     if (Number(request.headers.get("content-length")) > 2_000_000)
       return reply(413, { code: "payload_too_large" });
     let payload: unknown;
+    const bodySignal = AbortSignal.any([
+      request.signal,
+      AbortSignal.timeout(config.bodyTimeoutMs ?? 10_000),
+    ]);
+    let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
     try {
-      const reader = request.body?.getReader();
+      reader = request.body?.getReader();
       if (!reader) return reply(400, { code: "invalid_json" });
       const chunks: Uint8Array[] = [];
       let length = 0;
       while (true) {
-        const part = await reader.read();
+        const currentReader = reader;
+        const part = await new Promise<ReadableStreamReadResult<Uint8Array>>((resolve, reject) => {
+          const abort = () => {
+            reject(bodySignal.reason);
+            void currentReader.cancel().catch(() => {});
+          };
+          if (bodySignal.aborted) {
+            abort();
+            return;
+          }
+          bodySignal.addEventListener("abort", abort, { once: true });
+          currentReader
+            .read()
+            .then(resolve, reject)
+            .finally(() => bodySignal.removeEventListener("abort", abort));
+        });
         if (part.done) break;
         length += part.value.byteLength;
         if (length > 2_000_000) {
-          await reader.cancel();
+          void reader.cancel().catch(() => {});
           return reply(413, { code: "payload_too_large" });
         }
         chunks.push(part.value);
@@ -65,7 +103,15 @@ export function ingestionHandler(config: { url: string; anonKey: string; fetch?:
       }
       payload = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
     } catch {
-      return reply(400, { code: "invalid_json" });
+      return bodySignal.aborted
+        ? reply(408, { code: "request_body_timeout" })
+        : reply(400, { code: "invalid_json" });
+    } finally {
+      try {
+        reader?.releaseLock();
+      } catch {
+        /* A cancelled pending read owns the lock until settled. */
+      }
     }
     try {
       const upstream = await transport(
@@ -85,14 +131,15 @@ export function ingestionHandler(config: { url: string; anonKey: string; fetch?:
           signal: AbortSignal.timeout(30_000),
         },
       );
-      if (!upstream.ok) return reply(503, { code: "ingestion_unavailable", request_id: requestId });
+      if (!upstream.ok)
+        return reply(503, { code: "ingestion_unavailable", retry_same_idempotency_key: true }, "1");
       const result = (await upstream.json()) as {
         http_status: number;
         body: Record<string, unknown>;
         retry_after?: number;
       };
       if (![200, 400, 401, 409, 413, 422, 429].includes(result.http_status))
-        return reply(503, { code: "ingestion_unavailable" });
+        return reply(503, { code: "ingestion_unavailable", retry_same_idempotency_key: true }, "1");
       return reply(
         result.http_status,
         { ...result.body, request_id: requestId },
@@ -101,7 +148,7 @@ export function ingestionHandler(config: { url: string; anonKey: string; fetch?:
           : undefined,
       );
     } catch {
-      return reply(503, { code: "ingestion_unavailable", request_id: requestId });
+      return reply(503, { code: "ingestion_unavailable", retry_same_idempotency_key: true }, "1");
     }
   };
 }
