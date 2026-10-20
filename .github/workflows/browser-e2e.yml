@@ -84,7 +84,7 @@ jobs:
           python3 scripts/mvp/apply-review-migration.py --api
           python3 e2e/ingestion-api.py
           python3 scripts/mvp/apply-review-migration.py --monitoring
-          python3 e2e/scheduled-reviews.py
+          python3 e2e/scheduled-reviews.py --defer-temporal
           python3 scripts/mvp/apply-review-migration.py --cycles
           python3 scripts/mvp/review-database.py --followup
           python3 e2e/operational-cycles.py
@@ -93,11 +93,45 @@ jobs:
           python3 e2e/responsibilities.py
           python3 scripts/mvp/apply-review-migration.py --onboarding
           python3 e2e/operational-onboarding.py
+      - name: Synthetic scale and measured Core planner correction
+        working-directory: ${{ runner.temp }}/cw-browser
+        env:
+          PGHOST: 127.0.0.1
+          PGUSER: postgres
+          PGDATABASE: cw_e2e
+          PG_CONTAINER: ${{ job.services.postgres.id }}
+          PGPASSFILE: /dev/null
+        run: |
+          python3 e2e/reliability/scale.py --seed
+          python3 e2e/reliability/plan.py --baseline
+          python3 scripts/mvp/apply-review-migration.py --reliability
+          python3 e2e/reliability/plan.py
+          python3 e2e/scheduled-reviews.py --temporal-only
       - name: Browser end-to-end scenarios
         working-directory: ${{ runner.temp }}/cw-browser/e2e
         run: |
           set -euo pipefail
           npx playwright test 2>&1 | tee logs/browser.log
+      - name: Operational scale, fault recovery and independent PostgreSQL restore
+        working-directory: ${{ runner.temp }}/cw-browser
+        env:
+          PGHOST: 127.0.0.1
+          PGUSER: postgres
+          PGDATABASE: cw_e2e
+          PG_CONTAINER: ${{ job.services.postgres.id }}
+          PGPASSFILE: /dev/null
+        run: |
+          python3 e2e/reliability/scale.py
+          python3 e2e/reliability/recovery.py
+          python3 e2e/reliability/restore.py
+      - name: Dependency advisory audit and Drizzle tooling smoke check
+        working-directory: ${{ runner.temp }}/cw-browser
+        run: |
+          set -euo pipefail
+          bun audit --json > e2e/logs/dependency-audit.json
+          bun run --bun drizzle-kit --version > e2e/logs/drizzle-tooling.log
+          cd e2e
+          npm audit --json --ignore-scripts > logs/e2e-dependency-audit.json
       - name: Unit regression suite, types and production build
         if: ${{ !cancelled() }}
         working-directory: ${{ runner.temp }}/cw-browser
@@ -129,4 +163,4 @@ jobs:
       - name: Stop only this job's disposable services
         if: always()
         run: |
-          docker rm -f cw-gateway cw-rest cw-auth >/dev/null 2>&1 || true
+          docker rm -f cw-recovery-rest cw-recovery-auth cw-recovery-db cw-gateway cw-rest cw-auth >/dev/null 2>&1 || true

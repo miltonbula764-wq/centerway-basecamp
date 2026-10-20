@@ -89,3 +89,71 @@ describe("ingestion HTTP transport boundary (controlled upstream, no auth/databa
     expect(limited.headers.get("retry-after")).toBe("42");
   });
 });
+
+describe("bounded body and ambiguous commit recovery", () => {
+  it("expires an unfinished body without waiting for its cancellation and never contacts SQL", async () => {
+    const upstream = vi.fn();
+    const cancel = vi.fn(() => new Promise<void>(() => {}));
+    const stream = new ReadableStream<Uint8Array>({
+      start(c) {
+        c.enqueue(new TextEncoder().encode("{"));
+      },
+      cancel,
+    });
+    const req = new Request(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${credential}`,
+        "Idempotency-Key": id,
+        "Content-Type": "application/json",
+      },
+      body: stream,
+      duplex: "half",
+    } as RequestInit);
+    const result = await ingestionHandler({
+      url: "https://api.invalid",
+      anonKey: "public",
+      fetch: upstream,
+      bodyTimeoutMs: 15,
+    })(req);
+    expect(result.status).toBe(408);
+    expect(cancel).toHaveBeenCalled();
+    expect(upstream).not.toHaveBeenCalled();
+    expect((await result.json()).code).toBe("request_body_timeout");
+  });
+  it("rejects an already aborted upload without executing an import", async () => {
+    const c = new AbortController();
+    c.abort();
+    const upstream = vi.fn();
+    const req = new Request(request(), { signal: c.signal });
+    const r = await ingestionHandler({
+      url: "https://api.invalid",
+      anonKey: "public",
+      fetch: upstream,
+    })(req);
+    expect(r.status).toBe(408);
+    expect(upstream).not.toHaveBeenCalled();
+  });
+  it("correlates safe metadata and explicitly preserves the operation identity on an uncertain upstream result", async () => {
+    const log = vi.spyOn(console, "info").mockImplementation(() => {});
+    try {
+      const handler = ingestionHandler({
+        url: "https://api.invalid",
+        anonKey: "public",
+        fetch: vi.fn().mockRejectedValue(new Error(credential)),
+      });
+      const r = await handler(request());
+      const b = await r.json();
+      expect(r.status).toBe(503);
+      expect(b.retry_same_idempotency_key).toBe(true);
+      expect(r.headers.get("retry-after")).toBe("1");
+      expect(b.request_id).toBe(r.headers.get("x-request-id"));
+      const meta = JSON.parse(log.mock.calls.at(-1)![0]);
+      expect(meta.operation_id).toBe(id);
+      expect(meta.duration_ms).toBeGreaterThanOrEqual(0);
+      expect(JSON.stringify(log.mock.calls)).not.toContain(credential);
+    } finally {
+      log.mockRestore();
+    }
+  });
+});

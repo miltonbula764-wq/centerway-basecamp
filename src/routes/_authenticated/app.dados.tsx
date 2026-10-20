@@ -43,7 +43,7 @@ function rpcMessage(e: unknown): string {
   if (m.includes("invalid source")) return "Indique a fonte (até 200 caracteres).";
   if (err.code === "42501") return "Não tem permissão para importar nesta empresa.";
   if (err.code === "28000" || err.code === "PGRST301") return "A sessão expirou. Inicie sessão novamente.";
-  if (/fetch|network/i.test(m)) return "Sem ligação ao servidor. Nada foi gravado; tente novamente.";
+  if (/fetch|network/i.test(m)) return "Não foi possível confirmar o resultado da importação. Consulte o histórico e repita com o mesmo ficheiro e as mesmas chaves de idempotência.";
   return "Não foi possível concluir a importação.";
 }
 
