@@ -6,6 +6,7 @@ import { followupQuery, queueActions, queueCategories, queueReasonText } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Empty, ErrorState, Loading, NativeSelect, PageHeader, Panel, formatDate } from "./ui-bits";
+import { OperationalInbox, MyOperationalWork } from "./operational-inbox";
 import { ScheduledReviews } from "./scheduled-reviews";
 export function FollowupQueue() {
   const { tenant } = useTenant();
@@ -34,6 +35,8 @@ function Queue() {
         title="Central de acompanhamento"
         description={`${tenant.name} · Estados persistidos, pendências e orientação para o próximo trabalho humano.`}
       />
+      <MyOperationalWork />
+      <OperationalInbox />
       <ScheduledReviews />
       <form
         onSubmit={filter}

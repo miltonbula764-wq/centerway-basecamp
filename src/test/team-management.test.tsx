@@ -80,6 +80,9 @@ it("drops private admin team cache and controls immediately on a server role ref
   const client = mount();
   await screen.findByText("private-A@example.invalid · Você");
   expect(screen.getByRole("form", { name: "Convidar colaborador" })).toBeInTheDocument();
+  client.setQueryData(["t", "A", "notifications", "user", false, null, 25, "admin"], {
+    items: [{ payload: "private admin notice" }],
+  });
   mocks.role = "viewer";
   await act(async () => {
     await client.invalidateQueries({ queryKey: ["memberships"] });
@@ -89,6 +92,9 @@ it("drops private admin team cache and controls immediately on a server role ref
   );
   expect(screen.queryByText("private-A@example.invalid · Você")).not.toBeInTheDocument();
   expect(client.getQueryCache().findAll({ queryKey: ["t", "A", "team", "admin"] })).toHaveLength(0);
+  expect(
+    client.getQueryData(["t", "A", "notifications", "user", false, null, 25, "admin"]),
+  ).toBeUndefined();
   expect(mocks.rpc).not.toHaveBeenCalledWith("set_member_role", expect.anything());
 });
 it("ignores a dispatched A invitation result after tenant switch and keeps its write targeted at A", async () => {
