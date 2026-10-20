@@ -91,6 +91,8 @@ jobs:
           python3 scripts/mvp/review-database.py --operational
           python3 scripts/mvp/apply-review-migration.py --responsibilities
           python3 e2e/responsibilities.py
+          python3 scripts/mvp/apply-review-migration.py --onboarding
+          python3 e2e/operational-onboarding.py
       - name: Browser end-to-end scenarios
         working-directory: ${{ runner.temp }}/cw-browser/e2e
         run: |

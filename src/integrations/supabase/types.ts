@@ -2371,6 +2371,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      operational_onboarding: { Args: { _tenant_id: string; _subject_id?: string; _after_subject?: string; _after_indicator?: string; _limit?: number }; Returns: Json };
       _assignment_valid: {
         Args: { a: Database["public"]["Tables"]["cw_case_assignments"]["Row"] }
         Returns: boolean

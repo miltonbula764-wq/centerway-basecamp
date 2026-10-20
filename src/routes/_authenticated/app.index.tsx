@@ -1,3 +1,5 @@
+import { OperationalOnboarding } from "@/components/app/operational-onboarding";
+import { z } from "zod";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, CheckCircle2, Circle } from "lucide-react";
@@ -7,6 +9,7 @@ import { ErrorState, Loading, PageHeader, Panel, StatusPill } from "@/components
 import { statusLabel } from "@/lib/profile";
 
 export const Route = createFileRoute("/_authenticated/app/")({
+  validateSearch: z.object({ tenant: z.string().uuid().optional().catch(undefined), subject: z.string().uuid().optional().catch(undefined), collection: z.enum(["csv","api"]).optional().catch(undefined) }),
   head: () => ({
     meta: [
       { title: "Visão geral — CENTERWAY" },
@@ -22,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/app/")({
 
 function Overview() {
   const { tenant } = useTenant();
+  const target = Route.useSearch();
   const subjects = useQuery(countQuery(tenant.id, "subjects"));
   const obs = useQuery(countQuery(tenant.id, "observations"));
   const batches = useQuery(countQuery(tenant.id, "ingestion_batches"));
@@ -46,6 +50,7 @@ function Overview() {
   return (
     <>
       <PageHeader title="Visão geral" description={`${tenant.name} · ${unitLabel[tenant.subject_unit_type]} · ${roleLabel[tenant.role]}`} />
+      <OperationalOnboarding target={target} />
       {anyError ? (
         <ErrorState message="Não foi possível carregar as contagens." onRetry={() => anyError.refetch()} />
       ) : loading ? (

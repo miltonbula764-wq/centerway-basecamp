@@ -171,6 +171,7 @@ function AnalysisSection({ subjectId, profileId }: { subjectId: string; profileI
   const [selectedRun, setSelectedRun] = useState<string | null>(null);
   return (
     <>
+      <div id="analise-e-evidencias" className="scroll-mt-20" />
       <DeteriorationPanel subjectId={subjectId} profileId={profileId} onRunChange={setSelectedRun} />
       <EvidencePanel subjectId={subjectId} runId={selectedRun} />
     </>
