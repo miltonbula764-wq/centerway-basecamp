@@ -1359,6 +1359,7 @@ export type Database = {
       cw_review_entries: {
         Row: {
           checked_at: string
+          data_token: string | null
           entry_key: string
           facts: Json
           fingerprint: string
@@ -1372,6 +1373,7 @@ export type Database = {
         }
         Insert: {
           checked_at: string
+          data_token?: string | null
           entry_key: string
           facts: Json
           fingerprint: string
@@ -1385,6 +1387,7 @@ export type Database = {
         }
         Update: {
           checked_at?: string
+          data_token?: string | null
           entry_key?: string
           facts?: Json
           fingerprint?: string
@@ -2371,7 +2374,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      operational_onboarding: { Args: { _tenant_id: string; _subject_id?: string; _after_subject?: string; _after_indicator?: string; _limit?: number }; Returns: Json };
       _assignment_valid: {
         Args: { a: Database["public"]["Tables"]["cw_case_assignments"]["Row"] }
         Returns: boolean
@@ -2572,6 +2574,15 @@ export type Database = {
           _user: string
         }
         Returns: undefined
+      }
+      _review_data_token: {
+        Args: {
+          _indicator: string
+          _source: Json
+          _subject: string
+          _tenant: string
+        }
+        Returns: string
       }
       _review_facts: { Args: { _tenant: string; q: Json }; Returns: Json }
       _review_process: {
@@ -2839,6 +2850,16 @@ export type Database = {
           _case_id: string
           _cycle_id?: string
           _limit?: number
+          _tenant_id: string
+        }
+        Returns: Json
+      }
+      operational_onboarding: {
+        Args: {
+          _after_indicator?: string
+          _after_subject?: string
+          _limit?: number
+          _subject_id?: string
           _tenant_id: string
         }
         Returns: Json
