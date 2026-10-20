@@ -46,6 +46,7 @@ try:
  r=checked('import_observations',body);assert r['inserted']==0 and r['duplicates']==1
 finally:server.shutdown();server.server_close();thread.join(timeout=5)
 report['committed_import_lost_ack']='real HTTP commit followed by transport disconnect; same idempotency keys returned duplicates, no second observation'
+assert core()==initial,'C01 import/replay unexpectedly changed Core history'
 # Human Core command with a real Auth token; terminate its HTTP backend inside the event trigger.
 version=get('cw_operational_cases?id=eq.'+case)[0]['version']
 command={'_tenant_id':t,'_case_id':case,'_expected_version':version,'_operation_id':newid(),'_command':'start_cycle','_payload':{'reason':'[SINTÉTICO] Continuidade documentada após indisponibilidade','reference':'urn:recovery:continuation'}}
@@ -87,7 +88,18 @@ before_jobs=sql("SELECT md5(jsonb_build_array((SELECT jsonb_agg(to_jsonb(x) ORDE
 terminate_transaction('SELECT public.prepare_operational_notifications('+lit(t)+')')
 after_jobs=sql("SELECT md5(jsonb_build_array((SELECT jsonb_agg(to_jsonb(x) ORDER BY id) FROM cw_notification_jobs x),(SELECT jsonb_agg(to_jsonb(x) ORDER BY id) FROM cw_notifications x),(SELECT jsonb_agg(to_jsonb(x) ORDER BY id) FROM cw_notification_attempts x))::text)")
 assert before_jobs==after_jobs
-assert checked('prepare_operational_notifications',{'_tenant_id':t})['processed']>=1;n=sql('SELECT count(*) FROM cw_notifications');checked('prepare_operational_notifications',{'_tenant_id':t});assert sql('SELECT count(*) FROM cw_notifications')==n
+assert checked('prepare_operational_notifications',{'_tenant_id':t})['processed']>=1
+# Each call processes at most 25 DISTINCT due jobs. A backlog may legitimately
+# create more notifications on the next call; it is not a duplicate/replay.
+for _ in range(100):
+ if checked('prepare_operational_notifications',{'_tenant_id':t})['processed']==0:break
+else:raise AssertionError('Bounded notification backlog did not drain')
+assert sql("SELECT status||':'||attempts FROM cw_notification_jobs WHERE source_kind='core' AND source_id="+lit(plan))=='completed:1','Interrupted job did not recover exactly once'
+assert sql("SELECT count(*) FROM cw_notifications WHERE source_kind='core' AND source_id="+lit(plan)+" AND kind='authorization_needed' AND recipient_id="+lit(users['admin']['id']))=='1'
+assert sql("SELECT count(*) FROM cw_notification_jobs WHERE tenant_id="+lit(t)+" AND status IN ('pending','failed')")=='0'
+notifications=sql("SELECT md5(coalesce(jsonb_agg(to_jsonb(x) ORDER BY id),'[]'::jsonb)::text) FROM cw_notifications x")
+for _ in range(3):assert checked('prepare_operational_notifications',{'_tenant_id':t})['processed']==0
+assert sql("SELECT md5(coalesce(jsonb_agg(to_jsonb(x) ORDER BY id),'[]'::jsonb)::text) FROM cw_notifications x")==notifications
 report['notification_worker_disconnect']='jobs, notifications and attempts rolled back atomically; retry remains deduplicated'
 # Restore reachability after an actual stateless PostgREST service restart.
 rest_info=json.loads(subprocess.check_output(['docker','inspect','cw-rest']))[0];assert rest_info['Config']['Labels']['centerway.disposable']=='true'

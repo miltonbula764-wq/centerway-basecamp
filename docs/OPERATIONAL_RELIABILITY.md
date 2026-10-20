@@ -92,3 +92,9 @@ atribuir retrospectivamente a sua origem. O teste original mantém a verificaç�
 estrita de erros de consola e agora regista somente método/caminho de qualquer
 401 inesperado, sem headers, query strings, tokens ou corpos. Repetições locais
 do percurso de logout passaram; o resultado da campanha limpa Actions é separado.
+
+O ensaio de recuperação da outbox respeita o limite de 25 trabalhos por chamada:
+drena o backlog com um máximo explícito de chamadas, exige entrega/attempt única
+do plano interrompido, ausência de trabalhos pendentes/falhados no tenant de
+ensaio, e compara o hash integral das notificações em três chamadas sem trabalho.
+Crescimento por processamento de eventos diferentes não é confundido com duplicação.
