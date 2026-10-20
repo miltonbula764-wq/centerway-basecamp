@@ -2112,6 +2112,10 @@ export type Database = {
         }
         Returns: string
       }
+      operational_cycle_history: {
+        Args: { _tenant_id: string; _case_id: string; _cycle_id?: string; _before_cycle?: number; _after_event?: number; _limit?: number }
+        Returns: Json
+      }
       prepare_scheduled_reviews: {
         Args: { _tenant_id: string; _operation_id: string }
         Returns: Json
