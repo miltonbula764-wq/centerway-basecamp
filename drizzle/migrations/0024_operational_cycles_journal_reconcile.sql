@@ -1,0 +1,2 @@
+-- Journal reconciliation marker only: the managed migrator applies the pending repository file 0021_operational_cycles.sql byte-identical in this same run; this entry records that application and contains no schema changes.
+SELECT 1;
