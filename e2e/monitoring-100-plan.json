@@ -1,0 +1,173 @@
+{
+  "mission": "20.5",
+  "base_main_commit": "899f10590f9a72298071024eafe7d23810442421",
+  "company": "[SYNTHETIC] Pulse SaaS — 100 clients",
+  "foreign_company": "[SYNTHETIC] Other SaaS — isolation control",
+  "clients": 100,
+  "foreign_clients": 3,
+  "source": "synthetic-pulse-20-5",
+  "indicators": [
+    "cycle_minutes",
+    "delivery_pct"
+  ],
+  "baseline_days": [
+    -6,
+    -5,
+    -4
+  ],
+  "wave_days": [
+    -3,
+    -2,
+    -1
+  ],
+  "as_of_baseline_day": -3,
+  "as_of_wave_day": 0,
+  "groups": [
+    {
+      "ids": [
+        1,
+        20
+      ],
+      "name": "persistent_deterioration",
+      "values": [
+        100,
+        160,
+        170
+      ],
+      "c02": "deterioration_candidate",
+      "c04": "not_achieved"
+    },
+    {
+      "ids": [
+        21,
+        40
+      ],
+      "name": "apparent_recovery",
+      "values": [
+        100,
+        55,
+        50
+      ],
+      "c02": "no_deterioration",
+      "c04": "achieved"
+    },
+    {
+      "ids": [
+        41,
+        60
+      ],
+      "name": "insufficient",
+      "values": [
+        100,
+        80,
+        null
+      ],
+      "c02": "insufficient_data",
+      "c04": "inconclusive"
+    },
+    {
+      "ids": [
+        61,
+        80
+      ],
+      "name": "late_measurement",
+      "values": [
+        100,
+        85,
+        null
+      ],
+      "c02": "insufficient_data",
+      "c04": "inconclusive",
+      "late_value": 80,
+      "after_late_c02": "no_deterioration",
+      "after_late_c04": "not_achieved"
+    },
+    {
+      "ids": [
+        81,
+        100
+      ],
+      "name": "independent_indicators",
+      "values": [
+        100,
+        90,
+        80
+      ],
+      "c02": "no_deterioration",
+      "c04": "not_achieved",
+      "delivery_values": [
+        98,
+        90,
+        92
+      ],
+      "delivery_c02": "deterioration_candidate",
+      "delivery_c04": "not_achieved"
+    }
+  ],
+  "corrections": {
+    "ids": [
+      1,
+      10
+    ],
+    "day": -1,
+    "from_value": 170,
+    "to_value": 50,
+    "after_c02": "no_deterioration",
+    "after_c04": "not_achieved"
+  },
+  "rules": {
+    "target_minutes": 60,
+    "target_delivery_pct": 95,
+    "cadence_days": 1,
+    "window_days": 1,
+    "current_windows": 2,
+    "min_coverage_pct": 100,
+    "min_denominator": 1,
+    "core_cases": 10,
+    "assignment_a": [
+      1,
+      5
+    ],
+    "assignment_b": [
+      6,
+      10
+    ],
+    "awaiting_approval": [
+      1,
+      5
+    ],
+    "executed_waiting": [
+      6,
+      8
+    ],
+    "continued_cycle": 9,
+    "investigation": 10,
+    "observation_seconds": 3,
+    "real_cron_successful_ticks": 2,
+    "schedule": "* * * * *",
+    "review_batch_limit": 50,
+    "notification_batch_limit": 25,
+    "full_cycle_test_schedule": "5 seconds",
+    "real_scheduler_full_primary_references": 401
+  },
+  "expectations": {
+    "baseline_primary_measurements": 600,
+    "wave_primary_measurements": 320,
+    "late_primary_measurements": 20,
+    "correction_primary_measurements": 10,
+    "final_primary_measurements": 950,
+    "foreign_measurements": 18,
+    "final_primary_cases": 10,
+    "automatic_analysis": false,
+    "automatic_case_opening": false,
+    "automatic_execution": false,
+    "automatic_c10": false
+  },
+  "limitations": [
+    "Actual pg_cron execution is proved only in this disposable local/CI database, not in hosted Supabase.",
+    "Manual prepare_scheduled_reviews calls and direct restricted-role worker probes are reported separately from pg_cron job_run_details.",
+    "New evidence and available reviews do not certify deterioration, recovery, value, external documents or authorize interventions.",
+    "Data-token invalidation is conservatively per customer; independent indicators keep their own measurement reasons and evaluations.",
+    "Partial scan cancellation may be visible only in infrastructure logs; catchable page failures persist sanitized SQLSTATE."
+  ]
+}
