@@ -1,0 +1,488 @@
+{
+  "mission": "20.5",
+  "base_main_commit": "899f10590f9a72298071024eafe7d23810442421",
+  "executed_at_utc": "2026-10-21T19:42:19.019316+00:00",
+  "company": "[SYNTHETIC] Pulse SaaS — 100 clients",
+  "primary_customers": 100,
+  "foreign_customers": 3,
+  "measurement_axes": 200,
+  "active_references": 410,
+  "counts": {
+    "observations": 950,
+    "c02_runs": 231,
+    "c03_bundles": 231,
+    "c04_evaluations": 462,
+    "cw_operational_cases": 10,
+    "cw_operational_events": 39,
+    "cw_review_entries": 410,
+    "cw_review_events": 1252,
+    "cw_review_attempts": 191,
+    "cw_case_assignments": 12,
+    "cw_notifications": 1229,
+    "cw_notification_jobs": 1274,
+    "cw_notification_attempts": 1275
+  },
+  "c01_http_requests": 15,
+  "measurement_presentations": 1168,
+  "unique_measurements": 968,
+  "measurement_rejections": 0,
+  "cron": {
+    "extension": "1.6",
+    "schedule": "* * * * *",
+    "minute_runs": [
+      {
+        "jobid": 1,
+        "runid": 1,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 935,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:39:00.156927+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:39:00.002383+00:00",
+        "return_message": "SELECT 1"
+      },
+      {
+        "jobid": 1,
+        "runid": 2,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 1341,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:40:00.075462+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:40:00.001244+00:00",
+        "return_message": "SELECT 1"
+      }
+    ],
+    "full_cycle_test_schedule": "5 seconds",
+    "actual_runs": [
+      {
+        "jobid": 1,
+        "runid": 1,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 935,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:39:00.156927+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:39:00.002383+00:00",
+        "return_message": "SELECT 1"
+      },
+      {
+        "jobid": 1,
+        "runid": 2,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 1341,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:40:00.075462+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:40:00.001244+00:00",
+        "return_message": "SELECT 1"
+      },
+      {
+        "jobid": 1,
+        "runid": 3,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 1454,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:40:05.074057+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:40:05.002318+00:00",
+        "return_message": "SELECT 1"
+      },
+      {
+        "jobid": 1,
+        "runid": 4,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 1575,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:40:10.07953+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:40:10.003668+00:00",
+        "return_message": "SELECT 1"
+      },
+      {
+        "jobid": 1,
+        "runid": 5,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 1676,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:40:15.087553+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:40:15.005085+00:00",
+        "return_message": "SELECT 1"
+      },
+      {
+        "jobid": 1,
+        "runid": 6,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 1789,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:40:20.065206+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:40:20.0062+00:00",
+        "return_message": "SELECT 1"
+      },
+      {
+        "jobid": 1,
+        "runid": 7,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 1900,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:40:25.068547+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:40:25.00736+00:00",
+        "return_message": "SELECT 1"
+      },
+      {
+        "jobid": 1,
+        "runid": 8,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 2003,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:40:30.06944+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:40:30.009033+00:00",
+        "return_message": "SELECT 1"
+      },
+      {
+        "jobid": 1,
+        "runid": 9,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 2119,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:40:35.048557+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:40:35.010105+00:00",
+        "return_message": "SELECT 1"
+      },
+      {
+        "jobid": 1,
+        "runid": 10,
+        "status": "succeeded",
+        "command": "SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);",
+        "job_pid": 2224,
+        "database": "cw_e2e",
+        "end_time": "2026-10-21T19:40:40.031529+00:00",
+        "username": "postgres",
+        "start_time": "2026-10-21T19:40:40.011202+00:00",
+        "return_message": "SELECT 1"
+      }
+    ],
+    "actual_attempts": [
+      {
+        "id": "0b30fce4-1ca9-4492-ab57-c5760a50efbb",
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "started_at": "2026-10-21T19:40:25.01001+00:00",
+        "finished_at": "2026-10-21T19:40:25.057829+00:00",
+        "status": "completed",
+        "processed": 50,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "measurement:735935fe-a180-41b0-ab2d-0c68a85529d0:cycle_minutes",
+        "cursor_after": "measurement:b708f1b9-56e3-4318-b912-a890d3c7da2e:cycle_minutes"
+      },
+      {
+        "id": "4f5010c1-b9e2-4649-88e5-38f23be7063a",
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "started_at": "2026-10-21T19:40:40.01393+00:00",
+        "finished_at": "2026-10-21T19:40:40.015682+00:00",
+        "status": "completed",
+        "processed": 0,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "measurement:fe366e69-d225-4a1b-9af2-85202c5dc040:delivery_pct",
+        "cursor_after": ""
+      },
+      {
+        "id": "8a7cec75-b99b-4e09-ae96-276204429873",
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "started_at": "2026-10-21T19:40:35.013005+00:00",
+        "finished_at": "2026-10-21T19:40:35.034242+00:00",
+        "status": "completed",
+        "processed": 1,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "measurement:fe366e69-d225-4a1b-9af2-85202c5dc040:cycle_minutes",
+        "cursor_after": "measurement:fe366e69-d225-4a1b-9af2-85202c5dc040:delivery_pct"
+      },
+      {
+        "id": "9439c939-b836-4ab2-9085-1542ee1e375e",
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "started_at": "2026-10-21T19:40:00.003896+00:00",
+        "finished_at": "2026-10-21T19:40:00.063952+00:00",
+        "status": "completed",
+        "processed": 50,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "assessment:41a311ea-08ca-4e37-a254-a04d94e551a5:cycle_minutes",
+        "cursor_after": "assessment:7852da95-9434-4880-b920-97372dcbb1c1:cycle_minutes"
+      },
+      {
+        "id": "9b6c7270-7b06-44d0-b148-7719582075c5",
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "started_at": "2026-10-21T19:40:10.006375+00:00",
+        "finished_at": "2026-10-21T19:40:10.066577+00:00",
+        "status": "completed",
+        "processed": 50,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "assessment:c2cc7299-2c10-43fe-9f7e-1c77e6650789:delivery_pct",
+        "cursor_after": "case:e2da8798-d17a-4d74-9899-5c2bc5c84c7b"
+      },
+      {
+        "id": "a8c14a38-927d-488c-b152-f2c8651cc9f0",
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "started_at": "2026-10-21T19:40:30.011693+00:00",
+        "finished_at": "2026-10-21T19:40:30.05813+00:00",
+        "status": "completed",
+        "processed": 50,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "measurement:b708f1b9-56e3-4318-b912-a890d3c7da2e:cycle_minutes",
+        "cursor_after": "measurement:fe366e69-d225-4a1b-9af2-85202c5dc040:cycle_minutes"
+      },
+      {
+        "id": "adbe0ad4-bcef-4f65-9b73-b0e4640543d4",
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "started_at": "2026-10-21T19:40:15.007795+00:00",
+        "finished_at": "2026-10-21T19:40:15.06855+00:00",
+        "status": "completed",
+        "processed": 50,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "case:e2da8798-d17a-4d74-9899-5c2bc5c84c7b",
+        "cursor_after": "measurement:3c6bb53a-2dbd-4c38-a851-76dfb3d97265:cycle_minutes"
+      },
+      {
+        "id": "bdb9a7f8-1196-49b8-83e8-cd6ce530d115",
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "started_at": "2026-10-21T19:39:00.004984+00:00",
+        "finished_at": "2026-10-21T19:39:00.080504+00:00",
+        "status": "completed",
+        "processed": 50,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "",
+        "cursor_after": "assessment:41a311ea-08ca-4e37-a254-a04d94e551a5:cycle_minutes"
+      },
+      {
+        "id": "c093997a-0374-42ce-9f5b-7d9d767fae0c",
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "started_at": "2026-10-21T19:40:20.008948+00:00",
+        "finished_at": "2026-10-21T19:40:20.054618+00:00",
+        "status": "completed",
+        "processed": 50,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "measurement:3c6bb53a-2dbd-4c38-a851-76dfb3d97265:cycle_minutes",
+        "cursor_after": "measurement:735935fe-a180-41b0-ab2d-0c68a85529d0:cycle_minutes"
+      },
+      {
+        "id": "f1c9e058-09e6-4b9f-8785-322c0a36462f",
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "started_at": "2026-10-21T19:40:05.005157+00:00",
+        "finished_at": "2026-10-21T19:40:05.063131+00:00",
+        "status": "completed",
+        "processed": 50,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "assessment:7852da95-9434-4880-b920-97372dcbb1c1:cycle_minutes",
+        "cursor_after": "assessment:c2cc7299-2c10-43fe-9f7e-1c77e6650789:delivery_pct"
+      },
+      {
+        "id": "812baf22-1c2c-488c-96f2-432221ee1ccc",
+        "tenant_id": "45b76ca0-2ca5-4fc7-ab3e-7f44ac64551d",
+        "started_at": "2026-10-21T19:39:00.138808+00:00",
+        "finished_at": "2026-10-21T19:39:00.151333+00:00",
+        "status": "completed",
+        "processed": 12,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "",
+        "cursor_after": "measurement:7808884c-83e5-43b7-8054-803d3d4169f6:delivery_pct"
+      },
+      {
+        "id": "a1c697b6-712d-40e3-9338-57db76b630fe",
+        "tenant_id": "45b76ca0-2ca5-4fc7-ab3e-7f44ac64551d",
+        "started_at": "2026-10-21T19:40:00.073014+00:00",
+        "finished_at": "2026-10-21T19:40:00.07344+00:00",
+        "status": "completed",
+        "processed": 0,
+        "error_code": null,
+        "actor_kind": "scheduler",
+        "actor_id": null,
+        "cursor_before": "measurement:7808884c-83e5-43b7-8054-803d3d4169f6:delivery_pct",
+        "cursor_after": ""
+      }
+    ],
+    "infrastructure_timestamp_tolerance_ms": 1000,
+    "wait_seconds": 145.493,
+    "manual_restricted_worker_attempts": [
+      {
+        "id": "0f1cea2d-729f-456b-ad78-d76431efc29b",
+        "status": "completed",
+        "actor_id": null,
+        "processed": 50,
+        "tenant_id": "a76557dc-c196-48b6-8b7b-9b0396cba3a9",
+        "actor_kind": "scheduler",
+        "error_code": null,
+        "started_at": "2026-10-21T19:41:13.365039+00:00",
+        "finished_at": "2026-10-21T19:41:13.427602+00:00",
+        "cursor_after": "assessment:b708f1b9-56e3-4318-b912-a890d3c7da2e:delivery_pct",
+        "cursor_before": "assessment:735935fe-a180-41b0-ab2d-0c68a85529d0:delivery_pct"
+      }
+    ]
+  },
+  "failures": [
+    {
+      "test": "catchable partial page",
+      "attempt": "c23263f5-17d5-443d-84a4-bbb4853f8826",
+      "code": "P0951",
+      "recovered": true
+    },
+    {
+      "test": "terminated uncommitted page",
+      "operation": "3c429ec5-b859-4007-8a0c-12635b942fa2",
+      "recovered": true,
+      "persisted_failure_attempt": false,
+      "infrastructure_evidence": "targeted pg_terminate_backend and complete hash rollback"
+    },
+    {
+      "test": "notification delivery failure",
+      "job": "0fce2788-da4a-4efa-ac18-bb1c66bf50db",
+      "code": "P0952",
+      "recovered": true,
+      "natural_retry_at": "2026-10-21T19:42:09.794173+00:00",
+      "attempts": 2
+    }
+  ],
+  "notification_kinds": {
+    "authorization_needed": 5,
+    "case_assigned": 12,
+    "evidence_review": 295,
+    "observation_ended": 3,
+    "operational_failure": 1,
+    "responsibility_changed": 2,
+    "review_available": 911
+  },
+  "duplicate_notifications": 0,
+  "assertions_passed": 2863,
+  "sql_regressions": [
+    "CW_TEST_RESULTS pass=67 fail=0",
+    "CW_INGEST_RESULTS pass=35 fail=0",
+    "CW_C02_RESULTS pass=70 fail=0 not_run=0",
+    "CW_C03_RESULTS pass=40 fail=0",
+    "CW_MONITOR_100_RESULTS pass=71 fail=0"
+  ],
+  "timings": {
+    "C01 baseline": {
+      "calls": 7,
+      "total_seconds": 0.2319,
+      "median_seconds": 0.034866,
+      "p95_seconds": 0.045353,
+      "max_seconds": 0.045353
+    },
+    "C01 baseline request replay": {
+      "calls": 1,
+      "total_seconds": 0.0071,
+      "median_seconds": 0.007084,
+      "p95_seconds": 0.007084,
+      "max_seconds": 0.007084
+    },
+    "C01 baseline row replay": {
+      "calls": 1,
+      "total_seconds": 0.024,
+      "median_seconds": 0.024043,
+      "p95_seconds": 0.024043,
+      "max_seconds": 0.024043
+    },
+    "C01 correction wave": {
+      "calls": 1,
+      "total_seconds": 0.0131,
+      "median_seconds": 0.013138,
+      "p95_seconds": 0.013138,
+      "max_seconds": 0.013138
+    },
+    "C01 late wave": {
+      "calls": 1,
+      "total_seconds": 0.0129,
+      "median_seconds": 0.012857,
+      "p95_seconds": 0.012857,
+      "max_seconds": 0.012857
+    },
+    "C01 wave 1 changes": {
+      "calls": 4,
+      "total_seconds": 0.1361,
+      "median_seconds": 0.038857,
+      "p95_seconds": 0.041638,
+      "max_seconds": 0.041638
+    },
+    "core_followup_queue page": {
+      "calls": 25,
+      "total_seconds": 5.8384,
+      "median_seconds": 0.029125,
+      "p95_seconds": 0.806529,
+      "max_seconds": 0.846864
+    },
+    "explicit C02-C04 analysis": {
+      "calls": 100,
+      "total_seconds": 4.4721,
+      "median_seconds": 0.043384,
+      "p95_seconds": 0.050624,
+      "max_seconds": 0.078448
+    },
+    "manual review page": {
+      "calls": 181,
+      "total_seconds": 6.9102,
+      "median_seconds": 0.040395,
+      "p95_seconds": 0.064656,
+      "max_seconds": 0.113071
+    },
+    "notification batch": {
+      "calls": 13,
+      "total_seconds": 0.0265,
+      "median_seconds": 0.001995,
+      "p95_seconds": 0.002626,
+      "max_seconds": 0.002626
+    },
+    "scheduled_reviews page": {
+      "calls": 296,
+      "total_seconds": 4.8247,
+      "median_seconds": 0.017256,
+      "p95_seconds": 0.021953,
+      "max_seconds": 0.032391
+    }
+  },
+  "limitations": [
+    "Actual pg_cron execution is proved only in this disposable local/CI database, not in hosted Supabase.",
+    "Manual prepare_scheduled_reviews calls and direct restricted-role worker probes are reported separately from pg_cron job_run_details.",
+    "New evidence and available reviews do not certify deterioration, recovery, value, external documents or authorize interventions.",
+    "Data-token invalidation is conservatively per customer; independent indicators keep their own measurement reasons and evaluations.",
+    "Partial scan cancellation may be visible only in infrastructure logs; catchable page failures persist sanitized SQLSTATE."
+  ],
+  "product_defects_found": 1,
+  "hosted_access": false,
+  "business_clock_modified": false,
+  "automatic_interventions": false
+}

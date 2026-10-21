@@ -10,9 +10,12 @@ DO $$ BEGIN
   RAISE EXCEPTION 'Scheduler capability membership required';
  END IF;
 END $$;
+-- pg_cron background workers already run the command in a transaction. Explicit
+-- BEGIN/COMMIT breaks PL/pgSQL subtransactions (BeginInternalSubTransaction).
+-- SET LOCAL retains the timeout/capability boundary for the implicit job transaction.
 -- Same name updates the existing job, preventing duplicate schedules.
 SELECT cron.schedule('centerway-prepare-reviews-v1','* * * * *',
- $job$BEGIN; SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10); COMMIT;$job$);
+ $job$SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);$job$);
 COMMIT;
 -- Disable later with: SELECT cron.unschedule('centerway-prepare-reviews-v1');
 -- Inspect infrastructure attempts: SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 20;
