@@ -1,0 +1,498 @@
+{
+  "mission": "20.3-integrated",
+  "base_main_commit": "49354db39939d0f4bf828d7a2acaf5d26a656a1f",
+  "executed_at_utc": "2026-10-21T18:22:11.728695+00:00",
+  "company": "ReportPilot SaaS — SYNTHETIC",
+  "as_of": "2026-10-21T00:00:00Z",
+  "plan": "e2e/integrated-value-plan.json",
+  "clients": {
+    "01": {
+      "scenario": "Objetivo atingido",
+      "expected": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "obtained": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "current_values": [
+        50.0,
+        55.0
+      ],
+      "current_coverage": [
+        100.0,
+        100.0
+      ],
+      "configuration_version": 1,
+      "run": "f4405075-5597-4797-92ba-1d4c3828e6e2",
+      "bundle": "e1a3f783-a3e8-4552-a899-57cb6426248b",
+      "evaluation": "df54d52b-8134-4892-8521-b254b8f3e322"
+    },
+    "02": {
+      "scenario": "Melhoria sem atingir a meta",
+      "expected": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "not_achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "obtained": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "not_achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "current_values": [
+        70.0,
+        80.0
+      ],
+      "current_coverage": [
+        100.0,
+        100.0
+      ],
+      "configuration_version": 1,
+      "run": "8896772c-e1b7-435e-b1af-60a31aadd7ec",
+      "bundle": "a65a2c7d-171c-4167-a2b8-2faba626ec4a",
+      "evaluation": "300e280f-7c37-491f-805a-e4e23305599e",
+      "descriptive_improvement_pct": 30.0
+    },
+    "03": {
+      "scenario": "Deterioração",
+      "expected": {
+        "c02": "deterioration_candidate",
+        "c03": "complete",
+        "c04": "not_achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "obtained": {
+        "c02": "deterioration_candidate",
+        "c03": "complete",
+        "c04": "not_achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "current_values": [
+        170.0,
+        160.0
+      ],
+      "current_coverage": [
+        100.0,
+        100.0
+      ],
+      "configuration_version": 1,
+      "run": "0ba03f7f-0553-4c35-a3f3-e881a496b7bc",
+      "bundle": "ab3ea932-d7f9-4b20-90cf-320b1e565481",
+      "evaluation": "76748ac4-bb04-4547-86e8-7e97eaf2458c"
+    },
+    "04": {
+      "scenario": "Oscilação temporária",
+      "expected": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "not_achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "obtained": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "not_achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "current_values": [
+        50.0,
+        160.0
+      ],
+      "current_coverage": [
+        100.0,
+        100.0
+      ],
+      "configuration_version": 1,
+      "run": "dfff67ff-ee7c-48de-8800-205c55949258",
+      "bundle": "4031800e-ce18-4506-8354-2828e6e0d3ca",
+      "evaluation": "f2addb7f-8344-4f66-8a20-b2fb9801681b"
+    },
+    "05": {
+      "scenario": "Dados insuficientes",
+      "expected": {
+        "c02": "insufficient_data",
+        "c03": "insufficient",
+        "c04": "inconclusive",
+        "state": "compatible",
+        "evidence": "insufficient",
+        "disposition": "needs_information"
+      },
+      "obtained": {
+        "c02": "insufficient_data",
+        "c03": "insufficient",
+        "c04": "inconclusive",
+        "state": "compatible",
+        "evidence": "insufficient",
+        "disposition": "needs_information"
+      },
+      "current_values": [
+        40.0,
+        50.0
+      ],
+      "current_coverage": [
+        50.0,
+        100.0
+      ],
+      "configuration_version": 1,
+      "run": "6f91b192-3f61-4422-91f5-a9267c01ddea",
+      "bundle": "4f610254-b12a-4edf-9fc1-eee8924b4855",
+      "evaluation": "3613e4f7-3cf1-4a30-8360-30a2178192bb"
+    },
+    "06": {
+      "scenario": "Documentação incompleta",
+      "expected": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "inconclusive",
+        "state": "missing_documentation",
+        "evidence": "insufficient",
+        "disposition": "needs_information"
+      },
+      "obtained": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "inconclusive",
+        "state": "missing_documentation",
+        "evidence": "insufficient",
+        "disposition": "needs_information"
+      },
+      "current_values": [
+        45.0,
+        50.0
+      ],
+      "current_coverage": [
+        100.0,
+        100.0
+      ],
+      "configuration_version": 1,
+      "run": "98e098a5-edab-4f9e-a643-16a347c29614",
+      "bundle": "b70127d4-be85-41f2-9d5f-780832d1e53c",
+      "evaluation": "a02c354a-6f99-488f-9d65-28cb3513ec15"
+    },
+    "07": {
+      "scenario": "Contradição entre promessa e capacidade do plano",
+      "expected": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "achieved",
+        "state": "contradiction",
+        "evidence": "sufficient",
+        "disposition": "configuration_review"
+      },
+      "obtained": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "achieved",
+        "state": "contradiction",
+        "evidence": "sufficient",
+        "disposition": "configuration_review"
+      },
+      "current_values": [
+        45.0,
+        50.0
+      ],
+      "current_coverage": [
+        100.0,
+        100.0
+      ],
+      "configuration_version": 1,
+      "run": "88ae697e-4f47-4fa0-a093-704aa2e79ff1",
+      "bundle": "fe1db497-636f-497e-a073-fcc2fdcc080b",
+      "evaluation": "2812e29e-fb53-4dc4-beb2-5cea8ef7de64"
+    },
+    "08": {
+      "scenario": "Medições atrasadas",
+      "expected": {
+        "c02": "insufficient_data",
+        "c03": "insufficient",
+        "c04": "inconclusive",
+        "state": "compatible",
+        "evidence": "insufficient",
+        "disposition": "needs_information"
+      },
+      "obtained": {
+        "c02": "insufficient_data",
+        "c03": "insufficient",
+        "c04": "inconclusive",
+        "state": "compatible",
+        "evidence": "insufficient",
+        "disposition": "needs_information"
+      },
+      "current_values": [
+        45.0,
+        55.0
+      ],
+      "current_coverage": [
+        50.0,
+        100.0
+      ],
+      "configuration_version": 1,
+      "run": "bac4cfb3-9f3c-4f27-9553-7b8a1d2f4005",
+      "bundle": "7f5e3e3f-f50d-4042-a5d2-ddf9ba19a3e6",
+      "evaluation": "1da528da-3371-4f3e-8bda-8a313840dee4",
+      "followup": {
+        "expected": {
+          "kind": "late",
+          "day": -1,
+          "value": 45,
+          "c02": "no_deterioration",
+          "c03": "complete",
+          "c04": "achieved",
+          "state": "compatible",
+          "evidence": "sufficient",
+          "disposition": "assessment_available"
+        },
+        "obtained": {
+          "c02": "no_deterioration",
+          "c03": "complete",
+          "c04": "achieved"
+        },
+        "evaluation": "f580b713-f62a-4632-994c-f187cc56d854",
+        "old_evaluation_preserved": true
+      }
+    },
+    "09": {
+      "scenario": "Correções de dados",
+      "expected": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "not_achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "obtained": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "not_achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "current_values": [
+        85.0,
+        55.0
+      ],
+      "current_coverage": [
+        100.0,
+        100.0
+      ],
+      "configuration_version": 1,
+      "run": "028d7a3b-2a52-40a0-a619-6aff59f5ad53",
+      "bundle": "4ef269ae-4a81-4c84-b691-c41ddeb8226c",
+      "evaluation": "fedb2156-59f5-40ed-bb20-da5347c1b60d",
+      "followup": {
+        "expected": {
+          "kind": "correction",
+          "day": -1,
+          "value": 15,
+          "c02": "no_deterioration",
+          "c03": "complete",
+          "c04": "achieved",
+          "state": "compatible",
+          "evidence": "sufficient",
+          "disposition": "assessment_available"
+        },
+        "obtained": {
+          "c02": "no_deterioration",
+          "c03": "complete",
+          "c04": "achieved"
+        },
+        "evaluation": "d59ef9ff-7044-4ae6-9bc9-695c10de34ae",
+        "old_evaluation_preserved": true
+      }
+    },
+    "10": {
+      "scenario": "Indicadores independentes",
+      "expected": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "obtained": {
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      },
+      "current_values": [
+        50.0,
+        55.0
+      ],
+      "current_coverage": [
+        100.0,
+        100.0
+      ],
+      "configuration_version": 1,
+      "run": "28787cef-1883-4913-bc5e-65e7a1c3ad92",
+      "bundle": "495896f6-d959-49c2-bef9-46c831fae8e4",
+      "evaluation": "82668efc-ed73-41e7-a028-1e88c98442e1",
+      "independent": {
+        "expected": {
+          "key": "delivery_pct",
+          "values": [
+            98,
+            90,
+            92
+          ],
+          "target": 95,
+          "c02": "deterioration_candidate",
+          "c03": "complete",
+          "c04": "not_achieved",
+          "state": "compatible",
+          "evidence": "sufficient",
+          "disposition": "assessment_available"
+        },
+        "obtained": {
+          "c02": "deterioration_candidate",
+          "c03": "complete",
+          "c04": "not_achieved"
+        }
+      }
+    }
+  },
+  "probes": [
+    {
+      "name": "pending_deadline",
+      "expected": "pending_deadline",
+      "obtained": "pending_deadline",
+      "state": "compatible",
+      "reasons": []
+    },
+    {
+      "name": "missing_plan",
+      "expected": "achieved",
+      "obtained": "achieved",
+      "state": "missing_documentation",
+      "reasons": []
+    },
+    {
+      "name": "not_checkable",
+      "expected": "achieved",
+      "obtained": "achieved",
+      "state": "not_checkable",
+      "reasons": []
+    },
+    {
+      "name": "required_windows",
+      "expected": "inconclusive",
+      "obtained": "inconclusive",
+      "state": "compatible",
+      "reasons": [
+        "required_windows_unavailable",
+        "measurement_rules_not_satisfied"
+      ]
+    },
+    {
+      "name": "wrong_source",
+      "expected": "inconclusive",
+      "obtained": "inconclusive",
+      "state": "compatible",
+      "reasons": [
+        "measurement_rules_not_satisfied"
+      ]
+    },
+    {
+      "name": "wrong_unit",
+      "expected": "inconclusive",
+      "obtained": "inconclusive",
+      "state": "contradiction",
+      "reasons": [
+        "historical_measurement_configuration_mismatch",
+        "measurement_rules_not_satisfied"
+      ]
+    },
+    {
+      "name": "single_window_goal_revision",
+      "expected": "achieved",
+      "obtained": "achieved",
+      "state": "compatible",
+      "reasons": []
+    }
+  ],
+  "counts": {
+    "customers": 10,
+    "observations": 66,
+    "c02_runs": 13,
+    "c03_bundles": 13,
+    "c03_refs": 83,
+    "configurations": 19,
+    "evaluations": 22
+  },
+  "c01_http_attempts": 14,
+  "measurement_row_attempts": 78,
+  "unique_measurements": 66,
+  "idempotent_measurement_replays": 12,
+  "measurement_rejections": 0,
+  "sql_regressions": [
+    "CW_TEST_RESULTS pass=67 fail=0",
+    "CW_INGEST_RESULTS pass=35 fail=0",
+    "CW_C02_RESULTS pass=70 fail=0 not_run=0",
+    "CW_C03_RESULTS pass=40 fail=0",
+    "CW_INTEGRATED_C04_RESULTS pass=40 fail=0"
+  ],
+  "assertions_passed": 662,
+  "unchanged_tables": [
+    "cw_assessments",
+    "cw_case_assignments",
+    "cw_case_events",
+    "cw_cases",
+    "cw_notification_attempts",
+    "cw_notification_jobs",
+    "cw_notification_reads",
+    "cw_notifications",
+    "cw_objectives",
+    "cw_operational_cases",
+    "cw_operational_cycles",
+    "cw_operational_events",
+    "cw_review_attempts",
+    "cw_review_entries",
+    "cw_review_events",
+    "cw_review_scans",
+    "indicators",
+    "memberships",
+    "subjects",
+    "tenant_invitations",
+    "tenants",
+    "value_profiles"
+  ],
+  "limitations": [
+    "Relative improvement is a descriptive calculation, not a persisted C04 result enum.",
+    "Documentary compatibility is a referenced human declaration; C04 does not interpret or certify external documents.",
+    "No global promise score or cross-indicator aggregation policy is supported.",
+    "c04-numeric-v1 evaluates every selected C02 current window, not arbitrary periods or a mean of windows."
+  ],
+  "product_defects_found": 0,
+  "hosted_access": false,
+  "automatic_interventions": false,
+  "global_promise_fulfillment": "not_determined"
+}

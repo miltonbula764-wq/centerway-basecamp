@@ -1,0 +1,397 @@
+{
+  "mission": "20.3-integrated",
+  "company": "ReportPilot SaaS — SYNTHETIC",
+  "source": "synthetic-reportpilot-value",
+  "rules": {
+    "as_of": "today 00:00 UTC",
+    "reference_days": [
+      -6,
+      -4
+    ],
+    "older_current_days": [
+      -4,
+      -2
+    ],
+    "newest_current_days": [
+      -2,
+      0
+    ],
+    "observation_start_day": -4,
+    "deadline_day": 0,
+    "window_count": 2,
+    "goal_rule": "each_selected_current_window"
+  },
+  "documents": {
+    "promise": {
+      "ref": "fixture://reportpilot/promise-v1",
+      "text": "Daily automated reporting; each customer confirms its own numeric goals. No universal outcome guarantee."
+    },
+    "plans": {
+      "pro": {
+        "ref": "fixture://reportpilot/pro-v1",
+        "text": "Pro: daily reporting automation and delivery monitoring; results depend on the configured workflow. No guaranteed duration."
+      },
+      "starter": {
+        "ref": "fixture://reportpilot/starter-v1",
+        "text": "Starter: manual weekly CSV exports only; no daily automated reporting."
+      }
+    },
+    "compatibility_review": "Synthetic human review of the recorded promise, plan and individual goal; references are not externally certified."
+  },
+  "indicators": [
+    {
+      "key": "cycle_minutes",
+      "name": "[SYNTHETIC] Reporting cycle duration",
+      "classification": "outcome",
+      "value_type": "numeric",
+      "unit": "min",
+      "direction": "lower_is_better",
+      "baseline_method": "fixed_value",
+      "baseline_value": 100,
+      "baseline_min_period_days": 2,
+      "observation_window_days": 2,
+      "comparison_window_days": 2,
+      "min_coverage_pct": 100,
+      "min_denominator": 2,
+      "target_value": 60,
+      "deterioration_kind": "absolute",
+      "deterioration_operator": "gt",
+      "deterioration_value": 150,
+      "deterioration_consecutive_windows": 2,
+      "recovery_kind": "absolute",
+      "recovery_operator": "lte",
+      "recovery_value": 120,
+      "recovery_consecutive_windows": 2,
+      "aggregation": "mean",
+      "expected_cadence_days": 1,
+      "denominator_mode": "observation_count"
+    },
+    {
+      "key": "delivery_pct",
+      "name": "[SYNTHETIC] On-time delivery",
+      "classification": "outcome",
+      "value_type": "numeric",
+      "unit": "%",
+      "direction": "higher_is_better",
+      "baseline_method": "fixed_value",
+      "baseline_value": 98,
+      "baseline_min_period_days": 2,
+      "observation_window_days": 2,
+      "comparison_window_days": 2,
+      "min_coverage_pct": 100,
+      "min_denominator": 2,
+      "target_value": 95,
+      "deterioration_kind": "absolute",
+      "deterioration_operator": "lt",
+      "deterioration_value": 95,
+      "deterioration_consecutive_windows": 2,
+      "recovery_kind": "absolute",
+      "recovery_operator": "gte",
+      "recovery_value": 95,
+      "recovery_consecutive_windows": 2,
+      "aggregation": "mean",
+      "expected_cadence_days": 1,
+      "denominator_mode": "observation_count"
+    }
+  ],
+  "clients": [
+    {
+      "id": "01",
+      "scenario": "Objetivo atingido",
+      "values": [
+        100,
+        55,
+        50
+      ],
+      "target": 60,
+      "c02": "no_deterioration",
+      "c03": "complete",
+      "c04": "achieved",
+      "state": "compatible",
+      "evidence": "sufficient",
+      "disposition": "assessment_available"
+    },
+    {
+      "id": "02",
+      "scenario": "Melhoria sem atingir a meta",
+      "values": [
+        100,
+        80,
+        70
+      ],
+      "target": 65,
+      "c02": "no_deterioration",
+      "c03": "complete",
+      "c04": "not_achieved",
+      "state": "compatible",
+      "evidence": "sufficient",
+      "disposition": "assessment_available",
+      "relative_improvement_pct": 30
+    },
+    {
+      "id": "03",
+      "scenario": "Deterioração",
+      "values": [
+        100,
+        160,
+        170
+      ],
+      "target": 90,
+      "c02": "deterioration_candidate",
+      "c03": "complete",
+      "c04": "not_achieved",
+      "state": "compatible",
+      "evidence": "sufficient",
+      "disposition": "assessment_available"
+    },
+    {
+      "id": "04",
+      "scenario": "Oscilação temporária",
+      "values": [
+        50,
+        160,
+        50
+      ],
+      "target": 60,
+      "c02": "no_deterioration",
+      "c03": "complete",
+      "c04": "not_achieved",
+      "state": "compatible",
+      "evidence": "sufficient",
+      "disposition": "assessment_available"
+    },
+    {
+      "id": "05",
+      "scenario": "Dados insuficientes",
+      "values": [
+        100,
+        50,
+        40
+      ],
+      "target": 55,
+      "missing_day": -1,
+      "c02": "insufficient_data",
+      "c03": "insufficient",
+      "c04": "inconclusive",
+      "state": "compatible",
+      "evidence": "insufficient",
+      "disposition": "needs_information"
+    },
+    {
+      "id": "06",
+      "scenario": "Documentação incompleta",
+      "values": [
+        100,
+        50,
+        45
+      ],
+      "target": 50,
+      "definition_patch": {
+        "customer_ref": null
+      },
+      "c02": "no_deterioration",
+      "c03": "complete",
+      "c04": "inconclusive",
+      "state": "missing_documentation",
+      "evidence": "insufficient",
+      "disposition": "needs_information"
+    },
+    {
+      "id": "07",
+      "scenario": "Contradição entre promessa e capacidade do plano",
+      "values": [
+        100,
+        50,
+        45
+      ],
+      "target": 60,
+      "plan": "starter",
+      "definition_patch": {
+        "compatibility": "contradiction"
+      },
+      "c02": "no_deterioration",
+      "c03": "complete",
+      "c04": "achieved",
+      "state": "contradiction",
+      "evidence": "sufficient",
+      "disposition": "configuration_review"
+    },
+    {
+      "id": "08",
+      "scenario": "Medições atrasadas",
+      "values": [
+        100,
+        55,
+        45
+      ],
+      "target": 55,
+      "missing_day": -1,
+      "c02": "insufficient_data",
+      "c03": "insufficient",
+      "c04": "inconclusive",
+      "state": "compatible",
+      "evidence": "insufficient",
+      "disposition": "needs_information",
+      "followup": {
+        "kind": "late",
+        "day": -1,
+        "value": 45,
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      }
+    },
+    {
+      "id": "09",
+      "scenario": "Correções de dados",
+      "values": [
+        100,
+        55,
+        85
+      ],
+      "target": 60,
+      "c02": "no_deterioration",
+      "c03": "complete",
+      "c04": "not_achieved",
+      "state": "compatible",
+      "evidence": "sufficient",
+      "disposition": "assessment_available",
+      "followup": {
+        "kind": "correction",
+        "day": -1,
+        "value": 15,
+        "c02": "no_deterioration",
+        "c03": "complete",
+        "c04": "achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      }
+    },
+    {
+      "id": "10",
+      "scenario": "Indicadores independentes",
+      "values": [
+        100,
+        55,
+        50
+      ],
+      "target": 60,
+      "c02": "no_deterioration",
+      "c03": "complete",
+      "c04": "achieved",
+      "state": "compatible",
+      "evidence": "sufficient",
+      "disposition": "assessment_available",
+      "independent": {
+        "key": "delivery_pct",
+        "values": [
+          98,
+          90,
+          92
+        ],
+        "target": 95,
+        "c02": "deterioration_candidate",
+        "c03": "complete",
+        "c04": "not_achieved",
+        "state": "compatible",
+        "evidence": "sufficient",
+        "disposition": "assessment_available"
+      }
+    }
+  ],
+  "probes": [
+    {
+      "name": "pending_deadline",
+      "client": "01",
+      "patch": {
+        "deadline_day": 1
+      },
+      "c04": "pending_deadline",
+      "state": "compatible",
+      "evidence": "sufficient",
+      "disposition": "needs_information"
+    },
+    {
+      "name": "missing_plan",
+      "client": "01",
+      "patch": {
+        "plan_ref": null
+      },
+      "c04": "achieved",
+      "state": "missing_documentation",
+      "evidence": "sufficient",
+      "disposition": "needs_information"
+    },
+    {
+      "name": "not_checkable",
+      "client": "01",
+      "patch": {
+        "compatibility": "not_checkable"
+      },
+      "c04": "achieved",
+      "state": "not_checkable",
+      "evidence": "sufficient",
+      "disposition": "needs_information"
+    },
+    {
+      "name": "required_windows",
+      "client": "01",
+      "patch": {
+        "window_count": 3,
+        "customer_goal": "[SYNTHETIC] Explicit human revision: cycle_minutes <= 60 in each of 3 current windows",
+        "customer_ref": "fixture://reportpilot/clients/01/goal-cycle_minutes-probe-3",
+        "compatibility_ref": "fixture://reportpilot/reviews/01/probe-3"
+      },
+      "c04": "inconclusive",
+      "state": "compatible",
+      "evidence": "insufficient",
+      "disposition": "needs_information"
+    },
+    {
+      "name": "wrong_source",
+      "client": "01",
+      "patch": {
+        "source": "unsupported-synthetic-source"
+      },
+      "c04": "inconclusive",
+      "state": "compatible",
+      "evidence": "insufficient",
+      "disposition": "needs_information"
+    },
+    {
+      "name": "wrong_unit",
+      "client": "01",
+      "patch": {
+        "unit": "hours"
+      },
+      "c04": "inconclusive",
+      "state": "contradiction",
+      "evidence": "insufficient",
+      "disposition": "configuration_review"
+    },
+    {
+      "name": "single_window_goal_revision",
+      "client": "04",
+      "patch": {
+        "window_count": 1,
+        "customer_goal": "[SYNTHETIC] Explicit human revision: cycle_minutes <= 60 in each of 1 current windows",
+        "customer_ref": "fixture://reportpilot/clients/04/goal-cycle_minutes-probe-1",
+        "compatibility_ref": "fixture://reportpilot/reviews/04/probe-1"
+      },
+      "c04": "achieved",
+      "state": "compatible",
+      "evidence": "sufficient",
+      "disposition": "assessment_available"
+    }
+  ],
+  "limitations": [
+    "Relative improvement is a descriptive calculation, not a persisted C04 result enum.",
+    "Documentary compatibility is a referenced human declaration; C04 does not interpret or certify external documents.",
+    "No global promise score or cross-indicator aggregation policy is supported.",
+    "c04-numeric-v1 evaluates every selected C02 current window, not arbitrary periods or a mean of windows."
+  ]
+}
