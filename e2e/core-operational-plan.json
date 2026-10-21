@@ -1,0 +1,173 @@
+{
+  "mission": "20.4",
+  "company": "[SYNTHETIC] Sentinel SaaS — Core validation",
+  "source": "synthetic-core-20-4",
+  "base_main_commit": "f5c277020a36d45aa918c304c85b05c2da58db60",
+  "rules": {
+    "indicator": "cycle_minutes",
+    "unit": "min",
+    "aggregation": "mean",
+    "cadence_days": 1,
+    "current_windows": 2,
+    "window_days": 1,
+    "min_coverage_pct": 100,
+    "min_denominator": 1,
+    "target": 60,
+    "comparator": "lte",
+    "deadline_day": -30,
+    "observation_start_day": -40,
+    "baseline_as_of_day": -25,
+    "after_as_of_day": -1,
+    "prospective_observation_seconds": 3,
+    "retrospective_execution_day": -10,
+    "retrospective_observation_seconds": 259200
+  },
+  "opening": {
+    "eligible": true,
+    "configuration_pinned": true,
+    "eligibility_reason": "[SYNTHETIC] Administrator authorizes a bounded individual review of a measured goal gap.",
+    "eligibility_ref": "urn:sentinel:eligibility:v1",
+    "opening_criteria": "[SYNTHETIC] Conclusive compatible C04 and explicit individual human review; no universal commercial eligibility policy.",
+    "closure_criteria": "[SYNTHETIC] Historical goal <=60 min in both daily current windows, sufficient post-execution evidence, no unresolved relevant facts, and explicit human confirmation of these criteria.",
+    "closure_ref": "urn:sentinel:closure:v1"
+  },
+  "cases": [
+    {
+      "id": "01",
+      "scenario": "Prospective hypothesis, confirmation, real wait and insufficient post-execution evidence",
+      "mode": "prospective",
+      "after_values": [
+        75,
+        50,
+        45
+      ],
+      "c04": "not_achieved",
+      "state": "compatible",
+      "final": "investigation",
+      "cycles": 2,
+      "decision": "remain_open",
+      "expected_reason": "objective_not_demonstrated"
+    },
+    {
+      "id": "02",
+      "scenario": "Prospective authorization revision, natural expiry and approver role revocation",
+      "mode": "prospective",
+      "after_values": [
+        90,
+        85,
+        80
+      ],
+      "c04": "not_achieved",
+      "state": "compatible",
+      "final": "waiting_observation",
+      "cycles": 1,
+      "decision": null
+    },
+    {
+      "id": "03",
+      "scenario": "Correction of C05 evidence invalidates preparation and execution",
+      "mode": "prospective",
+      "after_values": [
+        75,
+        50,
+        45
+      ],
+      "c04": "not_achieved",
+      "state": "compatible",
+      "final": "approved",
+      "cycles": 1,
+      "decision": null,
+      "expected_error": "investigation_evidence_changed"
+    },
+    {
+      "id": "04",
+      "scenario": "Retrospective goal attained, explicit criteria and contradiction review, legitimate closure",
+      "mode": "synthetic_retrospective_history",
+      "after_values": [
+        75,
+        50,
+        45
+      ],
+      "c04": "not_achieved",
+      "state": "compatible",
+      "final": "closed_resolved",
+      "cycles": 1,
+      "decision": "closed_resolved"
+    },
+    {
+      "id": "05",
+      "scenario": "Retrospective goal not attained, continued case and explicit new cycle",
+      "mode": "synthetic_retrospective_history",
+      "after_values": [
+        90,
+        85,
+        80
+      ],
+      "c04": "not_achieved",
+      "state": "compatible",
+      "final": "investigation",
+      "cycles": 2,
+      "decision": "remain_open",
+      "expected_reason": "objective_not_demonstrated"
+    },
+    {
+      "id": "06",
+      "scenario": "Late correction after C09 blocks closure and preserves earlier evidence",
+      "mode": "synthetic_retrospective_history",
+      "after_values": [
+        75,
+        50,
+        45
+      ],
+      "c04": "not_achieved",
+      "state": "compatible",
+      "final": "remain_open",
+      "cycles": 1,
+      "decision": "remain_open",
+      "expected_reason": "new_relevant_evidence_requires_comparison",
+      "correction": {
+        "day": -2,
+        "value": 85
+      },
+      "after_correction": "not_achieved"
+    },
+    {
+      "id": "07",
+      "scenario": "Inconclusive C04 cannot open a case",
+      "mode": "blocked",
+      "after_values": [
+        75,
+        50,
+        45
+      ],
+      "c04": "inconclusive",
+      "state": "compatible",
+      "final": "blocked",
+      "cycles": 0,
+      "decision": null,
+      "missing_day": -26
+    },
+    {
+      "id": "08",
+      "scenario": "Documentary contradiction cannot open a case",
+      "mode": "blocked",
+      "after_values": [
+        75,
+        50,
+        45
+      ],
+      "c04": "not_achieved",
+      "state": "contradiction",
+      "final": "blocked",
+      "cycles": 0,
+      "decision": null
+    }
+  ],
+  "limitations": [
+    "A short prospective wait proves temporal enforcement, not recovery with a daily cadence or legitimate prospective closure.",
+    "Retrospective C05-C08 history is explicitly synthetic owner-loaded fixture data, not proof of past authorization, execution or elapsed observation.",
+    "C05 confirmation, textual plan conditions, eligibility and closure criteria require documented human interpretation; external documents are not certified.",
+    "No remote actions, automatic causality, universal commercial policy, closed-case reopening or historical contract migration are supported.",
+    "Revocation is exercised through current approver membership/role and plan replacement; no independent authorization revoke command exists."
+  ]
+}

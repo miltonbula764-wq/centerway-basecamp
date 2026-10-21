@@ -1,0 +1,797 @@
+{
+  "mission": "20.4",
+  "base_main_commit": "f5c277020a36d45aa918c304c85b05c2da58db60",
+  "executed_at_utc": "2026-10-21T18:51:49.796198+00:00",
+  "as_of": "2026-10-21T00:00:00Z",
+  "company": "[SYNTHETIC] Sentinel SaaS — Core validation",
+  "scenarios": {
+    "01": {
+      "scenario": "Prospective hypothesis, confirmation, real wait and insufficient post-execution evidence",
+      "mode": "prospective",
+      "expected": {
+        "id": "01",
+        "scenario": "Prospective hypothesis, confirmation, real wait and insufficient post-execution evidence",
+        "mode": "prospective",
+        "after_values": [
+          75,
+          50,
+          45
+        ],
+        "c04": "not_achieved",
+        "state": "compatible",
+        "final": "investigation",
+        "cycles": 2,
+        "decision": "remain_open",
+        "expected_reason": "objective_not_demonstrated"
+      },
+      "obtained": {
+        "c04": "not_achieved",
+        "documentary_state": "compatible",
+        "final_state": "investigation",
+        "cycles": 2
+      },
+      "inputs": {
+        "initial": {
+          "run": "4d53d6fb-2d3d-4493-95a7-cfef3d93df95",
+          "bundle": "84ee4d5a-08ab-415d-942c-efd913dd7d40",
+          "evaluation": "51f691ab-8e7f-40a3-97cc-9b394446ce8c",
+          "result": "not_achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "after": {
+          "run": "ed4bc3aa-d48e-4062-8dd1-898707c4b3ec",
+          "bundle": "2061bbd3-0399-4c1c-a438-cd5c674a8b22",
+          "evaluation": "a7087b70-51c4-4c50-bae4-9bf4bc108d19",
+          "result": "achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "proof": "20c5d9c9-01cc-4f47-a430-512328af8689"
+      },
+      "case": "9173a5b6-2eb7-42ea-a3e8-f4073f256139",
+      "last_decision": {
+        "result": "remain_open",
+        "reasons": [
+          "objective_not_demonstrated"
+        ]
+      }
+    },
+    "02": {
+      "scenario": "Prospective authorization revision, natural expiry and approver role revocation",
+      "mode": "prospective",
+      "expected": {
+        "id": "02",
+        "scenario": "Prospective authorization revision, natural expiry and approver role revocation",
+        "mode": "prospective",
+        "after_values": [
+          90,
+          85,
+          80
+        ],
+        "c04": "not_achieved",
+        "state": "compatible",
+        "final": "waiting_observation",
+        "cycles": 1,
+        "decision": null
+      },
+      "obtained": {
+        "c04": "not_achieved",
+        "documentary_state": "compatible",
+        "final_state": "waiting_observation",
+        "cycles": 1
+      },
+      "inputs": {
+        "initial": {
+          "run": "2346e982-a111-497d-ab9e-25c4bd9a292a",
+          "bundle": "a6c34478-09f7-4262-b1ea-ea1365aa9036",
+          "evaluation": "a89615ee-4051-4059-9469-c0f0786efe36",
+          "result": "not_achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "after": {
+          "run": "f4a10a20-b4d2-41e0-847f-296dd3a340fe",
+          "bundle": "3bd14a9c-dccd-4bbc-aa88-1d1830826a65",
+          "evaluation": "efa9a9e0-67f7-4871-bc68-ca26fe930af6",
+          "result": "not_achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "proof": "3977e390-9c37-47e3-acfa-24a1adb89414"
+      },
+      "case": "09819f7a-3395-4c78-a6e0-7ba3705e19d8",
+      "last_decision": null
+    },
+    "03": {
+      "scenario": "Correction of C05 evidence invalidates preparation and execution",
+      "mode": "prospective",
+      "expected": {
+        "id": "03",
+        "scenario": "Correction of C05 evidence invalidates preparation and execution",
+        "mode": "prospective",
+        "after_values": [
+          75,
+          50,
+          45
+        ],
+        "c04": "not_achieved",
+        "state": "compatible",
+        "final": "approved",
+        "cycles": 1,
+        "decision": null,
+        "expected_error": "investigation_evidence_changed"
+      },
+      "obtained": {
+        "c04": "not_achieved",
+        "documentary_state": "compatible",
+        "final_state": "approved",
+        "cycles": 1
+      },
+      "inputs": {
+        "initial": {
+          "run": "b745abd4-c8fb-436c-b470-dfb242b1caf0",
+          "bundle": "92b8baa6-f075-4256-8500-cd8ad01bf2ab",
+          "evaluation": "125b6432-3d84-4e22-8007-6d2414a14502",
+          "result": "not_achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "after": {
+          "run": "9ed1e110-8db7-420d-9877-2fec3cebda3c",
+          "bundle": "b528b1f3-08d6-4425-bb65-ce2f43f4c317",
+          "evaluation": "bc9c04ef-0388-46ce-b712-b234d37d08f2",
+          "result": "achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "proof": "ef0466de-797b-435f-a551-e382d55af368"
+      },
+      "case": "a6dd9398-edfc-47d3-aa61-f762daee5faa",
+      "last_decision": null
+    },
+    "04": {
+      "scenario": "Retrospective goal attained, explicit criteria and contradiction review, legitimate closure",
+      "mode": "synthetic_retrospective_history",
+      "expected": {
+        "id": "04",
+        "scenario": "Retrospective goal attained, explicit criteria and contradiction review, legitimate closure",
+        "mode": "synthetic_retrospective_history",
+        "after_values": [
+          75,
+          50,
+          45
+        ],
+        "c04": "not_achieved",
+        "state": "compatible",
+        "final": "closed_resolved",
+        "cycles": 1,
+        "decision": "closed_resolved"
+      },
+      "obtained": {
+        "c04": "not_achieved",
+        "documentary_state": "compatible",
+        "final_state": "closed_resolved",
+        "cycles": 1
+      },
+      "inputs": {
+        "initial": {
+          "run": "43000cad-df5c-47dc-b341-38c1ec881692",
+          "bundle": "55a096c6-d185-45d9-9d60-2cf3262a95cc",
+          "evaluation": "769014a3-ace0-4d3c-9adf-a01cb91d2268",
+          "result": "not_achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "after": {
+          "run": "009b5d5d-9654-4eda-a615-7315d53769c9",
+          "bundle": "9622d86b-dc1d-4127-a902-bfdb614793d7",
+          "evaluation": "c702c2a8-a303-404b-b646-50d1ed58238b",
+          "result": "achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "proof": "7686aa0b-e7a2-4a22-8243-66e4968a303e"
+      },
+      "case": "5276bdee-a1dd-4fae-a574-ed712ed40d2c",
+      "last_decision": {
+        "result": "closed_resolved",
+        "reasons": []
+      }
+    },
+    "05": {
+      "scenario": "Retrospective goal not attained, continued case and explicit new cycle",
+      "mode": "synthetic_retrospective_history",
+      "expected": {
+        "id": "05",
+        "scenario": "Retrospective goal not attained, continued case and explicit new cycle",
+        "mode": "synthetic_retrospective_history",
+        "after_values": [
+          90,
+          85,
+          80
+        ],
+        "c04": "not_achieved",
+        "state": "compatible",
+        "final": "investigation",
+        "cycles": 2,
+        "decision": "remain_open",
+        "expected_reason": "objective_not_demonstrated"
+      },
+      "obtained": {
+        "c04": "not_achieved",
+        "documentary_state": "compatible",
+        "final_state": "investigation",
+        "cycles": 2
+      },
+      "inputs": {
+        "initial": {
+          "run": "204c2d65-07f2-4cb4-a277-77dbf3a3df73",
+          "bundle": "3438786e-01fe-4bb3-85f8-4f32357f3282",
+          "evaluation": "5c77e8ca-bb12-4a02-bca5-9af6d75f396e",
+          "result": "not_achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "after": {
+          "run": "a76fde9b-339b-4920-89fd-b2bd7576a6be",
+          "bundle": "76e5d864-bbc2-46b1-baec-d1449a1311ad",
+          "evaluation": "cbae0a38-21e7-4a8b-b7db-7dbc74a194d4",
+          "result": "not_achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "proof": "e180c067-8356-48ad-b534-4a4e6e821d6d"
+      },
+      "case": "662f2ce4-089a-492e-8a78-ed612458297e",
+      "last_decision": {
+        "result": "remain_open",
+        "reasons": [
+          "objective_not_demonstrated"
+        ]
+      }
+    },
+    "06": {
+      "scenario": "Late correction after C09 blocks closure and preserves earlier evidence",
+      "mode": "synthetic_retrospective_history",
+      "expected": {
+        "id": "06",
+        "scenario": "Late correction after C09 blocks closure and preserves earlier evidence",
+        "mode": "synthetic_retrospective_history",
+        "after_values": [
+          75,
+          50,
+          45
+        ],
+        "c04": "not_achieved",
+        "state": "compatible",
+        "final": "remain_open",
+        "cycles": 1,
+        "decision": "remain_open",
+        "expected_reason": "new_relevant_evidence_requires_comparison",
+        "correction": {
+          "day": -2,
+          "value": 85
+        },
+        "after_correction": "not_achieved"
+      },
+      "obtained": {
+        "c04": "not_achieved",
+        "documentary_state": "compatible",
+        "final_state": "remain_open",
+        "cycles": 1
+      },
+      "inputs": {
+        "initial": {
+          "run": "7743c92c-8d6a-4710-8ac7-9cada040c2e1",
+          "bundle": "b4834c9a-c074-4d7a-b104-5af4e3a8167f",
+          "evaluation": "434eb92d-c4c1-43d7-90f4-3dc4012c331f",
+          "result": "not_achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "after": {
+          "run": "d4b429ab-9102-4786-91ae-32dbaccf3239",
+          "bundle": "1a126017-12fe-4c5b-8e2e-1d9bcc233c39",
+          "evaluation": "fa622fcf-1371-47cb-ab08-43588af9c65b",
+          "result": "achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "proof": "9b4d9104-c681-4eb5-9b02-9ebb23ce0c9d"
+      },
+      "case": "ad43f549-16ff-4ec7-bf99-ab8bc6b82f98",
+      "last_decision": {
+        "result": "remain_open",
+        "reasons": [
+          "objective_not_demonstrated"
+        ]
+      }
+    },
+    "07": {
+      "scenario": "Inconclusive C04 cannot open a case",
+      "mode": "blocked",
+      "expected": {
+        "id": "07",
+        "scenario": "Inconclusive C04 cannot open a case",
+        "mode": "blocked",
+        "after_values": [
+          75,
+          50,
+          45
+        ],
+        "c04": "inconclusive",
+        "state": "compatible",
+        "final": "blocked",
+        "cycles": 0,
+        "decision": null,
+        "missing_day": -26
+      },
+      "obtained": {
+        "c04": "inconclusive",
+        "documentary_state": "compatible",
+        "final_state": "blocked",
+        "cycles": 0
+      },
+      "inputs": {
+        "initial": {
+          "run": "e3a72eee-030f-4e01-a8a5-d5d523659d41",
+          "bundle": "c95c02c6-47d2-49ea-9fbe-2e5c8200594b",
+          "evaluation": "655b61b8-9409-4e64-b375-b5ff8dfd0b4f",
+          "result": "inconclusive",
+          "state": "compatible",
+          "evidence": "insufficient"
+        },
+        "after": {
+          "run": "2fd64c7f-604e-4135-88c5-fb1e19db1776",
+          "bundle": "507d4b2d-2b8e-47dd-8e02-b8d9de76be65",
+          "evaluation": "3d178850-6fc6-433d-ad13-4555170f6349",
+          "result": "achieved",
+          "state": "compatible",
+          "evidence": "sufficient"
+        },
+        "proof": "35f8739b-9325-44be-84be-8e2c9b96201d"
+      },
+      "case": null
+    },
+    "08": {
+      "scenario": "Documentary contradiction cannot open a case",
+      "mode": "blocked",
+      "expected": {
+        "id": "08",
+        "scenario": "Documentary contradiction cannot open a case",
+        "mode": "blocked",
+        "after_values": [
+          75,
+          50,
+          45
+        ],
+        "c04": "not_achieved",
+        "state": "contradiction",
+        "final": "blocked",
+        "cycles": 0,
+        "decision": null
+      },
+      "obtained": {
+        "c04": "not_achieved",
+        "documentary_state": "contradiction",
+        "final_state": "blocked",
+        "cycles": 0
+      },
+      "inputs": {
+        "initial": {
+          "run": "565f8cc8-89b1-4f70-aa4e-c9a19dc5a48c",
+          "bundle": "1b114305-f55d-4779-a1e3-8bf0b457b31d",
+          "evaluation": "e6a33c0f-67da-4a2a-b61d-924f6ca686a6",
+          "result": "not_achieved",
+          "state": "contradiction",
+          "evidence": "sufficient"
+        },
+        "after": {
+          "run": "e1334dca-aacf-427f-b2b8-73a1d08641d6",
+          "bundle": "8e9914e3-1beb-41e6-89c5-202ecc7a7841",
+          "evaluation": "74a1ebcf-ea8e-481f-bdd7-c08af06f4f67",
+          "result": "achieved",
+          "state": "contradiction",
+          "evidence": "sufficient"
+        },
+        "proof": "94a285c4-66d9-445a-b7f5-6899f85b851c"
+      },
+      "case": null
+    }
+  },
+  "counts": {
+    "customers": 8,
+    "measurements": 50,
+    "c02_runs": 17,
+    "c03_bundles": 17,
+    "c04_configurations": 9,
+    "c04_evaluations": 17,
+    "cases": 6,
+    "events": 51,
+    "cycles": 8
+  },
+  "opened_cases": 6,
+  "blocked_entries": 2,
+  "closed_cases": 1,
+  "open_cases": 5,
+  "retrospective_fixture_cases": 3,
+  "prospective_cases": 3,
+  "c01_requests": 13,
+  "measurement_presentations": 62,
+  "unique_measurements": 50,
+  "idempotent_measurement_replays": 12,
+  "measurement_rejections": 0,
+  "assertions_passed": 570,
+  "sql_regressions": [
+    "CW_TEST_RESULTS pass=67 fail=0",
+    "CW_INGEST_RESULTS pass=35 fail=0",
+    "CW_C02_RESULTS pass=70 fail=0 not_run=0",
+    "CW_C03_RESULTS pass=40 fail=0",
+    "CW_CORE_OPERATIONAL_RESULTS pass=53 fail=0"
+  ],
+  "negative_tests": [
+    {
+      "test": "operator cannot open a case",
+      "http_status": 403,
+      "code": "42501",
+      "message": "admin_required"
+    },
+    {
+      "test": "viewer cannot open a case",
+      "http_status": 403,
+      "code": "42501",
+      "message": "admin_required"
+    },
+    {
+      "test": "outsider cannot open a case",
+      "http_status": 403,
+      "code": "42501",
+      "message": "admin_required"
+    },
+    {
+      "test": "anon cannot open a case",
+      "http_status": 401,
+      "code": "42501",
+      "message": "permission denied for function open_operational_case"
+    },
+    {
+      "test": "eligibility declaration is mandatory",
+      "http_status": 400,
+      "code": "22023",
+      "message": "explicit_eligibility_required"
+    },
+    {
+      "test": "second operation cannot duplicate case 01",
+      "http_status": 400,
+      "code": "22023",
+      "message": "evaluation_already_has_case"
+    },
+    {
+      "test": "changed opening with same UUID conflicts 01",
+      "http_status": 400,
+      "code": "22023",
+      "message": "idempotency_conflict"
+    },
+    {
+      "test": "second operation cannot duplicate case 02",
+      "http_status": 400,
+      "code": "22023",
+      "message": "evaluation_already_has_case"
+    },
+    {
+      "test": "changed opening with same UUID conflicts 02",
+      "http_status": 400,
+      "code": "22023",
+      "message": "idempotency_conflict"
+    },
+    {
+      "test": "second operation cannot duplicate case 03",
+      "http_status": 400,
+      "code": "22023",
+      "message": "evaluation_already_has_case"
+    },
+    {
+      "test": "changed opening with same UUID conflicts 03",
+      "http_status": 400,
+      "code": "22023",
+      "message": "idempotency_conflict"
+    },
+    {
+      "test": "second operation cannot duplicate case 04",
+      "http_status": 400,
+      "code": "22023",
+      "message": "evaluation_already_has_case"
+    },
+    {
+      "test": "changed opening with same UUID conflicts 04",
+      "http_status": 400,
+      "code": "22023",
+      "message": "idempotency_conflict"
+    },
+    {
+      "test": "second operation cannot duplicate case 05",
+      "http_status": 400,
+      "code": "22023",
+      "message": "evaluation_already_has_case"
+    },
+    {
+      "test": "changed opening with same UUID conflicts 05",
+      "http_status": 400,
+      "code": "22023",
+      "message": "idempotency_conflict"
+    },
+    {
+      "test": "second operation cannot duplicate case 06",
+      "http_status": 400,
+      "code": "22023",
+      "message": "evaluation_already_has_case"
+    },
+    {
+      "test": "changed opening with same UUID conflicts 06",
+      "http_status": 400,
+      "code": "22023",
+      "message": "idempotency_conflict"
+    },
+    {
+      "test": "C04 07 blocks opening",
+      "http_status": 400,
+      "code": "22023",
+      "message": "evaluation_requires_information"
+    },
+    {
+      "test": "C04 08 blocks opening",
+      "http_status": 400,
+      "code": "22023",
+      "message": "evaluation_requires_information"
+    },
+    {
+      "test": "hypothesis cannot plan",
+      "http_status": 400,
+      "code": "22023",
+      "message": "confirmed_impediment_required"
+    },
+    {
+      "test": "confirmed investigation needs a measured fact",
+      "http_status": 400,
+      "code": "22023",
+      "message": "confirmed_requires_observation"
+    },
+    {
+      "test": "another client evidence is rejected",
+      "http_status": 400,
+      "code": "22023",
+      "message": "invalid_or_superseded_evidence_reference"
+    },
+    {
+      "test": "invalid explicit observation window 0",
+      "http_status": 400,
+      "code": "22023",
+      "message": "invalid_observation_window"
+    },
+    {
+      "test": "invalid explicit observation window 1.5",
+      "http_status": 400,
+      "code": "22023",
+      "message": "invalid_observation_window"
+    },
+    {
+      "test": "invalid explicit observation window 31536001",
+      "http_status": 400,
+      "code": "22023",
+      "message": "invalid_observation_window"
+    },
+    {
+      "test": "execution requires human authorization",
+      "http_status": 400,
+      "code": "22023",
+      "message": "valid_authorization_required"
+    },
+    {
+      "test": "operator cannot authorize",
+      "http_status": 403,
+      "code": "42501",
+      "message": "admin_required"
+    },
+    {
+      "test": "past authorization deadline rejected",
+      "http_status": 400,
+      "code": "22023",
+      "message": "valid_authorization_required"
+    },
+    {
+      "test": "C08 cannot observe prematurely",
+      "http_status": 400,
+      "code": "22023",
+      "message": "observation_window_not_elapsed"
+    },
+    {
+      "test": "new UUID cannot execute twice",
+      "http_status": 400,
+      "code": "22023",
+      "message": "valid_authorization_required"
+    },
+    {
+      "test": "caller cannot inject historical execution",
+      "http_status": 400,
+      "code": "22023",
+      "message": "valid_authorization_required"
+    },
+    {
+      "test": "operator cannot start cycle",
+      "http_status": 403,
+      "code": "42501",
+      "message": "admin_required"
+    },
+    {
+      "test": "viewer cannot start cycle",
+      "http_status": 403,
+      "code": "42501",
+      "message": "write_role_required"
+    },
+    {
+      "test": "outsider cannot start cycle",
+      "http_status": 403,
+      "code": "42501",
+      "message": "write_role_required"
+    },
+    {
+      "test": "anon cannot start cycle",
+      "http_status": 401,
+      "code": "42501",
+      "message": "permission denied for function command_operational_case"
+    },
+    {
+      "test": "previous cycle authorization cannot authorize new execution",
+      "http_status": 400,
+      "code": "22023",
+      "message": "valid_authorization_required"
+    },
+    {
+      "test": "new cycle requires new investigation",
+      "http_status": 400,
+      "code": "22023",
+      "message": "confirmed_impediment_required"
+    },
+    {
+      "test": "plan revision invalidates prior authorization",
+      "http_status": 400,
+      "code": "22023",
+      "message": "valid_authorization_required"
+    },
+    {
+      "test": "naturally expired authorization cannot execute",
+      "http_status": 400,
+      "code": "22023",
+      "message": "valid_authorization_required"
+    },
+    {
+      "test": "revoked current approver role blocks execution",
+      "http_status": 403,
+      "code": "42501",
+      "message": "approver_no_longer_authorized"
+    },
+    {
+      "test": "valid authorization cannot accept caller-supplied execution time",
+      "http_status": 400,
+      "code": "22023",
+      "message": "invalid_command_payload"
+    },
+    {
+      "test": "corrected C05 proof prevents new plan",
+      "http_status": 400,
+      "code": "22023",
+      "message": "investigation_evidence_changed"
+    },
+    {
+      "test": "corrected C05 proof prevents authorized execution",
+      "http_status": 400,
+      "code": "22023",
+      "message": "investigation_evidence_changed"
+    },
+    {
+      "test": "superseded C05 observation cannot be reconfirmed",
+      "http_status": 400,
+      "code": "22023",
+      "message": "invalid_or_superseded_evidence_reference"
+    },
+    {
+      "test": "closed case cannot reopen",
+      "http_status": 400,
+      "code": "22023",
+      "message": "case_closed"
+    },
+    {
+      "test": "retrospective cycle approval is not reused in next cycle",
+      "http_status": 400,
+      "code": "22023",
+      "message": "valid_authorization_required"
+    },
+    {
+      "test": "new C04 contract blocks continuation of pinned historical case",
+      "http_status": 400,
+      "code": "22023",
+      "message": "configuration_revision_requires_review"
+    },
+    {
+      "test": "viewer cannot command this company",
+      "http_status": 403,
+      "code": "42501",
+      "message": "write_role_required"
+    },
+    {
+      "test": "outsider cannot command this company",
+      "http_status": 403,
+      "code": "42501",
+      "message": "write_role_required"
+    },
+    {
+      "test": "anon cannot command this company",
+      "http_status": 401,
+      "code": "42501",
+      "message": "permission denied for function command_operational_case"
+    },
+    {
+      "test": "foreign tenant cannot address primary case",
+      "http_status": 400,
+      "code": "22023",
+      "message": "case_not_found"
+    },
+    {
+      "test": "stale operation cannot advance case",
+      "http_status": 409,
+      "code": "PT409",
+      "message": "case_version_conflict"
+    },
+    {
+      "test": "same execution operation with altered receipt conflicts",
+      "http_status": 400,
+      "code": "22023",
+      "message": "idempotency_conflict"
+    },
+    {
+      "test": "current authorization is checked before replay for viewer",
+      "http_status": 403,
+      "code": "42501",
+      "message": "write_role_required"
+    },
+    {
+      "test": "another client bundle cannot support comparison",
+      "http_status": 400,
+      "code": "22023",
+      "message": "new_subject_bundle_required"
+    }
+  ],
+  "unchanged_tables": [
+    "cw_assessments",
+    "cw_case_assignments",
+    "cw_case_events",
+    "cw_cases",
+    "cw_notification_attempts",
+    "cw_notification_reads",
+    "cw_notifications",
+    "cw_objectives",
+    "cw_review_attempts",
+    "cw_review_entries",
+    "cw_review_events",
+    "cw_review_scans",
+    "indicators",
+    "profile_indicators",
+    "subjects",
+    "tenant_invitations",
+    "tenant_value_profiles",
+    "tenants",
+    "value_profiles"
+  ],
+  "limitations": [
+    "A short prospective wait proves temporal enforcement, not recovery with a daily cadence or legitimate prospective closure.",
+    "Retrospective C05-C08 history is explicitly synthetic owner-loaded fixture data, not proof of past authorization, execution or elapsed observation.",
+    "C05 confirmation, textual plan conditions, eligibility and closure criteria require documented human interpretation; external documents are not certified.",
+    "No remote actions, automatic causality, universal commercial policy, closed-case reopening or historical contract migration are supported.",
+    "Revocation is exercised through current approver membership/role and plan replacement; no independent authorization revoke command exists."
+  ],
+  "product_defects_found": 0,
+  "clock_modified": false,
+  "hosted_access": false,
+  "external_actions": false
+}
