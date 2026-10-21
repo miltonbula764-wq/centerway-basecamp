@@ -1,5 +1,9 @@
 # Missão 20.1 — ingestão contínua C01
 
+Resultado atual: **17 observações numa reexecução limpa**, detalhada na última
+secção e em `C01_MISSION_20_1_CLEAN_RESULTS.json`. As 18 observações abaixo
+pertencem ao ensaio anterior e são preservadas como histórico.
+
 ## Reprodução isolada
 
 Pré-requisitos: Docker local, cliente PostgreSQL `psql`, Python 3, Bun e OpenSSL.
@@ -92,3 +96,58 @@ evidência complementar; a campanha HTTP usou autenticação e banco reais.
 
 Contagens verificadas também em `docs/C01_MISSION_20_1_RESULTS.json`. Sem mudanças
 na API, migrações ou C02–C10, sem Lovable/Supabase hospedado, publicação ou merge.
+
+
+## Finalização do PR #20 — reexecução limpa
+
+O cenário completo foi executado novamente em 2026-10-21, numa nova base tmpfs,
+sem seeds anteriores, com **Bun 1.3.0**, a mesma versão do GitHub Actions.
+
+| Contagem | Nova execução limpa | Ensaio anterior |
+| --- | ---: | ---: |
+| Clientes | 3 | 3 |
+| Tentativas de linhas de medição | 44 | 45 |
+| Linhas aceites, incluindo reenvios | 23 | 24 |
+| Linhas rejeitadas | 19 | 19 |
+| Tentativas com falha de ligação/upstream | 2 | 2 |
+| Observações únicas persistidas | **17** | **18** |
+| Reenvios idempotentes aceites | 6 | 6 |
+| Tentativas HTTP, incluindo sondas sem medições | 74 | 105 |
+| Sondas de quota sem medições | 31 | 61 |
+
+Na nova execução os três clientes ficaram com **9, 4 e 4** observações. Uma das
+23 aceitações foi confirmada no banco antes de se perder deliberadamente a
+resposta; por isso o contador de respostas HTTP 200 recebidas é 22. A ligação
+recusada e o 503 são as duas falhas de transporte, recuperadas sem duplicações.
+As contagens são calculadas e verificadas pelo cenário; o JSON completo de cada
+execução automática é preservado como artefacto. O resumo da execução local está
+em `docs/C01_MISSION_20_1_CLEAN_RESULTS.json`; o ficheiro anterior permanece intacto.
+
+A auditoria do run 39594366002 falhou por vulnerabilidades reais de execução de
+comandos no editor de desenvolvimento: `GHSA-698v-4r3x-3vcv`,
+`GHSA-r825-w8mm-5pxw` e `GHSA-587h-7wmj-h5pm`. Foram atualizados
+`vite` **8.1.5 → 8.1.6** e `launch-editor` **2.14.1 → 2.14.2**.
+Os overrides abrangem também o Vite transitivo do Vitest. O lockfile foi gerado
+com Bun 1.3.0 e verificado com instalação congelada. `bun audit --json` terminou
+com `{}` e código 0; o audit npm de e2e registou zero vulnerabilidades.
+A auditoria continua obrigatória, sem exclusões nem tolerância a erros.
+
+A primeira tentativa com Bun 1.3.0 revelou que o servidor **de teste** fechava
+pedidos inativos após 10 segundos, antes do timeout real C01 de 30 segundos.
+Configurou-se `idleTimeout: 40` exclusivamente em `e2e/ingestion-server.ts`.
+A reexecução completa numa outra base limpa confirmou a resposta real 503 e a
+recuperação com os mesmos identificadores. A lógica e os limites da C01 não
+foram alterados.
+
+O workflow `.github/workflows/browser-e2e.yml` tem agora o job independente
+`c01-continuous`. Cria a sua própria base descartável vazia e rotulada, instala
+as migrações e autenticação real, executa `e2e/c01-continuous.py`, guarda apenas
+os resultados/logs técnicos e remove os recursos rotulados mesmo em falha.
+Não partilha a base nem os seeds do job de browser. Não precisa de dependências
+da aplicação: o emissor usa a biblioteca padrão Python e o servidor Bun importa
+apenas o handler C01 local. O job de browser mantém auditorias, regressões e build.
+
+Validações locais aprovadas após a atualização: cenário C01 completo, quota real,
+131 testes unitários, `tsc --noEmit`, build de produção, smoke test Drizzle,
+audit Bun e audit npm. As 32 tabelas fora das escritas C01 ficaram inalteradas;
+nenhuma análise, decisão ou intervenção automática foi provocada.

@@ -324,8 +324,25 @@ try:
     ledger.extend(quota_ledger)
     assert snapshot() == before
     checks.append('real expiry/revocation; admin-only credentials; direct writes denied; 30/minute quota')
+    accepted_rows = sum(x['rows'] for x in ledger
+        if x['http_status'] == 200 or x['label'] == 'response lost after commit')
+    rejected_rows = sum(x['rows'] for x in ledger
+        if x['http_status'] in (400, 401, 409, 413, 422, 429))
+    failed_rows = sum(x['rows'] for x in ledger
+        if x['http_status'] == 503 or
+        (x['http_status'] is None and x['label'] != 'response lost after commit'))
+    assert (accepted_rows, rejected_rows, failed_rows) == (23, 19, 2)
+    assert sql('SELECT count(*) FROM observations') == '17'
+    assert len(ledger) == 74 and sum(x['rows'] for x in ledger) == 44
     report = dict(mission='20.1', customers=3, persisted_observations=17,
         http_attempts=len(ledger), attempted_rows=sum(x['rows'] for x in ledger),
+        accepted_measurement_row_attempts=accepted_rows,
+        rejected_measurement_row_attempts=rejected_rows,
+        transport_failure_measurement_attempts=failed_rows,
+        idempotent_measurement_replays=accepted_rows-len(expected),
+        response_lost_after_commit=1, empty_envelope_quota_probes=len(quota_ledger),
+        customer_observation_counts={ref: int(sql('SELECT count(*) FROM observations WHERE subject_id='+lit(subject)))
+            for ref, subject in subjects.items()},
         response_status_counts={str(s): sum(x['http_status'] == s for x in ledger)
             for s in sorted({x['http_status'] for x in ledger}, key=str)},
         checks=checks, requests=ledger, unchanged_tables=tables,
