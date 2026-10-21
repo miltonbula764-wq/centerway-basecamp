@@ -1,0 +1,11 @@
+{
+  "mode": "offline",
+  "state_dir": "/data",
+  "interval_seconds": 60,
+  "admin_user": "lab-operator",
+  "admin_password_file": "/run/secrets/lab_admin_password",
+  "companies": [
+    {"id":"atlas","name":"Atlas Support SaaS","seed":20701,"clients":24,"profile_id":"00000000-0000-4000-8000-000000000001","source":"living-lab-atlas","endpoint":"https://PROJECT.invalid/functions/v1/ingest-v1/observations","credential_file":"/run/secrets/atlas_c01","send_enabled":false},
+    {"id":"beacon","name":"Beacon Workflow SaaS","seed":20702,"clients":24,"profile_id":"00000000-0000-4000-8000-000000000002","source":"living-lab-beacon","endpoint":"https://PROJECT.invalid/functions/v1/ingest-v1/observations","credential_file":"/run/secrets/beacon_c01","send_enabled":false}
+  ]
+}
