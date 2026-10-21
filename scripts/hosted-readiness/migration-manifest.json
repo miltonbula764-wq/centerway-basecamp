@@ -1,0 +1,174 @@
+{
+  "format": 1,
+  "scope": "source-only; hosted status unknown",
+  "migrations": [
+    {
+      "index": 0,
+      "tag": "0000_centerway_foundation",
+      "when": 1791982944553,
+      "sha256": "3bf5d87403aec77631bbf46a886ce6684b3fc1ff0b4fdcc621e05a7493f42992"
+    },
+    {
+      "index": 1,
+      "tag": "0001_tenant_value_profiles",
+      "when": 1791983232926,
+      "sha256": "a80d324995aabb6d815e85edc227aa7808689b8f019eaab8dafad12eda9d5c52"
+    },
+    {
+      "index": 2,
+      "tag": "0002_fix_approval_issues_array",
+      "when": 1792001640789,
+      "sha256": "5b5908da9827531462c73694daadffe78ce7d6cdf7574b77c615599720b648df"
+    },
+    {
+      "index": 3,
+      "tag": "0003_csv_ingestion_c01",
+      "when": 1792002392157,
+      "sha256": "ee1feb33df934d7a91c606170533522b301f88f13f969934ec120ffe846da809"
+    },
+    {
+      "index": 4,
+      "tag": "0004_c02_deterioration_detector",
+      "when": 1792005754663,
+      "sha256": "d1531164a5c21ee15c721ba455b5e3c68d3d042bdf169bdb2c52ccee27ba9003"
+    },
+    {
+      "index": 5,
+      "tag": "0005_c02_sum_requires_equal_windows",
+      "when": 1792005822696,
+      "sha256": "95bac634da7bef2588b0815c2c8e7ba5f3d365b36eb7ebf8e9f7924c3fca387a"
+    },
+    {
+      "index": 6,
+      "tag": "0006_c02_denominator_evidence_refs",
+      "when": 1792005957937,
+      "sha256": "aac155d3a4e3ee9fba6e9fee5c2e63737914a6cea5a7db96a17f91b8a78f5b7a"
+    },
+    {
+      "index": 7,
+      "tag": "0007_c02_fix_ambiguous_alias",
+      "when": 1792006084797,
+      "sha256": "254806750470213f4c5cbeb304b6642f984c411e33901f665d600e165e372b50"
+    },
+    {
+      "index": 8,
+      "tag": "0008_c02_restrict_grants",
+      "when": 1792006185310,
+      "sha256": "66298492760b3d97457af8bac88fad5695b821e8c07253f795249a59206beee2"
+    },
+    {
+      "index": 9,
+      "tag": "0009_c02_v2_source_denominator_chain",
+      "when": 1792024776975,
+      "sha256": "065b98f6bb48c69a8d607a5f6e2234f0423ee2d8bbb1444ad2b3d975ba7c6eed"
+    },
+    {
+      "index": 10,
+      "tag": "0010_c03_evidence_builder",
+      "when": 1792047582309,
+      "sha256": "7257892e7717389f7f727c06bd769115366decd5260202bcdf6e6c45b9bb8b8a"
+    },
+    {
+      "index": 11,
+      "tag": "0011_restore_client_privileges",
+      "when": 1792191706522,
+      "sha256": "ad64c139583a55ff02ed2d79a9e1becc1f3546effeee8974dfd1df10969a1f1f"
+    },
+    {
+      "index": 12,
+      "tag": "0012_mvp_case_journey",
+      "when": 1792310796279,
+      "sha256": "b1ace0b1228c9794c83edbf2af8fcdf9351b84c72ce8e97c62e72fc5a48e8e04"
+    },
+    {
+      "index": 13,
+      "tag": "0013_c04_value_state",
+      "when": 1792314625257,
+      "sha256": "66b673de0058921e85837a99f9819281dd82ac684b8c1bc2fedb040e75e7382a"
+    },
+    {
+      "index": 14,
+      "tag": "0014_configurable_case_journey",
+      "when": 1792316571467,
+      "sha256": "3f8a9202e3e50c67dc0a8406ffdb3968264915fa2b2288560778812731d6c63a"
+    },
+    {
+      "index": 15,
+      "tag": "0015_core_followup",
+      "when": 1792448413253,
+      "sha256": "4fa3f746eb8cd6d396497526b3322bcdc51ca21d2077c0c5f2acce99c0de9f46"
+    },
+    {
+      "index": 16,
+      "tag": "0016_team_invitations",
+      "when": 1792451133917,
+      "sha256": "78d81be8c65c17132b2fa77cb0b78a0a5c66445daf4e7cb9b059d81e39e60985"
+    },
+    {
+      "index": 17,
+      "tag": "0017_team_invitations_journal_reconcile",
+      "when": 1792452694273,
+      "sha256": "2baf9bca045afcc7ad362a2fda7cfe0901ce2dce1650ead44f57cebd212b65e8"
+    },
+    {
+      "index": 18,
+      "tag": "0018_ingestion_api",
+      "when": 1792481199768,
+      "sha256": "4d4bb011984c647bb475aea9c443e0393e46c588e5dfb06f9e303976a8d5b243"
+    },
+    {
+      "index": 19,
+      "tag": "0019_ingestion_api_journal_reconcile",
+      "when": 1792483231949,
+      "sha256": "c434bf652c5a849dbd70ab7c3a859747a19db7ba6f9ce0b28ba01f77434107d4"
+    },
+    {
+      "index": 20,
+      "tag": "0020_scheduled_reviews",
+      "when": 1792486117355,
+      "sha256": "8f5d7ebf077af51b5caf23b224bfc1d6e6310a7eb992f8b314ba9316d0ca17c6"
+    },
+    {
+      "index": 21,
+      "tag": "0021_operational_cycles",
+      "when": 1792503855579,
+      "sha256": "ae9b90790469ea549ebe8db044bf9ab7d972726a3ec511ec2be6df2dec397387"
+    },
+    {
+      "index": 22,
+      "tag": "0022_responsibilities_notifications",
+      "when": 1792506493973,
+      "sha256": "8c5be9e9ebe86bf748d4dff648964b292b588f0f525fb96f64a567a45477e144"
+    },
+    {
+      "index": 23,
+      "tag": "0023_scheduled_reviews_journal_reconcile",
+      "when": 1792508451610,
+      "sha256": "2e5f9c2bc909f93d8d5064dd560b3df9043e30971496afe096e358269c7244d1"
+    },
+    {
+      "index": 24,
+      "tag": "0024_operational_cycles_journal_reconcile",
+      "when": 1792508476579,
+      "sha256": "4ca5cf90b60cbe5f2c427bfb2c8d45f9331087c41da8fb00dad7b72da98ec247"
+    },
+    {
+      "index": 25,
+      "tag": "0025_operational_onboarding",
+      "when": 1792509465652,
+      "sha256": "4fa6ea043ae0b7e25b08aef3649dc876df812fcfd6a59e5fd5cca449546874c0"
+    },
+    {
+      "index": 26,
+      "tag": "0026_operational_reliability",
+      "when": 1792512234786,
+      "sha256": "799cb9954a2293150efe48c2e1a1799695d27d5b560b158f12750995f7977f37"
+    },
+    {
+      "index": 27,
+      "tag": "0027_operational_onboarding_reliability_journal_reconcile",
+      "when": 1792526309881,
+      "sha256": "2451417bbafcc3d664af9efbc87ff7782d30add5a1c1204feeb02d6037943a4b"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+-- TEMPLATE FOR A FUTURE SEPARATELY AUTHORIZED CHANGE. NEVER RUN IN CI.
+-- Replace EVERY angle-bracket placeholder after private inspection and review.
+-- Untouched template deliberately fails SQL parsing. No credential belongs here.
+BEGIN;
+SET LOCAL lock_timeout='2s';
+SET LOCAL statement_timeout='15s';
+DO $reviewed_change$
+DECLARE
+  approved_id bigint := <JOB_ID>;
+  expected_md5 text := '<MD5_OF_EXACT_INSTALLED_COMMAND>';
+  expected_database text := '<DATABASE>';
+  expected_owner text := '<USERNAME>';
+  expected_node text := '<NODENAME>';
+  expected_port integer := <NODEPORT>;
+  expected_schedule text := '<SCHEDULE>';
+  expected_active boolean := <TRUE_OR_FALSE>;
+  j record;
+BEGIN
+  IF NOT (SELECT NOT c.relrowsecurity OR r.rolsuper OR r.rolbypassrls
+      OR (NOT c.relforcerowsecurity AND pg_has_role(current_user,c.relowner,'USAGE'))
+    FROM pg_class c CROSS JOIN pg_roles r
+    WHERE c.oid='cron.job'::regclass AND r.rolname=current_user) THEN
+    RAISE EXCEPTION 'Global Cron visibility required: do not infer uniqueness through RLS';
+  END IF;
+  -- Serializes this maintenance procedure; it does not stop the scheduler.
+  PERFORM pg_advisory_xact_lock(hashtextextended('centerway-cron-maintenance-v1',0));
+  IF (SELECT count(*) FROM cron.job WHERE jobname='centerway-prepare-reviews-v1') <> 1 THEN
+    RAISE EXCEPTION 'Missing or duplicated job: investigate, do not create another';
+  END IF;
+  SELECT * INTO STRICT j FROM cron.job WHERE jobid=approved_id
+    AND jobname='centerway-prepare-reviews-v1' FOR UPDATE;
+  IF md5(j.command) IS DISTINCT FROM expected_md5
+    OR j.database IS DISTINCT FROM expected_database
+    OR j.username IS DISTINCT FROM expected_owner
+    OR j.nodename IS DISTINCT FROM expected_node
+    OR j.nodeport IS DISTINCT FROM expected_port
+    OR j.schedule IS DISTINCT FROM expected_schedule
+    OR j.active IS DISTINCT FROM expected_active THEN
+    RAISE EXCEPTION 'Job changed since approval: abort';
+  END IF;
+  IF NOT pg_has_role(j.username,'centerway_review_scheduler','MEMBER') THEN
+    RAISE EXCEPTION 'Installed owner lacks scheduler capability: separate permission review required';
+  END IF;
+  -- Only command changes. ID, owner, database, node, calendar and active retained.
+  PERFORM cron.alter_job(approved_id,
+    command := $job$SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);$job$);
+  IF (SELECT to_jsonb(updated)-'command' FROM cron.job updated WHERE jobid=approved_id)
+       IS DISTINCT FROM (to_jsonb(j)-'command') THEN
+    RAISE EXCEPTION 'Non-command attributes changed: roll back';
+  END IF;
+END $reviewed_change$;
+COMMIT;
+-- These BEGIN/COMMIT wrap maintenance, never the installed command.
+-- Do not silently reactivate a disabled job or change roles to get past an error.

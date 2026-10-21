@@ -31,6 +31,8 @@ São **fotografias da última verificação**, com `checked_at`, versões e refe
 
 ## Instalação posterior no ambiente escolhido
 
+Esta secção regista a instalação original da migração 0020. Para auditar a `main` atual e um job já instalado, seguir primeiro a [preparação da Missão 20.6](HOSTED_READINESS_MISSION_20_6.md): inventariar todas as migrações e atualizar somente o comando por ID, com verificação de drift. Não reaplicar esta sequência histórica sem rever o estado do destino.
+
 Nada foi instalado no backend hospedado nesta missão.
 
 1. Rever e integrar o PR; aplicar **somente a nova migração 0020** pelo processo gerido existente. Preservar 0000–0019, journal e snapshots. Não usar `drizzle push` para substituir o esquema existente.
