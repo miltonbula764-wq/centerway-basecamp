@@ -124,6 +124,21 @@ jobs:
           python3 e2e/reliability/scale.py
           python3 e2e/reliability/recovery.py
           python3 e2e/reliability/restore.py
+      - name: Mission 20.6 offline readiness and read-only catalog regression
+        working-directory: ${{ runner.temp }}/cw-browser
+        env:
+          PGHOST: 127.0.0.1
+          PGUSER: postgres
+          PGDATABASE: cw_e2e
+          PGPASSFILE: /dev/null
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s scripts/hosted-readiness -p 'test_*.py' -v
+          psql -X -qAt -v ON_ERROR_STOP=1 -f scripts/hosted-readiness/catalog.sql > e2e/logs/readiness-catalog.json
+          psql -X -qAt -v ON_ERROR_STOP=1 -f scripts/hosted-readiness/cron.sql > e2e/logs/readiness-cron.json
+          python3 scripts/hosted-readiness/audit.py --catalog e2e/logs/readiness-catalog.json > e2e/logs/readiness-audit.json
+          # This job has no pg_cron: absence is a blocking hosted finding, not a pass.
+          python3 -c "import json; assert json.load(open('e2e/logs/readiness-cron.json'))['available'] is False"
       - name: Dependency advisory audit and Drizzle tooling smoke check
         working-directory: ${{ runner.temp }}/cw-browser
         run: |
