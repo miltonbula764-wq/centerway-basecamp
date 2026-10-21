@@ -43,8 +43,10 @@ SELECT jsonb_build_object(
  'scheduler_roles', (SELECT coalesce(jsonb_agg(jsonb_build_object('name',rolname,'login',rolcanlogin,
     'superuser',rolsuper,'bypass_rls',rolbypassrls,'inherit',rolinherit)),'[]'::jsonb)
     FROM pg_roles WHERE rolname='centerway_review_scheduler'),
- 'scheduler_members', (SELECT coalesce(jsonb_agg(pg_get_userbyid(m.member) ORDER BY pg_get_userbyid(m.member)),'[]'::jsonb)
-    FROM pg_auth_members m JOIN pg_roles r ON r.oid=m.roleid WHERE r.rolname='centerway_review_scheduler'),
+ 'scheduler_members', (SELECT coalesce(jsonb_agg(r.rolname ORDER BY r.rolname),'[]'::jsonb)
+    FROM pg_roles r WHERE r.rolname <> 'centerway_review_scheduler'
+    AND CASE WHEN EXISTS(SELECT FROM pg_roles WHERE rolname='centerway_review_scheduler')
+      THEN pg_has_role(r.oid,'centerway_review_scheduler','MEMBER') ELSE false END),
  'extensions', (SELECT jsonb_agg(jsonb_build_object('name',extname,'version',extversion) ORDER BY extname) FROM pg_extension),
  'migration_ledgers', (SELECT coalesce(jsonb_agg(n.nspname||'.'||c.relname ORDER BY n.nspname,c.relname),'[]'::jsonb)
    FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace

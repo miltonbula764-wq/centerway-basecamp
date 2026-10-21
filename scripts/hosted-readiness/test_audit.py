@@ -1,5 +1,4 @@
 """Offline, deterministic regressions. No database, network or hosted credentials."""
-import copy
 import importlib.util
 import json
 from pathlib import Path
@@ -106,6 +105,7 @@ class ReadinessTests(unittest.TestCase):
         self.assertIn(command.replace("'","''"),(HERE/'cron.sql').read_text())
         self.assertIn("statement_timeout='45s'",command)
         self.assertIn('SET LOCAL ROLE centerway_review_scheduler;',command)
+        self.assertIn("to_jsonb(j)-'command'",(HERE/'update-cron.sql.example').read_text())
 
 
 if __name__=='__main__': unittest.main()

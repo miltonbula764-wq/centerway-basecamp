@@ -10,6 +10,8 @@ DECLARE
   expected_md5 text := '<MD5_OF_EXACT_INSTALLED_COMMAND>';
   expected_database text := '<DATABASE>';
   expected_owner text := '<USERNAME>';
+  expected_node text := '<NODENAME>';
+  expected_port integer := <NODEPORT>;
   expected_schedule text := '<SCHEDULE>';
   expected_active boolean := <TRUE_OR_FALSE>;
   j record;
@@ -24,6 +26,8 @@ BEGIN
   IF md5(j.command) IS DISTINCT FROM expected_md5
     OR j.database IS DISTINCT FROM expected_database
     OR j.username IS DISTINCT FROM expected_owner
+    OR j.nodename IS DISTINCT FROM expected_node
+    OR j.nodeport IS DISTINCT FROM expected_port
     OR j.schedule IS DISTINCT FROM expected_schedule
     OR j.active IS DISTINCT FROM expected_active THEN
     RAISE EXCEPTION 'Job changed since approval: abort';
@@ -34,6 +38,10 @@ BEGIN
   -- Only command changes. ID, owner, database, node, calendar and active retained.
   PERFORM cron.alter_job(approved_id,
     command := $job$SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);$job$);
+  IF (SELECT to_jsonb(updated)-'command' FROM cron.job updated WHERE jobid=approved_id)
+       IS DISTINCT FROM (to_jsonb(j)-'command') THEN
+    RAISE EXCEPTION 'Non-command attributes changed: roll back';
+  END IF;
 END $reviewed_change$;
 COMMIT;
 -- These BEGIN/COMMIT wrap maintenance, never the installed command.
