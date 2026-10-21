@@ -5,6 +5,8 @@ if (cfg.url !== "http://127.0.0.1:54321") throw Error("Disposable loopback backe
 Bun.serve({
   hostname: "127.0.0.1",
   port: 54443,
+  // Allow the real C01 upstream deadline (30s) to produce its documented 503.
+  idleTimeout: 40,
   tls: {
     key: Bun.file("e2e/private/ingestion-key.pem"),
     cert: Bun.file("e2e/private/ingestion-cert.pem"),

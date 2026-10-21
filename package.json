@@ -19,7 +19,9 @@
     "nanoid": "3.3.18",
     "shell-quote": "1.12.0",
     "source-map-js": "1.2.2",
-    "esbuild": "0.25.12"
+    "esbuild": "0.25.12",
+    "launch-editor": "2.14.2",
+    "vite": "8.1.6"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -99,7 +101,7 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "8.1.5",
+    "vite": "8.1.6",
     "vitest": "^4.1.10"
   }
 }
