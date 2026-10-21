@@ -1,0 +1,19 @@
+# Deployment proposal ONLY. Do not connect/apply before review and authorization.
+# Copy blueprint to provider or select this Blueprint Path manually after approval.
+services:
+  - type: web
+    name: centerway-living-lab
+    runtime: docker
+    rootDir: living-lab
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    autoDeploy: false
+    healthCheckPath: /healthz
+    envVars:
+      - key: PORT
+        value: '8765'
+    disk:
+      name: living-lab-private-state
+      mountPath: /data
+      sizeGB: 1

@@ -1,0 +1,6 @@
+__pycache__/
+*.sqlite3*
+state/
+secrets/
+config.local.json
+artifacts/
