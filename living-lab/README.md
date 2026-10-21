@@ -79,7 +79,7 @@ A ligação/perfil/fonte/seed/clientes/intervalo/modo ficam ligados por hash ao 
 
 ## Correções: IDs não disponíveis na resposta C01
 
-C01 devolve lote e contagens, **não os IDs das observações**. Por isso, uma correção fica explicitamente pendente e visível no painel até um operador importar recibos de uma exportação autorizada. Nenhuma consulta de leitura é feita com a credencial de ingestão. O laboratório verifica empresa, perfil, fonte, cliente, indicador, instante, valor e reconhecimento prévio do lote original; um ID já associado não muda.
+C01 devolve lote e contagens, **não os IDs das observações**. Por isso, uma correção fica explicitamente pendente e visível no painel até um operador importar recibos de uma exportação autorizada. Nenhuma consulta de leitura é feita com a credencial de ingestão. O laboratório verifica empresa, perfil, fonte, cliente, indicador, instante, valor e reconhecimento prévio do lote original; um ID já associado não muda. Representações equivalentes de UUID, fuso ISO e decimal são normalizadas, sem tolerância numérica ou alteração do valor.
 
 Formato do ficheiro privado de recibos (usar dados efetivamente exportados, não este exemplo):
 

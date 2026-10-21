@@ -35,6 +35,7 @@ CI reproduz os testes em Python 3.12 e 3.13 e o painel em Chromium; o estado fin
 - Backpressure podia impedir a etapa de entrega que drenaria a fila. As três etapas agora têm tratamento independente; regressão exige que entrega seja chamada mesmo com geração e formação de lotes falhadas.
 - Comparação temporal por texto ISO podia excluir factos no mesmo segundo quando o corte tinha fração. A vista de comparação usa instantes numéricos; cobertura é testada como datetime, não por ordem lexical de strings.
 - O caminho de importação histórica agora marca explicitamente todos os ciclos importados como `synthetic_history`; os ciclos reais do daemon permanecem separados.
+- A importação de recibos aceita UUID/fuso/decimal equivalentes de exportações legítimas, mas recusa qualquer alteração de valor, instante ou identidade.
 - A inicialização do painel valida o segredo antes de iniciar workers, impedindo envio de arranque sem painel válido.
 
 São correções no **código novo do laboratório**; não se encontrou nem alterou defeito em C01–C10 nesta missão.

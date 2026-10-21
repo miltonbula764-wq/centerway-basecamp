@@ -1,6 +1,8 @@
 """Manual imports of authorized evidence. Never fetches CENTERWAY tables/RPCs."""
 
 import math
+from datetime import datetime, timezone
+from decimal import Decimal, DecimalException
 from uuid import UUID
 
 from .engine import event
@@ -12,7 +14,7 @@ def receipts(db, company, document, now):
         raise ValueError("receipt_company_mismatch")
     with transaction(db):
         for item in document["receipts"]:
-            UUID(item["observation_id"])
+            observation_id = str(UUID(item["observation_id"]))
             row = db.execute(
                 """SELECT m.*,b.state FROM measurements m JOIN outbox b ON b.id=m.batch_id
                  WHERE m.id=?""",
@@ -24,25 +26,30 @@ def receipts(db, company, document, now):
                 ("subject_external_ref", row["client"]),
                 ("indicator_key", row["indicator"]),
                 ("source", company["source"]),
-                ("profile_id", company["profile_id"]),
             ]:
                 if item[field] != expected:
                     raise ValueError("receipt_identity_mismatch")
-            from .engine import iso
-
-            if (
-                item["observed_at"] != iso(row["observed_at"])
-                or item["value_numeric"] != row["value"]
-            ):
+            if UUID(item["profile_id"]) != UUID(company["profile_id"]):
+                raise ValueError("receipt_identity_mismatch")
+            try:
+                observed = datetime.fromisoformat(item["observed_at"])
+                value = Decimal(str(item["value_numeric"]))
+                matches = (
+                    observed.tzinfo is not None
+                    and observed
+                    == datetime.fromtimestamp(row["observed_at"], timezone.utc)
+                    and value.is_finite()
+                    and value == Decimal(row["value"])
+                )
+            except (TypeError, ValueError, DecimalException):
+                matches = False
+            if not matches:
                 raise ValueError("receipt_payload_mismatch")
-            if (
-                row["observation_id"]
-                and row["observation_id"] != item["observation_id"]
-            ):
+            if row["observation_id"] and row["observation_id"] != observation_id:
                 raise ValueError("receipt_is_immutable")
             db.execute(
                 "UPDATE measurements SET observation_id=? WHERE id=?",
-                (item["observation_id"], row["id"]),
+                (observation_id, row["id"]),
             )
             event(
                 db,

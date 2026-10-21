@@ -404,6 +404,19 @@ class LabTests(unittest.TestCase):
             ).fetchone()[0]
         )
         receipts(self.db, self.a, self.document(original), self.now + 60)
+        equivalent = self.document(original)
+        equivalent["receipts"][0]["observed_at"] = equivalent["receipts"][0][
+            "observed_at"
+        ].replace("Z", "+00:00")
+        equivalent["receipts"][0]["value_numeric"] = float(original["value"])
+        equivalent["receipts"][0]["observation_id"] = equivalent["receipts"][0][
+            "observation_id"
+        ].upper()
+        receipts(self.db, self.a, equivalent, self.now + 61)
+        changed = self.document(original)
+        changed["receipts"][0]["value_numeric"] = "999999"
+        with self.assertRaisesRegex(ValueError, "receipt_payload_mismatch"):
+            receipts(self.db, self.a, changed, self.now + 62)
         enqueue(self.db, self.cfg, self.a, self.now + 180)
         correction = self.db.execute(
             "SELECT * FROM measurements WHERE corrects=?", (original["id"],)
