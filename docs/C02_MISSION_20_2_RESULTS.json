@@ -1,0 +1,145 @@
+{
+  "mission": "20.2",
+  "base_main_commit": "cfbf4413267d4ce75d9b550133865d3fd3408fab",
+  "executed_at_utc": "2026-10-21T12:42:32.847716+00:00",
+  "as_of": "2026-10-21T00:00:00Z",
+  "criteria_file": "e2e/c02-ingestion-plan.json",
+  "customers": 3,
+  "indicator": {
+    "key": "cycle_minutes",
+    "name": "[SYNTHETIC] Cycle duration",
+    "classification": "outcome",
+    "value_type": "numeric",
+    "unit": "min",
+    "direction": "lower_is_better",
+    "baseline_method": "fixed_value",
+    "baseline_value": 100,
+    "baseline_min_period_days": 2,
+    "observation_window_days": 2,
+    "comparison_window_days": 2,
+    "min_coverage_pct": 100,
+    "min_denominator": 2,
+    "target_value": 120,
+    "deterioration_kind": "absolute",
+    "deterioration_operator": "gt",
+    "deterioration_value": 150,
+    "deterioration_consecutive_windows": 2,
+    "recovery_kind": "absolute",
+    "recovery_operator": "lte",
+    "recovery_value": 120,
+    "recovery_consecutive_windows": 2,
+    "aggregation": "mean",
+    "expected_cadence_days": 1,
+    "denominator_mode": "observation_count"
+  },
+  "c01_requests": 4,
+  "c01_measurements_sent": 21,
+  "c01_measurements_accepted": 21,
+  "c01_measurements_rejected": 0,
+  "initial_results": {
+    "A": {
+      "expected": "deterioration_candidate",
+      "obtained": "deterioration_candidate",
+      "current_values_newest_first": [
+        170.0,
+        160.0
+      ],
+      "current_coverage_pct": [
+        100.0,
+        100.0
+      ],
+      "reference_value": 100.0,
+      "below_target": true,
+      "reasons": []
+    },
+    "B": {
+      "expected": "no_deterioration",
+      "obtained": "no_deterioration",
+      "current_values_newest_first": [
+        100.0,
+        170.0
+      ],
+      "current_coverage_pct": [
+        100.0,
+        100.0
+      ],
+      "reference_value": 100.0,
+      "below_target": false,
+      "reasons": []
+    },
+    "C": {
+      "expected": "insufficient_data",
+      "obtained": "insufficient_data",
+      "current_values_newest_first": [
+        210.0,
+        160.0
+      ],
+      "current_coverage_pct": [
+        50.0,
+        100.0
+      ],
+      "reference_value": 100.0,
+      "below_target": null,
+      "reasons": [
+        "current_1:coverage_below_minimum",
+        "current_1:denominator_below_minimum"
+      ]
+    }
+  },
+  "historical_A": {
+    "as_of": "2026-10-19T00:00:00Z",
+    "status": "no_deterioration"
+  },
+  "revised_A": {
+    "status": "deterioration_candidate",
+    "current_mean": 176.66666666666666,
+    "coverage_pct": 100.0,
+    "n": 3,
+    "revision_of_original": true,
+    "old_run_unchanged": true
+  },
+  "c02_runs": 5,
+  "assertions_passed": 133,
+  "sql_regressions": [
+    "CW_TEST_RESULTS pass=67 fail=0",
+    "CW_INGEST_RESULTS pass=35 fail=0",
+    "CW_C02_RESULTS pass=70 fail=0 not_run=0"
+  ],
+  "unchanged_tables": [
+    "c03_attempts",
+    "c03_bundles",
+    "c03_indicators",
+    "c03_refs",
+    "c04_configurations",
+    "c04_evaluations",
+    "cw_assessments",
+    "cw_case_assignments",
+    "cw_case_events",
+    "cw_cases",
+    "cw_notification_attempts",
+    "cw_notification_jobs",
+    "cw_notification_reads",
+    "cw_notifications",
+    "cw_objectives",
+    "cw_operational_cases",
+    "cw_operational_cycles",
+    "cw_operational_events",
+    "cw_review_attempts",
+    "cw_review_entries",
+    "cw_review_events",
+    "cw_review_scans",
+    "indicators",
+    "memberships",
+    "profile_indicators",
+    "subjects",
+    "tenant_invitations",
+    "tenant_value_profiles",
+    "tenants",
+    "value_profiles"
+  ],
+  "automatic_cases": false,
+  "invented_causes": false,
+  "objective_achievement_declared": false,
+  "hosted_access": false,
+  "product_defects_found": 0
+}
