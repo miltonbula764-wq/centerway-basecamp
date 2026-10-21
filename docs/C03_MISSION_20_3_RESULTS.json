@@ -1,0 +1,101 @@
+{
+  "mission": "20.3",
+  "base_main_commit": "49354db39939d0f4bf828d7a2acaf5d26a656a1f",
+  "executed_at_utc": "2026-10-21T13:28:05.541934+00:00",
+  "fixture_plan": "e2e/c02-ingestion-plan.json",
+  "companies": 2,
+  "counts": {
+    "refs": 37,
+    "runs": 6,
+    "bundles": 6,
+    "attempts": {
+      "built": 6,
+      "failed": 1,
+      "reused": 7,
+      "rejected": 2
+    },
+    "customers": 3,
+    "indicators": 6,
+    "observations": 21
+  },
+  "c01_requests": 4,
+  "c01_measurements_accepted": 21,
+  "c01_measurements_rejected": 0,
+  "initial_results": {
+    "A": {
+      "c02": "deterioration_candidate",
+      "expected_c03": "complete",
+      "obtained_c03": "complete",
+      "refs": 6
+    },
+    "B": {
+      "c02": "no_deterioration",
+      "expected_c03": "complete",
+      "obtained_c03": "complete",
+      "refs": 6
+    },
+    "C": {
+      "c02": "insufficient_data",
+      "expected_c03": "insufficient",
+      "obtained_c03": "insufficient",
+      "refs": 5
+    }
+  },
+  "corrected_A": {
+    "c02": "no_deterioration",
+    "current_mean": 110,
+    "c03": "complete",
+    "refs": 7,
+    "old_evidence_unchanged": true
+  },
+  "historical_profiles": {
+    "old_version": 1,
+    "old_threshold": 150,
+    "new_version": 2,
+    "new_threshold": 155,
+    "old_delayed_build": "complete"
+  },
+  "content_hashes_verified": 6,
+  "concurrency": {
+    "requests": 4,
+    "built": 1,
+    "reused": 3
+  },
+  "injected_failure": {
+    "code": "internal_error:P0001",
+    "partial_evidence_rows": 0,
+    "attempt_persisted": true,
+    "retry": "built"
+  },
+  "assertions_passed": 220,
+  "sql_regressions": "CW_C03_RESULTS pass=40 fail=0",
+  "unchanged_tables": [
+    "c04_configurations",
+    "c04_evaluations",
+    "cw_assessments",
+    "cw_case_assignments",
+    "cw_case_events",
+    "cw_cases",
+    "cw_notification_attempts",
+    "cw_notification_jobs",
+    "cw_notification_reads",
+    "cw_notifications",
+    "cw_objectives",
+    "cw_operational_cases",
+    "cw_operational_cycles",
+    "cw_operational_events",
+    "cw_review_attempts",
+    "cw_review_entries",
+    "cw_review_events",
+    "cw_review_scans",
+    "indicators",
+    "memberships",
+    "subjects",
+    "tenant_invitations",
+    "tenants",
+    "value_profiles"
+  ],
+  "product_defects_found": 0,
+  "hosted_access": false,
+  "automatic_cases": false
+}
