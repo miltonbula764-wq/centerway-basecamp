@@ -7,6 +7,11 @@ SET LOCAL lock_timeout = '2s';
 SELECT to_regclass('cron.job') IS NOT NULL AS cron_available \gset
 \if :cron_available
 SELECT jsonb_build_object('format',1,'available',true,
+ 'inspection_role',current_user,
+ 'all_jobs_visible',(SELECT NOT c.relrowsecurity OR r.rolsuper OR r.rolbypassrls
+      OR (NOT c.relforcerowsecurity AND pg_has_role(current_user,c.relowner,'USAGE'))
+    FROM pg_class c CROSS JOIN pg_roles r
+    WHERE c.oid='cron.job'::regclass AND r.rolname=current_user),
  'background_workers',current_setting('cron.use_background_workers',true),
  'timezone',current_setting('cron.timezone',true),
  'jobs',(SELECT coalesce(jsonb_agg(jsonb_build_object(

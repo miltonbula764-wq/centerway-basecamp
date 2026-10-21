@@ -30,7 +30,7 @@ python3 scripts/hosted-readiness/audit.py > /tmp/centerway-source-readiness.json
 
 Só lê ficheiros locais; não lê `.env`, não recebe URL nem executa SQL/HTTP. `migration-manifest.json` fixa os bytes dos 28 SQL e a ordem do journal. Alteração inesperada falha o teste. O manifesto não é uma lista de migrações executadas.
 
-O job `browser` de `browser-e2e.yml` executa os 14 testes offline, ambas as consultas SQL na sua base descartável e analisa o catálogo completo, incluindo memberships transitivas da capacidade scheduler. Nesse job não existe `pg_cron`: a consulta deve devolver `available=false`; o bloqueio é reconhecido, não transformado em aprovação. As regressões existentes mantêm autenticação real descartável, SQL/RLS, concorrência, browser, recuperação, unitários, tipos, build e auditorias. A prova real do scheduler da Missão 20.5 continua no job existente separado; não a confundir com o teste offline do analisador.
+O job `browser` de `browser-e2e.yml` executa os 15 testes offline, ambas as consultas SQL na sua base descartável e analisa o catálogo completo, incluindo memberships transitivas da capacidade scheduler. Nesse job não existe `pg_cron`: a consulta deve devolver `available=false`; o bloqueio é reconhecido, não transformado em aprovação. As regressões existentes mantêm autenticação real descartável, SQL/RLS, concorrência, browser, recuperação, unitários, tipos, build e auditorias. A prova real do scheduler da Missão 20.5 continua no job existente separado; não a confundir com o teste offline do analisador.
 
 ## Recolha futura de metadados — somente após autorização
 
@@ -72,7 +72,7 @@ Comando canónico, conservando timeout 45s, capacidade e lote:
 SET LOCAL statement_timeout='45s'; SET LOCAL ROLE centerway_review_scheduler; SELECT public.process_review_schedule(10);
 ```
 
-A consulta `cron.sql` inspeciona apenas `centerway-prepare-reviews-v1`, não expõe o comando bruto, assinala wrapper antigo, comparação canónica e calendário `* * * * *`. Ausência, duplicação, comando/calendário diferente, estado inativo, falha ou execução sem fim são bloqueadores para certificar operação normal. Um job intencionalmente inativo não deve ser reativado por um teste. Os últimos 20 registos não cobrem todo o histórico; o operador deve filtrar o intervalo de manutenção e investigar execuções antigas ainda em curso. O estado `succeeded` significa que a chamada SQL terminou: falhas por empresa são capturadas pelo produto e podem coexistir com esse sucesso.
+A consulta `cron.sql` inspeciona apenas `centerway-prepare-reviews-v1`, não expõe o comando bruto, assinala wrapper antigo, comparação canónica e calendário `* * * * *`. Ausência, duplicação, comando/calendário diferente, estado inativo, falha ou execução sem fim são bloqueadores para certificar operação normal. A contagem só comprova unicidade se o papel de inspeção vê globalmente `cron.job`: `all_jobs_visible=false` bloqueia o analisador e o template, pois RLS pode ocultar jobs de outros donos. O script não altera privilégios para obter essa visibilidade. Um job intencionalmente inativo não deve ser reativado por um teste. Os últimos 20 registos não cobrem todo o histórico; o operador deve filtrar o intervalo de manutenção e investigar execuções antigas ainda em curso. O estado `succeeded` significa que a chamada SQL terminou: falhas por empresa são capturadas pelo produto e podem coexistir com esse sucesso.
 
 Procedimento futuro, **não autorizado para execução nesta missão**:
 

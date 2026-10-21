@@ -68,6 +68,8 @@ def catalog_findings(data):
 def cron_findings(data):
     if data.get('format') != 1 or not data.get('available'):
         return ['cron_unavailable_or_not_inspected']
+    if data.get('all_jobs_visible') is not True:
+        return ['cron_visibility_incomplete']
     jobs = data.get('jobs', [])
     if len(jobs) != 1:
         return ['cron_job_missing_or_duplicated']

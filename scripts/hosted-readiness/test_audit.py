@@ -22,7 +22,7 @@ def healthy():
 
 
 def cron():
-    return {'format':1,'available':True,'jobs':[{'jobid':7,'command_matches':True,
+    return {'format':1,'available':True,'all_jobs_visible':True,'jobs':[{'jobid':7,'command_matches':True,
             'legacy_transaction_wrapper':False,'schedule':'* * * * *','active':True}],
             'runs':[{'status':'succeeded','end_time':'2026-10-21T00:00:01Z'}]}
 
@@ -80,6 +80,10 @@ class ReadinessTests(unittest.TestCase):
         for jobs in ([],cron()['jobs']*2):
             d=cron();d['jobs']=jobs
             self.assertEqual(['cron_job_missing_or_duplicated'],audit.cron_findings(d))
+
+    def test_cron_partial_visibility_cannot_certify_uniqueness(self):
+        d=cron();d['all_jobs_visible']=False
+        self.assertEqual(['cron_visibility_incomplete'],audit.cron_findings(d))
 
     def test_cron_command_schedule_active(self):
         for key,value,expected in [('command_matches',False,'cron_command_drift'),

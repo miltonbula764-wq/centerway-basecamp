@@ -16,6 +16,12 @@ DECLARE
   expected_active boolean := <TRUE_OR_FALSE>;
   j record;
 BEGIN
+  IF NOT (SELECT NOT c.relrowsecurity OR r.rolsuper OR r.rolbypassrls
+      OR (NOT c.relforcerowsecurity AND pg_has_role(current_user,c.relowner,'USAGE'))
+    FROM pg_class c CROSS JOIN pg_roles r
+    WHERE c.oid='cron.job'::regclass AND r.rolname=current_user) THEN
+    RAISE EXCEPTION 'Global Cron visibility required: do not infer uniqueness through RLS';
+  END IF;
   -- Serializes this maintenance procedure; it does not stop the scheduler.
   PERFORM pg_advisory_xact_lock(hashtextextended('centerway-cron-maintenance-v1',0));
   IF (SELECT count(*) FROM cron.job WHERE jobname='centerway-prepare-reviews-v1') <> 1 THEN
