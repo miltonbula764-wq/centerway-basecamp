@@ -429,7 +429,7 @@ function ConnectedWizard({
           <pre className="whitespace-pre-wrap break-words text-sm">
             {JSON.stringify(s.profile_issues, null, 2)}
           </pre>
-          {s.status !== "active" && (
+          {s.status === "needs_mapping" && (
             <Button disabled={busy} onClick={() => act("activate")}>
               Aprovar perfil e ativar sincronização
             </Button>

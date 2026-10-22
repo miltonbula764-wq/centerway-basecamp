@@ -7,5 +7,5 @@ const connector = new Connector(config());
 try {
   console.log(JSON.stringify(await connector.worker()));
 } finally {
-  await connector.store.sql.end();
+  await connector.store.sql.end({timeout:2});
 }

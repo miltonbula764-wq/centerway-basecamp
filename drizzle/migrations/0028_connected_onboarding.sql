@@ -141,7 +141,7 @@ BEGIN
  END IF;
  FOR g IN SELECT value FROM jsonb_array_elements(_selection->'groups') LOOP
   SELECT value INTO known FROM jsonb_array_elements(c.preview->'groups') WHERE value->>'ref'=g->>'ref';
-  IF known IS NULL OR length(btrim(g->>'name')) NOT BETWEEN 1 AND 300 THEN RAISE EXCEPTION 'unknown_group' USING ERRCODE='22023';END IF;
+  IF known IS NULL OR coalesce(length(btrim(g->>'name')),0) NOT BETWEEN 1 AND 300 THEN RAISE EXCEPTION 'unknown_group' USING ERRCODE='22023';END IF;
  END LOOP;
  IF _selection->>'existing_profile_id' IS NOT NULL THEN
   p:=(_selection->>'existing_profile_id')::uuid;

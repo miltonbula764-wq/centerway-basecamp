@@ -32,6 +32,8 @@ type Connection = {
   preview: any;
   watermarks: any;
   source: string;
+  last_error: string | null;
+  next_run_at: string;
 }; // Private DB rows; never returned directly to the browser.
 const day = 86400000;
 const date = (d: number) => new Date(d).toISOString().slice(0, 10) + "T00:00:00Z";
@@ -74,6 +76,15 @@ export class Connector {
       // Revalidate live consent and membership before every request, not just the first.
       const live = await this.current(db, c.tenant_id);
       if (live.id !== c.id || live.revoked_at) throw new ConnectorError("consent_revoked", 403);
+      if (
+        ["provider_rate_limited", "provider_budget_exhausted"].includes(live.last_error || "") &&
+        new Date(live.next_run_at).getTime() > Date.now()
+      )
+        throw new ConnectorError(
+          "provider_rate_limited",
+          429,
+          Math.ceil((new Date(live.next_run_at).getTime() - Date.now()) / 1000),
+        );
       await this.attempt(db, c, "discovery", "requested");
     });
   }
@@ -156,25 +167,30 @@ export class Connector {
       if (!s || !same(s["nonce_hash"], digest(nonce)))
         throw new ConnectorError("oauth_state_invalid", 403);
       // State consumption is committed before the network exchange, including failed callbacks.
-      const verifier = unseal<string>(
-        s["verifier_cipher"],
-        this.cfg.key,
-        `${tenant}:${s["id"]}:pkce`,
-      );
-      const ph = this.provider(db, c);
-      const t = await ph.token({
-        grant_type: "authorization_code",
-        code,
-        code_verifier: verifier,
-        redirect_uri: this.cfg.redirect,
-      });
-      const project = await ph.get(`/api/projects/${t.project}/`, t);
-      if (Number(project.id) !== t.project || typeof project.name !== "string")
-        throw new ConnectorError("project_identity_invalid", 403);
-      const types = await ph.groupTypes(t);
-      await db`UPDATE connected_private.connections SET status=${types.length ? "needs_mapping" : "insufficient_data"},project_id=${t.project},project_name=${project.name.slice(0, 200)},source=${"posthog:" + c.region + ":" + t.project},secret_cipher=${seal(t, this.cfg.key, this.aad(c))},token_expires_at=${new Date(t.expires_at)},preview=${db.json({ group_types: types, limitations: ["Amostragem limitada; eventos não comprovam resultados ou causas. Sem grupos B2B não há clientes descobertos."] })},last_error=NULL WHERE id=${c.id}`;
-      await this.attempt(db, c, "oauth", "completed");
-      return { status: "connected" };
+      try {
+        const verifier = unseal<string>(
+          s["verifier_cipher"],
+          this.cfg.key,
+          `${tenant}:${s["id"]}:pkce`,
+        );
+        const ph = this.provider(db, c);
+        const t = await ph.token({
+          grant_type: "authorization_code",
+          code,
+          code_verifier: verifier,
+          redirect_uri: this.cfg.redirect,
+        });
+        const project = await ph.get(`/api/projects/${t.project}/`, t);
+        if (Number(project.id) !== t.project || typeof project.name !== "string")
+          throw new ConnectorError("project_identity_invalid", 403);
+        const types = await ph.groupTypes(t);
+        await db`UPDATE connected_private.connections SET status=${types.length ? "needs_mapping" : "insufficient_data"},project_id=${t.project},project_name=${project.name.slice(0, 200)},source=${"posthog:" + c.region + ":" + t.project},secret_cipher=${seal(t, this.cfg.key, this.aad(c))},token_expires_at=${new Date(t.expires_at)},preview=${db.json({ group_types: types, limitations: ["Amostragem limitada; eventos não comprovam resultados ou causas. Sem grupos B2B não há clientes descobertos."] })},last_error=NULL WHERE id=${c.id}`;
+        await this.attempt(db, c, "oauth", "completed");
+        return { status: "connected" };
+      } catch (e) {
+        await db`UPDATE connected_private.connections SET status='failed',last_error='oauth_exchange_failed' WHERE id=${c.id}`;
+        throw e;
+      }
     });
   }
   async discover(tenant: string, actor: Actor, input: any) {
@@ -243,18 +259,40 @@ export class Connector {
   async prepare(tenant: string, actor: Actor, input: any) {
     return this.store.actor(tenant, actor, true, async (db) => {
       const c = await this.current(db, tenant);
+      if (
+        !input ||
+        typeof input !== "object" ||
+        Array.isArray(input) ||
+        !Array.isArray(input.groups) ||
+        input.groups.length < 1 ||
+        input.groups.length > 200
+      )
+        throw new ConnectorError("confirmed_mapping_required");
+      for (const g of input.groups) {
+        if (!g || typeof g !== "object") throw new ConnectorError("invalid_input");
+        text(g.ref, 300);
+        text(g.name, 300);
+      }
       const start = text(input.start, 30);
       if (
         !/^\d{4}-\d{2}-\d{2}$/.test(start) ||
         !Number.isFinite(Date.parse(start)) ||
+        new Date(start).toISOString().slice(0, 10) !== start ||
         Date.parse(start) >= Date.parse(date(Date.now())) ||
         Date.parse(start) < Date.now() - 366 * day
       )
         throw new ConnectorError("explicit_initial_window_required");
-      if (input.confirmed !== true || !Array.isArray(input.metrics))
+      if (
+        input.confirmed !== true ||
+        !Array.isArray(input.metrics) ||
+        input.metrics.length < 1 ||
+        input.metrics.length > 5
+      )
         throw new ConnectorError("confirmation_required");
       for (const m of input.metrics) {
         if (
+          !m ||
+          typeof m !== "object" ||
           !/^[a-z][a-z0-9_]{0,63}$/.test(m.key) ||
           !["usage", "outcome", "context"].includes(m.classification) ||
           !["higher_is_better", "lower_is_better"].includes(m.direction)
@@ -268,9 +306,10 @@ export class Connector {
   }
   async activate(tenant: string, actor: Actor) {
     return this.store.actor(tenant, actor, true, async (db) => {
-      const c = await this.current(db, tenant),
-        t = await this.tokens(db, c);
+      const c = await this.current(db, tenant);
       if (c.status === "active") return { status: "active" };
+      if (c.status !== "needs_mapping") throw new ConnectorError("reauthorization_required", 409);
+      const t = await this.tokens(db, c);
       await db`BEGIN`;
       try {
         const [r] = await db`SELECT connected_private.activate(${c.id}) AS key`;
@@ -517,10 +556,20 @@ export class Connector {
       try {
         result.push(await this.sync(a.tenant, a));
       } catch (e) {
-        result.push({
-          status: "failed",
-          code: e instanceof ConnectorError ? e.code : "internal_error",
-        });
+        const code = e instanceof ConnectorError ? e.code : "internal_error";
+        if (code !== "connector_busy") {
+          try {
+            await this.store.actor(a.tenant, a, true, async (db) => {
+              const c = await this.current(db, a.tenant);
+              const retry = e instanceof ConnectorError ? e.retryAfter : 60;
+              await db`UPDATE connected_private.connections SET last_error=${code},last_attempt_at=clock_timestamp(),next_run_at=clock_timestamp()+${retry}*interval '1 second',status=CASE WHEN ${code}='provider_authorization_lost' THEN 'failed' ELSE status END WHERE id=${c.id}`;
+              await this.attempt(db, c, "sync", "failed", code);
+            });
+          } catch {
+            /* Membership/session revocation takes precedence over worker diagnostics. */
+          }
+        }
+        result.push({ status: "failed", code });
       }
     }
     await this.revokeQueued();
@@ -599,6 +648,8 @@ export async function handler(request: Request): Promise<Response> {
       if (body.length > 128000) throw new ConnectorError("request_too_large", 413);
       try {
         input = JSON.parse(body);
+        if (!input || typeof input !== "object" || Array.isArray(input))
+          throw new ConnectorError("json_object_required");
       } catch {
         throw new ConnectorError("json_invalid");
       }
@@ -642,7 +693,7 @@ export async function handler(request: Request): Promise<Response> {
       try {
         await connector.store.actor(tenant, actor, false, async (db) => {
           const c = await connector.current(db, tenant);
-          await db`UPDATE connected_private.connections SET last_error=${e.code},status=CASE WHEN ${e.code}='provider_authorization_lost' THEN 'failed' ELSE status END,last_attempt_at=clock_timestamp() WHERE id=${c.id}`;
+          await db`UPDATE connected_private.connections SET last_error=${e.code},status=CASE WHEN ${e.code}='provider_authorization_lost' THEN 'failed' ELSE status END,last_attempt_at=clock_timestamp(),next_run_at=CASE WHEN ${status}=429 THEN clock_timestamp()+${e.retryAfter}*interval '1 second' ELSE next_run_at END WHERE id=${c.id}`;
           await connector.attempt(
             db,
             c,

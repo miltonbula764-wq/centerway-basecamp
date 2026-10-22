@@ -80,8 +80,12 @@ export class PostHog {
       body: new URLSearchParams({ client_id: this.cfg.clientId, ...values }),
     });
     if (
-      typeof t.access_token!=="string" || t.access_token.length<1 || t.access_token.length>8192 ||
-      typeof t.refresh_token!=="string" || t.refresh_token.length<1 || t.refresh_token.length>8192 ||
+      typeof t.access_token !== "string" ||
+      t.access_token.length < 1 ||
+      t.access_token.length > 8192 ||
+      typeof t.refresh_token !== "string" ||
+      t.refresh_token.length < 1 ||
+      t.refresh_token.length > 8192 ||
       t.token_type?.toLowerCase() !== "bearer" ||
       !validScopes(t.scope) ||
       !Number.isFinite(t.expires_in) ||
@@ -225,5 +229,15 @@ export class PostHog {
 }
 export function eventQuery(groupType: string, start: string, end: string, events?: string[]) {
   const group = `JSONExtractString(properties, '$groups', ${literal(groupType)})`;
-  return `SELECT ${group} AS customer, event, count() AS amount FROM events WHERE timestamp >= toDateTime(${literal(start)}) AND timestamp < toDateTime(${literal(end)}) AND ${group} != ''${events ? " AND event IN (" + events.map(literal).join(",") + ")" : ""} GROUP BY customer, event ORDER BY customer, event LIMIT 10001`;
+  const utc = (value: string) => {
+    if (
+      !/^\d{4}-\d{2}-\d{2}T00:00:00Z$/.test(value) ||
+      !Number.isFinite(Date.parse(value)) ||
+      new Date(value).toISOString().replace(".000Z", "Z") !== value
+    )
+      throw new ConnectorError("invalid_utc_boundary");
+    return `toDateTime(${literal(value.slice(0, 10) + " 00:00:00")}, 'UTC')`;
+  };
+  if (Date.parse(end) <= Date.parse(start)) throw new ConnectorError("invalid_utc_window");
+  return `SELECT ${group} AS customer, event, count() AS amount FROM events WHERE timestamp >= ${utc(start)} AND timestamp < ${utc(end)} AND ${group} != ''${events ? " AND event IN (" + events.map(literal).join(",") + ")" : ""} GROUP BY customer, event ORDER BY customer, event LIMIT 10001`;
 }

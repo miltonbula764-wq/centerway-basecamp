@@ -66,10 +66,13 @@ export class Store {
       }
       return await fn(db, row!["actor"]);
     } finally {
-      if (locked) await db`SELECT pg_advisory_unlock(hashtextextended(${tenant},208))`;
-      await db`RESET ROLE`;
-      await db`SELECT set_config('request.jwt.claims','',false)`;
-      db.release();
+      try {
+        if (locked) await db`SELECT pg_advisory_unlock(hashtextextended(${tenant},208))`;
+        await db`RESET ROLE`;
+        await db`SELECT set_config('request.jwt.claims','',false)`;
+      } finally {
+        db.release();
+      }
     }
   }
   async backend<T>(fn: (db: DB) => Promise<T>) {
@@ -79,8 +82,11 @@ export class Store {
       await db`SET ROLE centerway_connector_backend`;
       return await fn(db);
     } finally {
-      await db`RESET ROLE`;
-      db.release();
+      try {
+        await db`RESET ROLE`;
+      } finally {
+        db.release();
+      }
     }
   }
 }

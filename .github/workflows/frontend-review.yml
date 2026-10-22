@@ -10,6 +10,7 @@ on:
       - '*config*'
       - 'package.json'
       - 'bun.lock'
+      - 'patches/**'
       - 'scripts/ci/block-test-network.cjs'
       - '.github/workflows/frontend-review.yml'
 permissions:

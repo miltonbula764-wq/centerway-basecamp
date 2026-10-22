@@ -107,6 +107,8 @@ let project = 41,
   delay = false,
   refreshes = 0,
   revocations = 0,
+  revocationAttempts = 0,
+  revocationFail = false,
   providerCalls = 0;
 const codes = new Map<string, any>(),
   tokens = new Map<string, number>(),
@@ -215,6 +217,8 @@ const mock = Bun.serve({
       });
     }
     if (path === "/oauth/revoke/") {
+      revocationAttempts++;
+      if (revocationFail) return new Response(null, { status: 503 });
       revocations++;
       return new Response(null, { status: 200 });
     }
@@ -392,6 +396,16 @@ try {
       0,
     );
   });
+  // Kill only the disposable runtime's own connection; the next operation must acquire a fresh lease.
+  await assert.rejects(
+    connector.store.actor(tenantA, actorA, false, async (db) => {
+      const [backend] = await db`SELECT pg_backend_pid() AS pid`;
+      await sql`SELECT pg_terminate_backend(${backend.pid})`;
+      await db`SELECT 1`;
+    }),
+  );
+  assertions++;
+  eq((await connector.summary(tenantA, actorA)).id, c.id);
   const denied = await fetch(pub.url + "/rest/v1/connections", {
     headers: { apikey: pub.anon, authorization: "Bearer " + a.access_token },
   });
@@ -402,6 +416,8 @@ try {
   rate = true;
   eq((await api(a, tenantA, "discover", { group_type_index: 0 })).status, 429);
   rate = false;
+  eq((await api(a, tenantA, "discover", { group_type_index: 0 })).status, 429);
+  await new Promise((r) => setTimeout(r, 2100)); // Honour real provider Retry-After.
   eq((await api(a, tenantA, "discover", { group_type_index: 4 })).status, 400);
   eq((await api(a, tenantA, "discover", { group_type_index: 0 })).status, 200);
   summary = (await api(a, tenantA, "status")).data;
@@ -435,6 +451,19 @@ try {
     (await api(a, tenantA, "prepare", { selection: { ...selection, confirmed: false } })).status,
     400,
   );
+  eq((await api(a, tenantA, "prepare", { selection: null })).status, 400);
+  eq(
+    (
+      await api(a, tenantA, "prepare", {
+        selection: { ...selection, groups: [{ ...selection.groups[0], name: null }] },
+      })
+    ).status,
+    400,
+  );
+  eq(
+    (await api(a, tenantA, "prepare", { selection: { ...selection, metrics: [null] } })).status,
+    400,
+  );
   eq((await api(a, tenantA, "prepare", { selection })).status, 200);
   eq((await api(a, tenantA, "prepare", { selection })).status, 200);
   eq((await api(a, tenantA, "activate", {})).status, 422);
@@ -465,6 +494,11 @@ try {
   eq((await api(a, tenantA, "activate", {})).status, 200);
   eq((await api(a, tenantA, "activate", {})).status, 200);
   eq((await sql`SELECT count(*)::int AS n FROM subjects WHERE tenant_id=${tenantA}`)[0].n, 2);
+  queryFail = true;
+  const manualWorker = await connector.worker();
+  eq(manualWorker[0].code, "provider_error");
+  eq((await api(a, tenantA, "status")).data.last_error, "provider_error");
+  queryFail = false;
   c01Failure = 1;
   eq((await api(a, tenantA, "sync", {})).status, 503);
   const first = envelopes.at(-1);
@@ -564,7 +598,7 @@ try {
   eq((await api(sessionB2, tenantB, "status")).data.needs_reauthorization, true);
   eq((await api(sessionB2, tenantB, "sync", {})).status, 409);
   eq((await api(sessionB2, tenantB, "start", context)).status, 409);
-  const loggedOut = await fetch(pub.url + "/auth/v1/logout", {
+  const loggedOut = await fetch(pub.url + "/auth/v1/logout?scope=local", {
     method: "POST",
     headers: { apikey: pub.anon, authorization: "Bearer " + sessionB2.access_token },
   });
@@ -641,11 +675,23 @@ try {
   eq((await api(b, tenantB, "sync", {})).status, 502);
   eq((await dbConnection(tenantB)).status, "failed");
   refreshFail = false;
+  eq((await api(b, tenantB, "activate", {})).status, 409);
+  revocationFail = true;
   eq((await api(b, tenantB, "disconnect", {})).status, 200);
   eq((await api(b, tenantB, "status")).data.status, "revoked");
+  const queued = await sql`SELECT * FROM connected_private.revocations WHERE tenant_id=${tenantB}`;
+  eq(queued.length, 1);
+  eq(queued[0].last_error, "provider_revocation_pending");
+  ok(queued[0].secret_cipher.startsWith("v1."));
+  const revAttempts = revocationAttempts;
+  revocationFail = false;
+  await connector.revokeQueued();
+  eq(revocationAttempts, revAttempts); // Durable queue honours the real five-minute retry deadline.
+
   broad = true;
   const bad = await begin(b, tenantB);
   eq((await finish(b, tenantB, bad)).status, 403);
+  eq((await api(b, tenantB, "status")).data.status, "failed");
   broad = false;
   await api(b, tenantB, "disconnect", {});
   const expired = await begin(b, tenantB);
@@ -673,6 +719,9 @@ try {
   }
   const obs = (await sql`SELECT count(*)::int AS n FROM observations WHERE tenant_id=${tenantA}`)[0]
     .n;
+  const actual = (
+    await sql`SELECT (SELECT count(*)::int FROM subjects WHERE tenant_id IN (${tenantA},${tenantB})) AS subjects,(SELECT count(*)::int FROM observations WHERE tenant_id=${tenantB}) AS observations_b,(SELECT count(*)::int FROM connected_private.revocations WHERE tenant_id IN (${tenantA},${tenantB})) AS pending_revocations`
+  )[0];
   await Bun.write(
     "e2e/logs/connected-results.json",
     JSON.stringify(
@@ -681,12 +730,17 @@ try {
         auth: "real GoTrue password grants",
         database: "disposable PostgreSQL17, real RLS; runtime dedicated NOINHERIT role",
         assertions,
-        subjects: 3,
-        observationsB: 1,
+        subjects: actual.subjects,
+        observationsB: actual.observations_b,
+        observationsTotal: obs + actual.observations_b,
+        attemptedRows: envelopes.reduce((n, e) => n + e.body.rows.length, 0),
+        uniqueC01Requests: new Set(envelopes.map((e) => e.id)).size,
         observations: obs,
         c01Requests,
         refreshes,
         revocations,
+        revocationAttempts,
+        pendingRevocations: actual.pending_revocations,
         providerCalls,
         automaticCore: tableCounts,
       },
@@ -731,6 +785,6 @@ try {
   mock.stop(true);
   app.stop(true);
   c01.stop(true);
-  await connector.store.sql.end();
-  await sql.end();
+  await connector.store.sql.end({timeout:2});
+  await sql.end({timeout:2});
 }

@@ -2,7 +2,7 @@ name: Connected onboarding isolated validation
 on:
   pull_request:
     branches: [main]
-    paths: ['src/**', 'e2e/connected/**', 'drizzle/migrations/**', 'scripts/connectors/**', 'package.json', 'bun.lock', '*config*', '.github/workflows/connected-onboarding.yml']
+    paths: ['src/**', 'e2e/connected/**', 'drizzle/migrations/**', 'scripts/connectors/**', 'package.json', 'bun.lock', 'patches/**', '*config*', '.github/workflows/connected-onboarding.yml']
 permissions:
   contents: read
 concurrency:

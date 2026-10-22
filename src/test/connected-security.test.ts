@@ -117,4 +117,73 @@ describe("connected onboarding security boundaries", () => {
     expect(q).not.toContain("distinct_id");
     expect(literal("a'b\\c")).toBe("'a\\'b\\\\c'");
   });
+  it("pins absolute day boundaries to UTC independently of the PostHog project timezone and rejects invalid calendar dates", () => {
+    const q = eventQuery("company", "2026-07-17T00:00:00Z", "2026-07-18T00:00:00Z", ["done"]);
+    expect(q).toContain("timestamp >= toDateTime('2026-07-17 00:00:00', 'UTC')");
+    expect(q).toContain("timestamp < toDateTime('2026-07-18 00:00:00', 'UTC')");
+    expect(() => eventQuery("company", "2026-02-30T00:00:00Z", "2026-03-03T00:00:00Z")).toThrow(
+      "invalid_utc_boundary",
+    );
+    expect(() => eventQuery("company", "2026-07-17T00:00:00Z", "2026-07-17T00:00:00Z")).toThrow(
+      "invalid_utc_window",
+    );
+  });
+  it.each(["foreign_project", "organization_scope", "write_scope", "expired"] as const)(
+    "rejects %s during token refresh before any project data request",
+    async (scenario) => {
+      const issuer = "https://us.posthog.com",
+        scope = "group:read project:read query:read";
+      const calls: string[] = [];
+      vi.stubGlobal("fetch", async (input: string) => {
+        calls.push(input);
+        const path = new URL(input).pathname;
+        if (path === "/.well-known/oauth-authorization-server")
+          return Response.json({
+            issuer,
+            authorization_endpoint: issuer + "/oauth/authorize/",
+            token_endpoint: issuer + "/oauth/token/",
+            revocation_endpoint: issuer + "/oauth/revoke/",
+            code_challenge_methods_supported: ["S256"],
+            response_types_supported: ["code"],
+            scopes_supported: scope.split(" "),
+            token_endpoint_auth_methods_supported: ["none"],
+          });
+        if (path === "/.well-known/oauth-protected-resource")
+          return Response.json({
+            resource: issuer,
+            authorization_servers: [issuer],
+            scopes_supported: scope.split(" "),
+            bearer_methods_supported: ["header"],
+          });
+        const teams = scenario === "foreign_project" ? [2] : [1],
+          org = scenario === "organization_scope" ? ["foreign-org"] : [];
+        if (path === "/oauth/token/")
+          return Response.json({
+            access_token: "synthetic-token",
+            refresh_token: "synthetic-refresh",
+            token_type: "Bearer",
+            scope: scenario === "write_scope" ? scope + " group:write" : scope,
+            expires_in: scenario === "expired" ? -1 : 3600,
+            scoped_teams: teams,
+            scoped_organizations: org,
+          });
+        return Response.json({
+          active: true,
+          is_impersonated: false,
+          client_id: cfg.clientId,
+          scope,
+          scoped_teams: teams,
+          scoped_organizations: org,
+          exp: Math.floor(Date.now() / 1000) + 3600,
+        });
+      });
+      await expect(
+        new PostHog(cfg, "us").token(
+          { grant_type: "refresh_token", refresh_token: "synthetic" },
+          1,
+        ),
+      ).rejects.toThrow(/oauth_(token|project_or_scope)_invalid/);
+      expect(calls.some((path) => path.includes("/api/projects/"))).toBe(false);
+    },
+  );
 });
