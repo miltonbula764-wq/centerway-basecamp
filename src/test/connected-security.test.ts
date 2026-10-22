@@ -109,22 +109,30 @@ describe("connected onboarding security boundaries", () => {
     await expect(jsonFetch("https://us.posthog.com")).rejects.toThrow("invalid_response");
   });
   it("constructs only an aggregate query and escapes group/event literals", () => {
-    const q = eventQuery("company'\\", "2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z", [
+    const q = eventQuery(0, "2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z", [
       "done'); DROP TABLE events; --",
     ]);
     expect(q).toContain("count() AS amount");
+    expect(q).toContain("events.`$group_0`");
+    for (const index of [0, 1, 2, 3, 4])
+      expect(eventQuery(index, "2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z")).toContain(
+        "events.`$group_" + index + "`",
+      );
+    expect(() => eventQuery(9, "2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z")).toThrow(
+      "invalid_group_type",
+    );
     expect(q).toContain("LIMIT 10001");
     expect(q).not.toContain("distinct_id");
     expect(literal("a'b\\c")).toBe("'a\\'b\\\\c'");
   });
   it("pins absolute day boundaries to UTC independently of the PostHog project timezone and rejects invalid calendar dates", () => {
-    const q = eventQuery("company", "2026-07-17T00:00:00Z", "2026-07-18T00:00:00Z", ["done"]);
+    const q = eventQuery(0, "2026-07-17T00:00:00Z", "2026-07-18T00:00:00Z", ["done"]);
     expect(q).toContain("timestamp >= toDateTime('2026-07-17 00:00:00', 'UTC')");
     expect(q).toContain("timestamp < toDateTime('2026-07-18 00:00:00', 'UTC')");
-    expect(() => eventQuery("company", "2026-02-30T00:00:00Z", "2026-03-03T00:00:00Z")).toThrow(
+    expect(() => eventQuery(0, "2026-02-30T00:00:00Z", "2026-03-03T00:00:00Z")).toThrow(
       "invalid_utc_boundary",
     );
-    expect(() => eventQuery("company", "2026-07-17T00:00:00Z", "2026-07-17T00:00:00Z")).toThrow(
+    expect(() => eventQuery(0, "2026-07-17T00:00:00Z", "2026-07-17T00:00:00Z")).toThrow(
       "invalid_utc_window",
     );
   });

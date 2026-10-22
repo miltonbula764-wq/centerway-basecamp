@@ -248,7 +248,7 @@ const mock = Bun.serve({
       if (delay) await new Promise((r) => setTimeout(r, 150));
       if (queryFail) return json({ error: "temporary" }, 503);
       const q = await req.json();
-      ok(q.query.query.includes("JSONExtractString(properties, '$groups', 'company')"));
+      ok(q.query.query.includes("events.`$group_0`"));
       ok(!q.query.query.includes("distinct_id"));
       return json({
         results: [
@@ -785,6 +785,6 @@ try {
   mock.stop(true);
   app.stop(true);
   c01.stop(true);
-  await connector.store.sql.end({timeout:2});
-  await sql.end({timeout:2});
+  await connector.store.sql.end({ timeout: 2 });
+  await sql.end({ timeout: 2 });
 }

@@ -67,7 +67,7 @@ test("mobile: real login → controlled OAuth → discovery → human draft → 
   await page.getByRole("button", { name: "Desligar e retirar consentimento" }).click();
   await expect(page.getByText("Estado: Revogado", { exact: true })).toBeVisible();
   console.log(
-    `Observed mobile onboarding to human draft: ${Date.now() - started}ms; controlled provider, no hosted OAuth.`,
+    `Observed complete mobile cycle through disconnect: ${Date.now() - started}ms; controlled provider, no hosted OAuth.`,
   );
 });
 test("operator: connection controls unavailable; manual data path retained", async ({ page }) => {

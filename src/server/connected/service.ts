@@ -207,7 +207,7 @@ export class Connector {
       const { groups, truncated } = await ph.groups(t, type.index);
       const end = date(Date.now()),
         start = date(Date.parse(end) - 7 * day);
-      const rows = await ph.query(t, eventQuery(type.name, start, end));
+      const rows = await ph.query(t, eventQuery(type.index, start, end));
       const known = new Set(groups.map((g) => g.key));
       const events = new Set<string>();
       for (const row of rows) {
@@ -363,7 +363,7 @@ export class Connector {
       const raw = await ph.query(
         t,
         eventQuery(
-          c.preview.group_type,
+          c.preview.group_type_index,
           start,
           stop,
           c.selection.metrics.map((m: any) => m.event),

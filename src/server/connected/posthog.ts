@@ -227,8 +227,11 @@ export class PostHog {
     if (!r.ok) throw new ConnectorError("revocation_pending", 503);
   }
 }
-export function eventQuery(groupType: string, start: string, end: string, events?: string[]) {
-  const group = `JSONExtractString(properties, '$groups', ${literal(groupType)})`;
+export function eventQuery(groupIndex: number, start: string, end: string, events?: string[]) {
+  if (!Number.isInteger(groupIndex) || groupIndex < 0 || groupIndex > 4)
+    throw new ConnectorError("invalid_group_type");
+  // Official EventsTable: $group_N is the native FK to group_key for the selected project/index.
+  const group = "events.`$group_" + groupIndex + "`";
   const utc = (value: string) => {
     if (
       !/^\d{4}-\d{2}-\d{2}T00:00:00Z$/.test(value) ||
