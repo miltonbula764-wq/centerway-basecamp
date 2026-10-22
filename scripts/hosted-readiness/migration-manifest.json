@@ -169,6 +169,12 @@
       "tag": "0027_operational_onboarding_reliability_journal_reconcile",
       "when": 1792526309881,
       "sha256": "2451417bbafcc3d664af9efbc87ff7782d30add5a1c1204feeb02d6037943a4b"
+    },
+    {
+      "index": 28,
+      "tag": "0028_connected_onboarding",
+      "when": 1792656538998,
+      "sha256": "2fcceaca46b095ae47c72c6f358dc301af57ebfd42f4920e3dad9d33c1422347"
     }
   ]
 }

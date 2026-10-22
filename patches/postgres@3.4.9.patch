@@ -1,0 +1,37 @@
+diff --git a/src/index.js b/src/index.js
+index c7fba3dace20173f4cb13f3f138bb6d213b43683..e7fca9b197f4db2d89a0413ad2bc633481a5c65e 100644
+--- a/src/index.js
++++ b/src/index.js
+@@ -210,6 +210,13 @@ function Postgres(a, b) {
+         closed.length && connect(closed.shift(), query)
+       })
+ 
++    let closedError = null, released = false
++    c.onclose = error => {
++      closedError = error
++      while (queue.length)
++        queue.shift().reject(error)
++    }
++
+     move(c, reserved)
+     c.reserved = () => queue.length
+       ? c.execute(queue.shift())
+@@ -218,6 +225,10 @@ function Postgres(a, b) {
+ 
+     const sql = Sql(handler)
+     sql.release = () => {
++      if (released) return
++      released = true
++      if (closedError) return
++      c.onclose = null
+       c.reserved = null
+       onopen(c)
+     }
+@@ -225,6 +236,7 @@ function Postgres(a, b) {
+     return sql
+ 
+     function handler(q) {
++      if (closedError) return q.reject(closedError)
+       c.queue === full
+         ? queue.push(q)
+         : c.execute(q) || move(c, full)

@@ -4,7 +4,7 @@ on:
     branches: [review/c02-c03-browser-e2e, review/core-value-context]
   pull_request:
     branches: [main]
-    paths: ['e2e/**', 'supabase/**', 'src/**', 'drizzle/migrations/**', 'scripts/mvp/**', 'scripts/hosted-readiness/**', 'package.json', 'bun.lock', '*config*', '.github/workflows/browser-e2e.yml']
+    paths: ['e2e/**', 'supabase/**', 'src/**', 'drizzle/migrations/**', 'scripts/mvp/**', 'scripts/hosted-readiness/**', 'package.json', 'bun.lock', 'patches/**', '*config*', '.github/workflows/browser-e2e.yml']
 permissions:
   contents: read
 concurrency:

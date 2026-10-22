@@ -50,6 +50,7 @@ function Overview() {
   return (
     <>
       <PageHeader title="Visão geral" description={`${tenant.name} · ${unitLabel[tenant.subject_unit_type]} · ${roleLabel[tenant.role]}`} />
+      <p className="mb-4"><Link to="/app/conectar" className="underline">Ligar PostHog · descobrir clientes e indicadores</Link></p>
       <OperationalOnboarding target={target} />
       {anyError ? (
         <ErrorState message="Não foi possível carregar as contagens." onRetry={() => anyError.refetch()} />

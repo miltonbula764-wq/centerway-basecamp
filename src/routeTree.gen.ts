@@ -15,12 +15,15 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConviteRouteImport } from './routes/convite'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as PosthogCallbackRouteImport } from './routes/posthog.callback'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppAcompanhamentoRouteImport } from './routes/_authenticated/app.acompanhamento'
 import { Route as AuthenticatedAppCasosRouteImport } from './routes/_authenticated/app.casos'
+import { Route as AuthenticatedAppConectarRouteImport } from './routes/_authenticated/app.conectar'
 import { Route as AuthenticatedAppConfiguracoesRouteImport } from './routes/_authenticated/app.configuracoes'
 import { Route as AuthenticatedAppDadosRouteImport } from './routes/_authenticated/app.dados'
 import { Route as AuthenticatedAppPerfilRouteImport } from './routes/_authenticated/app.perfil'
+import { Route as ApiConnectedSplatRouteImport } from './routes/api.connected.$'
 import { Route as AuthenticatedAppClientesIndexRouteImport } from './routes/_authenticated/app.clientes.index'
 import { Route as AuthenticatedAppClientesSubjectIdRouteImport } from './routes/_authenticated/app.clientes.$subjectId'
 
@@ -53,6 +56,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const PosthogCallbackRoute = PosthogCallbackRouteImport.update({
+  id: '/posthog/callback',
+  path: '/posthog/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -69,6 +77,12 @@ const AuthenticatedAppCasosRoute = AuthenticatedAppCasosRouteImport.update({
   path: '/casos',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppConectarRoute =
+  AuthenticatedAppConectarRouteImport.update({
+    id: '/conectar',
+    path: '/conectar',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppConfiguracoesRoute =
   AuthenticatedAppConfiguracoesRouteImport.update({
     id: '/configuracoes',
@@ -84,6 +98,11 @@ const AuthenticatedAppPerfilRoute = AuthenticatedAppPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
   getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const ApiConnectedSplatRoute = ApiConnectedSplatRouteImport.update({
+  id: '/api/connected/$',
+  path: '/api/connected/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppClientesIndexRoute =
   AuthenticatedAppClientesIndexRouteImport.update({
@@ -104,11 +123,14 @@ export interface FileRoutesByFullPath {
   '/convite': typeof ConviteRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/posthog/callback': typeof PosthogCallbackRoute
   '/app/acompanhamento': typeof AuthenticatedAppAcompanhamentoRoute
   '/app/casos': typeof AuthenticatedAppCasosRoute
+  '/app/conectar': typeof AuthenticatedAppConectarRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/app/dados': typeof AuthenticatedAppDadosRoute
   '/app/perfil': typeof AuthenticatedAppPerfilRoute
+  '/api/connected/$': typeof ApiConnectedSplatRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/clientes/$subjectId': typeof AuthenticatedAppClientesSubjectIdRoute
   '/app/clientes/': typeof AuthenticatedAppClientesIndexRoute
@@ -118,11 +140,14 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/convite': typeof ConviteRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/posthog/callback': typeof PosthogCallbackRoute
   '/app/acompanhamento': typeof AuthenticatedAppAcompanhamentoRoute
   '/app/casos': typeof AuthenticatedAppCasosRoute
+  '/app/conectar': typeof AuthenticatedAppConectarRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/app/dados': typeof AuthenticatedAppDadosRoute
   '/app/perfil': typeof AuthenticatedAppPerfilRoute
+  '/api/connected/$': typeof ApiConnectedSplatRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/clientes/$subjectId': typeof AuthenticatedAppClientesSubjectIdRoute
   '/app/clientes': typeof AuthenticatedAppClientesIndexRoute
@@ -135,11 +160,14 @@ export interface FileRoutesById {
   '/convite': typeof ConviteRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/posthog/callback': typeof PosthogCallbackRoute
   '/_authenticated/app/acompanhamento': typeof AuthenticatedAppAcompanhamentoRoute
   '/_authenticated/app/casos': typeof AuthenticatedAppCasosRoute
+  '/_authenticated/app/conectar': typeof AuthenticatedAppConectarRoute
   '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/_authenticated/app/dados': typeof AuthenticatedAppDadosRoute
   '/_authenticated/app/perfil': typeof AuthenticatedAppPerfilRoute
+  '/api/connected/$': typeof ApiConnectedSplatRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/clientes/$subjectId': typeof AuthenticatedAppClientesSubjectIdRoute
   '/_authenticated/app/clientes/': typeof AuthenticatedAppClientesIndexRoute
@@ -152,11 +180,14 @@ export interface FileRouteTypes {
     | '/convite'
     | '/app'
     | '/onboarding'
+    | '/posthog/callback'
     | '/app/acompanhamento'
     | '/app/casos'
+    | '/app/conectar'
     | '/app/configuracoes'
     | '/app/dados'
     | '/app/perfil'
+    | '/api/connected/$'
     | '/app/'
     | '/app/clientes/$subjectId'
     | '/app/clientes/'
@@ -166,11 +197,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/convite'
     | '/onboarding'
+    | '/posthog/callback'
     | '/app/acompanhamento'
     | '/app/casos'
+    | '/app/conectar'
     | '/app/configuracoes'
     | '/app/dados'
     | '/app/perfil'
+    | '/api/connected/$'
     | '/app'
     | '/app/clientes/$subjectId'
     | '/app/clientes'
@@ -182,11 +216,14 @@ export interface FileRouteTypes {
     | '/convite'
     | '/_authenticated/app'
     | '/_authenticated/onboarding'
+    | '/posthog/callback'
     | '/_authenticated/app/acompanhamento'
     | '/_authenticated/app/casos'
+    | '/_authenticated/app/conectar'
     | '/_authenticated/app/configuracoes'
     | '/_authenticated/app/dados'
     | '/_authenticated/app/perfil'
+    | '/api/connected/$'
     | '/_authenticated/app/'
     | '/_authenticated/app/clientes/$subjectId'
     | '/_authenticated/app/clientes/'
@@ -197,6 +234,8 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ConviteRoute: typeof ConviteRoute
+  PosthogCallbackRoute: typeof PosthogCallbackRoute
+  ApiConnectedSplatRoute: typeof ApiConnectedSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -243,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/posthog/callback': {
+      id: '/posthog/callback'
+      path: '/posthog/callback'
+      fullPath: '/posthog/callback'
+      preLoaderRoute: typeof PosthogCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
       path: '/'
@@ -262,6 +308,13 @@ declare module '@tanstack/react-router' {
       path: '/casos'
       fullPath: '/app/casos'
       preLoaderRoute: typeof AuthenticatedAppCasosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/conectar': {
+      id: '/_authenticated/app/conectar'
+      path: '/conectar'
+      fullPath: '/app/conectar'
+      preLoaderRoute: typeof AuthenticatedAppConectarRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/configuracoes': {
@@ -285,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppPerfilRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/api/connected/$': {
+      id: '/api/connected/$'
+      path: '/api/connected/$'
+      fullPath: '/api/connected/$'
+      preLoaderRoute: typeof ApiConnectedSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/clientes/': {
       id: '/_authenticated/app/clientes/'
       path: '/clientes'
@@ -305,6 +365,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAcompanhamentoRoute: typeof AuthenticatedAppAcompanhamentoRoute
   AuthenticatedAppCasosRoute: typeof AuthenticatedAppCasosRoute
+  AuthenticatedAppConectarRoute: typeof AuthenticatedAppConectarRoute
   AuthenticatedAppConfiguracoesRoute: typeof AuthenticatedAppConfiguracoesRoute
   AuthenticatedAppDadosRoute: typeof AuthenticatedAppDadosRoute
   AuthenticatedAppPerfilRoute: typeof AuthenticatedAppPerfilRoute
@@ -316,6 +377,7 @@ interface AuthenticatedAppRouteChildren {
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAcompanhamentoRoute: AuthenticatedAppAcompanhamentoRoute,
   AuthenticatedAppCasosRoute: AuthenticatedAppCasosRoute,
+  AuthenticatedAppConectarRoute: AuthenticatedAppConectarRoute,
   AuthenticatedAppConfiguracoesRoute: AuthenticatedAppConfiguracoesRoute,
   AuthenticatedAppDadosRoute: AuthenticatedAppDadosRoute,
   AuthenticatedAppPerfilRoute: AuthenticatedAppPerfilRoute,
@@ -346,6 +408,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ConviteRoute: ConviteRoute,
+  PosthogCallbackRoute: PosthogCallbackRoute,
+  ApiConnectedSplatRoute: ApiConnectedSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
