@@ -45,3 +45,5 @@ dist-ssr
 /e2e/responsibility-fixtures.json
 
 /e2e/results-connected/
+
+__pycache__/

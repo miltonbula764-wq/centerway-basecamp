@@ -3,6 +3,7 @@ import { Store, type Actor, type DB } from "./store";
 import { PostHog, eventQuery, type Tokens } from "./posthog";
 import {
   config,
+  limitedText,
   ConnectorError,
   digest,
   random,
@@ -441,7 +442,7 @@ export class Connector {
     }
     let result: any;
     try {
-      const body = await response.text();
+      const body = await limitedText(response, 200000);
       if (body.length > 200000) throw new Error();
       result = JSON.parse(body);
     } catch {
@@ -594,7 +595,7 @@ export async function handler(request: Request): Promise<Response> {
     const actor = await connector.store.authenticate(request);
     let input: any = {};
     if (request.method === "POST") {
-      const body = await request.text();
+      const body = await limitedText(request, 128000);
       if (body.length > 128000) throw new ConnectorError("request_too_large", 413);
       try {
         input = JSON.parse(body);

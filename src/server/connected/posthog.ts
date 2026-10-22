@@ -31,7 +31,9 @@ export class PostHog {
     if (
       m.issuer !== this.issuer ||
       !m.code_challenge_methods_supported?.includes("S256") ||
-      !m.response_types_supported?.includes("code") || !scopes.every(s=>m.scopes_supported?.includes(s)) || !m.token_endpoint_auth_methods_supported?.includes("none")
+      !m.response_types_supported?.includes("code") ||
+      !scopes.every((s) => m.scopes_supported?.includes(s)) ||
+      !m.token_endpoint_auth_methods_supported?.includes("none")
     )
       throw new ConnectorError("oauth_metadata_invalid", 502);
     for (const [k, path] of Object.entries({
@@ -41,8 +43,16 @@ export class PostHog {
     })) {
       if (m[k] !== this.issuer + path) throw new ConnectorError("oauth_endpoint_invalid", 502);
     }
-    const resource=await jsonFetch(this.api+'/.well-known/oauth-protected-resource');
-    if(resource.resource!==this.api || !Array.isArray(resource.authorization_servers) || resource.authorization_servers.length!==1 || resource.authorization_servers[0]!==this.issuer || !resource.bearer_methods_supported?.includes('header') || !scopes.every(s=>resource.scopes_supported?.includes(s)))throw new ConnectorError('oauth_resource_metadata_invalid',502);
+    const resource = await jsonFetch(this.api + "/.well-known/oauth-protected-resource");
+    if (
+      resource.resource !== this.api ||
+      !Array.isArray(resource.authorization_servers) ||
+      resource.authorization_servers.length !== 1 ||
+      resource.authorization_servers[0] !== this.issuer ||
+      !resource.bearer_methods_supported?.includes("header") ||
+      !scopes.every((s) => resource.scopes_supported?.includes(s))
+    )
+      throw new ConnectorError("oauth_resource_metadata_invalid", 502);
     return m;
   }
   async authorization(state: string, nonce: string, verifier: string) {
@@ -70,8 +80,8 @@ export class PostHog {
       body: new URLSearchParams({ client_id: this.cfg.clientId, ...values }),
     });
     if (
-      !t.access_token ||
-      !t.refresh_token ||
+      typeof t.access_token!=="string" || t.access_token.length<1 || t.access_token.length>8192 ||
+      typeof t.refresh_token!=="string" || t.refresh_token.length<1 || t.refresh_token.length>8192 ||
       t.token_type?.toLowerCase() !== "bearer" ||
       !validScopes(t.scope) ||
       !Number.isFinite(t.expires_in) ||

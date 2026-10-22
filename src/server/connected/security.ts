@@ -140,25 +140,32 @@ export async function jsonFetch(url: string, init: RequestInit = {}, max = 1_000
       r.status === 429 ? 429 : r.status === 401 || r.status === 403 ? 401 : 502,
       Math.min(3600, Math.max(1, Number(r.headers.get("retry-after")) || 60)),
     );
-  const reader = r.body?.getReader();
+  try {
+    return JSON.parse(await limitedText(r, max));
+  } catch (e) {
+    if (e instanceof ConnectorError) throw e;
+    throw new ConnectorError("invalid_response", 502);
+  }
+}
+export async function limitedText(message: Request | Response, max: number) {
+  const reader = message.body?.getReader();
+  if (!reader) throw new ConnectorError("empty_response", 502);
   let size = 0;
   const chunks: Uint8Array[] = [];
-  if (!reader) throw new ConnectorError("empty_response", 502);
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.length;
     if (size > max) {
       await reader.cancel();
-      throw new ConnectorError("response_too_large", 502);
+      throw new ConnectorError(
+        message instanceof Request ? "request_too_large" : "response_too_large",
+        message instanceof Request ? 413 : 502,
+      );
     }
     chunks.push(value);
   }
-  try {
-    return JSON.parse(Buffer.concat(chunks).toString());
-  } catch {
-    throw new ConnectorError("invalid_response", 502);
-  }
+  return Buffer.concat(chunks).toString();
 }
 // SQL literals only, never identifiers or arbitrary query text supplied by the browser.
 export const literal = (s: string) => "'" + s.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + "'";

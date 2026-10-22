@@ -12,7 +12,12 @@ async function login(page, user, tenant) {
         ? route.fulfill({ contentType: "text/css", body: "" })
         : route.abort();
   });
-  await page.addInitScript((t) => localStorage.setItem("centerway.selectedTenant", t), tenant);
+  await page.addInitScript(
+    (t) =>
+      localStorage.getItem("centerway.selectedTenant") ||
+      localStorage.setItem("centerway.selectedTenant", t),
+    tenant,
+  );
   await page.goto("/auth");
   await page.getByLabel("Email", { exact: true }).fill(user.email);
   await page.getByLabel("Palavra-passe", { exact: true }).fill(user.password);
@@ -73,15 +78,43 @@ test("operator: connection controls unavailable; manual data path retained", asy
   await expect(page.getByRole("heading", { name: "Dados", exact: true })).toBeVisible();
 });
 
-test('A → B → A: delayed connected status cannot restore stale connection state',async({page})=>{
- await page.setViewportSize({width:1280,height:900});await login(page,fixture.user,fixture.tenant);
- await expect(page.getByText(/^Estado:/)).toBeVisible();
- let release,arrived;const hold=new Promise(r=>release=r),seen=new Promise(r=>arrived=r);let intercepted=false;
- await page.route('**/api/connected/status?*',async route=>{
-   const u=new URL(route.request().url());if(!intercepted&&u.searchParams.get('tenant')===fixture.tenant){intercepted=true;arrived();await hold;await route.fulfill({contentType:'application/json',body:JSON.stringify({status:'active',project_name:'STALE A CONNECTION'})}).catch(()=>{});}else await route.continue();
- });
- await page.reload();await seen;
- async function change(from,to){await page.getByRole('button',{name:new RegExp(from)}).click();await page.getByRole('menuitem',{name:to,exact:true}).click();await expect(page).toHaveURL(/\/app$/);await page.goto('/app/conectar');}
- await change(fixture.tenantName,fixture.tenantBName);await expect(page.getByText(/^Estado:/)).toBeVisible();await change(fixture.tenantBName,fixture.tenantName);await expect(page.getByText(/^Estado:/)).toBeVisible();release();
- await expect(page.getByText('STALE A CONNECTION')).toHaveCount(0);await expect(page.getByRole('button',{name:'Sincronizar um período agora'})).toHaveCount(0);
+test("A → B → A: delayed connected status cannot restore stale connection state", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await login(page, fixture.user, fixture.tenant);
+  await expect(page.getByText(/^Estado:/)).toBeVisible();
+  let release, arrived;
+  const hold = new Promise((r) => (release = r)),
+    seen = new Promise((r) => (arrived = r));
+  let intercepted = false;
+  await page.route("**/api/connected/status?*", async (route) => {
+    const u = new URL(route.request().url());
+    if (!intercepted && u.searchParams.get("tenant") === fixture.tenant) {
+      intercepted = true;
+      arrived();
+      await hold;
+      await route
+        .fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({ status: "active", project_name: "STALE A CONNECTION" }),
+        })
+        .catch(() => {});
+    } else await route.continue();
+  });
+  await page.reload();
+  await seen;
+  async function change(from, to) {
+    await page.getByRole("button", { name: new RegExp(from) }).click();
+    await page.getByRole("menuitem", { name: to, exact: true }).click();
+    await expect(page).toHaveURL(/\/app$/);
+    await page.goto("/app/conectar");
+  }
+  await change(fixture.tenantName, fixture.tenantBName);
+  await expect(page.getByText(/^Estado:/)).toBeVisible();
+  await change(fixture.tenantBName, fixture.tenantName);
+  await expect(page.getByText(/^Estado:/)).toBeVisible();
+  release();
+  await expect(page.getByText("STALE A CONNECTION")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Sincronizar um período agora" })).toHaveCount(0);
 });

@@ -35,6 +35,9 @@ jobs:
           cd e2e
           npm ci --ignore-scripts --no-audit --no-fund
           npx playwright install --with-deps chromium
+      - name: C01 outage-readiness regression
+        working-directory: ${{ runner.temp }}/cw-connected
+        run: python3 -m unittest discover -s e2e/connected -p 'test_*.py' -v
       - name: Start clean PostgreSQL with real GoTrue and PostgREST; apply complete migration journal
         working-directory: ${{ runner.temp }}/cw-connected
         env: {PG_CONTAINER: '${{ job.services.postgres.id }}'}

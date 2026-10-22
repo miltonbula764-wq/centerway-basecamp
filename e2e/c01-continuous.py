@@ -243,13 +243,8 @@ try:
         ingest(recovery_payload, 503, operation=recovery_op, label='upstream outage')
     finally:
         subprocess.run(['docker', 'start', 'cw-rest'], check=True, stdout=subprocess.DEVNULL)
-    for _ in range(100):
-        try:
-            if rest('/rest/v1/subjects?select=id', method='GET')[0] == 200:
-                break
-        except OSError:
-            pass
-        time.sleep(.1)
+    from readiness import wait_rest
+    wait_rest(lambda: rest('/rest/v1/subjects?select=id', method='GET'))
     ingest(recovery_payload, operation=recovery_op, label='outage retry')
     expected[recovery['idempotency_key']] = recovery
     # Connection refused before delivery, then same operation/payload succeeds.

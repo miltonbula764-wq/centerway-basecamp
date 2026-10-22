@@ -126,10 +126,18 @@ const mock = Bun.serve({
         authorization_endpoint: mockOrigin + "/oauth/authorize/",
         token_endpoint: mockOrigin + "/oauth/token/",
         revocation_endpoint: mockOrigin + "/oauth/revoke/",
-        response_types_supported: ["code"], scopes_supported:scopes,token_endpoint_auth_methods_supported:["none"],
+        response_types_supported: ["code"],
+        scopes_supported: scopes,
+        token_endpoint_auth_methods_supported: ["none"],
         code_challenge_methods_supported: ["S256"],
       });
-    if(path==='/.well-known/oauth-protected-resource')return json({resource:mockOrigin,authorization_servers:[mockOrigin],scopes_supported:scopes,bearer_methods_supported:['header']});
+    if (path === "/.well-known/oauth-protected-resource")
+      return json({
+        resource: mockOrigin,
+        authorization_servers: [mockOrigin],
+        scopes_supported: scopes,
+        bearer_methods_supported: ["header"],
+      });
     if (path === "/oauth/authorize/") {
       eq(u.searchParams.get("required_access_level"), "project");
       eq(u.searchParams.get("code_challenge_method"), "S256");
@@ -511,6 +519,61 @@ try {
   eq((await finish(b, tenantB, bf)).status, 200);
   eq((await api(b, tenantB, "status")).data.project_id, 72);
   eq((await api(a, tenantB, "status")).status, 403);
+  eq((await api(b, tenantB, "discover", { group_type_index: 0 })).status, 200);
+  const bs = (await api(b, tenantB, "status")).data;
+  const selectionB = {
+    confirmed: true,
+    start,
+    groups: [bs.preview.groups[0]],
+    metrics: [
+      {
+        ...bs.preview.metrics[0],
+        classification: "outcome",
+        direction: "higher_is_better",
+        target_value: 20,
+        baseline_method: "fixed_value",
+        baseline_value: 10,
+        baseline_min_period_days: 1,
+        observation_window_days: 1,
+        comparison_window_days: 1,
+        min_coverage_pct: 100,
+        min_denominator: 1,
+        deterioration_kind: "absolute",
+        deterioration_operator: "lt",
+        deterioration_value: 5,
+        deterioration_consecutive_windows: 2,
+        recovery_kind: "absolute",
+        recovery_operator: "gte",
+        recovery_value: 10,
+        recovery_consecutive_windows: 2,
+      },
+    ],
+  };
+  eq((await api(b, tenantB, "prepare", { selection: selectionB })).status, 200);
+  eq((await api(b, tenantB, "activate", {})).status, 200);
+  eq((await api(b, tenantB, "sync", {})).data.rows, 1);
+  eq((await sql`SELECT count(*)::int AS n FROM observations WHERE tenant_id=${tenantB}`)[0].n, 1);
+  ok(bs.preview.groups[0].ref !== refs[0]);
+  const loginB = await fetch(pub.url + "/auth/v1/token?grant_type=password", {
+    method: "POST",
+    headers: { apikey: pub.anon, "content-type": "application/json" },
+    body: JSON.stringify({ email: b.user.email, password }),
+  });
+  const sessionB2 = await loginB.json();
+  eq(loginB.status, 200);
+  eq((await api(sessionB2, tenantB, "status")).data.needs_reauthorization, true);
+  eq((await api(sessionB2, tenantB, "sync", {})).status, 409);
+  eq((await api(sessionB2, tenantB, "start", context)).status, 409);
+  const loggedOut = await fetch(pub.url + "/auth/v1/logout", {
+    method: "POST",
+    headers: { apikey: pub.anon, authorization: "Bearer " + sessionB2.access_token },
+  });
+  eq(loggedOut.status, 204);
+  ok([401, 403].includes((await api(sessionB2, tenantB, "status")).status));
+
+  eq((await rest(b, `observations?tenant_id=eq.${tenantA}&select=id`)).length, 0);
+  eq((await rest(a, `observations?tenant_id=eq.${tenantB}&select=id`)).length, 0);
+
   await rest(b, "rpc/add_tenant_member", {
     _tenant_id: tenantB,
     _user_id: a.user.id,
@@ -526,6 +589,8 @@ try {
       0,
     );
   });
+  const history =
+    await sql`SELECT to_jsonb(o) AS row FROM observations o WHERE tenant_id=${tenantA} ORDER BY id`;
   const count = (
     await sql`SELECT count(*)::int AS n FROM observations WHERE tenant_id=${tenantA}`
   )[0].n;
@@ -562,10 +627,20 @@ try {
     (await sql`SELECT count(*)::int AS n FROM observations WHERE tenant_id=${tenantA}`)[0].n,
     count,
   );
+  eq(
+    await sql`SELECT to_jsonb(o) AS row FROM observations o WHERE tenant_id=${tenantA} ORDER BY id`,
+    history,
+  );
   await connector.revokeQueued();
   ok(revocations >= 1);
-  const bc=await dbConnection(tenantB);const bt=unseal<any>(bc.secret_cipher,cfg.key,`${tenantB}:${bc.id}:tokens`);bt.expires_at=Date.now()-1;await sql`UPDATE connected_private.connections SET secret_cipher=${seal(bt,cfg.key,`${tenantB}:${bc.id}:tokens`)} WHERE id=${bc.id}`;
-  refreshFail=true;eq((await api(b,tenantB,'discover',{group_type_index:0})).status,502);eq((await dbConnection(tenantB)).status,'failed');refreshFail=false;
+  const bc = await dbConnection(tenantB);
+  const bt = unseal<any>(bc.secret_cipher, cfg.key, `${tenantB}:${bc.id}:tokens`);
+  bt.expires_at = Date.now() - 1;
+  await sql`UPDATE connected_private.connections SET secret_cipher=${seal(bt, cfg.key, `${tenantB}:${bc.id}:tokens`)} WHERE id=${bc.id}`;
+  refreshFail = true;
+  eq((await api(b, tenantB, "sync", {})).status, 502);
+  eq((await dbConnection(tenantB)).status, "failed");
+  refreshFail = false;
   eq((await api(b, tenantB, "disconnect", {})).status, 200);
   eq((await api(b, tenantB, "status")).data.status, "revoked");
   broad = true;
@@ -577,7 +652,7 @@ try {
   await sql`UPDATE connected_private.oauth_states SET expires_at=clock_timestamp()-interval '1 second' WHERE state_hash=${digest(expired.state!)}`;
   eq((await finish(b, tenantB, expired)).status, 403);
   await api(b, tenantB, "disconnect", {});
-  eq((await connector.worker()).length,0); // Manual invocation only; no real hosted scheduler.
+  eq((await connector.worker()).length, 0); // Manual invocation only; no real hosted scheduler.
   const tableCounts: any = {};
   for (const name of [
     "c02_runs",
@@ -606,7 +681,8 @@ try {
         auth: "real GoTrue password grants",
         database: "disposable PostgreSQL17, real RLS; runtime dedicated NOINHERIT role",
         assertions,
-        subjects: 2,
+        subjects: 3,
+        observationsB: 1,
         observations: obs,
         c01Requests,
         refreshes,
@@ -629,7 +705,9 @@ try {
     await Bun.write(
       "e2e/private/connected-browser.json",
       JSON.stringify({
-        tenant: tenantUI,tenantName:"Connected browser "+run,tenantBName:"Connected B "+run,
+        tenant: tenantUI,
+        tenantName: "Connected browser " + run,
+        tenantBName: "Connected B " + run,
         tenantB,
         user: { email: a.user.email, password },
         operator: { email: operator.user.email, password },
