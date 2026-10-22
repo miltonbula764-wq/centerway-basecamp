@@ -391,27 +391,35 @@ export class Connector {
         const identity = ref + ":" + metric.key;
         if (identities.has(identity)) throw new ConnectorError("duplicate_aggregate", 502);
         identities.add(identity);
-        const [old] =
-          await db`SELECT * FROM connected_private.measurements WHERE connection_id=${c.id} AND revision=${c.revision} AND external_ref=${ref} AND indicator_key=${metric.key} AND observed_at=${start}`;
-        if (old && Number(old["value_numeric"]) === Number(r[2])) continue;
+        const [receiptRow] =
+          await db`SELECT connected_private.measurement_receipt(${c.id},${ref},${metric.key},${start},${String(Number(r[2]))}::numeric) AS value`;
+        const receipt = receiptRow!["value"];
+        if (receipt.ambiguous) throw new ConnectorError("ambiguous_measurement_history", 409);
+        if (receipt.unchanged === true) continue;
+        if (typeof receipt.fingerprint !== "string")
+          throw new ConnectorError("measurement_contract_missing", 409);
         const key =
           "ph:" +
           digest(
-            `${c.id}:${c.revision}:${ref}:${metric.key}:${start}:${r[2]}:${old?.["observation_key"] || ""}`,
+            JSON.stringify([
+              c.tenant_id,
+              c.source,
+              receipt.fingerprint,
+              ref,
+              metric.key,
+              start,
+              Number(r[2]),
+              receipt.id || null,
+            ]),
           );
-        let correction: string | undefined;
-        if (old) {
-          const [receipt] =
-            await db`SELECT connected_private.receipt(${c.id},${old["observation_key"]}) AS value`;
-          if (!uuid(receipt!["value"]?.id))
-            throw new ConnectorError("correction_receipt_missing", 409);
-          correction = receipt!["value"].id;
-        }
+        const correction = receipt.id || undefined;
+        if (correction && !uuid(correction))
+          throw new ConnectorError("correction_receipt_missing", 409);
         rows.push({
           subject_external_ref: ref,
           indicator_key: metric.key,
           observed_at: start,
-          value_numeric: String(r[2]),
+          value_numeric: String(Number(r[2])),
           unit: "events",
           idempotency_key: key,
           ...(correction ? { corrects_observation_id: correction } : {}),

@@ -588,6 +588,32 @@ try {
   eq((await api(b, tenantB, "sync", {})).data.rows, 1);
   eq((await sql`SELECT count(*)::int AS n FROM observations WHERE tenant_id=${tenantB}`)[0].n, 1);
   ok(bs.preview.groups[0].ref !== refs[0]);
+  // A new OAuth connection must not reinsert the same daily aggregate or lose its correction parent.
+  const oldB = await dbConnection(tenantB);
+  const originalB = (
+    await sql`SELECT to_jsonb(o) AS row FROM observations o WHERE tenant_id=${tenantB}`
+  )[0].row;
+  eq((await api(b, tenantB, "disconnect", {})).status, 200);
+  const reauthorized = await begin(b, tenantB);
+  eq((await finish(b, tenantB, reauthorized)).status, 200);
+  eq((await api(b, tenantB, "discover", { group_type_index: 0 })).status, 200);
+  const mappedB = { ...selectionB, existing_profile_id: oldB.profile_id };
+  eq((await api(b, tenantB, "prepare", { selection: mappedB })).status, 200);
+  eq((await api(b, tenantB, "activate", {})).status, 200);
+  eq((await api(b, tenantB, "sync", {})).data.status, "no_op");
+  eq((await sql`SELECT count(*)::int AS n FROM observations WHERE tenant_id=${tenantB}`)[0].n, 1);
+  late = true;
+  eq((await api(b, tenantB, "sync", {})).data.rows, 1);
+  late = false;
+  const correctedB =
+    await sql`SELECT id,corrects_observation_id FROM observations WHERE tenant_id=${tenantB} AND corrects_observation_id IS NOT NULL`;
+  eq(correctedB.length, 1);
+  eq(correctedB[0].corrects_observation_id, originalB.id);
+  eq(
+    (await sql`SELECT to_jsonb(o) AS row FROM observations o WHERE id=${originalB.id}`)[0].row,
+    originalB,
+  );
+
   const loginB = await fetch(pub.url + "/auth/v1/token?grant_type=password", {
     method: "POST",
     headers: { apikey: pub.anon, "content-type": "application/json" },

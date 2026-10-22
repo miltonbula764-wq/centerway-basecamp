@@ -211,6 +211,34 @@ BEGIN
  RETURN jsonb_build_object('id',r.id,'subject_id',r.subject_id,'indicator_key',r.indicator_key,'observed_at',r.observed_at);
 END $$;
 
+-- Reauthorization must preserve the daily measurement identity, without borrowing
+-- another connection's tokens/session. Resolve only current, compatible C01 facts.
+CREATE FUNCTION connected_private.measurement_receipt(_connection uuid,_ref text,_key text,_at timestamptz,_value numeric) RETURNS jsonb
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_catalog,public,connected_private,pg_temp AS $$
+DECLARE c connected_private.connections;i public.profile_indicators;ids uuid[];o public.observations;
+BEGIN
+ SELECT * INTO c FROM connected_private.connections WHERE id=_connection;
+ IF c.status IS DISTINCT FROM 'active' OR NOT connected_private.actor_valid(c.tenant_id,c.actor_id,c.membership_id,c.session_id) THEN RAISE EXCEPTION 'admin_required' USING ERRCODE='42501';END IF;
+ IF NOT EXISTS(SELECT FROM jsonb_array_elements(c.selection->'groups') g WHERE g->>'ref'=_ref)
+ OR NOT EXISTS(SELECT FROM jsonb_array_elements(c.selection->'metrics') m WHERE m->>'key'=_key) THEN RAISE EXCEPTION 'confirmed_mapping_required' USING ERRCODE='42501';END IF;
+ SELECT pi.* INTO i FROM public.profile_indicators pi JOIN public.tenant_value_profiles p ON p.tenant_id=pi.tenant_id AND p.id=pi.profile_id
+ WHERE pi.tenant_id=c.tenant_id AND pi.profile_id=c.profile_id AND pi.key=_key AND p.status='approved';
+ IF NOT FOUND THEN RAISE EXCEPTION 'approved_profile_required' USING ERRCODE='22023';END IF;
+ SELECT array_agg(x.id) INTO ids FROM (
+  SELECT r.id FROM public.observations r
+  JOIN public.subjects sub ON sub.tenant_id=r.tenant_id AND sub.id=r.subject_id
+  JOIN public.ingestion_batches b ON b.tenant_id=r.tenant_id AND b.id=r.batch_id
+  JOIN public.profile_indicators old_i ON old_i.tenant_id=b.tenant_id AND old_i.profile_id=b.profile_id AND old_i.key=r.indicator_key
+  WHERE r.tenant_id=c.tenant_id AND sub.external_ref=_ref AND r.indicator_key=_key AND r.observed_at=_at AND r.source=c.source
+  AND public._c02_fingerprint(old_i)=public._c02_fingerprint(i)
+  AND NOT EXISTS(SELECT FROM public.observations child WHERE child.tenant_id=r.tenant_id AND child.corrects_observation_id=r.id)
+  ORDER BY r.id LIMIT 2
+ )x;
+ IF coalesce(cardinality(ids),0)>1 THEN RETURN jsonb_build_object('ambiguous',true);END IF;
+ IF cardinality(ids)=1 THEN SELECT * INTO o FROM public.observations WHERE tenant_id=c.tenant_id AND id=ids[1];END IF;
+ RETURN jsonb_build_object('fingerprint',public._c02_fingerprint(i),'id',o.id,'key',o.idempotency_key,'unchanged',coalesce(o.value_numeric=_value,false));
+END $$;
+
 CREATE FUNCTION connected_private.disconnect(_tenant uuid) RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public,connected_private,pg_temp AS $$
 DECLARE c connected_private.connections;
@@ -256,7 +284,7 @@ BEGIN
 END $$;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA connected_private FROM PUBLIC,anon,authenticated,service_role;
 GRANT EXECUTE ON FUNCTION connected_private.actor_valid(uuid,uuid,uuid,uuid),connected_private.actor(uuid),connected_private.summary(uuid),
- connected_private.prepare_profile(uuid,jsonb),connected_private.activate(uuid),connected_private.receipt(uuid,text),connected_private.disconnect(uuid),connected_private.worker_candidates() TO centerway_connector_backend;
+ connected_private.prepare_profile(uuid,jsonb),connected_private.activate(uuid),connected_private.receipt(uuid,text),connected_private.measurement_receipt(uuid,text,text,timestamptz,numeric),connected_private.disconnect(uuid),connected_private.worker_candidates() TO centerway_connector_backend;
 
 GRANT EXECUTE ON FUNCTION connected_private.tenant_unit(uuid),connected_private.approved_profile(uuid) TO centerway_connector_backend;
 
