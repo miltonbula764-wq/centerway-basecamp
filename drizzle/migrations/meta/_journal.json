@@ -197,6 +197,13 @@
       "when": 1792526309881,
       "tag": "0027_operational_onboarding_reliability_journal_reconcile",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1792656538998,
+      "tag": "0028_connected_onboarding",
+      "breakpoints": true
     }
   ]
 }
