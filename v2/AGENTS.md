@@ -18,3 +18,6 @@ historical components do not describe this runtime. Never publish the public-cre
 - Private preview changes belong in transport/authentication, never in C01–C06 decision logic.
 - Never serve a preview-marked database through the lab HTTP entrypoint. No insecure TLS fallback.
 - Provision credentials outside the checkout with restrictive permissions; never commit or log them.
+
+- Keep contracts/openapi.json and API_CONTRACT.md consistent with HTTP behavior; validate real responses.
+- External CORS is opt-in, private HTTPS only, exact origins; preserve Strict cookies and cross-site rejection.

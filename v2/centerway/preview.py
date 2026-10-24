@@ -5,6 +5,8 @@ from datetime import datetime, timedelta, timezone
 import hashlib
 import hmac
 import os
+import ipaddress
+import re
 from pathlib import Path
 import secrets
 import sqlite3
@@ -28,6 +30,13 @@ def canonical_origin(origin):
             or parsed.path or parsed.query or parsed.fragment or any(c.isspace() for c in origin)
             or parsed.hostname != parsed.hostname.lower()):
         raise ValueError('É necessária uma origem HTTPS exata, sem caminho ou credenciais.')
+    try:
+        ipaddress.ip_address(parsed.hostname)
+    except ValueError:
+        if not re.fullmatch(r'[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?',parsed.hostname,flags=re.ASCII):
+            raise ValueError('Hostname HTTPS inválido; não são permitidos wildcards.')
+    if parsed.netloc!=parsed.netloc.lower() or '%' in parsed.hostname:
+        raise ValueError('Usar hostname canónico, sem escapes.')
     if parsed.port is not None and not 1 <= parsed.port <= 65535:
         raise ValueError('Porta HTTPS inválida.')
     return origin
@@ -137,6 +146,7 @@ def main():
     serve.add_argument('--keyfile',required=True)
     serve.add_argument('--host',default='127.0.0.1')
     serve.add_argument('--port',type=int,default=8443)
+    serve.add_argument('--frontend-origin',action='append',default=[],help='Origem HTTPS exata do frontend same-site; CORS desativado por omissão.')
     args = parser.parse_args()
     try:
         if args.operation=='init':
@@ -150,7 +160,7 @@ def main():
         store = Store(args.db,seed_demo=False)
         policy = PreviewPolicy(store)
         from .server import make_server
-        server = make_server(store,args.host,args.port,preview=policy,tls_context=context)
+        server = make_server(store,args.host,args.port,preview=policy,tls_context=context,frontend_origins=args.frontend_origin)
     except (ValueError,OSError,sqlite3.Error) as error:
         parser.exit(1,'Arranque recusado: '+str(error)+'\n')
     print('Servidor HTTPS privado iniciado. URL pública e certificado válido têm de ser fornecidos pela infraestrutura.',flush=True)

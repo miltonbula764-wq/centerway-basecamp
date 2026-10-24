@@ -1,0 +1,3124 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CENTERWAY V2 HTTP API",
+    "version": "1.0.0",
+    "description": "Contrato da API Python existente. Apenas sandbox/simulator-v1; não representa integração real. CORS opcional no modo privado; cookies Strict exigem same-site ou proxy na mesma origem. Sem URL publicado."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Origem do backend; não há instância pública configurada."
+    }
+  ],
+  "security": [
+    {
+      "PrivateSession": []
+    },
+    {
+      "LocalLabSession": []
+    }
+  ],
+  "paths": {
+    "/api/login": {
+      "post": {
+        "operationId": "login",
+        "summary": "Autenticar com credencial fornecida em privado",
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              },
+              "Set-Cookie": {
+                "description": "Gerido pelo browser; nunca copiar o valor para JavaScript ou logs.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "options": {
+        "operationId": "preflightLogin",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "operationId": "logout",
+        "summary": "Revogar a sessão atual",
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              },
+              "Set-Cookie": {
+                "description": "Gerido pelo browser; nunca copiar o valor para JavaScript ou logs.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightLogout",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/view": {
+      "get": {
+        "operationId": "view",
+        "summary": "Ler registo, cliente, casos, evidências, catálogo e histórico",
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/View"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "description": "Opcional; sem cliente filtra o registo. Não vazio nem repetido."
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "description": "Exige tenant. Devolve detalhe do cliente e ciclo mais recente."
+          },
+          {
+            "name": "case_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "description": "Exige tenant e customer. Consulta um ciclo histórico; ambiente é o atual."
+          }
+        ]
+      },
+      "options": {
+        "operationId": "preflightView",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "GET"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/customers": {
+      "post": {
+        "operationId": "createCustomer",
+        "summary": "Registar cliente e ambiente fictício",
+        "responses": {
+          "201": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerRequest"
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightCreateCustomer",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/observations": {
+      "post": {
+        "operationId": "ingestObservations",
+        "summary": "Validar e gravar lote append-only atómico",
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ObservationsRequest"
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightIngestObservations",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/advance": {
+      "post": {
+        "operationId": "advanceCase",
+        "summary": "Iniciar C01 ou avançar uma etapa C02–C04",
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdvanceResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdvanceRequest"
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightAdvanceCase",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/execute": {
+      "post": {
+        "operationId": "executeIntervention",
+        "summary": "Executar C05 uma única vez por caso",
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseRequest"
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightExecuteIntervention",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/verify": {
+      "post": {
+        "operationId": "verifyIntervention",
+        "summary": "Registar medição C06 no sandbox",
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Verification"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseRequest"
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightVerifyIntervention",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/simulate-usage": {
+      "post": {
+        "operationId": "simulateUsage",
+        "summary": "Simular explicitamente quatro relatórios Nimbus",
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseRequest"
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightSimulateUsage",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "PrivateSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-cw_session",
+        "description": "HTTPS privado, Secure/HttpOnly/SameSite=Strict. Nunca copiar token para JS."
+      },
+      "LocalLabSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "cw_session",
+        "description": "Só laboratório em loopback; proibido usar como autenticação externa."
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "minLength": 1
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "invalid_request",
+              "unauthenticated",
+              "forbidden",
+              "not_found",
+              "method_not_allowed",
+              "conflict",
+              "payload_too_large",
+              "unsupported_media_type",
+              "misdirected_request",
+              "rate_limited",
+              "internal_error",
+              "unavailable"
+            ]
+          }
+        },
+        "required": [
+          "error",
+          "code"
+        ],
+        "additionalProperties": false,
+        "examples": [
+          {
+            "error": "Sem permissão para esta SaaS ou operação.",
+            "code": "forbidden"
+          }
+        ]
+      },
+      "Scope": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "tenant",
+          "customer"
+        ],
+        "additionalProperties": false
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "user",
+          "password"
+        ],
+        "additionalProperties": false,
+        "examples": [
+          {
+            "user": "<conta-privada>",
+            "password": "<segredo-fornecido-em-privado>"
+          }
+        ]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "user"
+        ],
+        "additionalProperties": false
+      },
+      "Empty": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "CustomerRequest": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "customer": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "maxLength": 64
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Após trim, deve conter 1–120 caracteres; regra semântica validada no servidor."
+          },
+          "scenario": {
+            "type": "string",
+            "enum": [
+              "blocked",
+              "operational"
+            ]
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "name"
+        ],
+        "additionalProperties": false,
+        "examples": [
+          {
+            "tenant": "atlas",
+            "customer": "cliente-exemplo",
+            "name": "Cliente fictício Exemplo",
+            "scenario": "blocked"
+          }
+        ]
+      },
+      "CustomerResponse": {
+        "type": "object",
+        "properties": {
+          "customer": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "customer"
+        ],
+        "additionalProperties": false
+      },
+      "ObservationInput": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "value": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "day",
+          "value",
+          "source"
+        ],
+        "additionalProperties": false
+      },
+      "ObservationRow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "value": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "id",
+          "day",
+          "value",
+          "source"
+        ],
+        "additionalProperties": false
+      },
+      "ObservationsRequest": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "observations": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 366,
+            "items": {
+              "$ref": "#/components/schemas/ObservationInput"
+            }
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "observations"
+        ],
+        "additionalProperties": false,
+        "examples": [
+          {
+            "tenant": "atlas",
+            "customer": "cliente-exemplo",
+            "observations": [
+              {
+                "day": "2026-10-24",
+                "value": 2,
+                "source": "manual-sandbox"
+              }
+            ]
+          }
+        ]
+      },
+      "IngestionResponse": {
+        "type": "object",
+        "properties": {
+          "batch_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "inserted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reused": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "batch_id",
+          "inserted",
+          "reused"
+        ],
+        "additionalProperties": false,
+        "examples": [
+          {
+            "batch_id": "fedcba9876543210fedcba9876543210",
+            "inserted": 1,
+            "reused": false
+          }
+        ]
+      },
+      "AdvanceRequest": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "case_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "tenant",
+          "customer"
+        ],
+        "additionalProperties": false,
+        "examples": [
+          {
+            "tenant": "atlas",
+            "customer": "cliente-exemplo"
+          }
+        ]
+      },
+      "CaseRequest": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "case_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "case_id"
+        ],
+        "additionalProperties": false,
+        "examples": [
+          {
+            "tenant": "atlas",
+            "customer": "cliente-exemplo",
+            "case_id": "0123456789abcdef0123456789abcdef"
+          }
+        ]
+      },
+      "AdvanceResponse": {
+        "type": "object",
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "reused": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "case_id"
+        ],
+        "additionalProperties": false,
+        "examples": [
+          {
+            "case_id": "0123456789abcdef0123456789abcdef"
+          }
+        ]
+      },
+      "ExecutionResponse": {
+        "type": "object",
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "reused": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "case_id",
+          "reused"
+        ],
+        "additionalProperties": false,
+        "examples": [
+          {
+            "case_id": "0123456789abcdef0123456789abcdef",
+            "reused": false
+          }
+        ]
+      },
+      "UsageResponse": {
+        "type": "object",
+        "properties": {
+          "reused": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "reused"
+        ],
+        "additionalProperties": false,
+        "examples": [
+          {
+            "reused": false
+          }
+        ]
+      },
+      "AtlasState": {
+        "type": "object",
+        "properties": {
+          "connector": {
+            "type": "string",
+            "enum": [
+              "paused",
+              "active"
+            ]
+          },
+          "backlog": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "delivered"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "completed_outcomes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "connector",
+          "backlog",
+          "completed_outcomes"
+        ],
+        "additionalProperties": false
+      },
+      "NimbusState": {
+        "type": "object",
+        "properties": {
+          "workflow_enabled": {
+            "type": "boolean"
+          },
+          "completed_outcomes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "usage_batch": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "report": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "status": {
+                  "const": "completed"
+                },
+                "source": {
+                  "const": "simulated-customer-usage"
+                }
+              },
+              "required": [
+                "report",
+                "status",
+                "source"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "workflow_enabled",
+          "completed_outcomes"
+        ],
+        "additionalProperties": false
+      },
+      "SandboxState": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AtlasState"
+          },
+          {
+            "$ref": "#/components/schemas/NimbusState"
+          }
+        ]
+      },
+      "Environment": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "enum": [
+              "atlas",
+              "nimbus"
+            ]
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/SandboxState"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "name",
+          "state",
+          "revision"
+        ],
+        "additionalProperties": false
+      },
+      "Observation": {
+        "type": "object",
+        "properties": {
+          "sufficient": {
+            "type": "boolean"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObservationRow"
+            }
+          },
+          "metric": {
+            "type": "string"
+          },
+          "window": {
+            "type": "string"
+          },
+          "rule": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sufficient",
+          "rows",
+          "metric",
+          "window",
+          "rule"
+        ],
+        "additionalProperties": false
+      },
+      "Detection": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "status": {
+                "const": "insufficient_data"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "status",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "deteriorating",
+                  "healthy"
+                ]
+              },
+              "baseline": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "recent": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "drop": {
+                "type": "number",
+                "maximum": 1
+              },
+              "evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "required": [
+              "status",
+              "baseline",
+              "recent",
+              "drop",
+              "evidence_ids"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Investigation": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/SandboxState"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "observation_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "metric": {
+            "type": "string"
+          },
+          "cause": {
+            "type": "string",
+            "enum": [
+              "connector_paused",
+              "workflow_disabled",
+              "unknown"
+            ]
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "state",
+          "revision",
+          "observation_ids",
+          "metric",
+          "cause",
+          "sha256"
+        ],
+        "additionalProperties": false
+      },
+      "Decision": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "const": "simulator-v1"
+          },
+          "is_real_ai": {
+            "const": false
+          },
+          "action": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "resume_connector",
+                  "enable_workflow"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "classification": {
+            "type": "string",
+            "enum": [
+              "connector_paused",
+              "workflow_disabled",
+              "unknown"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "evidence_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "mode",
+          "is_real_ai",
+          "action",
+          "classification",
+          "reason",
+          "evidence_hash"
+        ],
+        "additionalProperties": false
+      },
+      "Verification": {
+        "type": "object",
+        "properties": {
+          "operational_recovered": {
+            "type": "boolean"
+          },
+          "value_recovered": {
+            "type": "boolean"
+          },
+          "outcomes_before": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "outcomes_after": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "gained": {
+            "type": "integer"
+          },
+          "value_target": {
+            "const": 4
+          },
+          "probe": {
+            "type": "string"
+          },
+          "measured_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scope": {
+            "const": "sandbox"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "operational_recovered",
+          "value_recovered",
+          "outcomes_before",
+          "outcomes_after",
+          "gained",
+          "value_target",
+          "probe",
+          "measured_at",
+          "scope",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "Case": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "tenant": {
+            "type": "string",
+            "enum": [
+              "atlas",
+              "nimbus"
+            ]
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "detected",
+              "investigated",
+              "decided",
+              "executed",
+              "verified",
+              "insufficient_data",
+              "healthy",
+              "needs_review",
+              "stale_evidence"
+            ]
+          },
+          "observation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Observation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "detection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Detection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "investigation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Investigation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Verification"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "tenant",
+          "customer",
+          "stage",
+          "observation",
+          "detection",
+          "investigation",
+          "decision",
+          "verification",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "CaseSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "detected",
+              "investigated",
+              "decided",
+              "executed",
+              "verified",
+              "insufficient_data",
+              "healthy",
+              "needs_review",
+              "stale_evidence"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "stage",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "Action": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "tenant": {
+            "type": "string",
+            "enum": [
+              "atlas",
+              "nimbus"
+            ]
+          },
+          "cause": {
+            "type": "string",
+            "enum": [
+              "connector_paused",
+              "workflow_disabled"
+            ]
+          },
+          "permission": {
+            "const": "operator"
+          },
+          "effect": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "tenant",
+          "cause",
+          "permission",
+          "effect"
+        ],
+        "additionalProperties": false
+      },
+      "ExecutionEvidence": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "resume_connector",
+              "enable_workflow"
+            ]
+          },
+          "before": {
+            "$ref": "#/components/schemas/SandboxState"
+          },
+          "after": {
+            "$ref": "#/components/schemas/SandboxState"
+          },
+          "execution_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "action",
+          "before",
+          "after",
+          "execution_key"
+        ],
+        "additionalProperties": false
+      },
+      "HistoryEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "tenant": {
+            "type": "string",
+            "enum": [
+              "atlas",
+              "nimbus"
+            ]
+          },
+          "case_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "C01",
+              "C02",
+              "C03",
+              "C04",
+              "C05",
+              "C06",
+              "CUSTOMER",
+              "INGEST",
+              "CORE",
+              "SANDBOX"
+            ]
+          },
+          "detail": {
+            "type": "object"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "tenant",
+          "case_id",
+          "actor",
+          "stage",
+          "detail",
+          "created_at"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "C01"
+                }
+              },
+              "required": [
+                "stage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "$ref": "#/components/schemas/Observation"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "C02"
+                }
+              },
+              "required": [
+                "stage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "$ref": "#/components/schemas/Detection"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "C03"
+                }
+              },
+              "required": [
+                "stage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "$ref": "#/components/schemas/Investigation"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "C04"
+                }
+              },
+              "required": [
+                "stage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "$ref": "#/components/schemas/Decision"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "C05"
+                }
+              },
+              "required": [
+                "stage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "$ref": "#/components/schemas/ExecutionEvidence"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "C06"
+                }
+              },
+              "required": [
+                "stage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "type": "object",
+                  "properties": {
+                    "operational_recovered": {
+                      "type": "boolean"
+                    },
+                    "value_recovered": {
+                      "type": "boolean"
+                    },
+                    "outcomes_before": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "outcomes_after": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "gained": {
+                      "type": "integer"
+                    },
+                    "value_target": {
+                      "const": 4
+                    },
+                    "probe": {
+                      "type": "string"
+                    },
+                    "measured_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "scope": {
+                      "const": "sandbox"
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "revision": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "operational_recovered",
+                    "value_recovered",
+                    "outcomes_before",
+                    "outcomes_after",
+                    "gained",
+                    "value_target",
+                    "probe",
+                    "measured_at",
+                    "scope",
+                    "reason",
+                    "revision"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "CUSTOMER"
+                }
+              },
+              "required": [
+                "stage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "type": "object",
+                  "properties": {
+                    "customer": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "scenario": {
+                      "type": "string",
+                      "enum": [
+                        "blocked",
+                        "operational"
+                      ]
+                    },
+                    "scope": {
+                      "const": "sandbox"
+                    }
+                  },
+                  "required": [
+                    "customer",
+                    "name",
+                    "scenario",
+                    "scope"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "INGEST"
+                }
+              },
+              "required": [
+                "stage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "type": "object",
+                  "properties": {
+                    "customer": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "batch_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "inserted": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "source": {
+                      "const": "manual-sandbox"
+                    }
+                  },
+                  "required": [
+                    "customer",
+                    "batch_id",
+                    "inserted",
+                    "source"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "CORE"
+                }
+              },
+              "required": [
+                "stage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "type": "object",
+                  "properties": {
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reason"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "SANDBOX"
+                }
+              },
+              "required": [
+                "stage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "type": "object",
+                  "properties": {
+                    "event": {
+                      "const": "simulated-customer-usage"
+                    },
+                    "reports_completed": {
+                      "const": 4
+                    }
+                  },
+                  "required": [
+                    "event",
+                    "reports_completed"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        ]
+      },
+      "RegistryEntry": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "enum": [
+              "atlas",
+              "nimbus"
+            ]
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string"
+          },
+          "case_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "observed",
+                  "detected",
+                  "investigated",
+                  "decided",
+                  "executed",
+                  "verified",
+                  "insufficient_data",
+                  "healthy",
+                  "needs_review",
+                  "stale_evidence"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bucket": {
+            "type": "string",
+            "enum": [
+              "observation",
+              "deterioration",
+              "investigation",
+              "intervention",
+              "recovery",
+              "exceptions",
+              "stable"
+            ]
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "name",
+          "case_id",
+          "stage",
+          "bucket"
+        ],
+        "additionalProperties": false
+      },
+      "RegistryView": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "memberships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tenant": {
+                  "type": "string",
+                  "enum": [
+                    "atlas",
+                    "nimbus"
+                  ]
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "operator",
+                    "viewer"
+                  ]
+                }
+              },
+              "required": [
+                "tenant",
+                "role"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "decision_mode": {
+            "const": "simulator-v1"
+          },
+          "environment_type": {
+            "const": "sandbox"
+          },
+          "registry": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegistryEntry"
+            }
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "observation": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "deterioration": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "investigation": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "intervention": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "recovery": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "exceptions": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stable": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "observation",
+              "deterioration",
+              "investigation",
+              "intervention",
+              "recovery",
+              "exceptions",
+              "stable"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "user",
+          "memberships",
+          "decision_mode",
+          "environment_type",
+          "registry",
+          "counts"
+        ],
+        "additionalProperties": false
+      },
+      "CustomerView": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "memberships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tenant": {
+                  "type": "string",
+                  "enum": [
+                    "atlas",
+                    "nimbus"
+                  ]
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "operator",
+                    "viewer"
+                  ]
+                }
+              },
+              "required": [
+                "tenant",
+                "role"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "decision_mode": {
+            "const": "simulator-v1"
+          },
+          "environment_type": {
+            "const": "sandbox"
+          },
+          "registry": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegistryEntry"
+            }
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "observation": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "deterioration": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "investigation": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "intervention": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "recovery": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "exceptions": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stable": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "observation",
+              "deterioration",
+              "investigation",
+              "intervention",
+              "recovery",
+              "exceptions",
+              "stable"
+            ],
+            "additionalProperties": false
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "operator",
+              "viewer"
+            ]
+          },
+          "environment": {
+            "$ref": "#/components/schemas/Environment"
+          },
+          "case": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Case"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaseSummary"
+            }
+          },
+          "latest_case_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "catalogue": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Action"
+            }
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HistoryEntry"
+            }
+          }
+        },
+        "required": [
+          "user",
+          "memberships",
+          "decision_mode",
+          "environment_type",
+          "registry",
+          "counts",
+          "role",
+          "environment",
+          "case",
+          "cases",
+          "latest_case_id",
+          "catalogue",
+          "history"
+        ],
+        "additionalProperties": false
+      },
+      "View": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/RegistryView"
+          },
+          {
+            "$ref": "#/components/schemas/CustomerView"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "Error400": {
+        "description": "Pedido inválido/escopo ambíguo",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          }
+        }
+      },
+      "Error401": {
+        "description": "Sessão ausente/expirada ou credenciais inválidas",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          }
+        }
+      },
+      "Error403": {
+        "description": "Origem ou permissão recusada",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          }
+        }
+      },
+      "Error404": {
+        "description": "Recurso não encontrado no escopo",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          }
+        }
+      },
+      "Error405": {
+        "description": "Método não permitido (Allow indica o permitido)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          },
+          "Allow": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Error409": {
+        "description": "Conflito, estado inválido, evidência desatualizada ou caso histórico",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          }
+        }
+      },
+      "Error413": {
+        "description": "Mais de 65536 bytes",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          }
+        }
+      },
+      "Error415": {
+        "description": "Content-Type diferente de application/json",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          }
+        }
+      },
+      "Error421": {
+        "description": "Host privado não autorizado",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          }
+        }
+      },
+      "Error429": {
+        "description": "Limite de login; Retry-After: 60",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          },
+          "Retry-After": {
+            "schema": {
+              "type": "integer",
+              "const": 60
+            }
+          }
+        }
+      },
+      "Error500": {
+        "description": "Erro interno sem detalhes sensíveis",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          }
+        }
+      },
+      "Error503": {
+        "description": "Pré-visualização expirada ou configuração indisponível",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "X-Centerway-API-Version": {
+            "$ref": "#/components/headers/ApiVersion"
+          }
+        }
+      }
+    },
+    "headers": {
+      "ApiVersion": {
+        "description": "Versão do contrato HTTP; não é uma versão do cliente.",
+        "schema": {
+          "type": "string",
+          "const": "1.0.0"
+        }
+      }
+    }
+  }
+}

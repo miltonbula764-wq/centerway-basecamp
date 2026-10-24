@@ -1,0 +1,2 @@
+# Development only: validate the API contract against real HTTP responses.
+jsonschema==4.26.0

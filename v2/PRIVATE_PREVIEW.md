@@ -41,6 +41,9 @@ Sem eles, o fundador ainda não consegue experimentar a V2 só pelo Android.
 - O modo privado recusa base normal, contas/senhas públicas e certificado ausente.
   O modo HTTP recusa bases privadas e bind fora de loopback. Não há fallback HTTP.
 
+CORS opcional para frontend HTTPS same-site está descrito no [contrato da API](API_CONTRACT.md).
+Sem configuração, origens externas continuam recusadas; cookies Strict são preservados.
+
 ## Operação futura — para quem disponibilizar a infraestrutura
 
 Os comandos seguintes **não criam alojamento nem um URL**. O domínio `.invalid`
@@ -75,6 +78,7 @@ um cliente. O login de laboratório não é válido nessa instalação.
 ## Testes realizados e repetição
 
 ```sh
+python3 -m pip install -r tests/requirements.txt
 python3 -m unittest discover -s tests -v
 npm ci --ignore-scripts
 npx playwright install chromium
