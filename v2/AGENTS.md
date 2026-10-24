@@ -3,7 +3,7 @@
 The user authorized the independent rebuild in Mission 01 and multi-client support in Mission 02. This directory is a new
 Python/SQLite sandbox and does not use the historical application's components,
 Supabase schema, RPCs, providers, or build tools. Root rules specific to those
-historical components do not describe this runtime. Never publish or merge to main.
+historical components do not describe this runtime. Never publish the public-credential lab or merge to main. A private preview requires explicit authorization, dedicated synthetic data, private accounts and verified HTTPS infrastructure.
 
 - Run `python -m unittest discover -s tests -v` from v2.
 - Permissions, evidence, decisions and effects are server owned; the browser passes IDs for cycle operations. Customer registration and observation batches are validated server-side.
@@ -14,3 +14,7 @@ historical components do not describe this runtime. Never publish or merge to ma
 - Every cycle operation must require explicit tenant and customer IDs, and match the case to both.
 - Preserve snapshots on new cycles; ingestion is atomic, idempotent and append-only.
 - Only one nonterminal cycle per customer; historical cycles cannot acquire new verification results.
+
+- Private preview changes belong in transport/authentication, never in C01–C06 decision logic.
+- Never serve a preview-marked database through the lab HTTP entrypoint. No insecure TLS fallback.
+- Provision credentials outside the checkout with restrictive permissions; never commit or log them.

@@ -1,5 +1,8 @@
 # CENTERWAY V2 — Missão 02
 
+[Pré-visualização privada: preparação, testes e impedimento de alojamento](PRIVATE_PREVIEW.md).
+O laboratório abaixo continua apenas em loopback; não usar as suas contas na Internet.
+
 Python 3.11+ (testado com 3.12), SQLite e navegador. Runtime sem pacotes externos.
 A decisão continua **simulator-v1, sem IA real**. Todos os dados e efeitos são do sandbox.
 

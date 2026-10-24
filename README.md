@@ -1,5 +1,9 @@
 # CENTERWAY V2 · Missão 02
 
+**Pré-visualização privada: preparada e testada localmente, ainda sem URL externo.**
+O ambiente atual não dispõe de HTTPS/ingress para este runtime Python. Nada foi
+publicado. Ver [estado, bloqueio e operação privada](v2/PRIVATE_PREVIEW.md).
+
 Acompanhamento de múltiplos clientes por SaaS, com registo central, entrada validada
 de observações e ciclos C01–C06 independentes. Python + SQLite, sem dependências de
 runtime, IA real, Lovable, conectores externos ou serviços pagos.

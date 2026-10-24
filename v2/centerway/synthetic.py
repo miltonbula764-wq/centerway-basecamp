@@ -13,7 +13,7 @@ def sample_rows(baseline=10, recent=2, days=14, source='synthetic-v2'):
              'value':baseline if i<7 else recent, 'source':source} for i in range(days)]
 
 
-def populate(store):
+def populate(store, actor='demo'):
     with store.transaction() as db:
         if db.execute('SELECT 1 FROM environments LIMIT 1').fetchone():
             raise Problem(409,'A base deve estar sem clientes. Não se alteram ensaios existentes.')
@@ -21,27 +21,27 @@ def populate(store):
     for tenant in ('atlas','nimbus'):
         for i in range(75):
             customer, group = f'client-{i+1:03}', i % 10
-            core.create_customer('demo',tenant,customer,f'Cliente sintético {i+1:03}', 'operational' if group in (1,3) else 'blocked')
-            core.ingest('demo',tenant,customer,sample_rows(recent=10 if group==1 else 2, days=3 if group==2 else 14))
+            core.create_customer(actor,tenant,customer,f'Cliente sintético {i+1:03}', 'operational' if group in (1,3) else 'blocked')
+            core.ingest(actor,tenant,customer,sample_rows(recent=10 if group==1 else 2, days=3 if group==2 else 14))
             if group == 9:
                 continue
-            case_id = core.advance('demo',tenant,customer)['case_id']
-            core.advance('demo',tenant,customer,case_id)
+            case_id = core.advance(actor,tenant,customer)['case_id']
+            core.advance(actor,tenant,customer,case_id)
             if group in (1,2,4):
                 continue
-            core.advance('demo',tenant,customer,case_id)
+            core.advance(actor,tenant,customer,case_id)
             if group == 5:
                 continue
-            core.advance('demo',tenant,customer,case_id)
+            core.advance(actor,tenant,customer,case_id)
             if group in (3,6):
                 continue
-            core.execute('demo',tenant,customer,case_id)
+            core.execute(actor,tenant,customer,case_id)
             if group == 7:
                 continue
             if tenant == 'nimbus' and group == 0:
-                core.simulate_usage('demo',tenant,customer,case_id)
-            core.verify('demo',tenant,customer,case_id)
-    result = core.view('demo')
+                core.simulate_usage(actor,tenant,customer,case_id)
+            core.verify(actor,tenant,customer,case_id)
+    result = core.view(actor)
     assert len(result['registry']) == 150 and result['counts'] == EXPECTED_COUNTS
     return {'clients':len(result['registry']), 'counts':result['counts'], 'scope':'synthetic-sandbox-only'}
 

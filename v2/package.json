@@ -1,6 +1,11 @@
 {
   "name": "centerway-v2-browser-qa",
   "private": true,
-  "scripts": {"test:browser": "node tests/browser.cjs"},
-  "devDependencies": {"playwright": "1.62.1"}
+  "scripts": {
+    "test:browser": "node tests/browser.cjs",
+    "test:private-browser": "node tests/private-browser.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
 }
