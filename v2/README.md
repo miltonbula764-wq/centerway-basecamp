@@ -1,104 +1,123 @@
-# CENTERWAY V2 — Missão 01
+# CENTERWAY V2 — Missão 02
 
-Laboratório independente, sem imports da aplicação antiga. Requer Python 3.11+
-(testado com 3.12.14). Não instalar as dependências npm da raiz.
+Python 3.11+ (testado com 3.12), SQLite e navegador. Runtime sem pacotes externos.
+A decisão continua **simulator-v1, sem IA real**. Todos os dados e efeitos são do sandbox.
 
-## Abrir e testar
+## Abrir com 150 clientes sintéticos
+
+A partir da branch `centerway-v2/missao-02`, usar um caminho de base novo:
 
 ```sh
-git checkout centerway-v2/missao-01
 cd v2
-python3 -m centerway.server
+python3 -m centerway.synthetic --db data/missao02-150.sqlite3
+python3 -m centerway.server --db data/missao02-150.sqlite3
 ```
 
-Abrir **http://127.0.0.1:8080** no navegador da máquina onde o servidor corre.
-Para ambiente remoto, encaminhar a porta 8080 para o computador local (por exemplo,
-`ssh -L 8080:127.0.0.1:8080 utilizador@maquina`). O servidor escuta apenas loopback
-por predefinição. Não foi disponibilizado um URL público.
+Abrir **http://127.0.0.1:8080**. Num servidor remoto, encaminhar a porta 8080 para o
+computador local, por exemplo `ssh -L 8080:127.0.0.1:8080 utilizador@maquina`.
+Não foi criado um URL público. O gerador recusa bases que já tenham clientes;
+para repetir, escolher outro ficheiro, sem apagar o histórico anterior.
 
-Palavra-passe pública de teste para todas as contas: **centerway-local**.
+Todas as contas usam a palavra-passe pública de teste **centerway-local**:
 
-| Conta | Acesso |
+| Conta | Permissão |
 | --- | --- |
 | `demo` | Operador de AtlasFlow e NimbusDesk |
-| `atlas` | Operador apenas de AtlasFlow |
+| `atlas` | Operador só de AtlasFlow |
 | `leitor` | Só leitura de NimbusDesk |
 
-1. Entrar como operador e iniciar C01. Avançar por C02, C03 e C04, inspecionando os registos.
-2. Em AtlasFlow, executar C05: retoma o conector pausado e entrega 12 trabalhos pendentes.
-3. Executar C06: confirma operação e 12 novos resultados persistidos (meta: pelo menos 4).
-4. Trocar para NimbusDesk e repetir C01–C05: a ação ativa o percurso de primeiro valor.
-5. Verificar C06: operação recuperada, valor ainda não confirmado (zero novos resultados).
-6. Usar «Simular uso posterior»: grava quatro relatórios concluídos, explicitamente simulados.
-   Verificar novamente: agora confirma valor no sandbox. As duas verificações ficam no histórico.
-7. Recarregar ou reiniciar o servidor: os casos e efeitos permanecem. Sair e experimentar as contas restritas.
+## Experimentar no navegador
 
-Dados em `v2/data/centerway.sqlite3`, ignorados pelo Git. Para repetir do zero sem
-apagar histórico de ensaios, parar o servidor e iniciar com outra base:
-`python3 -m centerway.server --db data/novo-ensaio.sqlite3`.
+- O registo central mostra apenas as SaaS autorizadas. Filtrar por SaaS e estado,
+  pesquisar nome/ID e usar a paginação de 20 clientes. Abrir um cliente para operar.
+- `client-007` está pronto para C05 em ambas as SaaS. Atlas entrega 12 trabalhos;
+  C06 confirma operação e valor **no sandbox**. Nimbus ativa o percurso: C06 confirma
+  operação, mas não valor. «Simular uso posterior» grava quatro relatórios; nova
+  verificação pode então confirmar valor simulado.
+- «Registar cliente no sandbox» cria um cliente sem inventar observações. O ID é
+  único dentro de cada SaaS; o mesmo ID pode existir noutra SaaS.
+- Introduzir linhas `AAAA-MM-DD,valor,fonte` no cliente. O botão de exemplo preenche
+  14 dias de dados explicitamente simulados, mas só «Validar e gravar lote» os grava.
+- Avançar pelos botões C01–C06. Dados insuficientes e causas sem ação ficam em exceções.
+  Depois de um ciclo terminal, «Iniciar novo ciclo» preserva o anterior. O seletor de
+  ciclos permite consultá-lo; não permite executar novas operações no ciclo histórico.
+- Recarregar/reiniciar preserva clientes, observações, casos, efeitos e histórico.
 
-## O que existe
+## Estados e ensaio reproduzível
 
-- `centerway/c01.py` a `c06.py`: componentes separados; `core.py`: estados, permissões,
-  isolamento, coordenação e histórico; `store.py`: SQLite e cenários; `server.py`: HTTP/sessões.
-- C01 lê 14 dias persistidos da mesma fonte. C02 compara duas janelas de sete dias,
-  exige baseline positivo e sinaliza queda de pelo menos 30%. Configuração e métrica explícitas.
-- C03 preserva estado, revisão e IDs das observações com hash. Um sinal de C02 não autoriza execução.
-- C04 escolhe entre ações do catálogo autorizado, com base na causa investigada e evidências.
-  **Só existe `simulator-v1`: não há integração de IA real nem chamadas a provedores.**
-  O ambiente desta missão não tem credenciais de IA configuradas. Mesmo que se adicione
-  uma chave ao ambiente, esta versão continua explicitamente em modo simulador.
-- C05 altera o ambiente persistido. Estado, execução única por caso e histórico são
-  gravados na mesma transação `BEGIN IMMEDIATE`. Pedidos repetidos devolvem `reused`,
-  sem repetir efeitos. Evidência desatualizada ou ação não autorizada bloqueia execução.
-- C06 relê a base depois da intervenção, verifica disponibilidade/fila e mede novos
-  resultados contra o estado anterior à intervenção. Não infere valor de disponibilidade.
-- Sessões opacas de oito horas em cookie HttpOnly/SameSite, passwords com scrypt,
-  memberships no servidor, sem aceitar evidências/ações/roles do navegador.
-  Observações, execuções e histórico têm triggers que bloqueiam UPDATE e DELETE.
+O gerador usa o mesmo Core validado dos endpoints HTTP, com 75 clientes por SaaS e
+IDs `client-001` a `client-075`. Não escreve resultados de casos diretamente no SQL.
 
-## Validação reproduzível
+| Grupo do registo | Clientes no ensaio inicial |
+| --- | ---: |
+| Deterioração (C02) | 16 |
+| Investigação (C03) | 14 |
+| Intervenção (C04/C05 ou operação recuperada sem valor) | 35 |
+| Recuperação de operação e valor no sandbox | 23 |
+| Exceções (dados insuficientes ou causa sem ação) | 32 |
+| A observar | 14 |
+| Estáveis, sem deterioração | 16 |
 
-Sem dependências externas:
+Total: **150 clientes e 44 intervenções persistidas**. O grupo é calculado pelo
+servidor a partir do ciclo mais recente. Estável não significa recuperação. Uma
+verificação só operacional continua em intervenção, à espera de evidência de valor.
+
+## Contratos e proteções
+
+- Todas as operações de ciclo exigem `tenant` e `customer` explícitos. Um `case_id`
+  tem de corresponder aos dois. Não existe escolha implícita de `customer-01`.
+- C01 lê 14 dias completos da mesma fonte; C02 compara sete dias anteriores com sete
+  recentes, exige baseline positivo e queda ≥ 30%; C03 preserva evidências/revisão;
+  C04 só escolhe do catálogo autorizado; C05 aplica efeitos atómicos e únicos por caso;
+  C06 distingue operação de valor (mínimo quatro novos resultados persistidos).
+- Observações: 1–366 linhas, até 64 KiB por pedido; datas ISO canónicas até hoje e
+  no máximo 365 dias atrás; valor inteiro 0–1000000; fonte simples de 1–64 caracteres;
+  sem campos extra, dias duplicados no lote ou sobrescrita de dias existentes.
+  O lote inteiro confirma ou reverte. Reenvios idênticos, mesmo reordenados, não
+  duplicam dados. Conflitos de valor/fonte devolvem 409.
+- Novos dados invalidam ciclos ainda entre C01 e C04 (`stale_evidence`); exige-se
+  outro ciclo. Observações e snapshots anteriores não são alterados.
+- Um índice único permite apenas um ciclo não terminal por cliente. Ciclos e
+  intervenções de outros clientes permanecem independentes. Novos ciclos não
+  reinicializam o ambiente nem as observações do cliente.
+- Sessões HttpOnly/SameSite, memberships no servidor, catálogo, bloqueio de revisão
+  desatualizada, rollback e histórico append-only da Missão 01 são mantidos.
+  Lotes e registos de criação/entrada são também auditados e append-only.
+- As bases da Missão 01 são migradas automaticamente ao abrir: substitui-se o índice
+  de caso único pelo de ciclo ativo; preservam-se IDs, observações, efeitos e histórico.
+  O formato HTTP mudou: agora `customer` é obrigatório nas mutações.
+
+## Testes
 
 ```sh
 python3 -m unittest discover -s tests -v
-```
-
-16 testes: ciclos das duas SaaS, persistência com reabertura de SQLite, permissões
-reais via HTTP/cookies, isolamento com o mesmo ID de cliente, dados insuficientes,
-baseline zero, sinal saudável, ordem de estados, catálogo, evidência desatualizada,
-rollback de falha parcial, histórico append-only e oito execuções concorrentes com
-um único efeito.
-
-QA opcional de navegador (Node 20+, dependência apenas de desenvolvimento):
-
-```sh
 npm ci --ignore-scripts
 npx playwright install chromium
 npm run test:browser
-# Alternativa, com Chromium já instalado:
+# Com Chromium do sistema:
 CHROMIUM_PATH=/usr/bin/chromium npm run test:browser
 ```
 
-O script inicia e termina um servidor próprio numa porta livre e usa uma SQLite
-temporária. Cobre os dois percursos através dos botões reais, persistência após
-reload, larguras 360/390/1280, resposta atrasada ao trocar de SaaS, leitor e operador
-isolado. A imagem de QA fica em `test-results/atlas-mobile.png` (ignorada pelo Git).
-A CI da V2 executa estes testes sem credenciais nem deploy.
+A suíte inclui os 16 testes da Missão 01 e cobre entrada atómica/idempotente,
+permissões HTTP, isolamento entre clientes/tenants, ciclos concorrentes, invalidação
+de snapshots, consulta de ciclos históricos, migração e o cenário de 150 clientes.
+O navegador usa base descartável e cobre registo, filtros, paginação, criação,
+observações inválidas/válidas/repetidas, os dois percursos, persistência após reload,
+resposta atrasada entre clientes e larguras 360/390/1280. Não usa credenciais externas.
 
 ## Limites
 
-- Sandbox com duas SaaS e um cliente por SaaS, um caso por cliente e regras fixas.
-  Reabrir ciclos, ingestão externa, agendamento, novas contas e configurações de
-  valor por SaaS não estão implementados. Para outro ensaio, usar outra base.
-- As observações iniciais são fixtures de 14 dias até à data de criação da base;
-  bases envelhecidas podem bloquear novos casos por cobertura insuficiente.
-- As intervenções e a medição são reais **dentro da SQLite do teste**. Não existem
-  conectores externos, envio de mensagens, recuperação financeira ou prova de retenção.
-  A meta de quatro resultados demonstra valor no cenário, não uma tendência sustentada.
-- As contas têm credenciais públicas. HTTP da biblioteca padrão, sem TLS, rate limiting
-  ou administração de identidades. Destina-se ao uso local, não a produção.
-- Isolamento é aplicado no backend, com testes de pedidos hostis. SQLite não tem RLS;
-  acesso direto ao ficheiro pela máquina deve ser considerado acesso administrativo.
-- A aplicação histórica não foi executada nem validada nesta missão.
+- Duas SaaS com catálogo e ambientes de teste fixos; não existe administração de
+  novas SaaS/contas, conectores externos, agendamento nem IA real.
+- Não existe correção de observações já gravadas nem suporte a múltiplas fontes no
+  mesmo dia. Datas/fonte incompatíveis bloqueiam a análise em vez de serem aproximadas.
+- Novos ciclos reutilizam o estado atual. Não existe simulação de uma nova avaria
+  no mesmo ambiente; sem causa autorizada, o caso exige revisão humana.
+- A meta de valor e o uso posterior são sintéticos. Não demonstram retenção,
+  recuperação financeira ou recuperação real em produção.
+- Validado com 150 clientes, não como teste de carga de produção. A lista é paginada
+  no navegador; a API devolve o resumo autorizado completo e o histórico do cliente
+  é lido integralmente. SQLite serializa escritas. Sem processamento em background.
+- HTTP local, contas públicas, sem TLS/rate limiting; não preparado para produção.
+  Isolamento é aplicado no backend, não por RLS. Quem acede diretamente ao ficheiro
+  SQLite tem acesso administrativo. A aplicação histórica não foi executada.

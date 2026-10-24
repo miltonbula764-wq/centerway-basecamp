@@ -23,22 +23,35 @@ CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY, user_id TEXT REFEREN
 CREATE TABLE IF NOT EXISTS environments(tenant TEXT, customer TEXT, name TEXT, state TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(tenant, customer));
 CREATE TABLE IF NOT EXISTS observations(id INTEGER PRIMARY KEY, tenant TEXT, customer TEXT, day TEXT, value INTEGER, source TEXT NOT NULL, created_at TEXT NOT NULL, UNIQUE(tenant, customer, day), FOREIGN KEY(tenant,customer) REFERENCES environments(tenant,customer));
 CREATE TABLE IF NOT EXISTS cases(id TEXT PRIMARY KEY, tenant TEXT, customer TEXT, stage TEXT NOT NULL, observation TEXT, detection TEXT, investigation TEXT, decision TEXT, verification TEXT, created_at TEXT NOT NULL, FOREIGN KEY(tenant,customer) REFERENCES environments(tenant,customer));
-CREATE UNIQUE INDEX IF NOT EXISTS one_case_per_customer ON cases(tenant,customer);
+CREATE TABLE IF NOT EXISTS ingestion_batches(id TEXT PRIMARY KEY, tenant TEXT NOT NULL, customer TEXT NOT NULL, actor TEXT NOT NULL, payload_hash TEXT NOT NULL, inserted INTEGER NOT NULL, created_at TEXT NOT NULL, UNIQUE(tenant,customer,payload_hash), FOREIGN KEY(tenant,customer) REFERENCES environments(tenant,customer));
+CREATE INDEX IF NOT EXISTS customer_cases ON cases(tenant,customer,created_at DESC);
+
 CREATE TABLE IF NOT EXISTS executions(case_id TEXT PRIMARY KEY REFERENCES cases(id), tenant TEXT NOT NULL, action TEXT NOT NULL, before_state TEXT NOT NULL, after_state TEXT NOT NULL, created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, tenant TEXT NOT NULL, case_id TEXT REFERENCES cases(id), actor TEXT NOT NULL, stage TEXT NOT NULL, detail TEXT NOT NULL, created_at TEXT NOT NULL);
 """
 
 
 class Store:
-    def __init__(self, path):
+    def __init__(self, path, seed_demo=True):
         self.path = str(path)
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         with closing(self.connect()) as db:
             db.executescript(SCHEMA)
-            for table in ('observations', 'history', 'executions'):
+            # Additive migration from Mission 01; observations and audit rows are preserved.
+            db.execute('BEGIN IMMEDIATE')
+            try:
+                db.execute('DROP INDEX IF EXISTS one_case_per_customer')
+                db.execute("CREATE UNIQUE INDEX IF NOT EXISTS one_active_case ON cases(tenant,customer) WHERE stage IN ('observed','detected','investigated','decided','executed')")
+                db.execute('CREATE INDEX IF NOT EXISTS tenant_history ON history(tenant,case_id,id)')
+                db.execute('PRAGMA user_version=2')
+                db.commit()
+            except BaseException:
+                db.rollback()
+                raise
+            for table in ('observations', 'history', 'executions', 'ingestion_batches'):
                 for operation in ('UPDATE', 'DELETE'):
                     db.execute(f"CREATE TRIGGER IF NOT EXISTS immutable_{table}_{operation} BEFORE {operation} ON {table} BEGIN SELECT RAISE(ABORT, 'append_only'); END")
-            self.seed(db)
+            self.seed(db, seed_demo)
 
     def connect(self):
         db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
@@ -59,7 +72,7 @@ class Store:
         finally:
             db.close()
 
-    def seed(self, db):
+    def seed(self, db, seed_demo):
         # An interrupted first boot must not leave a partially seeded laboratory.
         db.execute('BEGIN IMMEDIATE')
         try:
@@ -71,6 +84,9 @@ class Store:
                 digest = hashlib.scrypt(b'centerway-local', salt=salt.encode(), n=16384, r=8, p=1).hex()
                 db.execute('INSERT INTO users VALUES (?,?)', (user, salt + ':' + digest))
             db.executemany('INSERT INTO memberships VALUES (?,?,?)', [('demo', 'atlas', 'operator'), ('demo', 'nimbus', 'operator'), ('atlas', 'atlas', 'operator'), ('leitor', 'nimbus', 'viewer')])
+            if not seed_demo:
+                db.commit()
+                return
             for tenant, name, baseline, recent, state in [
                 ('atlas', 'AtlasFlow · Clínica Horizonte', 12, 2, {'connector': 'paused', 'backlog': [{'id': f'job-{i}', 'status': 'pending'} for i in range(12)], 'completed_outcomes': 2}),
                 ('nimbus', 'NimbusDesk · Estúdio Norte', 8, 1, {'workflow_enabled': False, 'completed_outcomes': 1}),
