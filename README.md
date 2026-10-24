@@ -1,31 +1,26 @@
-# CENTERWAY
+# CENTERWAY V2 · Missão 01
 
-M
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/fb5e84e9-e3a9-40bf-a7ab-26c21ea1cf0a).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Reconstrução independente em [`v2/`](v2/README.md): C01 Observação → C02 Deteção →
+C03 Investigação → C04 Decisão → C05 Execução → C06 Verificação, coordenados pelo Core.
+Python + SQLite, sem dependências de runtime, Lovable ou serviços pagos.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+cd v2
+python3 -m centerway.server
 ```
 
-## MVP C01–C10 em revisão
+Abrir **http://127.0.0.1:8080**. Escolher «Operador · duas SaaS» e usar a palavra-passe
+pública de teste `centerway-local`. Seguir os botões C01 → C06 e trocar de SaaS.
 
-O percurso operacional está em `/app/casos`, com Core e política sintética isolada.
-Ver [arranque e limites](docs/MVP_RUNNING.md) e [contrato da demonstração](docs/MVP_JOURNEY_CONTRACT.md).
-Para uma referência visual sem instalação, abrir `public/mvp-preview.html` (leitura, ilustrativo).
-Não aplicar migrações no backend hospedado para testar esta entrega.
+```sh
+cd v2
+python3 -m unittest discover -s tests -v
+```
+
+[Instruções, cenários, testes e limites da V2](v2/README.md).
+A decisão é um **simulador identificado, sem IA real**. Os efeitos alteram apenas o
+sandbox persistido. Não houve publicação nem alteração de `main`.
+
+Os restantes diretórios conservam a implementação histórica e não são importados
+pela V2. Os comandos npm da raiz pertencem à versão antiga. O histórico anterior
+permanece no Git, incluindo o ponto de partida `d764f893ea47448836f8a64f1b8660fdd3b0a143`.
