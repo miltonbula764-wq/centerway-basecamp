@@ -1,4 +1,7 @@
-# CENTERWAY V2 — Missão 02
+# CENTERWAY V2 — Missão 03
+
+[Contrato HTTP e integração futura](API_CONTRACT.md) · [OpenAPI 3.1](contracts/openapi.json).
+A lógica e a interface existentes da Missão 02 continuam preservadas.
 
 [Pré-visualização privada: preparação, testes e impedimento de alojamento](PRIVATE_PREVIEW.md).
 O laboratório abaixo continua apenas em loopback; não usar as suas contas na Internet.
@@ -8,7 +11,7 @@ A decisão continua **simulator-v1, sem IA real**. Todos os dados e efeitos são
 
 ## Abrir com 150 clientes sintéticos
 
-A partir da branch `centerway-v2/missao-02`, usar um caminho de base novo:
+A partir da branch `centerway-v2/missao-03-api`, usar um caminho de base novo:
 
 ```sh
 cd v2
@@ -93,6 +96,7 @@ verificação só operacional continua em intervenção, à espera de evidência
 ## Testes
 
 ```sh
+python3 -m pip install -r tests/requirements.txt
 python3 -m unittest discover -s tests -v
 npm ci --ignore-scripts
 npx playwright install chromium
