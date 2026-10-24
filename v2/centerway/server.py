@@ -52,7 +52,8 @@ def make_server(store, host='127.0.0.1', port=8080):
                     filename, mime = assets[parsed.path]
                     self.respond(200, (STATIC / filename).read_bytes(), content_type=mime)
                 elif parsed.path == '/api/view':
-                    self.respond(200, core.view(self.identity(), parse_qs(parsed.query).get('tenant', [None])[0]))
+                    query = parse_qs(parsed.query)
+                    self.respond(200, core.view(self.identity(), *(query.get(key, [None])[0] for key in ('tenant','customer','case_id'))))
                 else:
                     raise Problem(404, 'Página não encontrada.')
             except Problem as error:
@@ -69,7 +70,7 @@ def make_server(store, host='127.0.0.1', port=8080):
                 if self.headers.get_content_type() != 'application/json':
                     raise Problem(415, 'Use application/json.')
                 length = int(self.headers.get('Content-Length', 0))
-                if not 0 < length <= 4096:
+                if not 0 < length <= 65536:
                     raise Problem(400, 'Corpo inválido ou demasiado grande.')
                 body = json.loads(self.rfile.read(length))
                 if not isinstance(body, dict):
@@ -98,18 +99,29 @@ def make_server(store, host='127.0.0.1', port=8080):
                         db.execute('DELETE FROM sessions WHERE token=?', (cookies['cw_session'].value,))
                     self.respond(200, {}, 'cw_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0')
                     return
-                if set(body) - {'tenant', 'case_id'}:
-                    raise Problem(400, 'Só são aceites identificadores; decisão, evidência e permissões vêm do servidor.')
-                tenant, case_id = body.get('tenant'), body.get('case_id')
-                if not isinstance(tenant, str) or (case_id is not None and not isinstance(case_id, str)):
-                    raise Problem(400, 'Identificadores inválidos.')
-                operations = {'/api/advance': core.advance, '/api/execute': core.execute, '/api/verify': core.verify, '/api/simulate-usage': core.simulate_usage}
+                allowed = {'tenant','customer','case_id'}
+                if self.path == '/api/customers':
+                    allowed = {'tenant','customer','name','scenario'}
+                elif self.path == '/api/observations':
+                    allowed = {'tenant','customer','observations'}
+                if set(body) - allowed:
+                    raise Problem(400,'Campos não autorizados; decisão e permissões vêm do servidor.')
+                tenant, customer, case_id = body.get('tenant'), body.get('customer'), body.get('case_id')
+                if not isinstance(tenant,str) or not isinstance(customer,str) or not customer or (case_id is not None and not isinstance(case_id,str)):
+                    raise Problem(400,'SaaS e cliente explícitos são obrigatórios.')
+                if self.path == '/api/customers':
+                    self.respond(201,core.create_customer(user,tenant,customer,body.get('name'),body.get('scenario','blocked')))
+                    return
+                if self.path == '/api/observations':
+                    self.respond(200,core.ingest(user,tenant,customer,body.get('observations')))
+                    return
+                operations = {'/api/advance':core.advance, '/api/execute':core.execute, '/api/verify':core.verify, '/api/simulate-usage':core.simulate_usage}
                 operation = operations.get(self.path)
                 if not operation:
-                    raise Problem(404, 'Operação não encontrada.')
+                    raise Problem(404,'Operação não encontrada.')
                 if self.path != '/api/advance' and not case_id:
-                    raise Problem(400, 'Caso necessário.')
-                self.respond(200, operation(user, tenant, case_id))
+                    raise Problem(400,'Caso necessário.')
+                self.respond(200,operation(user,tenant,customer,case_id))
             except Problem as error:
                 self.respond(error.status, {'error': error.message})
             except (ValueError, TypeError, json.JSONDecodeError):

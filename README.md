@@ -1,26 +1,30 @@
-# CENTERWAY V2 · Missão 01
+# CENTERWAY V2 · Missão 02
 
-Reconstrução independente em [`v2/`](v2/README.md): C01 Observação → C02 Deteção →
-C03 Investigação → C04 Decisão → C05 Execução → C06 Verificação, coordenados pelo Core.
-Python + SQLite, sem dependências de runtime, Lovable ou serviços pagos.
+Acompanhamento de múltiplos clientes por SaaS, com registo central, entrada validada
+de observações e ciclos C01–C06 independentes. Python + SQLite, sem dependências de
+runtime, IA real, Lovable, conectores externos ou serviços pagos.
+
+Para experimentar com **150 clientes sintéticos (75 por SaaS)**, numa base nova:
 
 ```sh
+git checkout centerway-v2/missao-02
 cd v2
-python3 -m centerway.server
+python3 -m centerway.synthetic --db data/missao02-150.sqlite3
+python3 -m centerway.server --db data/missao02-150.sqlite3
 ```
 
-Abrir **http://127.0.0.1:8080**. Escolher «Operador · duas SaaS» e usar a palavra-passe
-pública de teste `centerway-local`. Seguir os botões C01 → C06 e trocar de SaaS.
+Abrir **http://127.0.0.1:8080**. Conta `demo`, palavra-passe pública de teste
+`centerway-local`. Filtrar por SaaS/estado, pesquisar e abrir um cliente. Também é
+possível registar clientes e gravar observações pelo navegador.
 
 ```sh
 cd v2
 python3 -m unittest discover -s tests -v
 ```
 
-[Instruções, cenários, testes e limites da V2](v2/README.md).
-A decisão é um **simulador identificado, sem IA real**. Os efeitos alteram apenas o
-sandbox persistido. Não houve publicação nem alteração de `main`.
+[Instruções, cenários e limites](v2/README.md). Toda a recuperação demonstrada é
+**simulação no sandbox**, nunca recuperação real de SaaS ou retenção comprovada.
 
-Os restantes diretórios conservam a implementação histórica e não são importados
-pela V2. Os comandos npm da raiz pertencem à versão antiga. O histórico anterior
-permanece no Git, incluindo o ponto de partida `d764f893ea47448836f8a64f1b8660fdd3b0a143`.
+A Missão 02 parte do PR #30, commit `cf8817e`, numa nova branch. A `main` não foi
+alterada. A V2 não importa a aplicação histórica dos restantes diretórios; os
+comandos npm da raiz pertencem à versão antiga. Não houve deploy.
