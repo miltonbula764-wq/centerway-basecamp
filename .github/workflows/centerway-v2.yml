@@ -30,3 +30,5 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Real mobile and desktop browser journeys
         run: npm run test:browser
+      - name: Private HTTPS and Android emulation (local test certificate)
+        run: npm run test:private-browser
