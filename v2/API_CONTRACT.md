@@ -1,10 +1,24 @@
-# CENTERWAY V2 — contrato HTTP 1.2.0
+# CENTERWAY V2 — contrato HTTP 1.3.0
 
 Contrato do backend Python da Missão 03, baseado no PR #32. Especificação importável:
 [`contracts/openapi.json`](contracts/openapi.json), OpenAPI 3.1 / JSON Schema 2020-12.
 Não há URL publicado, interface nova, uso de Lovable ou integração real nesta missão.
 Na demo, tudo continua fictício: `environment_type: "sandbox"` e `decision_mode: "simulator-v1"`.
 Production devolve `production` / `disabled` na view operacional, sem dados ou intervenções simuladas. A API separada de evidências permanece inativa.
+
+## Extensão 1.3.0: consulta da orquestração inativa
+
+GET `/api/orchestration/cases` consulta estados, impedimentos e referências dos
+casos coordenados M06–M12. Exige sessão e membership atual; viewer pode ler.
+`tenant` obrigatório; filtros `customer`, `case_id` (exige customer), `state`;
+paginação `after` e `limit` (1–50). Query estrita, sem campos repetidos/vazios ou
+claims de role. `next_after` é null ao terminar. A leitura **não processa casos**
+e não autoriza ações; `updated_at` é a última transição processada.
+Ver [estados, resposta, limites e instruções](ORCHESTRATION_CONTRACT.md) e schemas
+`OrchestrationCase`/`OrchestrationPage` no OpenAPI. Não há endpoints de escrita,
+IA, aprovação ou execução novos. Sem setup opcional devolve 503. Production
+continua bloqueado para inscrição/processamento e só permite consulta inativa.
+As respostas dos caminhos anteriores são preservadas; header de versão é 1.3.0.
 
 ## Extensão 1.2.0: evidências inativas
 
@@ -60,7 +74,7 @@ administração, integração real ou frontend production nesta missão.
   Não enviar campos extra, chaves repetidas, NaN/Infinity ou parâmetros na query.
   Schemas cobrem a estrutura; limites temporais e validações após trim são semânticos.
 - Respostas de API: JSON, `Cache-Control: no-store`, header
-  `X-Centerway-API-Version: 1.2.0`. As respostas de sucesso anteriores são preservadas.
+  `X-Centerway-API-Version: 1.3.0`. As respostas de sucesso anteriores são preservadas.
 - Autenticação por cookie HttpOnly; sem JWT, bearer token, API key ou role no browser.
   Login devolve apenas `user`; o browser guarda o cookie recebido por `Set-Cookie`.
 - Modo privado: `__Host-cw_session`, Secure, HttpOnly, SameSite=Strict, Path=/,
@@ -81,6 +95,7 @@ separada de evidências inativas, descrita na extensão 1.2.0.
 
 | Método e caminho | Entrada | Resposta de sucesso | Permissão |
 | --- | --- | --- | --- |
+| GET `/api/orchestration/cases` | SaaS, filtros e paginação | 200 estados/impedimentos inativos; não processa | Membership / leitor |
 | POST `/api/evidence` | `tenant`, `customer`, `config_version`, `records` | 200 recibo atómico/idempotente; sempre inativo | Operador |
 | GET `/api/evidence/view` | Escopo/versão e paginação | 200 registos/proveniência/qualidade estrutural | Membership / leitor |
 | POST `/api/login` | `user`, `password` | 200 `{ "user": "…" }` + cookie | Credencial válida |

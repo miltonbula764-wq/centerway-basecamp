@@ -15,7 +15,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from .core import Core, Problem
 from .store import Store
-from .http_contract import API_METHODS, API_VERSION, ERROR_CODES, strict_json, view_query, evidence_query
+from .http_contract import API_METHODS, API_VERSION, ERROR_CODES, strict_json, view_query, evidence_query, orchestration_query
 
 STATIC = Path(__file__).resolve().parent.parent / 'static'
 
@@ -132,7 +132,7 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
             if expected and expected!=method:
                 self.respond(405,{'error':'Método não permitido.'},extra_headers={'Allow':expected+', OPTIONS'})
                 return None
-            if expected and parsed.path not in ('/api/view','/api/evidence/view') and parsed.query:
+            if expected and parsed.path not in ('/api/view','/api/evidence/view','/api/orchestration/cases') and parsed.query:
                 raise Problem(400,'Este endpoint não aceita parâmetros na query.')
             return parsed
 
@@ -204,6 +204,10 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                             raise Problem(503,'Formulário privado indisponível; acesso recusado.')
                         payload = html.replace('LABORATÓRIO LOCAL','PRÉ-VISUALIZAÇÃO PRIVADA').encode()
                     self.respond(200,payload,content_type=mime)
+                elif parsed.path == '/api/orchestration/cases':
+                    from .orchestration import Orchestrator
+                    user=self.identity()
+                    self.respond(200,Orchestrator(store).query(user,**orchestration_query(parsed.query)))
                 elif parsed.path == '/api/evidence/view':
                     from .evidence import EvidenceRepository
                     user=self.identity()

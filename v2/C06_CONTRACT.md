@@ -234,3 +234,5 @@ automação em massa, ação adicional ou encerramento no Core. Só janelas abso
 amostras completas e método `transition_to_target`; sem interpolação, tolerância
 inventada, migração entre configurações, conversão de unidades ou metas inferidas.
 Production e efeitos externos continuam bloqueados; demo mantém a expiração.
+
+Missão 13: [orquestração inativa M06–M12](ORCHESTRATION_CONTRACT.md) consome avaliações C06 sem executar novamente intervenções ou encerrar casos.
