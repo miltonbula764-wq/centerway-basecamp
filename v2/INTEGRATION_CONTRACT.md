@@ -163,3 +163,7 @@ valida toda a cadeia da SaaS; sem paginação/cache, não é ensaio de escala de
 Não há ativação de versão: a última versão é a mais recente declaração, não uma
 configuração aprovada para negócio. Futuras execuções terão de fixar a versão,
 validar evidências/consentimento e continuar a respeitar os bloqueios de production.
+
+A [Missão 07](EVIDENCE_API.md) acrescenta receção autorizada de dados conforme estas
+definições, em armazenamento separado e inativo. Não altera este contrato v1 nem
+liga as configurações/evidências a C01–C06.

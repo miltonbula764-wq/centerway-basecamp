@@ -53,6 +53,14 @@ class InfraProxyTests(unittest.TestCase):
                     {'user':'auditor','memberships':[{'tenant':'company-b','role':'viewer'}]}]}))
                 accounts.chmod(0o600)
                 provision_production(path,credentials,origin,accounts)
+                from centerway.integration_contract import load
+                from centerway.integrations import install as install_integrations,IntegrationRepository
+                from centerway.evidence import install as install_evidence
+                production_store=Store.open_existing(path);install_integrations(production_store)
+                saas_configuration=load(cwd/'examples/integrations/collaboration.json')
+                saas_configuration['tenant']='company-a';saas_configuration['data_classification']='declared'
+                IntegrationRepository(production_store).append('owner','company-a',saas_configuration,0)
+                install_evidence(production_store)
             else:
                 provision(path,credentials,origin)
             passwords=json.loads(credentials.read_text())['accounts']
@@ -107,10 +115,21 @@ class InfraProxyTests(unittest.TestCase):
                     view=json.loads(call('/api/view')[1])
                     self.assertEqual('production',view['environment_type']);self.assertEqual('disabled',view['decision_mode'])
                     self.assertEqual([],view['registry'])
+                    evidence_body={'tenant':'company-a','customer':'c','config_version':1,'records':[{
+                        'external_id':'proxy-evidence-1','kind':'evidence','definition_id':'operation-state',
+                        'source_ref':saas_configuration['evidence'][0]['source_ref'],'occurred_at':'2026-01-01T00:00:00Z',
+                        'period':None,'payload':{'paused':True}}]}
+                    self.assertEqual(200,call('/api/evidence',evidence_body)[0])
+                    evidence_route='/api/evidence/view?tenant=company-a&customer=c&config_version=1'
+                    evidence_before=json.loads(call(evidence_route)[1])
+                    self.assertEqual('inactive',evidence_before['operational_state'])
+                    self.assertEqual(1,len(evidence_before['records']))
                     self.assertEqual(503,call('/api/execute',{'tenant':'company-a','customer':'c','case_id':'c'})[0])
                     backend.terminate();backend.wait(timeout=15);self.assertEqual(0,backend.returncode)
                     backend=start_backend();ready('/api/view')
                     self.assertEqual(view,json.loads(call('/api/view')[1]))
+                    self.assertEqual(evidence_before,json.loads(call(evidence_route)[1]))
+                    self.assertTrue(json.loads(call('/api/evidence',evidence_body)[1])['reused'])
                     with Store.open_existing(path).transaction() as db:
                         self.assertEqual(0,db.execute('SELECT count(*) FROM executions').fetchone()[0])
                         self.assertNotIn('expires_at',[r['name'] for r in db.execute('PRAGMA table_info(production_metadata)')])

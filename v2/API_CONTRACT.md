@@ -1,10 +1,20 @@
-# CENTERWAY V2 — contrato HTTP 1.1.0
+# CENTERWAY V2 — contrato HTTP 1.2.0
 
 Contrato do backend Python da Missão 03, baseado no PR #32. Especificação importável:
 [`contracts/openapi.json`](contracts/openapi.json), OpenAPI 3.1 / JSON Schema 2020-12.
 Não há URL publicado, interface nova, uso de Lovable ou integração real nesta missão.
 Na demo, tudo continua fictício: `environment_type: "sandbox"` e `decision_mode: "simulator-v1"`.
-Production devolve `production` / `disabled`, sem dados ou intervenções simuladas.
+Production devolve `production` / `disabled` na view operacional, sem dados ou intervenções simuladas. A API separada de evidências permanece inativa.
+
+## Extensão 1.2.0: evidências inativas
+
+POST `/api/evidence` recebe lotes autorizados por SaaS/cliente/configuração; GET
+`/api/evidence/view` consulta registos, proveniência e qualidade estrutural. Ver
+[contrato, exemplos, limites e preparação](EVIDENCE_API.md) e os schemas Evidence*
+no OpenAPI. Exigem sessão e membership; só operadores podem ingerir. A entrada é
+permitida em production apenas no armazenamento separado e inativo: **não desbloqueia
+C01–C06, ações ou observações sandbox**. Os endpoints anteriores são preservados.
+Sem preparação explícita do armazenamento opcional, os novos caminhos devolvem 503.
 
 ## Extensão 1.1.0: modo permanente
 
@@ -22,8 +32,8 @@ GET `/api/view` sem detalhe devolve identidade/memberships reais e registo vazio
 
 Filtrar por tenant exige membership; consultar cliente/caso devolve 503. As seis
 mutações de negócio em production devolvem 503 para operador autorizado, sem efeito;
-leitores/tenants alheios recebem 403. A tabela de sucessos e exemplos de negócio
-abaixo descrevem o **sandbox**. Production nunca deve ser interpretado pelo frontend
+leitores/tenants alheios recebem 403. Os sucessos dos endpoints de negócio preexistentes
+e os seus exemplos abaixo descrevem o **sandbox**. A view operacional production nunca deve ser interpretada pelo frontend
 como autorização para executar ações ou prova de recuperação real.
 
 Exemplo de bloqueio:
@@ -50,7 +60,7 @@ administração, integração real ou frontend production nesta missão.
   Não enviar campos extra, chaves repetidas, NaN/Infinity ou parâmetros na query.
   Schemas cobrem a estrutura; limites temporais e validações após trim são semânticos.
 - Respostas de API: JSON, `Cache-Control: no-store`, header
-  `X-Centerway-API-Version: 1.1.0`. As respostas de sucesso anteriores são preservadas.
+  `X-Centerway-API-Version: 1.2.0`. As respostas de sucesso anteriores são preservadas.
 - Autenticação por cookie HttpOnly; sem JWT, bearer token, API key ou role no browser.
   Login devolve apenas `user`; o browser guarda o cookie recebido por `Set-Cookie`.
 - Modo privado: `__Host-cw_session`, Secure, HttpOnly, SameSite=Strict, Path=/,
@@ -65,11 +75,14 @@ administração, integração real ou frontend production nesta missão.
 
 ## Superfície existente
 
-Não existem `/api/cases`, `/api/evidence` ou `/api/interventions`. A leitura desses
-recursos está em `/api/view`; não são inventados endpoints REST equivalentes.
+Não existem `/api/cases` ou `/api/interventions`. Casos, evidências e intervenções
+do sandbox continuam a ser lidos em `/api/view`. O novo `/api/evidence` é a entrada
+separada de evidências inativas, descrita na extensão 1.2.0.
 
 | Método e caminho | Entrada | Resposta de sucesso | Permissão |
 | --- | --- | --- | --- |
+| POST `/api/evidence` | `tenant`, `customer`, `config_version`, `records` | 200 recibo atómico/idempotente; sempre inativo | Operador |
+| GET `/api/evidence/view` | Escopo/versão e paginação | 200 registos/proveniência/qualidade estrutural | Membership / leitor |
 | POST `/api/login` | `user`, `password` | 200 `{ "user": "…" }` + cookie | Credencial válida |
 | POST `/api/logout` | `{}` | 200 `{}`; sessão revogada e cookie removido | Sessão |
 | GET `/api/view` | Query opcional abaixo | 200 registo ou detalhe de cliente | Membership / leitor |
