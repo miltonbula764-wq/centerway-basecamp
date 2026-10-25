@@ -1,0 +1,57 @@
+{
+  "tenant": "billing",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "records": [
+    {
+      "external_id": "fictional-c06-operational-7",
+      "kind": "evidence",
+      "definition_id": "operation-state",
+      "source_ref": "fixture:billing:state-definition",
+      "occurred_at": "2026-01-01T00:07:00Z",
+      "period": null,
+      "payload": {
+        "paused": false
+      }
+    },
+    {
+      "external_id": "fictional-c06-value-7",
+      "kind": "evidence",
+      "definition_id": "value-snapshot",
+      "source_ref": "fixture:billing:value-definition",
+      "occurred_at": "2026-01-01T00:07:00Z",
+      "period": {
+        "start": "2026-01-01T00:06:00Z",
+        "end": "2026-01-01T00:07:00Z"
+      },
+      "payload": {
+        "outcome_count": 1
+      }
+    },
+    {
+      "external_id": "fictional-c06-operational-8",
+      "kind": "evidence",
+      "definition_id": "operation-state",
+      "source_ref": "fixture:billing:state-definition",
+      "occurred_at": "2026-01-01T00:08:00Z",
+      "period": null,
+      "payload": {
+        "paused": false
+      }
+    },
+    {
+      "external_id": "fictional-c06-value-8",
+      "kind": "evidence",
+      "definition_id": "value-snapshot",
+      "source_ref": "fixture:billing:value-definition",
+      "occurred_at": "2026-01-01T00:08:00Z",
+      "period": {
+        "start": "2026-01-01T00:07:00Z",
+        "end": "2026-01-01T00:08:00Z"
+      },
+      "payload": {
+        "outcome_count": 1
+      }
+    }
+  ]
+}

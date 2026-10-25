@@ -1,4 +1,7 @@
-# CENTERWAY V2 · Missão 11 — autorização C05 e execução controlada de teste
+# CENTERWAY V2 · Missão 12 — verificação C06 inativa e auditável
+
+[Contrato C06, exemplos sintéticos e instruções](v2/C06_CONTRACT.md).
+Execução, recuperação operacional e valor avaliados separadamente; nenhum resultado real presumido.
 
 [Contrato C05: aprovação explícita, execução de teste, auditoria e limites](v2/C05_CONTRACT.md).
 Intervenções externas e production bloqueados; sem adaptador instalado ou recuperação presumida.
@@ -58,6 +61,6 @@ python3 -m unittest discover -s tests -v
 [Instruções, cenários e limites](v2/README.md). Toda a recuperação demonstrada é
 **simulação no sandbox**, nunca recuperação real de SaaS ou retenção comprovada.
 
-A Missão 11 parte do PR #40, commit `38acb5e`, na branch `centerway-v2/missao-11-controlled-execution`. A `main` não foi
+A Missão 12 parte do PR #41, commit `062cfc3`, na branch `centerway-v2/missao-12-recovery`. A `main` não foi
 alterada. A V2 não importa a aplicação histórica dos restantes diretórios; os
 comandos npm da raiz pertencem à versão antiga. Não houve deploy.

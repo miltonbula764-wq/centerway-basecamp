@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "execution_id": "exec-1",
+  "config_version": 1,
+  "capability_id": "reopen-delivery-queue",
+  "provenance": {
+    "source_ref": "fixture:collaboration:c06-explicit-windows",
+    "supplied_by": "synthetic-fixture-author",
+    "recorded_at": "2026-01-01T00:06:00Z"
+  },
+  "checks": [
+    {
+      "dimension": "operational",
+      "criterion_index": 0,
+      "sampling": "point",
+      "aggregation": "all",
+      "method": "transition_to_target",
+      "coverage": "aligned_complete",
+      "before": {
+        "start": "2026-01-01T00:03:00Z",
+        "end": "2026-01-01T00:04:00Z",
+        "cadence_seconds": 60
+      },
+      "after": {
+        "start": "2026-01-01T00:06:00Z",
+        "end": "2026-01-01T00:08:00Z",
+        "cadence_seconds": 60
+      }
+    },
+    {
+      "dimension": "value",
+      "criterion_index": 0,
+      "sampling": "period",
+      "aggregation": "mean",
+      "method": "transition_to_target",
+      "coverage": "aligned_complete",
+      "before": {
+        "start": "2026-01-01T00:02:00Z",
+        "end": "2026-01-01T00:04:00Z",
+        "cadence_seconds": 60
+      },
+      "after": {
+        "start": "2026-01-01T00:06:00Z",
+        "end": "2026-01-01T00:08:00Z",
+        "cadence_seconds": 60
+      }
+    }
+  ]
+}

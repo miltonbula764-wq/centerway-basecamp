@@ -1,4 +1,7 @@
-# CENTERWAY V2 — Missão 11
+# CENTERWAY V2 — Missão 12
+
+[Contrato C06, exemplos sintéticos e instruções](C06_CONTRACT.md).
+Execução, recuperação operacional e valor avaliados separadamente; nenhum resultado real presumido.
 
 [Contrato C05: aprovação explícita, execução de teste, auditoria e limites](C05_CONTRACT.md).
 Intervenções externas e production bloqueados; sem adaptador instalado ou recuperação presumida.

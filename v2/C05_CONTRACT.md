@@ -204,3 +204,5 @@ Limitações: não há conectores reais, autorização/executor de produção, i
 humana ou endpoint C05, parâmetros de intervenção, resolução de incerteza, retries,
 rollback remoto ou C06. Só se executam efeitos explicitamente fictícios nos testes.
 O contrato atual de condições é o da M06; não se inventam metas nem causas.
+
+Missão 12: [C06 inativo, com evidências posteriores e planos temporais explícitos](C06_CONTRACT.md). Recibos C05 continuam sem comprovar recuperação real.
