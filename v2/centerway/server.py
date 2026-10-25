@@ -4,6 +4,7 @@ import hmac
 import json
 import secrets
 import ssl
+import sqlite3
 import ipaddress
 import re
 import threading
@@ -20,6 +21,13 @@ STATIC = Path(__file__).resolve().parent.parent / 'static'
 
 
 def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context=None, frontend_origins=()):
+    production=getattr(preview,'mode',None)=='production'
+    with store.transaction() as db:
+        marked_production=bool(db.execute("SELECT 1 FROM sqlite_master WHERE name='production_metadata'").fetchone())
+    if marked_production!=production:
+        raise ValueError('Modo explícito incompatível com a base; nenhum fallback permitido.')
+    if production:
+        preview.validate_runtime(store)
     if frontend_origins and not preview:
         raise ValueError('CORS externo só pode ser configurado no modo privado HTTPS.')
     from .preview import canonical_origin
@@ -30,10 +38,10 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
         if host != 'localhost' and not ipaddress.ip_address(host).is_loopback:
             raise ValueError('O laboratório com contas públicas só pode escutar em loopback.')
         with store.transaction() as db:
-            if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='preview_metadata'").fetchone():
+            if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name IN ('preview_metadata','production_metadata')").fetchone():
                 raise ValueError('Base privada exige o servidor HTTPS de pré-visualização.')
     core = Core(store)
-    cookie_name = '__Host-cw_session' if preview else 'cw_session'
+    cookie_name = '__Host-cw_production_session' if production else '__Host-cw_session' if preview else 'cw_session'
     cookie_flags = '; HttpOnly; SameSite=Strict; Path=/' + ('; Secure' if preview else '')
     session_seconds = 3600 if preview else 28800
 
@@ -91,7 +99,7 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
             with store.transaction() as db:
                 row = db.execute('SELECT user_id FROM sessions WHERE token=? AND expires>?', (token.value if token else '', datetime.now(timezone.utc).isoformat())).fetchone()
             if not row:
-                raise Problem(401, 'Inicie sessão no laboratório.')
+                raise Problem(401, 'Inicie sessão.')
             return row['user_id']
 
         def check_transport(self):
@@ -99,6 +107,10 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                 return
             if not isinstance(self.connection,ssl.SSLSocket):
                 raise Problem(503,'HTTPS obrigatório.')
+            if production:
+                try: preview.validate_runtime(store)
+                except (ValueError,OSError,sqlite3.Error):
+                    raise Problem(503,'Fundação production indisponível; verificação de modo/proteções falhou.')
             if preview.expired():
                 raise Problem(503,'Pré-visualização expirada; acesso encerrado.')
             if self.headers.get('Host') != preview.authority:
@@ -180,6 +192,8 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                 assets = {'/': ('index.html', 'text/html; charset=utf-8'), '/app.js': ('app.js', 'text/javascript; charset=utf-8'), '/style.css': ('style.css', 'text/css; charset=utf-8')}
                 if parsed.path in assets:
                     filename, mime = assets[parsed.path]
+                    if production:
+                        raise Problem(404,'Este backend production fornece apenas a API; nenhuma interface demo é servida.')
                     payload = (STATIC / filename).read_bytes()
                     if preview and filename=='index.html':
                         # Only the authentication fields change; the product UI is retained.
@@ -191,7 +205,7 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                         payload = html.replace('LABORATÓRIO LOCAL','PRÉ-VISUALIZAÇÃO PRIVADA').encode()
                     self.respond(200,payload,content_type=mime)
                 elif parsed.path == '/api/view':
-                    self.respond(200,core.view(self.identity(),*view_query(parsed.query)))
+                    self.respond(200,preview.view(store,self.identity(),*view_query(parsed.query)) if production else core.view(self.identity(),*view_query(parsed.query)))
                 else:
                     raise Problem(404, 'Página não encontrada.')
             except Problem as error:
@@ -230,6 +244,10 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                         raise Problem(400, 'Utilizador e palavra-passe necessários.')
                     if preview and not preview.limiter.allow(self.client_address[0],user):
                         raise Problem(429,'Demasiadas tentativas; aguarde um minuto.')
+                    if production:
+                        from .production import RESERVED_USERS
+                        if user in RESERVED_USERS or password=='centerway-local':
+                            raise Problem(401,'Credenciais inválidas.')
                     with store.transaction() as db:
                         row = db.execute('SELECT password_hash FROM users WHERE id=?', (user,)).fetchone()
                         # Same cost for unknown accounts.
@@ -262,6 +280,8 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                 tenant, customer, case_id = body.get('tenant'), body.get('customer'), body.get('case_id')
                 if not isinstance(tenant,str) or not 1 <= len(tenant) <= 128 or not isinstance(customer,str) or not 1 <= len(customer) <= 128 or (case_id is not None and (not isinstance(case_id,str) or not 1 <= len(case_id) <= 128)):
                     raise Problem(400,'SaaS e cliente explícitos são obrigatórios.')
+                if production:
+                    preview.block_operation(store,user,tenant)
                 if parsed.path == '/api/customers':
                     self.respond(201,core.create_customer(user,tenant,customer,body.get('name'),body.get('scenario','blocked')))
                     return

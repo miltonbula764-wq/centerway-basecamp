@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import sqlite3
 
-from .preview import PreviewPolicy, REPOSITORY, canonical_origin
+from .preview import REPOSITORY, canonical_origin
 from .store import Store
 
 
@@ -25,7 +25,7 @@ def integrity(db):
         raise ValueError('Referências SQLite inválidas.')
 
 
-def check(path, origin):
+def check(path, origin, mode='demo'):
     origin=canonical_origin(origin)
     path=Path(path).resolve(strict=True)
     if path.stat().st_mode & 0o077:
@@ -35,11 +35,12 @@ def check(path, origin):
     store=Store.open_existing(path)
     with closing(readonly(path)) as db:
         integrity(db)
-    policy=PreviewPolicy(store)
+    from .runtime import policy_for
+    policy=policy_for(mode,store)
     if policy.origin!=origin:
         raise ValueError('Origem pública diferente da guardada na base privada.')
-    return {'status':'ready','schema_version':2,'scope':'synthetic-sandbox',
-            'expires':policy.expires.isoformat(),'database_bytes':path.stat().st_size}
+    return {'status':'ready','schema_version':2,'scope':'production-foundation' if mode=='production' else 'synthetic-sandbox',
+            'mode':mode,'business_operations':'disabled' if mode=='production' else 'sandbox','expires':policy.expires.isoformat() if policy.expires else None,'database_bytes':path.stat().st_size}
 
 
 def backup(path, destination):
@@ -83,12 +84,12 @@ def verify_backup(path):
 def main():
     parser=argparse.ArgumentParser(description='Operações locais V2: não publica, não cria base, não migra, não restaura.')
     sub=parser.add_subparsers(dest='command',required=True)
-    ready=sub.add_parser('check');ready.add_argument('--db',required=True);ready.add_argument('--origin',required=True)
+    ready=sub.add_parser('check');ready.add_argument('--db',required=True);ready.add_argument('--origin',required=True);ready.add_argument('--mode',choices=('demo','production'),default='demo')
     snapshot=sub.add_parser('backup');snapshot.add_argument('--db',required=True);snapshot.add_argument('--out',required=True)
     verify=sub.add_parser('verify-backup');verify.add_argument('--db',required=True)
     args=parser.parse_args()
     try:
-        result=check(args.db,args.origin) if args.command=='check' else backup(args.db,args.out) if args.command=='backup' else verify_backup(args.db)
+        result=check(args.db,args.origin,args.mode) if args.command=='check' else backup(args.db,args.out) if args.command=='backup' else verify_backup(args.db)
     except (ValueError,OSError,sqlite3.Error):
         # Paths and exception text may contain sensitive values; keep output bounded.
         parser.exit(1,'{"status":"error","code":"operation_refused"}\n')

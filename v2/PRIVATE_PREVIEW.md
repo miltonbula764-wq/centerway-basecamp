@@ -116,3 +116,9 @@ a sua remoção segura fica a cargo do responsável pelo alojamento.
 
 Os limites funcionais da Missão 02 mantêm-se, incluindo catálogo fixo, ausência de
 conectores/IA real e recuperação exclusivamente simulada.
+
+## Distinção da fundação permanente (Missão 05)
+
+Este documento descreve apenas a demo privada, que continua a expirar em até 24 h.
+O novo [modo production](PERMANENT_FOUNDATION.md) exige outra base, contas,
+configuração e origem; não converte esta demo nem permite operações simuladas.

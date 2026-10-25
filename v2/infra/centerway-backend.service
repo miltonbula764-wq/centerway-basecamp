@@ -1,6 +1,6 @@
 # Template: do not install/enable without a separate deployment authorization.
 [Unit]
-Description=CENTERWAY V2 private sandbox backend
+Description=CENTERWAY V2 demo backend (lease up to 24 hours)
 After=network.target
 StartLimitIntervalSec=300
 StartLimitBurst=3
@@ -18,8 +18,8 @@ EnvironmentFile=/etc/centerway/runtime.env
 UMask=0077
 StateDirectory=centerway
 StateDirectoryMode=0700
-ExecStartPre=/usr/bin/python3 -m centerway.ops check --db /var/lib/centerway/preview.sqlite3 --origin ${CENTERWAY_ORIGIN}
-ExecStart=/usr/bin/python3 -m centerway.preview serve --db /var/lib/centerway/preview.sqlite3 --certfile /etc/centerway/backend-cert.pem --keyfile /etc/centerway/backend-key.pem --host 127.0.0.1 --port 8443
+ExecStartPre=/usr/bin/python3 -m centerway.ops check --mode demo --db /var/lib/centerway/preview.sqlite3 --origin ${CENTERWAY_ORIGIN}
+ExecStart=/usr/bin/python3 -m centerway.runtime serve --mode demo --db /var/lib/centerway/preview.sqlite3 --certfile /etc/centerway/backend-cert.pem --keyfile /etc/centerway/backend-key.pem --host 127.0.0.1 --port 8443
 Restart=on-failure
 RestartSec=10
 TimeoutStopSec=45

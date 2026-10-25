@@ -1,9 +1,48 @@
-# CENTERWAY V2 — contrato HTTP 1.0.0
+# CENTERWAY V2 — contrato HTTP 1.1.0
 
 Contrato do backend Python da Missão 03, baseado no PR #32. Especificação importável:
 [`contracts/openapi.json`](contracts/openapi.json), OpenAPI 3.1 / JSON Schema 2020-12.
 Não há URL publicado, interface nova, uso de Lovable ou integração real nesta missão.
-Tudo continua fictício, `environment_type: "sandbox"` e `decision_mode: "simulator-v1"`.
+Na demo, tudo continua fictício: `environment_type: "sandbox"` e `decision_mode: "simulator-v1"`.
+Production devolve `production` / `disabled`, sem dados ou intervenções simuladas.
+
+## Extensão 1.1.0: modo permanente
+
+Os caminhos e schemas de pedidos anteriores são preservados. A união de respostas
+View adiciona `ProductionRegistryView`; a autenticação adiciona o cookie
+`__Host-cw_production_session` (Secure, HttpOnly, SameSite=Strict, Path=/, uma hora).
+Production não tem lease global, mas sessões continuam a expirar e ser revogadas.
+Contas são configuradas por CLI privada, nunca pelo frontend.
+
+GET `/api/view` sem detalhe devolve identidade/memberships reais e registo vazio:
+
+```json
+{"user":"operations-owner","memberships":[{"tenant":"tenant-one","role":"operator"}],"environment_type":"production","decision_mode":"disabled","registry":[],"counts":{"observation":0,"deterioration":0,"investigation":0,"intervention":0,"recovery":0,"exceptions":0,"stable":0}}
+```
+
+Filtrar por tenant exige membership; consultar cliente/caso devolve 503. As seis
+mutações de negócio em production devolvem 503 para operador autorizado, sem efeito;
+leitores/tenants alheios recebem 403. A tabela de sucessos e exemplos de negócio
+abaixo descrevem o **sandbox**. Production nunca deve ser interpretado pelo frontend
+como autorização para executar ações ou prova de recuperação real.
+
+Exemplo de bloqueio:
+
+```http
+POST /api/execute
+Content-Type: application/json
+
+{"tenant":"tenant-one","customer":"client-one","case_id":"case-one"}
+```
+
+Resposta 503, após autenticação e autorização, sem execução:
+
+```json
+{"error":"Operação indisponível em production: não preparada/autorizada; nenhum efeito foi executado.","code":"unavailable"}
+```
+
+Ver [configuração e limites](PERMANENT_FOUNDATION.md). Não há endpoints novos de
+administração, integração real ou frontend production nesta missão.
 
 ## Transporte e autenticação
 
@@ -11,7 +50,7 @@ Tudo continua fictício, `environment_type: "sandbox"` e `decision_mode: "simula
   Não enviar campos extra, chaves repetidas, NaN/Infinity ou parâmetros na query.
   Schemas cobrem a estrutura; limites temporais e validações após trim são semânticos.
 - Respostas de API: JSON, `Cache-Control: no-store`, header
-  `X-Centerway-API-Version: 1.0.0`. As respostas de sucesso anteriores são preservadas.
+  `X-Centerway-API-Version: 1.1.0`. As respostas de sucesso anteriores são preservadas.
 - Autenticação por cookie HttpOnly; sem JWT, bearer token, API key ou role no browser.
   Login devolve apenas `user`; o browser guarda o cookie recebido por `Set-Cookie`.
 - Modo privado: `__Host-cw_session`, Secure, HttpOnly, SameSite=Strict, Path=/,

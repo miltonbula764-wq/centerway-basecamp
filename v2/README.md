@@ -1,4 +1,7 @@
-# CENTERWAY V2 — Missão 04
+# CENTERWAY V2 — Missão 05
+
+[Modos isolados, contas privadas e instruções da fundação permanente](PERMANENT_FOUNDATION.md).
+Production mantém autenticação privada sem lease de 24 h; operações reais continuam bloqueadas.
 
 [Infraestrutura proposta, custos e operação](infra/ARCHITECTURE.md).
 Sem contratação, publicação ou migração de dados.
@@ -10,11 +13,11 @@ A lógica e a interface existentes da Missão 02 continuam preservadas.
 O laboratório abaixo continua apenas em loopback; não usar as suas contas na Internet.
 
 Python 3.11+ (testado com 3.12), SQLite e navegador. Runtime sem pacotes externos.
-A decisão continua **simulator-v1, sem IA real**. Todos os dados e efeitos são do sandbox.
+Na demo, a decisão continua **simulator-v1, sem IA real**; todos os dados e efeitos são do sandbox. Production bloqueia operações de negócio.
 
 ## Abrir com 150 clientes sintéticos
 
-A partir da branch `centerway-v2/missao-04-infra`, usar um caminho de base novo:
+A partir da branch `centerway-v2/missao-05-foundation`, usar um caminho de base novo:
 
 ```sh
 cd v2
@@ -115,10 +118,10 @@ O navegador usa base descartável e cobre registo, filtros, paginação, criaç�
 observações inválidas/válidas/repetidas, os dois percursos, persistência após reload,
 resposta atrasada entre clientes e larguras 360/390/1280. Não usa credenciais externas.
 
-## Limites
+## Limites do laboratório sandbox
 
-- Duas SaaS com catálogo e ambientes de teste fixos; não existe administração de
-  novas SaaS/contas, conectores externos, agendamento nem IA real.
+- Duas SaaS com catálogo e ambientes de teste fixos; a administração privada de contas
+  production é apenas por CLI; não há novos conectores, agendamento nem IA real.
 - Não existe correção de observações já gravadas nem suporte a múltiplas fontes no
   mesmo dia. Datas/fonte incompatíveis bloqueiam a análise em vez de serem aproximadas.
 - Novos ciclos reutilizam o estado atual. Não existe simulação de uma nova avaria

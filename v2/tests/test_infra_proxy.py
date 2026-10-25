@@ -32,6 +32,12 @@ def certificate(cert,key,name='localhost'):
 @unittest.skipUnless(CADDY,'Set CADDY_BIN for real reverse-proxy verification')
 class InfraProxyTests(unittest.TestCase):
     def test_same_origin_cookie_cycle_restart_and_fail_closed_upstream(self):
+        self.proxy_cycle()
+
+    def test_production_auth_restart_and_disabled_operations_through_caddy(self):
+        self.proxy_cycle(production=True)
+
+    def proxy_cycle(self,production=False):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);cwd=Path(__file__).resolve().parents[1]
             cert,key=root/'cert.pem',root/'key.pem';certificate(cert,key)
@@ -39,7 +45,16 @@ class InfraProxyTests(unittest.TestCase):
             while backend_port==edge_port: backend_port=free_port()
             origin=f'https://127.0.0.1:{edge_port}'
             path,credentials=root/'state.sqlite3',root/'credentials.json'
-            provision(path,credentials,origin)
+            if production:
+                from centerway.production import provision as provision_production
+                accounts=root/'accounts.json'
+                accounts.write_text(json.dumps({'accounts':[
+                    {'user':'owner','memberships':[{'tenant':'company-a','role':'operator'}]},
+                    {'user':'auditor','memberships':[{'tenant':'company-b','role':'viewer'}]}]}))
+                accounts.chmod(0o600)
+                provision_production(path,credentials,origin,accounts)
+            else:
+                provision(path,credentials,origin)
             passwords=json.loads(credentials.read_text())['accounts']
             frontend=root/'frontend';frontend.mkdir()
             (frontend/'index.html').write_text('LOCAL ROUTING FIXTURE; NO PRODUCT FRONTEND')
@@ -69,7 +84,7 @@ class InfraProxyTests(unittest.TestCase):
                 self.fail('Local proxy/backend startup failed: '+diagnostic[-3500:])
             def start_backend():
                 with backend_log.open('ab') as output:
-                    return subprocess.Popen([sys.executable,'-u','-m','centerway.preview','serve','--db',str(path),'--certfile',str(cert),'--keyfile',str(key),'--port',str(backend_port)],cwd=cwd,stdout=output,stderr=output)
+                    return subprocess.Popen([sys.executable,'-u','-m','centerway.runtime','serve','--mode','production' if production else 'demo','--db',str(path),'--certfile',str(cert),'--keyfile',str(key),'--port',str(backend_port)],cwd=cwd,stdout=output,stderr=output)
             def start_proxy():
                 with log.open('ab') as output:
                     return subprocess.Popen([CADDY,'run','--config',str(config),'--adapter','caddyfile'],env=environment,stdout=output,stderr=output)
@@ -83,28 +98,46 @@ class InfraProxyTests(unittest.TestCase):
                 status,payload,_=call('/api/missing')
                 self.assertEqual(404,status);self.assertEqual('not_found',json.loads(payload)['code'])
                 self.assertEqual(401,call('/api/view')[0])
-                status,_,headers=call('/api/login',{'user':'founder','password':passwords['founder']})
+                status,_,headers=call('/api/login',{'user':'owner' if production else 'founder','password':passwords['owner' if production else 'founder']})
                 self.assertEqual(200,status)
                 session_tokens=[headers['Set-Cookie'].split(';',1)[0].split('=',1)[1]]
-                for flag in ('__Host-cw_session=','Secure','SameSite=Strict'): self.assertIn(flag,headers['Set-Cookie'])
-                self.assertEqual(150,len(json.loads(call('/api/view')[1])['registry']))
-                scope={'tenant':'atlas','customer':'client-007'}
-                body={**scope,'case_id':json.loads(call('/api/view?tenant=atlas&customer=client-007')[1])['case']['id']}
-                self.assertFalse(json.loads(call('/api/execute',body)[1])['reused'])
-                self.assertTrue(json.loads(call('/api/verify',body)[1])['value_recovered'])
-                before=json.loads(call('/api/view?tenant=atlas&customer=client-007')[1])
-                backend.terminate();backend.wait(timeout=15);self.assertEqual(0,backend.returncode)
-                backend=start_backend();ready('/api/view')
-                self.assertEqual(before,json.loads(call('/api/view?tenant=atlas&customer=client-007')[1]))
-                self.assertTrue(json.loads(call('/api/execute',body)[1])['reused'])
+                cookie='__Host-cw_production_session=' if production else '__Host-cw_session='
+                for flag in (cookie,'Secure','HttpOnly','SameSite=Strict'): self.assertIn(flag,headers['Set-Cookie'])
+                if production:
+                    view=json.loads(call('/api/view')[1])
+                    self.assertEqual('production',view['environment_type']);self.assertEqual('disabled',view['decision_mode'])
+                    self.assertEqual([],view['registry'])
+                    self.assertEqual(503,call('/api/execute',{'tenant':'company-a','customer':'c','case_id':'c'})[0])
+                    backend.terminate();backend.wait(timeout=15);self.assertEqual(0,backend.returncode)
+                    backend=start_backend();ready('/api/view')
+                    self.assertEqual(view,json.loads(call('/api/view')[1]))
+                    with Store.open_existing(path).transaction() as db:
+                        self.assertEqual(0,db.execute('SELECT count(*) FROM executions').fetchone()[0])
+                        self.assertNotIn('expires_at',[r['name'] for r in db.execute('PRAGMA table_info(production_metadata)')])
+                else:
+                    self.assertEqual(150,len(json.loads(call('/api/view')[1])['registry']))
+                    scope={'tenant':'atlas','customer':'client-007'}
+                    body={**scope,'case_id':json.loads(call('/api/view?tenant=atlas&customer=client-007')[1])['case']['id']}
+                    self.assertFalse(json.loads(call('/api/execute',body)[1])['reused'])
+                    self.assertTrue(json.loads(call('/api/verify',body)[1])['value_recovered'])
+                    before=json.loads(call('/api/view?tenant=atlas&customer=client-007')[1])
+                    backend.terminate();backend.wait(timeout=15);self.assertEqual(0,backend.returncode)
+                    backend=start_backend();ready('/api/view')
+                    self.assertEqual(before,json.loads(call('/api/view?tenant=atlas&customer=client-007')[1]))
+                    self.assertTrue(json.loads(call('/api/execute',body)[1])['reused'])
                 self.assertEqual(403,call('/api/logout',{},headers={'Origin':'https://evil.example'})[0])
                 self.assertEqual(200,call('/api/logout',{})[0]);self.assertEqual(401,call('/api/view')[0])
-                reader_status,_,reader_headers=call('/api/login',{'user':'reader-private','password':passwords['reader-private']})
+                reader='auditor' if production else 'reader-private'
+                reader_status,_,reader_headers=call('/api/login',{'user':reader,'password':passwords[reader]})
                 self.assertEqual(200,reader_status)
                 session_tokens.append(reader_headers['Set-Cookie'].split(';',1)[0].split('=',1)[1])
-                self.assertEqual(75,len(json.loads(call('/api/view')[1])['registry']))
-                self.assertEqual(403,call('/api/view?tenant=atlas&customer=client-007')[0])
-                self.assertEqual(403,call('/api/advance',{'tenant':'nimbus','customer':'client-007'})[0])
+                if production:
+                    self.assertEqual(403,call('/api/view?tenant=company-a')[0])
+                    self.assertEqual(403,call('/api/advance',{'tenant':'company-b','customer':'c'})[0])
+                else:
+                    self.assertEqual(75,len(json.loads(call('/api/view')[1])['registry']))
+                    self.assertEqual(403,call('/api/view?tenant=atlas&customer=client-007')[0])
+                    self.assertEqual(403,call('/api/advance',{'tenant':'nimbus','customer':'client-007'})[0])
                 backend.terminate();backend.wait(timeout=15)
                 self.assertEqual(502,call('/api/view')[0])
                 backend=start_backend();ready('/api/view')
@@ -117,7 +150,10 @@ class InfraProxyTests(unittest.TestCase):
                 for secret in [*passwords.values(),*session_tokens,'query-secret-marker']:
                     self.assertTrue(secret not in log.read_text(),'Proxy log leaked a test secret')
                 with Store.open_existing(path).transaction() as db:
-                    self.assertEqual(1,db.execute("SELECT count(*) FROM history WHERE stage='C05' AND case_id=?",(body['case_id'],)).fetchone()[0])
+                    if production:
+                        self.assertEqual(0,db.execute('SELECT count(*) FROM history').fetchone()[0])
+                    else:
+                        self.assertEqual(1,db.execute("SELECT count(*) FROM history WHERE stage='C05' AND case_id=?",(body['case_id'],)).fetchone()[0])
             finally:
                 for process in (proxy,backend):
                     if process and process.poll() is None: process.terminate();process.wait(timeout=15)
