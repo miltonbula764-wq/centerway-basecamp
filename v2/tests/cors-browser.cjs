@@ -45,7 +45,7 @@ const path=require('node:path'),os=require('node:os');
     }
     const anonymous=await call('/api/view');
     assert.equal(anonymous.status,401);assert.equal(anonymous.data.code,'unauthenticated');
-    assert.equal(anonymous.version,'1.0.0');
+    assert.equal(anonymous.version,JSON.parse(readFileSync(path.join(cwd,'contracts/openapi.json'),'utf8')).info.version);
     assert.equal((await call('/api/login',{user:'founder',password:passwords.founder})).status,200);
     assert.equal((await call('/api/view')).data.registry.length,150);
     // A second, non-allowlisted origin cannot read or log out this authenticated user.

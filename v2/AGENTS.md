@@ -25,3 +25,6 @@ historical components do not describe this runtime. Never publish the public-cre
 - Private service startup must open an existing V2 database without seed/DDL/migration.
 - Infra files are templates only; no service activation, DNS changes, paid resources or real-data migration without authorization.
 - Run CADDY_BIN=/path/to/verified/caddy python -m unittest discover -s tests -v for proxy verification.
+
+- Production is a separate permanent private authentication foundation: no demo seed, lease bypass, simulated business data or action success. All unprepared business operations must fail closed at HTTP and storage layers.
+- Keep production and demo markers, credentials, cookies and data isolated. Local account changes revoke affected sessions; never add a public administration endpoint or bypass the guards.

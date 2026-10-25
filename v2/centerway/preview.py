@@ -104,8 +104,11 @@ class LoginLimiter:
 
 
 class PreviewPolicy:
+    mode = 'demo'
     def __init__(self, store):
         with store.transaction() as db:
+            if db.execute("SELECT 1 FROM sqlite_master WHERE name='production_metadata'").fetchone():
+                raise ValueError('Uma base production não pode ser aberta como demo.')
             try:
                 row = db.execute('SELECT * FROM preview_metadata WHERE marker=?',(MARKER,)).fetchone()
             except sqlite3.OperationalError:
@@ -164,6 +167,10 @@ def main():
         server = make_server(store,args.host,args.port,preview=policy,tls_context=context,frontend_origins=args.frontend_origin)
     except (ValueError,OSError,sqlite3.Error) as error:
         parser.exit(1,'Arranque recusado: '+str(error)+'\n')
+    run_private_server(server)
+
+
+def run_private_server(server):
     server.daemon_threads = False
     def terminate(_signal, _frame):
         threading.Thread(target=server.shutdown,daemon=True).start()

@@ -15,7 +15,7 @@ nenhum serviço foi instalado/ativado e nenhuma base existente foi migrada.
 | Sessões opacas e memberships em SQLite | Sessões sobrevivem a restart; não adicionar Redis nem guardar tokens em JS |
 | Credenciais scrypt privadas, Cookie __Host-/Secure/HttpOnly/Strict | HTTPS real no backend; não confiar em X-Forwarded-Proto como substituto de TLS |
 | Host e Origin presos à origem privada | Decidir domínio antes de preparar o sandbox e preservar Host completo e Origin no proxy |
-| Sessões 1 h; licença temporal da pré-visualização até 24 h | Restart não renova prazo/contas; esta versão não é um serviço de produção permanente |
+| Sessões 1 h; licença temporal da pré-visualização até 24 h | Restart não renova prazo/contas; a demo não é um serviço de produção permanente |
 | Sem conectores, IA real, cron ou e-mails | Nenhuma chave de IA/SMTP, fila ou acesso externo é necessário para os ciclos |
 | Store() cria schema/seed/migra; era usado ao arrancar o preview | Corrigido: o arranque privado passa a abrir apenas uma base já preparada, sem DDL/seed/migração |
 | Dados iniciais datados; regras usam date.today() | Serviço define TZ=UTC; restart não inventa observações para preencher dias novos |
@@ -106,8 +106,9 @@ o limite por conta continua a existir. Não se passou a confiar em X-Forwarded-F
 - Segredos de ACME/chaves privadas do site ficam no armazenamento persistente e
   restrito do Caddy. O serviço da API não deve poder escrever o código, build ou CA.
 - Sessões persistem no SQLite durante a sua validade de 1 h. Logout revoga; restart
-  não recria contas nem renova sessões ou a pré-visualização de 24 h. Não há ainda
-  serviço permanente de identidade, auto-renovação de lease ou recuperação de conta.
+  não recria contas nem renova sessões ou a pré-visualização de 24 h. No perfil demo não há
+  auto-renovação de lease ou recuperação de conta; identidade permanente separada
+  está documentada na atualização Missão 05 abaixo.
 
 ## Reinícios, verificações e snapshots
 
@@ -199,3 +200,11 @@ uma fixture de routing sem UI de produto e dados fictícios.
 Não foi testada a unidade systemd em execução num host real, renovação ACME pública,
 mount de volume de fornecedor, tráfego de produção, restore operacional ou Lovable.
 C01–C06, Core, schema e interface do produto permanecem iguais aos do PR #33.
+
+## Atualização Missão 05
+
+A auditoria e comparação acima descrevem a base do PR #34. A demo mantém o lease
+de 24 h. A [fundação permanente](../PERMANENT_FOUNDATION.md) acrescenta identidade
+privada sem esse lease, com base/contas/serviço separados e todas as operações de
+negócio bloqueadas. Não é ainda operação real permanente de C01–C06. Templates em
+`production/` reutilizam o mesmo Caddyfile; nenhum foi instalado ou publicado.

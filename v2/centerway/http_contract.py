@@ -2,7 +2,7 @@
 import json
 from urllib.parse import parse_qs
 
-API_VERSION = '1.0.0'
+API_VERSION = '1.1.0'
 API_METHODS = {
     '/api/login':'POST', '/api/logout':'POST', '/api/view':'GET',
     '/api/customers':'POST', '/api/observations':'POST', '/api/advance':'POST',

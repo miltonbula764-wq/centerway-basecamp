@@ -32,10 +32,12 @@ CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, tenant TEXT NOT NULL,
 
 
 class Store:
-    def __init__(self, path, seed_demo=True):
+    def __init__(self, path, seed_demo=True, seed_accounts=True):
         self.path = str(path)
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         with closing(self.connect()) as db:
+            if db.execute("SELECT 1 FROM sqlite_master WHERE name='production_metadata'").fetchone():
+                raise ValueError('Base production exige abertura explícita, sem inicialização de demo.')
             db.executescript(SCHEMA)
             # Additive migration from Mission 01; observations and audit rows are preserved.
             db.execute('BEGIN IMMEDIATE')
@@ -51,7 +53,8 @@ class Store:
             for table in ('observations', 'history', 'executions', 'ingestion_batches'):
                 for operation in ('UPDATE', 'DELETE'):
                     db.execute(f"CREATE TRIGGER IF NOT EXISTS immutable_{table}_{operation} BEFORE {operation} ON {table} BEGIN SELECT RAISE(ABORT, 'append_only'); END")
-            self.seed(db, seed_demo)
+            if seed_accounts:
+                self.seed(db, seed_demo)
 
     @classmethod
     def open_existing(cls, path, read_only=False):

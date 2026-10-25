@@ -1,0 +1,6 @@
+{
+  "accounts": [
+    {"user":"operations-owner","memberships":[{"tenant":"tenant-one","role":"operator"}]},
+    {"user":"audit-reader","memberships":[{"tenant":"tenant-one","role":"viewer"}]}
+  ]
+}

@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "CENTERWAY V2 HTTP API",
-    "version": "1.0.0",
-    "description": "Contrato da API Python existente. Apenas sandbox/simulator-v1; não representa integração real. CORS opcional no modo privado; cookies Strict exigem same-site ou proxy na mesma origem. Sem URL publicado."
+    "version": "1.1.0",
+    "description": "API preservada para demo/sandbox, com fundação production privada permanente. Production só permite autenticação e registo vazio; operações de negócio indisponíveis (503), nunca simuladas. Sem URL publicado."
   },
   "servers": [
     {
@@ -12,6 +12,9 @@
     }
   ],
   "security": [
+    {
+      "ProductionSession": []
+    },
     {
       "PrivateSession": []
     },
@@ -1194,6 +1197,12 @@
         "in": "cookie",
         "name": "cw_session",
         "description": "Só laboratório em loopback; proibido usar como autenticação externa."
+      },
+      "ProductionSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-cw_production_session",
+        "description": "Apenas production, HTTPS Secure/HttpOnly/SameSite=Strict, sessão 1 h. Cookie e base separados da demo."
       }
     },
     "schemas": {
@@ -2914,8 +2923,110 @@
           },
           {
             "$ref": "#/components/schemas/CustomerView"
+          },
+          {
+            "$ref": "#/components/schemas/ProductionRegistryView"
           }
         ]
+      },
+      "ProductionRegistryView": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "memberships": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tenant": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "operator",
+                    "viewer"
+                  ]
+                }
+              },
+              "required": [
+                "tenant",
+                "role"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "decision_mode": {
+            "const": "disabled"
+          },
+          "environment_type": {
+            "const": "production"
+          },
+          "registry": {
+            "type": "array",
+            "maxItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/RegistryEntry"
+            }
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "observation": {
+                "type": "integer",
+                "const": 0
+              },
+              "deterioration": {
+                "type": "integer",
+                "const": 0
+              },
+              "investigation": {
+                "type": "integer",
+                "const": 0
+              },
+              "intervention": {
+                "type": "integer",
+                "const": 0
+              },
+              "recovery": {
+                "type": "integer",
+                "const": 0
+              },
+              "exceptions": {
+                "type": "integer",
+                "const": 0
+              },
+              "stable": {
+                "type": "integer",
+                "const": 0
+              }
+            },
+            "required": [
+              "observation",
+              "deterioration",
+              "investigation",
+              "intervention",
+              "recovery",
+              "exceptions",
+              "stable"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "user",
+          "memberships",
+          "decision_mode",
+          "environment_type",
+          "registry",
+          "counts"
+        ],
+        "additionalProperties": false
       }
     },
     "responses": {
@@ -3096,7 +3207,7 @@
         }
       },
       "Error503": {
-        "description": "Pré-visualização expirada ou configuração indisponível",
+        "description": "Demo expirada, configuração/proteções indisponíveis ou operação de negócio bloqueada em production",
         "content": {
           "application/json": {
             "schema": {
@@ -3116,7 +3227,7 @@
         "description": "Versão do contrato HTTP; não é uma versão do cliente.",
         "schema": {
           "type": "string",
-          "const": "1.0.0"
+          "const": "1.1.0"
         }
       }
     }

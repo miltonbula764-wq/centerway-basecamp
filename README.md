@@ -1,4 +1,7 @@
-# CENTERWAY V2 · Missão 04 — preparação de infraestrutura
+# CENTERWAY V2 · Missão 05 — fundação permanente
+
+[Modos isolados, contas privadas e instruções da fundação permanente](v2/PERMANENT_FOUNDATION.md).
+Production mantém autenticação privada sem lease de 24 h; operações reais continuam bloqueadas.
 
 [Arquitetura, custos, dependências e verificações](v2/infra/ARCHITECTURE.md).
 Proposta: VM + Caddy + Python + SQLite persistente, sem contratar ou publicar.
@@ -18,7 +21,7 @@ runtime, IA real, Lovable, conectores externos ou serviços pagos.
 Para experimentar com **150 clientes sintéticos (75 por SaaS)**, numa base nova:
 
 ```sh
-git checkout centerway-v2/missao-04-infra
+git checkout centerway-v2/missao-05-foundation
 cd v2
 python3 -m centerway.synthetic --db data/missao02-150.sqlite3
 python3 -m centerway.server --db data/missao02-150.sqlite3
@@ -37,6 +40,6 @@ python3 -m unittest discover -s tests -v
 [Instruções, cenários e limites](v2/README.md). Toda a recuperação demonstrada é
 **simulação no sandbox**, nunca recuperação real de SaaS ou retenção comprovada.
 
-A Missão 04 parte do PR #33, commit `f632c92`, na branch `centerway-v2/missao-04-infra`. A `main` não foi
+A Missão 05 parte do PR #34, commit `46c07c7`, na branch `centerway-v2/missao-05-foundation`. A `main` não foi
 alterada. A V2 não importa a aplicação histórica dos restantes diretórios; os
 comandos npm da raiz pertencem à versão antiga. Não houve deploy.
