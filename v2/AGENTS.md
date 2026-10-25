@@ -37,3 +37,6 @@ historical components do not describe this runtime. Never publish the public-cre
 
 - Mission 08 adaptive C02 is isolated and inactive: explicit thresholds, goals, source fields, units, windows and full aligned coverage only. Missing/conflicting data never imply deterioration; operational evidence alone never proves value loss.
 - Preserve criteria/run versions, original evidence and reproducible snapshots. Bump the detection algorithm for semantic changes; never silently reinterpret past results. Do not connect adaptive results to Core, sandbox C02, actions or production activation.
+
+- Mission 09 structured C03 is isolated/inactive and pins SaaS/customer/C02 result and original evidence. Recorded facts, operator hypotheses, observed noncompliance and missing information must stay distinct; never promote a hypothesis/correlation to a confirmed cause.
+- Supported impediments require an explicit declared requirement plus non-disputed evidence. Preserve source/version/hash links and immutable reproducible revisions. Do not connect C03 to AI, C04, interventions, Core/sandbox changes or production activation.

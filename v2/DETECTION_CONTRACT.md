@@ -215,3 +215,6 @@ de ativação em production. Três ensaios Chromium passaram (sandbox de 150 cli
 responsivo, HTTPS privado com Pixel 7 emulado e CORS); Caddy real em loopback passou
 na regressão. Compilação Python, validação systemd e git diff --check passaram.
 Não houve teste de conectores, tráfego real, Android físico ou recuperação real.
+
+A [Missão 09](INVESTIGATION_CONTRACT.md) consome um resultado C02 fixado, em C03
+separado e inativo. Não altera estas avaliações nem as promove a causas confirmadas.

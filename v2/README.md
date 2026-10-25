@@ -1,4 +1,7 @@
-# CENTERWAY V2 — Missão 08
+# CENTERWAY V2 — Missão 09
+
+[C03 isolado: contrato, exemplos e instruções](INVESTIGATION_CONTRACT.md).
+Factos, hipóteses, requisitos observados e lacunas separados; sem confirmação causal ou ativação.
 
 [C02 isolado: contrato de critérios, exemplos e instruções](DETECTION_CONTRACT.md).
 Operação e perda de valor avaliadas separadamente, sem ativar o fluxo de produção.
@@ -26,7 +29,7 @@ Na demo, a decisão continua **simulator-v1, sem IA real**; todos os dados e efe
 
 ## Abrir com 150 clientes sintéticos
 
-A partir da branch `centerway-v2/missao-08-detection`, usar um caminho de base novo:
+A partir da branch `centerway-v2/missao-09-investigation`, usar um caminho de base novo:
 
 ```sh
 cd v2

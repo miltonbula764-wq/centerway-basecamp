@@ -1,4 +1,7 @@
-# CENTERWAY V2 · Missão 08 — deteção adaptável e inativa
+# CENTERWAY V2 · Missão 09 — investigação estruturada e inativa
+
+[C03 isolado: contrato, exemplos e instruções](v2/INVESTIGATION_CONTRACT.md).
+Factos, hipóteses, requisitos observados e lacunas separados; sem confirmação causal ou ativação.
 
 [C02 isolado: contrato de critérios, exemplos e instruções](v2/DETECTION_CONTRACT.md).
 Operação e perda de valor avaliadas separadamente, sem ativar o fluxo de produção.
@@ -30,7 +33,7 @@ runtime, IA real, Lovable, conectores externos ou serviços pagos.
 Para experimentar com **150 clientes sintéticos (75 por SaaS)**, numa base nova:
 
 ```sh
-git checkout centerway-v2/missao-08-detection
+git checkout centerway-v2/missao-09-investigation
 cd v2
 python3 -m centerway.synthetic --db data/missao02-150.sqlite3
 python3 -m centerway.server --db data/missao02-150.sqlite3
@@ -49,6 +52,6 @@ python3 -m unittest discover -s tests -v
 [Instruções, cenários e limites](v2/README.md). Toda a recuperação demonstrada é
 **simulação no sandbox**, nunca recuperação real de SaaS ou retenção comprovada.
 
-A Missão 08 parte do PR #37, commit `f5fc63c`, na branch `centerway-v2/missao-08-detection`. A `main` não foi
+A Missão 09 parte do PR #38, commit `56b08a4`, na branch `centerway-v2/missao-09-investigation`. A `main` não foi
 alterada. A V2 não importa a aplicação histórica dos restantes diretórios; os
 comandos npm da raiz pertencem à versão antiga. Não houve deploy.
