@@ -53,8 +53,39 @@ class Store:
                     db.execute(f"CREATE TRIGGER IF NOT EXISTS immutable_{table}_{operation} BEFORE {operation} ON {table} BEGIN SELECT RAISE(ABORT, 'append_only'); END")
             self.seed(db, seed_demo)
 
+    @classmethod
+    def open_existing(cls, path, read_only=False):
+        """Open a V2 file without seed, DDL or automatic schema migration."""
+        path = Path(path).resolve(strict=True)
+        if not path.is_file():
+            raise ValueError('A base existente tem de ser um ficheiro.')
+        store = cls.__new__(cls)
+        store.path = str(path)
+        store._existing_only = True
+        store._read_only = read_only
+        with closing(store.connect()) as db:
+            if db.execute('PRAGMA user_version').fetchone()[0] != 2:
+                raise ValueError('Schema incompatível; migração explícita necessária.')
+            required = {'users','memberships','sessions','environments','observations',
+                        'cases','ingestion_batches','executions','history'}
+            tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            if not required <= tables:
+                raise ValueError('Schema V2 incompleto.')
+            indexes = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='index'")}
+            if not {'one_active_case','customer_cases','tenant_history'} <= indexes:
+                raise ValueError('Índices de proteção ausentes.')
+            triggers = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='trigger'")}
+            required_triggers = {f'immutable_{table}_{operation}'
+                for table in ('observations','history','executions','ingestion_batches')
+                for operation in ('UPDATE','DELETE')}
+            if not required_triggers <= triggers:
+                raise ValueError('Proteções append-only ausentes.')
+        return store
+
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
+        mode = 'ro' if getattr(self,'_read_only',False) else 'rw'
+        target = Path(self.path).as_uri()+'?mode='+mode if getattr(self,'_existing_only',False) else self.path
+        db = sqlite3.connect(target,timeout=10,isolation_level=None,uri=getattr(self,'_existing_only',False))
         db.row_factory = sqlite3.Row
         db.execute('PRAGMA foreign_keys=ON')
         return db
