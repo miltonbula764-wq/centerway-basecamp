@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "tenant": "billing",
+  "config_version": 1,
+  "provenance": {
+    "source_ref": "fixture:billing:m08-owner-criteria",
+    "supplied_by": "synthetic-fixture-author",
+    "recorded_at": "2026-10-25T00:00:00Z"
+  },
+  "criteria": [
+    {
+      "id": "operational-degradation",
+      "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+      "dimension": "operational",
+      "metric_ref": "processing-delay",
+      "goal_refs": [
+        "deliver-issued-invoices"
+      ],
+      "evidence_refs": [
+        "processing-snapshot"
+      ],
+      "source": {
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "field": "value"
+      },
+      "method": "absolute_change",
+      "aggregation": "mean",
+      "comparison": "gt",
+      "threshold": 2,
+      "threshold_unit": "seconds",
+      "window_seconds": 120,
+      "cadence_seconds": 60,
+      "coverage": "aligned_complete"
+    },
+    {
+      "id": "value-loss",
+      "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+      "dimension": "value",
+      "metric_ref": "delivered-invoices",
+      "goal_refs": [
+        "deliver-issued-invoices"
+      ],
+      "evidence_refs": [
+        "value-snapshot"
+      ],
+      "source": {
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "field": "outcome_count"
+      },
+      "method": "threshold",
+      "aggregation": "sum",
+      "comparison": "lt",
+      "threshold": 5,
+      "threshold_unit": "count",
+      "window_seconds": 120,
+      "cadence_seconds": 60,
+      "coverage": "aligned_complete"
+    }
+  ]
+}

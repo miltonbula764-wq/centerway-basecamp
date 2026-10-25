@@ -34,3 +34,6 @@ historical components do not describe this runtime. Never publish the public-cre
 
 - Mission 07 authorizes authenticated evidence ingestion/query only in separate inactive tables. Never write to sandbox observations/cases or activate production C01–C06 from evidence intake. Pin tenant/customer/configuration/source/time and preserve immutable identities/provenance.
 - Evidence availability/quality is structural, not truth, coverage, deterioration or recovery. Preserve conflicting claims; never resolve them or mix configuration versions by inference. Optional evidence setup stays local and explicit, never on HTTP startup.
+
+- Mission 08 adaptive C02 is isolated and inactive: explicit thresholds, goals, source fields, units, windows and full aligned coverage only. Missing/conflicting data never imply deterioration; operational evidence alone never proves value loss.
+- Preserve criteria/run versions, original evidence and reproducible snapshots. Bump the detection algorithm for semantic changes; never silently reinterpret past results. Do not connect adaptive results to Core, sandbox C02, actions or production activation.
