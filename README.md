@@ -1,4 +1,7 @@
-# CENTERWAY V2 · Missão 10 — propostas IA/C04 fundamentadas e inativas
+# CENTERWAY V2 · Missão 11 — autorização C05 e execução controlada de teste
+
+[Contrato C05: aprovação explícita, execução de teste, auditoria e limites](v2/C05_CONTRACT.md).
+Intervenções externas e production bloqueados; sem adaptador instalado ou recuperação presumida.
 
 [Contrato C04, configuração segura, testes e limitações](v2/C04_CONTRACT.md).
 A IA propõe; a validação é independente e não autoriza execução. Sem credenciais, inferência indisponível.
@@ -55,6 +58,6 @@ python3 -m unittest discover -s tests -v
 [Instruções, cenários e limites](v2/README.md). Toda a recuperação demonstrada é
 **simulação no sandbox**, nunca recuperação real de SaaS ou retenção comprovada.
 
-A Missão 10 parte do PR #39, commit `cdd1809`, na branch `centerway-v2/missao-10-ai-proposals`. A `main` não foi
+A Missão 11 parte do PR #40, commit `38acb5e`, na branch `centerway-v2/missao-11-controlled-execution`. A `main` não foi
 alterada. A V2 não importa a aplicação histórica dos restantes diretórios; os
 comandos npm da raiz pertencem à versão antiga. Não houve deploy.

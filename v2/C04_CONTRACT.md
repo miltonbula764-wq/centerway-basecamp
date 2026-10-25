@@ -218,3 +218,5 @@ A primeira CI desta missão passou os testes Python, mas foi cancelada pelo limi
 preinstalado do runner Ubuntu (versão impressa no log), através de CHROMIUM_PATH,
 para executar os mesmos três ensaios sem reinstalar pacotes/navegadores. O runtime
 e os scripts de teste do produto não foram alterados por este ajuste de QA.
+
+Missão 11: [C05 isolado com aprovação humana e efeitos exclusivamente de teste](C05_CONTRACT.md). A proposta C04 permanece inativa e não concede autorização.

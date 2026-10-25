@@ -1,4 +1,7 @@
-# CENTERWAY V2 — Missão 10
+# CENTERWAY V2 — Missão 11
+
+[Contrato C05: aprovação explícita, execução de teste, auditoria e limites](C05_CONTRACT.md).
+Intervenções externas e production bloqueados; sem adaptador instalado ou recuperação presumida.
 
 [Contrato C04, configuração segura, testes e limitações](C04_CONTRACT.md).
 A IA propõe; a validação é independente e não autoriza execução. Sem credenciais, inferência indisponível.
