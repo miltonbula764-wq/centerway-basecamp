@@ -1,4 +1,7 @@
-# CENTERWAY V2 — Missão 09
+# CENTERWAY V2 — Missão 10
+
+[Contrato C04, configuração segura, testes e limitações](C04_CONTRACT.md).
+A IA propõe; a validação é independente e não autoriza execução. Sem credenciais, inferência indisponível.
 
 [C03 isolado: contrato, exemplos e instruções](INVESTIGATION_CONTRACT.md).
 Factos, hipóteses, requisitos observados e lacunas separados; sem confirmação causal ou ativação.
@@ -29,7 +32,7 @@ Na demo, a decisão continua **simulator-v1, sem IA real**; todos os dados e efe
 
 ## Abrir com 150 clientes sintéticos
 
-A partir da branch `centerway-v2/missao-09-investigation`, usar um caminho de base novo:
+A partir da branch `centerway-v2/missao-10-ai-proposals`, usar um caminho de base novo:
 
 ```sh
 cd v2

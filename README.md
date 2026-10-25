@@ -1,4 +1,7 @@
-# CENTERWAY V2 · Missão 09 — investigação estruturada e inativa
+# CENTERWAY V2 · Missão 10 — propostas IA/C04 fundamentadas e inativas
+
+[Contrato C04, configuração segura, testes e limitações](v2/C04_CONTRACT.md).
+A IA propõe; a validação é independente e não autoriza execução. Sem credenciais, inferência indisponível.
 
 [C03 isolado: contrato, exemplos e instruções](v2/INVESTIGATION_CONTRACT.md).
 Factos, hipóteses, requisitos observados e lacunas separados; sem confirmação causal ou ativação.
@@ -33,7 +36,7 @@ runtime, IA real, Lovable, conectores externos ou serviços pagos.
 Para experimentar com **150 clientes sintéticos (75 por SaaS)**, numa base nova:
 
 ```sh
-git checkout centerway-v2/missao-09-investigation
+git checkout centerway-v2/missao-10-ai-proposals
 cd v2
 python3 -m centerway.synthetic --db data/missao02-150.sqlite3
 python3 -m centerway.server --db data/missao02-150.sqlite3
@@ -52,6 +55,6 @@ python3 -m unittest discover -s tests -v
 [Instruções, cenários e limites](v2/README.md). Toda a recuperação demonstrada é
 **simulação no sandbox**, nunca recuperação real de SaaS ou retenção comprovada.
 
-A Missão 09 parte do PR #38, commit `56b08a4`, na branch `centerway-v2/missao-09-investigation`. A `main` não foi
+A Missão 10 parte do PR #39, commit `cdd1809`, na branch `centerway-v2/missao-10-ai-proposals`. A `main` não foi
 alterada. A V2 não importa a aplicação histórica dos restantes diretórios; os
 comandos npm da raiz pertencem à versão antiga. Não houve deploy.

@@ -1,0 +1,16 @@
+{
+  "protocol": "https-chat-completions-v1",
+  "endpoint": "https://provider.example.invalid/v1/chat/completions",
+  "model": "replace-with-authorized-model",
+  "api_key_file": "/private/centerway-ai/provider.key",
+  "ca_file": null,
+  "allowed_tenants": [
+    "configured-saas"
+  ],
+  "allowed_classifications": [
+    "declared"
+  ],
+  "allow_production_inference": false,
+  "max_output_tokens": 2048,
+  "timeout_seconds": 20
+}

@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "context_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "hypothesis_reviews": {
+      "type": "array",
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "properties": {
+          "hypothesis_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "disposition": {
+            "enum": [
+              "retain_unconfirmed",
+              "human_review"
+            ]
+          },
+          "support_refs": {
+            "type": "array",
+            "maxItems": 100,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "field": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "required": [
+                "evidence_id",
+                "field"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "contrary_refs": {
+            "type": "array",
+            "maxItems": 100,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "field": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "required": [
+                "evidence_id",
+                "field"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "hypothesis_id",
+          "disposition",
+          "support_refs",
+          "contrary_refs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "impediment_refs": {
+      "type": "array",
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+      }
+    },
+    "contradiction_refs": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "missing_information_refs": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "analysis_limitation_refs": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "action_proposal",
+            "no_action",
+            "human_review"
+          ]
+        },
+        "capability_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason_code": {
+          "enum": [
+            "catalogue_match",
+            "no_safe_action",
+            "insufficient_evidence",
+            "contradictory_evidence",
+            "human_review_required",
+            "no_deterioration"
+          ]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "field": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "evidence_id",
+              "field"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "criterion_refs": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "capability_id",
+        "reason_code",
+        "evidence_refs",
+        "criterion_refs"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "context_hash",
+    "hypothesis_reviews",
+    "impediment_refs",
+    "contradiction_refs",
+    "missing_information_refs",
+    "analysis_limitation_refs",
+    "recommendation"
+  ],
+  "additionalProperties": false
+}

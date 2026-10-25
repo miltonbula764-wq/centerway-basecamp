@@ -200,3 +200,6 @@ permissões/isolamento, integridade/rollback, backup e inatividade de production
 Três ensaios Chromium passaram (sandbox responsivo/150 clientes, HTTPS privado com
 Pixel 7 emulado e CORS); a regressão Caddy em loopback passou. compileall, verificação
 systemd e git diff --check passaram. Não é prova de causas ou integração real.
+
+A [Missão 10](C04_CONTRACT.md) usa uma revisão C03 fixada como contexto de propostas
+IA/C04 inativas, sem promover hipóteses a causas nem ativar o Core.
