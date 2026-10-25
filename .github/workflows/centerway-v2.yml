@@ -35,7 +35,12 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
+      - name: Use runner Chrome without APT or browser downloads
+        run: |
+          centerway_chrome_bin="$(command -v google-chrome)"
+          test -x "$centerway_chrome_bin"
+          "$centerway_chrome_bin" --version
+          echo "CHROMIUM_PATH=$centerway_chrome_bin" >> "$GITHUB_ENV"
       - name: Real mobile and desktop browser journeys
         run: npm run test:browser
       - name: Private HTTPS and Android emulation (local test certificate)

@@ -212,3 +212,9 @@ foi testado com TLS verificado, redirecionamento recusado, autorização de dado
 timeout, truncação, tamanho, tool calls e eco de segredo, incluindo escapes JSON.
 Três ensaios Chromium e a regressão Caddy em loopback passaram. compileall, validação
 systemd e git diff --check passaram. Estes resultados não validam inferência com IA real.
+
+A primeira CI desta missão passou os testes Python, mas foi cancelada pelo limite de
+10 minutos ao descarregar fontes/bibliotecas via APT. O workflow usa agora o Chrome
+preinstalado do runner Ubuntu (versão impressa no log), através de CHROMIUM_PATH,
+para executar os mesmos três ensaios sem reinstalar pacotes/navegadores. O runtime
+e os scripts de teste do produto não foram alterados por este ajuste de QA.
