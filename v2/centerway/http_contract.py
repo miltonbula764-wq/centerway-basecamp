@@ -2,8 +2,9 @@
 import json
 from urllib.parse import parse_qs
 
-API_VERSION = '1.2.0'
+API_VERSION = '1.3.0'
 API_METHODS = {
+    '/api/orchestration/cases':'GET',
     '/api/evidence':'POST', '/api/evidence/view':'GET',
     '/api/login':'POST', '/api/logout':'POST', '/api/view':'GET',
     '/api/customers':'POST', '/api/observations':'POST', '/api/advance':'POST',
@@ -52,3 +53,15 @@ def strict_json(payload):
         raise ValueError('Non-finite JSON number')
 
     return json.loads(payload.decode('utf-8'),object_pairs_hook=pairs,parse_constant=reject_constant)
+
+
+def orchestration_query(query):
+    values=parse_qs(query,keep_blank_values=True,strict_parsing=True,encoding='utf-8',errors='strict',max_num_fields=6)
+    if set(values)-{'tenant','customer','case_id','state','after','limit'} or 'tenant' not in values: raise ValueError('Explicit tenant required.')
+    if any(len(v)!=1 or not v[0] or len(v[0])>128 for v in values.values()): raise ValueError('Invalid orchestration query.')
+    result={k:v[0] for k,v in values.items()}
+    for key in ('after','limit'):
+        if key in result:
+            if not result[key].isascii() or not result[key].isdecimal() or len(result[key])>16: raise ValueError('Invalid integer query.')
+            result[key]=int(result[key])
+    return result

@@ -1,4 +1,7 @@
-# CENTERWAY V2 — Missão 12
+# CENTERWAY V2 — Missão 13
+
+[Contrato da orquestração, estados, lotes e consulta autenticada](ORCHESTRATION_CONTRACT.md).
+Encaminhamento automático até ao próximo requisito; sem fabricar investigação, IA ou aprovação.
 
 [Contrato C06, exemplos sintéticos e instruções](C06_CONTRACT.md).
 Execução, recuperação operacional e valor avaliados separadamente; nenhum resultado real presumido.
