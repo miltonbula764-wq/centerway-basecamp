@@ -167,3 +167,6 @@ validar evidências/consentimento e continuar a respeitar os bloqueios de produc
 A [Missão 07](EVIDENCE_API.md) acrescenta receção autorizada de dados conforme estas
 definições, em armazenamento separado e inativo. Não altera este contrato v1 nem
 liga as configurações/evidências a C01–C06.
+
+A [Missão 08](DETECTION_CONTRACT.md) define critérios numéricos versionados, presos
+a este contrato v1, para avaliação C02 isolada e inativa.

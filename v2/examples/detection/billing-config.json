@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "tenant": "billing",
+  "data_classification": "synthetic",
+  "provenance": {
+    "source_ref": "fixture:billing:m08-owner-config",
+    "supplied_by": "synthetic-fixture-author",
+    "recorded_at": "2026-10-25T00:00:00Z"
+  },
+  "product": {
+    "name": "Fictional Billing",
+    "description": "Synthetic invoice delivery product. All declarations below are fictional test inputs, not real customer objectives."
+  },
+  "customers": {
+    "entity": "account",
+    "id_field": "account_id",
+    "description": "Fictional account identity contract only; no customer records."
+  },
+  "value_goals": [
+    {
+      "id": "deliver-issued-invoices",
+      "description": "Fictional owner-declared value objective: deliver-issued-invoices. No real goal is inferred.",
+      "metric_refs": [
+        "delivered-invoices",
+        "processing-delay"
+      ],
+      "evidence_refs": [
+        "value-snapshot",
+        "processing-snapshot"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "delivered-invoices",
+      "description": "Synthetic owner-supplied outcome count; no automatic computation is implemented.",
+      "unit": "count",
+      "value_type": "integer",
+      "source_ref": "fixture:billing:metric-definition",
+      "event_refs": [
+        "invoice-delivered"
+      ]
+    },
+    {
+      "id": "processing-delay",
+      "description": "Fictional owner-declared processing delay sample. Not a discovered business metric.",
+      "unit": "seconds",
+      "value_type": "number",
+      "source_ref": "fixture:billing:processing-metric",
+      "event_refs": []
+    }
+  ],
+  "events": [
+    {
+      "id": "invoice-delivered",
+      "description": "Synthetic declared outcome event schema, not a received event.",
+      "source_ref": "fixture:billing:event-definition",
+      "customer_id_field": "account_id",
+      "fields": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "operation-state",
+      "description": "Synthetic declared operation state; not a live state read.",
+      "kind": "state",
+      "source_ref": "fixture:billing:state-definition",
+      "availability": "declared",
+      "event_refs": [],
+      "metric_refs": [],
+      "fields": [
+        {
+          "name": "paused",
+          "type": "boolean",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "value-snapshot",
+      "description": "Synthetic declared measured outcome for a supplier-defined evaluation period. No data is collected.",
+      "kind": "metric",
+      "source_ref": "fixture:billing:value-definition",
+      "availability": "declared",
+      "event_refs": [],
+      "metric_refs": [
+        "delivered-invoices"
+      ],
+      "fields": [
+        {
+          "name": "outcome_count",
+          "type": "integer",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "processing-snapshot",
+      "description": "Fictional owner-declared corroborating snapshot, not a connector read.",
+      "kind": "metric",
+      "source_ref": "fixture:billing:processing-evidence",
+      "availability": "declared",
+      "event_refs": [],
+      "metric_refs": [
+        "processing-delay"
+      ],
+      "fields": [
+        {
+          "name": "delay_seconds",
+          "type": "number",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "capabilities": []
+}

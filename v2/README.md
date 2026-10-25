@@ -1,7 +1,10 @@
-# CENTERWAY V2 — Missão 07
+# CENTERWAY V2 — Missão 08
+
+[C02 isolado: contrato de critérios, exemplos e instruções](DETECTION_CONTRACT.md).
+Operação e perda de valor avaliadas separadamente, sem ativar o fluxo de produção.
 
 [Entrada autorizada de evidências, contrato HTTP e instruções](EVIDENCE_API.md).
-Eventos, métricas e evidências por SaaS/cliente/configuração; sem alimentar C01–C06.
+Eventos, métricas e evidências por SaaS/cliente/configuração; sem ativar C01–C06 operacionais.
 
 [Contrato interno de integração, três exemplos e instruções](INTEGRATION_CONTRACT.md).
 Configurações versionadas por SaaS; nenhuma ligação nova a C01–C06 ou execução de negócio.
@@ -23,7 +26,7 @@ Na demo, a decisão continua **simulator-v1, sem IA real**; todos os dados e efe
 
 ## Abrir com 150 clientes sintéticos
 
-A partir da branch `centerway-v2/missao-07-evidence`, usar um caminho de base novo:
+A partir da branch `centerway-v2/missao-08-detection`, usar um caminho de base novo:
 
 ```sh
 cd v2

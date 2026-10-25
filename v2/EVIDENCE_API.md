@@ -3,7 +3,7 @@
 Parte do PR #36 (`ab9b5b1`). Entrada de eventos, métricas e evidências estruturadas,
 conforme o [contrato de integração v1](INTEGRATION_CONTRACT.md). HTTP 1.2.0 acrescenta
 dois endpoints; os schemas/pedidos/respostas anteriores são preservados. Sem UI nova,
-IA, deterioração, conclusões de valor ou execução. Core e C01–C06 não consultam este
+IA, deterioração, conclusões de valor ou execução. Core e C01–C06 operacionais existentes não consultam este
 armazenamento. **Receber evidência não aprova nem ativa um fluxo operacional.**
 
 ## Preparação explícita
@@ -184,3 +184,6 @@ CADDY_BIN=/caminho/para/caddy python3 -m unittest discover -s tests -v
 
 O Caddy de QA pode ser obtido pelo helper existente `infra/fetch-test-caddy.sh`;
 sem CADDY_BIN/caddy, os testes de proxy são skipped. A CI fornece o binário verificado.
+
+A [Missão 08](DETECTION_CONTRACT.md) acrescenta um C02 isolado que lê snapshots
+deste armazenamento sob critérios explícitos, sem ativar o fluxo operacional.
