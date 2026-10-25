@@ -1,0 +1,58 @@
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "records": [
+    {
+      "occurred_at": "2026-01-02T00:00:00Z",
+      "period": null,
+      "external_id": "fictional-event-001",
+      "kind": "event",
+      "definition_id": "item-completed",
+      "source_ref": "fixture:collaboration:event-definition",
+      "payload": {
+        "account_id": "fictional-account",
+        "occurred_at": "2026-01-02T00:00:00Z"
+      }
+    },
+    {
+      "occurred_at": "2026-01-02T00:00:00Z",
+      "period": {
+        "start": "2026-01-01T00:00:00Z",
+        "end": "2026-01-02T00:00:00Z"
+      },
+      "external_id": "fictional-metric-001",
+      "kind": "metric",
+      "definition_id": "completed-items",
+      "source_ref": "fixture:collaboration:metric-definition",
+      "payload": {
+        "value": 3
+      }
+    },
+    {
+      "occurred_at": "2026-01-02T00:00:00Z",
+      "period": null,
+      "external_id": "fictional-state-001",
+      "kind": "evidence",
+      "definition_id": "operation-state",
+      "source_ref": "fixture:collaboration:state-definition",
+      "payload": {
+        "paused": true
+      }
+    },
+    {
+      "occurred_at": "2026-01-02T00:00:00Z",
+      "period": {
+        "start": "2026-01-01T00:00:00Z",
+        "end": "2026-01-02T00:00:00Z"
+      },
+      "external_id": "fictional-value-001",
+      "kind": "evidence",
+      "definition_id": "value-snapshot",
+      "source_ref": "fixture:collaboration:value-definition",
+      "payload": {
+        "target_met": false
+      }
+    }
+  ]
+}

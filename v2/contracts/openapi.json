@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "CENTERWAY V2 HTTP API",
-    "version": "1.1.0",
-    "description": "API preservada para demo/sandbox, com fundação production privada permanente. Production só permite autenticação e registo vazio; operações de negócio indisponíveis (503), nunca simuladas. Sem URL publicado."
+    "version": "1.2.0",
+    "description": "API sandbox preservada; autenticação privada permanente e entrada/consulta de evidências inativas, validadas por configuração versionada. C01–C06 de production continuam bloqueados. Sem URL publicado."
   },
   "servers": [
     {
@@ -1142,6 +1142,319 @@
             "required": true,
             "schema": {
               "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/evidence": {
+      "post": {
+        "operationId": "ingestEvidence",
+        "summary": "Receber evidências inativas por SaaS/cliente/configuração",
+        "responses": {
+          "200": {
+            "description": "Lote atómico/idempotente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceIngestResponse"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceIngestRequest"
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightIngestEvidence",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/evidence/view": {
+      "get": {
+        "operationId": "viewEvidence",
+        "summary": "Consultar evidências inativas e qualidade estrutural",
+        "responses": {
+          "200": {
+            "description": "Snapshot paginado; nenhuma conclusão operacional",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceView"
+                }
+              }
+            },
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            }
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "config_version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "default": 0
+            }
+          },
+          {
+            "name": "through",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 100
+            }
+          }
+        ]
+      },
+      "options": {
+        "operationId": "preflightViewEvidence",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "GET"
             }
           },
           {
@@ -3027,6 +3340,526 @@
           "counts"
         ],
         "additionalProperties": false
+      },
+      "EvidenceInputRecord": {
+        "type": "object",
+        "properties": {
+          "external_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "kind": {
+            "enum": [
+              "event",
+              "metric",
+              "evidence"
+            ]
+          },
+          "definition_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "source_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          },
+          "period": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+                  },
+                  "end": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+                  }
+                },
+                "required": [
+                  "start",
+                  "end"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 100,
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "external_id",
+          "kind",
+          "definition_id",
+          "source_ref",
+          "occurred_at",
+          "period",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "description": "Formato estrutural. Backend aplica campos/tipos/origem/disponibilidade da configuração fixa; períodos obrigatórios para métricas e evidence.kind=metric; payload de evento tem de identificar o mesmo cliente. Máximo 8192 bytes/registo."
+      },
+      "EvidenceIngestRequest": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "config_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "records": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/EvidenceInputRecord"
+            }
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "config_version",
+          "records"
+        ],
+        "additionalProperties": false
+      },
+      "EvidenceIngestResponse": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "config_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "config_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "operational_state": {
+            "const": "inactive"
+          },
+          "classification": {
+            "enum": [
+              "synthetic",
+              "declared"
+            ]
+          },
+          "inserted": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "duplicates": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "record_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "batch_id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "reused": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "config_version",
+          "config_hash",
+          "operational_state",
+          "classification",
+          "inserted",
+          "duplicates",
+          "record_ids",
+          "batch_id",
+          "reused"
+        ],
+        "additionalProperties": false
+      },
+      "EvidenceStoredRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "tenant": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "config_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "config_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "kind": {
+            "enum": [
+              "event",
+              "metric",
+              "evidence"
+            ]
+          },
+          "definition_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "source_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "external_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          },
+          "period_start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "period_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 100,
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              ]
+            }
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "fact_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "actor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          },
+          "record_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "id",
+          "tenant",
+          "customer",
+          "config_version",
+          "config_hash",
+          "kind",
+          "definition_id",
+          "source_ref",
+          "external_id",
+          "occurred_at",
+          "period_start",
+          "period_end",
+          "payload",
+          "content_hash",
+          "fact_hash",
+          "actor",
+          "received_at",
+          "record_hash"
+        ],
+        "additionalProperties": false
+      },
+      "EvidenceQuality": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "compatible",
+              "insufficient",
+              "incompatible",
+              "contradictory"
+            ]
+          },
+          "missing": {
+            "type": "array",
+            "maxItems": 300,
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "event",
+                    "metric",
+                    "evidence"
+                  ]
+                },
+                "definition_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                }
+              },
+              "required": [
+                "kind",
+                "definition_id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "conflicts": {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "metric",
+                    "evidence"
+                  ]
+                },
+                "definition_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "record_ids": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 1000,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                }
+              },
+              "required": [
+                "kind",
+                "definition_id",
+                "record_ids"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "excluded_other_versions": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "conclusion": {
+            "const": "not_evaluated"
+          }
+        },
+        "required": [
+          "status",
+          "missing",
+          "conflicts",
+          "excluded_other_versions",
+          "conclusion"
+        ],
+        "additionalProperties": false,
+        "description": "Compatibilidade estrutural/presença de definições e contradições de snapshots da mesma origem, momento e período. Não verifica verdade, cobertura temporal, deterioração ou recuperação. incompatible significa apenas dados de outras versões, excluídos da análise."
+      },
+      "EvidenceView": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "config_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "config_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "operational_state": {
+            "const": "inactive"
+          },
+          "classification": {
+            "enum": [
+              "synthetic",
+              "declared"
+            ]
+          },
+          "quality": {
+            "$ref": "#/components/schemas/EvidenceQuality"
+          },
+          "through": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "next_after": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "records": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/EvidenceStoredRecord"
+            }
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "config_version",
+          "config_hash",
+          "operational_state",
+          "classification",
+          "quality",
+          "through",
+          "next_after",
+          "records"
+        ],
+        "additionalProperties": false
       }
     },
     "responses": {
@@ -3207,7 +4040,7 @@
         }
       },
       "Error503": {
-        "description": "Demo expirada, configuração/proteções indisponíveis ou operação de negócio bloqueada em production",
+        "description": "Demo expirada, configuração/proteções indisponíveis, armazenamento opcional não preparado ou operação C01–C06 bloqueada em production",
         "content": {
           "application/json": {
             "schema": {
@@ -3227,7 +4060,7 @@
         "description": "Versão do contrato HTTP; não é uma versão do cliente.",
         "schema": {
           "type": "string",
-          "const": "1.1.0"
+          "const": "1.2.0"
         }
       }
     }

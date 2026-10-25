@@ -1,5 +1,9 @@
 # Missão 05 — fundação permanente privada
 
+Atualização Missão 07: a [API de evidências inativas](EVIDENCE_API.md) acrescenta
+entrada/consulta autorizada em tabelas separadas. Os bloqueios de C01–C06 descritos
+aqui permanecem; a entrada de evidências não ativa operações de negócio.
+
 Parte do PR #34, commit `46c07c7`. Não publica, migra dados, instala serviços ou
 constrói uma interface. Runtime Python stdlib + SQLite; Caddy continua a terminar
 HTTPS e encaminhar `/api/*` para Python também por TLS verificado.

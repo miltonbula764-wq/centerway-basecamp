@@ -15,7 +15,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from .core import Core, Problem
 from .store import Store
-from .http_contract import API_METHODS, API_VERSION, ERROR_CODES, strict_json, view_query
+from .http_contract import API_METHODS, API_VERSION, ERROR_CODES, strict_json, view_query, evidence_query
 
 STATIC = Path(__file__).resolve().parent.parent / 'static'
 
@@ -132,7 +132,7 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
             if expected and expected!=method:
                 self.respond(405,{'error':'Método não permitido.'},extra_headers={'Allow':expected+', OPTIONS'})
                 return None
-            if expected and parsed.path!='/api/view' and parsed.query:
+            if expected and parsed.path not in ('/api/view','/api/evidence/view') and parsed.query:
                 raise Problem(400,'Este endpoint não aceita parâmetros na query.')
             return parsed
 
@@ -204,6 +204,10 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                             raise Problem(503,'Formulário privado indisponível; acesso recusado.')
                         payload = html.replace('LABORATÓRIO LOCAL','PRÉ-VISUALIZAÇÃO PRIVADA').encode()
                     self.respond(200,payload,content_type=mime)
+                elif parsed.path == '/api/evidence/view':
+                    from .evidence import EvidenceRepository
+                    user=self.identity()
+                    self.respond(200,EvidenceRepository(store).query(user,**evidence_query(parsed.query)))
                 elif parsed.path == '/api/view':
                     self.respond(200,preview.view(store,self.identity(),*view_query(parsed.query)) if production else core.view(self.identity(),*view_query(parsed.query)))
                 else:
@@ -228,6 +232,12 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                 self.check_origin(mutation=True)
                 if self.headers.get_content_type() != 'application/json':
                     raise Problem(415, 'Use application/json.')
+                if parsed.path=='/api/evidence':
+                    lengths=self.headers.get_all('Content-Length',[])
+                    if self.headers.get('Transfer-Encoding') or len(lengths)!=1 or not re.fullmatch(r'[0-9]{1,10}',lengths[0]):
+                        raise Problem(400,'Enquadramento HTTP inválido.')
+                    if self.headers.get('Content-Encoding'):
+                        raise Problem(415,'Corpo comprimido não suportado.')
                 length = int(self.headers.get('Content-Length', 0))
                 if length>65536:
                     raise Problem(413,'Corpo demasiado grande; máximo 65536 bytes.')
@@ -270,6 +280,10 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                         db.execute('DELETE FROM sessions WHERE token=?', (cookies[cookie_name].value,))
                     self.respond(200, {}, f'{cookie_name}={cookie_flags}; Max-Age=0')
                     return
+                if parsed.path=='/api/evidence':
+                    from .evidence import EvidenceRepository
+                    self.respond(200,EvidenceRepository(store).ingest(user,body))
+                    return
                 allowed = {'tenant','customer','case_id'}
                 if parsed.path == '/api/customers':
                     allowed = {'tenant','customer','name','scenario'}
@@ -297,7 +311,7 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                 self.respond(200,operation(user,tenant,customer,case_id))
             except Problem as error:
                 self.respond(error.status, {'error': error.message})
-            except (ValueError, TypeError, json.JSONDecodeError):
+            except (ValueError, TypeError, json.JSONDecodeError, RecursionError):
                 self.respond(400, {'error': 'Pedido inválido.'})
             except Exception:
                 # Do not disclose internal state or credentials in error responses.

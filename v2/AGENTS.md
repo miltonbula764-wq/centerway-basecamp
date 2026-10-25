@@ -31,3 +31,6 @@ historical components do not describe this runtime. Never publish the public-cre
 
 - Integration configurations are versioned declarations, not evidence or execution grants. Keep tenant-scoped reads/writes, current memberships, append-only provenance and optimistic version checks. Do not connect the new repository to C01–C06 or activate production operations in Mission 06.
 - Optional integration tables require explicit local setup; never install/migrate them during HTTP startup. Synthetic configuration fixtures are forbidden in production.
+
+- Mission 07 authorizes authenticated evidence ingestion/query only in separate inactive tables. Never write to sandbox observations/cases or activate production C01–C06 from evidence intake. Pin tenant/customer/configuration/source/time and preserve immutable identities/provenance.
+- Evidence availability/quality is structural, not truth, coverage, deterioration or recovery. Preserve conflicting claims; never resolve them or mix configuration versions by inference. Optional evidence setup stays local and explicit, never on HTTP startup.
