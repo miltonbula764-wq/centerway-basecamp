@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "tenant": "support",
+  "customer": "fictional-account",
+  "c02_run_id": 3,
+  "provenance": {
+    "source_ref": "fixture:support:m09-operator-declaration",
+    "supplied_by": "synthetic-fixture-author",
+    "recorded_at": "2026-10-25T00:00:00Z"
+  },
+  "hypotheses": [
+    {
+      "id": "unconfirmed-prerequisite-hypothesis",
+      "statement": "A declared prerequisite may be unmet. Whether this explains the deterioration has not been established.",
+      "support_refs": [
+        {
+          "evidence_id": 39,
+          "field": "paused"
+        }
+      ],
+      "contrary_refs": []
+    }
+  ],
+  "requirements": [
+    {
+      "id": "explicit-unpaused-requirement",
+      "declaration": "Fictional owner-declared prerequisite: processing must not be paused. This declaration is not causal proof.",
+      "criterion_id": "operational-degradation",
+      "window": "current",
+      "selector": {
+        "kind": "evidence",
+        "definition_id": "operation-state",
+        "field": "paused"
+      },
+      "comparison": "eq",
+      "expected": false
+    }
+  ]
+}
