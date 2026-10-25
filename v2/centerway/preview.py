@@ -11,6 +11,7 @@ from pathlib import Path
 import secrets
 import sqlite3
 import ssl
+import signal
 import threading
 import time
 from urllib.parse import urlparse
@@ -157,12 +158,16 @@ def main():
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         context.minimum_version = ssl.TLSVersion.TLSv1_2
         context.load_cert_chain(args.certfile,args.keyfile)
-        store = Store(args.db,seed_demo=False)
+        store = Store.open_existing(args.db)
         policy = PreviewPolicy(store)
         from .server import make_server
         server = make_server(store,args.host,args.port,preview=policy,tls_context=context,frontend_origins=args.frontend_origin)
     except (ValueError,OSError,sqlite3.Error) as error:
         parser.exit(1,'Arranque recusado: '+str(error)+'\n')
+    server.daemon_threads = False
+    def terminate(_signal, _frame):
+        threading.Thread(target=server.shutdown,daemon=True).start()
+    signal.signal(signal.SIGTERM,terminate)
     print('Servidor HTTPS privado iniciado. URL pública e certificado válido têm de ser fornecidos pela infraestrutura.',flush=True)
     try:
         server.serve_forever()

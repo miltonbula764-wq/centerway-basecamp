@@ -4,6 +4,9 @@
 pré-visualização HTTPS privada e testada localmente. Não se publicou uma versão
 insegura, nem uma página estática a fingir o sistema. `main` não foi alterada.
 
+[Preparação de infraestrutura da Missão 04](infra/ARCHITECTURE.md): modelos Caddy/systemd,
+abertura sem migração e operações locais. Ainda não existe alojamento contratado.
+
 ## Impedimento encontrado
 
 O ambiente gerido não disponibiliza ingress/encaminhamento HTTPS para processos

@@ -1,4 +1,7 @@
-# CENTERWAY V2 — Missão 03
+# CENTERWAY V2 — Missão 04
+
+[Infraestrutura proposta, custos e operação](infra/ARCHITECTURE.md).
+Sem contratação, publicação ou migração de dados.
 
 [Contrato HTTP e integração futura](API_CONTRACT.md) · [OpenAPI 3.1](contracts/openapi.json).
 A lógica e a interface existentes da Missão 02 continuam preservadas.
@@ -11,7 +14,7 @@ A decisão continua **simulator-v1, sem IA real**. Todos os dados e efeitos são
 
 ## Abrir com 150 clientes sintéticos
 
-A partir da branch `centerway-v2/missao-03-api`, usar um caminho de base novo:
+A partir da branch `centerway-v2/missao-04-infra`, usar um caminho de base novo:
 
 ```sh
 cd v2

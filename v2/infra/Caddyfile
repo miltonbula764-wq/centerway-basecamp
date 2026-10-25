@@ -1,0 +1,54 @@
+# Template only. No deployment is performed by this repository.
+# PUBLIC_HOST must equal the authority stored in the private preview origin.
+{
+	admin off
+	log default {
+		format filter {
+			wrap json
+			fields {
+				request>headers delete
+				request>uri delete
+			}
+		}
+	}
+}
+
+https://{$CENTERWAY_PUBLIC_HOST} {
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer
+		Strict-Transport-Security "max-age=3600"
+		Cache-Control no-store
+	}
+
+	@api path /api /api/*
+	handle @api {
+		# Preserve /api: handle_path would strip it and break the contract.
+		reverse_proxy https://{$CENTERWAY_BACKEND_ADDR:127.0.0.1:8443} {
+			header_up Host {http.request.hostport}
+			lb_retries 0
+			transport http {
+				tls_server_name localhost
+				tls_trust_pool file {$CENTERWAY_BACKEND_CA:/etc/centerway/backend-ca.pem}
+				versions 1.1
+				keepalive off
+				dial_timeout 3s
+				response_header_timeout 20s
+			}
+		}
+	}
+
+	handle {
+		# Only a future exported frontend build belongs here, never a checkout/data.
+		root * {$CENTERWAY_FRONTEND_ROOT:/srv/centerway/frontend/current}
+		@sensitive path_regexp sensitive (?i)(^|/)\.|\.(sqlite3?|db|pem|key)([-/]|$)
+		handle @sensitive {
+			respond 404
+		}
+		handle {
+			try_files {path} /index.html
+			file_server
+		}
+	}
+}

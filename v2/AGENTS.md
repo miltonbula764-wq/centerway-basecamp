@@ -21,3 +21,7 @@ historical components do not describe this runtime. Never publish the public-cre
 
 - Keep contracts/openapi.json and API_CONTRACT.md consistent with HTTP behavior; validate real responses.
 - External CORS is opt-in, private HTTPS only, exact origins; preserve Strict cookies and cross-site rejection.
+
+- Private service startup must open an existing V2 database without seed/DDL/migration.
+- Infra files are templates only; no service activation, DNS changes, paid resources or real-data migration without authorization.
+- Run CADDY_BIN=/path/to/verified/caddy python -m unittest discover -s tests -v for proxy verification.
