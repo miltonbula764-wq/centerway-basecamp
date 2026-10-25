@@ -28,3 +28,6 @@ historical components do not describe this runtime. Never publish the public-cre
 
 - Production is a separate permanent private authentication foundation: no demo seed, lease bypass, simulated business data or action success. All unprepared business operations must fail closed at HTTP and storage layers.
 - Keep production and demo markers, credentials, cookies and data isolated. Local account changes revoke affected sessions; never add a public administration endpoint or bypass the guards.
+
+- Integration configurations are versioned declarations, not evidence or execution grants. Keep tenant-scoped reads/writes, current memberships, append-only provenance and optimistic version checks. Do not connect the new repository to C01–C06 or activate production operations in Mission 06.
+- Optional integration tables require explicit local setup; never install/migrate them during HTTP startup. Synthetic configuration fixtures are forbidden in production.

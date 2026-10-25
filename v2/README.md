@@ -1,4 +1,7 @@
-# CENTERWAY V2 — Missão 05
+# CENTERWAY V2 — Missão 06
+
+[Contrato interno de integração, três exemplos e instruções](INTEGRATION_CONTRACT.md).
+Configurações versionadas por SaaS; nenhuma ligação nova a C01–C06 ou execução de negócio.
 
 [Modos isolados, contas privadas e instruções da fundação permanente](PERMANENT_FOUNDATION.md).
 Production mantém autenticação privada sem lease de 24 h; operações reais continuam bloqueadas.
@@ -17,7 +20,7 @@ Na demo, a decisão continua **simulator-v1, sem IA real**; todos os dados e efe
 
 ## Abrir com 150 clientes sintéticos
 
-A partir da branch `centerway-v2/missao-05-foundation`, usar um caminho de base novo:
+A partir da branch `centerway-v2/missao-06-integration`, usar um caminho de base novo:
 
 ```sh
 cd v2

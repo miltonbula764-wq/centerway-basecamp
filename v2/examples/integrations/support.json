@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "tenant": "support",
+  "data_classification": "synthetic",
+  "provenance": {
+    "source_ref": "fixture:support:owner-declaration-v1",
+    "supplied_by": "synthetic-fixture-author",
+    "recorded_at": "2026-10-25T00:00:00Z"
+  },
+  "product": {
+    "name": "Fictional Support",
+    "description": "Synthetic customer support product. All declarations below are fictional test inputs, not real customer objectives."
+  },
+  "customers": {
+    "entity": "account",
+    "id_field": "account_id",
+    "description": "Fictional account identity contract only; no customer records."
+  },
+  "value_goals": [
+    {
+      "id": "resolve-agreed-requests",
+      "description": "Fictional owner-declared value objective: resolve-agreed-requests. No real goal is inferred.",
+      "metric_refs": [
+        "resolved-requests"
+      ],
+      "evidence_refs": [
+        "value-snapshot"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "resolved-requests",
+      "description": "Synthetic owner-supplied outcome count; no automatic computation is implemented.",
+      "unit": "count",
+      "value_type": "integer",
+      "source_ref": "fixture:support:metric-definition",
+      "event_refs": [
+        "request-resolved"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "id": "request-resolved",
+      "description": "Synthetic declared outcome event schema, not a received event.",
+      "source_ref": "fixture:support:event-definition",
+      "customer_id_field": "account_id",
+      "fields": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "operation-state",
+      "description": "Synthetic declared operation state; not a live state read.",
+      "kind": "state",
+      "source_ref": "fixture:support:state-definition",
+      "availability": "declared",
+      "event_refs": [],
+      "metric_refs": [],
+      "fields": [
+        {
+          "name": "paused",
+          "type": "boolean",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "value-snapshot",
+      "description": "Synthetic declared measured outcome for a supplier-defined evaluation period. No data is collected.",
+      "kind": "metric",
+      "source_ref": "fixture:support:value-definition",
+      "availability": "declared",
+      "event_refs": [],
+      "metric_refs": [
+        "resolved-requests"
+      ],
+      "fields": [
+        {
+          "name": "target_met",
+          "type": "boolean",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "resume-assignment",
+      "description": "Fictional declarative capability; no implementation, connector or execution authorization.",
+      "conditions": [
+        {
+          "evidence_ref": "operation-state",
+          "field": "paused",
+          "operator": "eq",
+          "value": true
+        }
+      ],
+      "permissions": {
+        "required_role": "operator",
+        "requires_human_approval": true
+      },
+      "verification": {
+        "operational": [
+          {
+            "evidence_ref": "operation-state",
+            "field": "paused",
+            "operator": "eq",
+            "value": false
+          }
+        ],
+        "value": [
+          {
+            "evidence_ref": "value-snapshot",
+            "field": "target_met",
+            "operator": "eq",
+            "value": true
+          }
+        ],
+        "value_goal_refs": [
+          "resolve-agreed-requests"
+        ]
+      }
+    }
+  ]
+}
