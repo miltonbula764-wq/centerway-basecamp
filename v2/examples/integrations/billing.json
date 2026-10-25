@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "tenant": "billing",
+  "data_classification": "synthetic",
+  "provenance": {
+    "source_ref": "fixture:billing:owner-declaration-v1",
+    "supplied_by": "synthetic-fixture-author",
+    "recorded_at": "2026-10-25T00:00:00Z"
+  },
+  "product": {
+    "name": "Fictional Billing",
+    "description": "Synthetic invoice delivery product. All declarations below are fictional test inputs, not real customer objectives."
+  },
+  "customers": {
+    "entity": "account",
+    "id_field": "account_id",
+    "description": "Fictional account identity contract only; no customer records."
+  },
+  "value_goals": [
+    {
+      "id": "deliver-issued-invoices",
+      "description": "Fictional owner-declared value objective: deliver-issued-invoices. No real goal is inferred.",
+      "metric_refs": [
+        "delivered-invoices"
+      ],
+      "evidence_refs": [
+        "value-snapshot"
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "delivered-invoices",
+      "description": "Synthetic owner-supplied outcome count; no automatic computation is implemented.",
+      "unit": "count",
+      "value_type": "integer",
+      "source_ref": "fixture:billing:metric-definition",
+      "event_refs": [
+        "invoice-delivered"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "id": "invoice-delivered",
+      "description": "Synthetic declared outcome event schema, not a received event.",
+      "source_ref": "fixture:billing:event-definition",
+      "customer_id_field": "account_id",
+      "fields": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "operation-state",
+      "description": "Synthetic declared operation state; not a live state read.",
+      "kind": "state",
+      "source_ref": "fixture:billing:state-definition",
+      "availability": "declared",
+      "event_refs": [],
+      "metric_refs": [],
+      "fields": [
+        {
+          "name": "paused",
+          "type": "boolean",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "value-snapshot",
+      "description": "Synthetic declared measured outcome for a supplier-defined evaluation period. No data is collected.",
+      "kind": "metric",
+      "source_ref": "fixture:billing:value-definition",
+      "availability": "declared",
+      "event_refs": [],
+      "metric_refs": [
+        "delivered-invoices"
+      ],
+      "fields": [
+        {
+          "name": "target_met",
+          "type": "boolean",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "resume-delivery",
+      "description": "Fictional declarative capability; no implementation, connector or execution authorization.",
+      "conditions": [
+        {
+          "evidence_ref": "operation-state",
+          "field": "paused",
+          "operator": "eq",
+          "value": true
+        }
+      ],
+      "permissions": {
+        "required_role": "operator",
+        "requires_human_approval": true
+      },
+      "verification": {
+        "operational": [
+          {
+            "evidence_ref": "operation-state",
+            "field": "paused",
+            "operator": "eq",
+            "value": false
+          }
+        ],
+        "value": [
+          {
+            "evidence_ref": "value-snapshot",
+            "field": "target_met",
+            "operator": "eq",
+            "value": true
+          }
+        ],
+        "value_goal_refs": [
+          "deliver-issued-invoices"
+        ]
+      }
+    }
+  ]
+}

@@ -1,4 +1,7 @@
-# CENTERWAY V2 · Missão 05 — fundação permanente
+# CENTERWAY V2 · Missão 06 — integração adaptável
+
+[Contrato interno de integração, três exemplos e instruções](v2/INTEGRATION_CONTRACT.md).
+Configurações versionadas por SaaS; nenhuma ligação nova a C01–C06 ou execução de negócio.
 
 [Modos isolados, contas privadas e instruções da fundação permanente](v2/PERMANENT_FOUNDATION.md).
 Production mantém autenticação privada sem lease de 24 h; operações reais continuam bloqueadas.
@@ -21,7 +24,7 @@ runtime, IA real, Lovable, conectores externos ou serviços pagos.
 Para experimentar com **150 clientes sintéticos (75 por SaaS)**, numa base nova:
 
 ```sh
-git checkout centerway-v2/missao-05-foundation
+git checkout centerway-v2/missao-06-integration
 cd v2
 python3 -m centerway.synthetic --db data/missao02-150.sqlite3
 python3 -m centerway.server --db data/missao02-150.sqlite3
@@ -40,6 +43,6 @@ python3 -m unittest discover -s tests -v
 [Instruções, cenários e limites](v2/README.md). Toda a recuperação demonstrada é
 **simulação no sandbox**, nunca recuperação real de SaaS ou retenção comprovada.
 
-A Missão 05 parte do PR #34, commit `46c07c7`, na branch `centerway-v2/missao-05-foundation`. A `main` não foi
+A Missão 06 parte do PR #35, commit `851aede`, na branch `centerway-v2/missao-06-integration`. A `main` não foi
 alterada. A V2 não importa a aplicação histórica dos restantes diretórios; os
 comandos npm da raiz pertencem à versão antiga. Não houve deploy.
