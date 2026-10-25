@@ -6,6 +6,7 @@ from time import monotonic
 
 from .ai_adapter import AIAdapter,configured_adapter
 from .core import Core,Problem
+from . import continuity
 from .evidence import customer_id,utc
 from .http_contract import strict_json
 from .integration_contract import identifier
@@ -33,7 +34,7 @@ TRANSITIONS={
 }
 TABLES={
  'orchestration_metadata': "CREATE TABLE orchestration_metadata(marker TEXT PRIMARY KEY CHECK(marker='orchestration-v1'), mode TEXT NOT NULL CHECK(mode IN ('sandbox','demo','production')))",
- 'orchestration_cases': "CREATE TABLE orchestration_cases(id INTEGER PRIMARY KEY, tenant TEXT NOT NULL, customer TEXT NOT NULL, case_id TEXT NOT NULL, actor TEXT NOT NULL, created_at TEXT NOT NULL, record_hash TEXT NOT NULL, UNIQUE(tenant,customer), UNIQUE(tenant,customer,case_id))",
+ 'orchestration_cases': "CREATE TABLE orchestration_cases(id INTEGER PRIMARY KEY, tenant TEXT NOT NULL, customer TEXT NOT NULL, case_id TEXT NOT NULL, actor TEXT NOT NULL, created_at TEXT NOT NULL, record_hash TEXT NOT NULL, UNIQUE(tenant,customer,case_id))",
  'orchestration_events': "CREATE TABLE orchestration_events(tenant TEXT NOT NULL, customer TEXT NOT NULL, case_id TEXT NOT NULL, version INTEGER NOT NULL CHECK(version>0), parent_hash TEXT, payload TEXT NOT NULL, actor TEXT NOT NULL, created_at TEXT NOT NULL, record_hash TEXT NOT NULL, PRIMARY KEY(tenant,customer,case_id,version), FOREIGN KEY(tenant,customer,case_id) REFERENCES orchestration_cases(tenant,customer,case_id))",
 }
 GUARDS={f'orchestration_immutable_{table}_{op}':f"CREATE TRIGGER orchestration_immutable_{table}_{op} BEFORE {op} ON {table} BEGIN SELECT RAISE(ABORT, 'append_only'); END" for table in TABLES for op in ('UPDATE','DELETE')}
@@ -48,6 +49,7 @@ def install(store):
         if db.execute("SELECT 1 FROM sqlite_master WHERE name GLOB 'orchestration_*'").fetchone(): raise ValueError('Orchestration exists; no repair/replacement.')
         for sql in {**TABLES,**GUARDS}.values(): db.execute(sql)
         db.execute('INSERT INTO orchestration_metadata VALUES (?,?)',(VERSION,recovery.execution.mode))
+        continuity.install_storage(db,recovery.execution.mode)
     return {'status':'initialized','operational_state':'inactive','external_execution':'blocked'}
 
 
@@ -63,6 +65,8 @@ class Orchestrator:
         rows=db.execute('SELECT * FROM orchestration_metadata').fetchall() if 'orchestration_metadata' in schema else []
         if (any(schema.get(k)!=v for k,v in {**TABLES,**GUARDS}.items()) or len(rows)!=1
                 or rows[0]['marker']!=VERSION or rows[0]['mode']!=self.execution.mode): raise Problem(503,'Orquestração indisponível; preparação/integridade necessária.')
+
+        continuity.storage(db,self.execution.mode)
 
     def _access(self,db,user,tenant,write=False):
         identifier(tenant,'tenant');Core(self.store).authorize(db,user,tenant,write=write)
@@ -108,7 +112,7 @@ class Orchestrator:
            'real_recovery_demonstrated':False,'core_transition_authorized':False}
         with self.store.transaction() as db:
             self._access(db,user,case['tenant'],write=True)
-            current=self._case(db,case['tenant'],case['customer'],case['case_id']);history=self._history(db,current)
+            current=self._case(db,case['tenant'],case['customer'],case['case_id']);continuity.active(db,current);history=self._history(db,current)
             if len(history)!=expected: return False
             # Fence a C05 reservation that appeared after the worker read its
             # checkpoint. Never drop that lineage to start another generation.
@@ -127,6 +131,7 @@ class Orchestrator:
             row={'tenant':case['tenant'],'customer':case['customer'],'case_id':case['case_id'],'version':len(history)+1,
                  'parent_hash':history[-1]['record_hash'] if history else None,'payload':canonical(p),'actor':user,'created_at':now()}
             row['record_hash']=digest(row)
+            continuity.bind(db,current,refs)
             db.execute('INSERT INTO orchestration_events VALUES (?,?,?,?,?,?,?,?,?)',tuple(row.values()))
             return True
 
@@ -134,31 +139,36 @@ class Orchestrator:
         self.evidence._runtime();customer_id(customer);identifier(case_id,'case_id')
         with self.store.transaction() as db:
             self._access(db,user,tenant,write=True)
-            previous=db.execute('SELECT case_id FROM orchestration_cases WHERE tenant=? AND customer=?',(tenant,customer)).fetchone()
+            previous=db.execute('SELECT case_id FROM orchestration_cases WHERE tenant=? AND customer=? AND case_id=?',(tenant,customer,case_id)).fetchone()
             if previous:
-                if previous[0]!=case_id: raise Problem(409,'Um caso coordenado contínuo por cliente; sem reinício que contorne C05.')
                 self._case(db,tenant,customer,case_id)
             else:
+                if db.execute('SELECT 1 FROM orchestration_cases WHERE tenant=? AND customer=?',(tenant,customer)).fetchone(): raise Problem(409,'Usar abertura explícita de ciclo, com predecessor e evidência nova.')
+                if continuity.uncertain_executions(db,self.execution,user,tenant,customer): raise Problem(409,'Execução incerta do cliente impede abertura.')
                 row={'id':db.execute('SELECT coalesce(max(id),0)+1 FROM orchestration_cases').fetchone()[0],
                      'tenant':tenant,'customer':customer,'case_id':case_id,'actor':user,'created_at':now()}
                 row['record_hash']=digest(row);db.execute('INSERT INTO orchestration_cases VALUES (?,?,?,?,?,?,?)',tuple(row.values()))
-        case=self.history(user,tenant,customer,case_id)['case']
-        self._record(user,case,0,'awaiting_data',['not_processed'],{}, {})
+                continuity.initial_opening(db,row)
+        view=self.history(user,tenant,customer,case_id)
+        if view['closure'] is not None: return view  # Idempotent historical registration, never reopens.
+        self._record(user,view['case'],0,'awaiting_data',['not_processed'],{}, {})
         return self.history(user,tenant,customer,case_id)
 
     def history(self,user,tenant,customer,case_id):
         self.evidence._runtime()
         with self.store.transaction() as db:
             self._access(db,user,tenant);case=self._case(db,tenant,customer,case_id)
-            return {'case':case,'history':self._history(db,case),'operational_state':'inactive','external_execution':'blocked'}
+            return {'case':case,'history':self._history(db,case),'opening':continuity.row(db,'continuity_openings',tenant,customer,case_id),
+                    'closure':continuity.row(db,'continuity_closures',tenant,customer,case_id),'operational_state':'inactive','external_execution':'blocked'}
 
-    def query(self,user,tenant,customer=None,case_id=None,state=None,after=0,limit=25):
+    def query(self,user,tenant,customer=None,case_id=None,state=None,after=0,limit=25,lifecycle='active'):
         self.evidence._runtime()
         if type(after) is not int or after<0 or type(limit) is not int or not 1<=limit<=50: raise ValueError('Invalid case pagination.')
         if customer is not None: customer_id(customer)
         if case_id is not None:
             if customer is None: raise ValueError('case_id needs explicit customer.')
             identifier(case_id,'case_id')
+        if lifecycle not in ('active','closed','all'): raise ValueError('Unknown lifecycle filter.')
         if state is not None and state not in STATES: raise ValueError('Unknown orchestration state.')
         with self.store.transaction() as db:
             self._access(db,user,tenant)
@@ -167,12 +177,19 @@ class Orchestrator:
                 ON e.tenant=c.tenant AND e.customer=c.customer AND e.case_id=c.case_id
                 AND e.version=(SELECT max(v.version) FROM orchestration_events v WHERE v.tenant=c.tenant AND v.customer=c.customer AND v.case_id=c.case_id)
                 WHERE c.tenant=? AND c.id>? AND (? IS NULL OR c.customer=?) AND (? IS NULL OR c.case_id=?)
-                AND (? IS NULL OR json_extract(e.payload,'$.state')=?) ORDER BY c.id LIMIT ?''',
-                (tenant,after,customer,customer,case_id,case_id,state,state,limit+1)).fetchall()
+                AND (? IS NULL OR json_extract(e.payload,'$.state')=?)
+                AND (?='all' OR (?='closed')=EXISTS (SELECT 1 FROM continuity_closures x WHERE x.tenant=c.tenant AND x.customer=c.customer AND x.case_id=c.case_id))
+                ORDER BY c.id LIMIT ?''',
+                (tenant,after,customer,customer,case_id,case_id,state,state,lifecycle,lifecycle,limit+1)).fetchall()
             items=[]
             for raw in rows[:limit]:
                 case=self._case(db,tenant,raw['customer'],raw['case_id']);history=self._history(db,case);last=history[-1] if history else None
-                items.append({'registry_id':case['id'],'tenant':tenant,'customer':case['customer'],'case_id':case['case_id'],
+                opening=continuity.row(db,'continuity_openings',tenant,case['customer'],case['case_id']);closure=continuity.row(db,'continuity_closures',tenant,case['customer'],case['case_id'])
+                if not opening: raise Problem(503,'Proveniência do ciclo em falta.')
+                items.append({'lifecycle':'closed' if closure else 'active','cycle_number':opening['payload']['cycle_number'],
+                              'previous_case_id':opening['payload']['previous_case_id'],'closure':{'record_hash':closure['record_hash'],'actor':closure['actor'],'created_at':closure['created_at'],
+                              'reason':closure['payload']['request']['reason'],'disposition':closure['payload']['request']['disposition']} if closure else None,
+                              'registry_id':case['id'],'tenant':tenant,'customer':case['customer'],'case_id':case['case_id'],
                               'version':last['version'] if last else 0,'updated_at':last['created_at'] if last else case['created_at'],
                               'state':last['payload']['state'] if last else 'awaiting_data','blockers':last['payload']['blockers'] if last else ['not_processed'],
                               'refs':last['payload']['refs'] if last else {},'operational_state':'inactive','real_recovery_demonstrated':False,
@@ -182,7 +199,7 @@ class Orchestrator:
 
     def _sources(self,user,case,as_of):
         with self.store.transaction() as db:
-            t,c=case['tenant'],case['customer'];self._access(db,user,t,write=True)
+            t,c=case['tenant'],case['customer'];self._access(db,user,t,write=True);continuity.active(db,case)
             configs=self.detection._scope(db,user,t,write=True);criteria=self.detection._criteria(db,t,configs)
             records=self.evidence._records(db,t,c,configs)
             head={'config_version':len(configs),'criteria_version':len(criteria),'through':max((r['id'] for r in records),default=0),
@@ -194,7 +211,7 @@ class Orchestrator:
         if as_of>utc(now()): raise ValueError('Future orchestration cutoff refused.')
         if type(max_steps) is not int or not 1<=max_steps<=12 or type(allow_test_dispatch) is not bool: raise ValueError('Invalid processing limits.')
         with self.store.transaction() as db:
-            self._access(db,user,tenant,write=True);self._case(db,tenant,customer,case_id)
+            self._access(db,user,tenant,write=True);continuity.active(db,self._case(db,tenant,customer,case_id))
         adapter=ai_adapter or AIAdapter()
         for _ in range(max_steps):
             if deadline is not None and monotonic()>=deadline: break
@@ -229,6 +246,12 @@ class Orchestrator:
                 else: record('verification_recorded','synthetic_result_only_no_real_closure')
                 break
             configs,criteria,records,head=self._sources(user,case,as_of)
+            opening=view['opening']
+            if opening['payload']['previous_case_id'] is not None:
+                with self.store.transaction() as db:
+                    predecessor=continuity.row(db,'continuity_closures',tenant,customer,opening['payload']['previous_case_id'])
+                if not predecessor or as_of<=utc(predecessor['created_at']) or not any(r['id'] in opening['payload']['new_evidence_ids'] and r['occurred_at']<=as_of for r in records):
+                    record('awaiting_data','new_cycle_requires_post_closure_cutoff_and_evidence');break
             basis={'source_hash':digest(head),'source_heads':head}
             if not configs or not criteria:
                 record('awaiting_data','configuration_or_criteria_missing');break
@@ -319,7 +342,7 @@ class Orchestrator:
             try:
                 view=self.process_case(user,tenant,item['customer'],item['case_id'],as_of,ai_adapter=ai_adapter,
                     execution_adapter=(execution_adapters or {}).get((tenant,item['customer'])),allow_test_dispatch=allow_test_dispatch,max_steps=max_steps,deadline=deadline)
-                last=view['history'][-1];results.append({'customer':item['customer'],'case_id':item['case_id'],'version':last['version'],'state':last['payload']['state'],'error':None})
+                last=view['history'][-1] if view['history'] else None;results.append({'customer':item['customer'],'case_id':item['case_id'],'version':last['version'] if last else 0,'state':last['payload']['state'] if last else 'awaiting_data','error':None})
             except Exception:
                 failure_state=None;failure_version=None
                 try:
@@ -345,6 +368,7 @@ def main():
             child.add_argument('--customer',required=True);child.add_argument('--case-id',required=True)
         if command in ('list','run-batch'):
             child.add_argument('--after',type=int,default=0);child.add_argument('--limit',type=int,default=25)
+        if command=='list': child.add_argument('--lifecycle',choices=['active','closed','all'],default='active')
         if command=='run-batch':
             child.add_argument('--as-of',required=True);child.add_argument('--ai-config');child.add_argument('--budget-seconds',type=int,default=30)
     args=parser.parse_args()
@@ -355,7 +379,7 @@ def main():
             repo=Orchestrator(store);scope=(args.user,args.tenant)
             if args.command=='register': output=repo.register(*scope,args.customer,args.case_id)
             elif args.command=='history': output=repo.history(*scope,args.customer,args.case_id)
-            elif args.command=='list': output=repo.query(*scope,after=args.after,limit=args.limit)
+            elif args.command=='list': output=repo.query(*scope,after=args.after,limit=args.limit,lifecycle=args.lifecycle)
             else: output=repo.process_batch(*scope,args.as_of,after=args.after,limit=args.limit,budget_seconds=args.budget_seconds,ai_adapter=configured_adapter(args.ai_config))
     except (Problem,ValueError,OSError,sqlite3.Error,RecursionError,OverflowError): parser.exit(1,'{"status":"error","code":"orchestration_refused"}\n')
     print(canonical(output))

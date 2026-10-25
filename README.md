@@ -1,4 +1,7 @@
-# CENTERWAY V2 · Missão 13 — orquestração coordenada M06–M12
+# CENTERWAY V2 · Missão 14 — continuidade e ciclos históricos
+
+[Continuidade: encerramento autorizado, novos ciclos, API e atualização explícita](v2/CONTINUITY_CONTRACT.md).
+Um ciclo ativo por cliente, histórico preservado e incerteza mantida bloqueada.
 
 [Contrato da orquestração, estados, lotes e consulta autenticada](v2/ORCHESTRATION_CONTRACT.md).
 Encaminhamento automático até ao próximo requisito; sem fabricar investigação, IA ou aprovação.
@@ -64,6 +67,6 @@ python3 -m unittest discover -s tests -v
 [Instruções, cenários e limites](v2/README.md). Toda a recuperação demonstrada é
 **simulação no sandbox**, nunca recuperação real de SaaS ou retenção comprovada.
 
-A Missão 13 parte do PR #42, commit `e2026c5`, na branch `centerway-v2/missao-13-orchestration`. A `main` não foi
+A Missão 14 parte do PR #43, commit `8fb11ac`, na branch `centerway-v2/missao-14-continuity`. A `main` não foi
 alterada. A V2 não importa a aplicação histórica dos restantes diretórios; os
 comandos npm da raiz pertencem à versão antiga. Não houve deploy.
