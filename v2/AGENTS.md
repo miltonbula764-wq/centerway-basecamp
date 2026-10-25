@@ -40,3 +40,6 @@ historical components do not describe this runtime. Never publish the public-cre
 
 - Mission 09 structured C03 is isolated/inactive and pins SaaS/customer/C02 result and original evidence. Recorded facts, operator hypotheses, observed noncompliance and missing information must stay distinct; never promote a hypothesis/correlation to a confirmed cause.
 - Supported impediments require an explicit declared requirement plus non-disputed evidence. Preserve source/version/hash links and immutable reproducible revisions. Do not connect C03 to AI, C04, interventions, Core/sandbox changes or production activation.
+
+- Mission 10 only proposes inactive C04 recommendations. AI never authorizes/executes; independently validate references, snapshots, current Core permissions, catalogue and conditions. Revalidate after inference without holding the SQLite transaction across a provider call.
+- No credentials/configuration means unavailable, never simulator fallback. Fixtures are test-only, clearly labelled and refused in production. Protect provider secrets, require explicit data/tenant authorization and verified HTTPS; no automatic retries for pending/interrupted requests. Preserve prior engines and all Core/production execution blocks.

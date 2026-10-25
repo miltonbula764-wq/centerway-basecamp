@@ -1,0 +1,18 @@
+{
+  "tenant": "support",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "records": [
+    {
+      "external_id": "fictional-paused-observation",
+      "kind": "evidence",
+      "definition_id": "operation-state",
+      "source_ref": "fixture:support:state-definition",
+      "occurred_at": "2026-01-01T00:04:00Z",
+      "period": null,
+      "payload": {
+        "paused": true
+      }
+    }
+  ]
+}
