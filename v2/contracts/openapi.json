@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "CENTERWAY V2 HTTP API",
-    "version": "1.3.0",
-    "description": "API sandbox preservada; autenticação privada permanente e entrada/consulta de evidências inativas, validadas por configuração versionada. C01–C06 de production continuam bloqueados. Sem URL publicado. Consulta autenticada e inativa de estados coordenados M06–M12; nenhum endpoint de execução/orquestração operacional."
+    "version": "1.4.0",
+    "description": "API sandbox preservada; autenticação privada permanente e entrada/consulta de evidências inativas, validadas por configuração versionada. C01–C06 de production continuam bloqueados. Sem URL publicado. Consulta autenticada e inativa de estados coordenados M06–M12; nenhum endpoint de execução/orquestração operacional. Continuidade inativa: ciclos históricos, encerramento explícito autenticado e bloqueio de execuções incertas."
   },
   "servers": [
     {
@@ -1565,6 +1565,19 @@
               "maximum": 50,
               "default": 25
             }
+          },
+          {
+            "name": "lifecycle",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "closed",
+                "all"
+              ],
+              "default": "active"
+            }
           }
         ],
         "responses": {
@@ -1605,6 +1618,480 @@
       },
       "options": {
         "operationId": "preflightOrchestrationCases",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "GET"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/orchestration/open": {
+      "post": {
+        "operationId": "openCycle",
+        "summary": "Decisão humana explícita de continuidade: open",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpenCycleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registo imutável/idempotente; nenhum sucesso de recuperação inferido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContinuityRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightOpenCycle",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/orchestration/close": {
+      "post": {
+        "operationId": "closeCycle",
+        "summary": "Decisão humana explícita de continuidade: close",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CloseCycleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registo imutável/idempotente; nenhum sucesso de recuperação inferido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContinuityRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightCloseCycle",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/orchestration/review": {
+      "post": {
+        "operationId": "reviewCycle",
+        "summary": "Decisão humana explícita de continuidade: review",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewCycleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registo imutável/idempotente; nenhum sucesso de recuperação inferido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContinuityRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightReviewCycle",
+        "summary": "Preflight: não autentica nem altera dados",
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "const": "POST"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sem corpo; origem explícita permitida, método exato, apenas Content-Type.",
+            "headers": {
+              "X-Centerway-API-Version": {
+                "$ref": "#/components/headers/ApiVersion"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/orchestration/cycle": {
+      "get": {
+        "operationId": "getCycleContext",
+        "summary": "Consultar ciclo exato e snapshot de encerramento",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            }
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "case_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contexto para revisão explícita ou snapshot histórico fechado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CycleContext"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "options": {
+        "operationId": "preflightCycleContext",
         "summary": "Preflight: não autentica nem altera dados",
         "security": [],
         "parameters": [
@@ -4044,7 +4531,11 @@
           "refs",
           "operational_state",
           "real_recovery_demonstrated",
-          "core_transition_authorized"
+          "core_transition_authorized",
+          "lifecycle",
+          "cycle_number",
+          "previous_case_id",
+          "closure"
         ],
         "properties": {
           "registry_id": {
@@ -4107,6 +4598,28 @@
           },
           "core_transition_authorized": {
             "const": false
+          },
+          "lifecycle": {
+            "enum": [
+              "active",
+              "closed"
+            ]
+          },
+          "cycle_number": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "previous_case_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "closure": {
+            "type": [
+              "object",
+              "null"
+            ]
           }
         }
       },
@@ -4143,6 +4656,274 @@
           },
           "external_execution": {
             "const": "blocked"
+          }
+        }
+      },
+      "ContinuityRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tenant",
+          "customer",
+          "case_id",
+          "request_id",
+          "payload",
+          "actor",
+          "created_at",
+          "record_hash"
+        ],
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "record_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      },
+      "CycleContext": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "case",
+          "opening",
+          "closure",
+          "reviews",
+          "lifecycle",
+          "context",
+          "operational_state",
+          "real_recovery_demonstrated",
+          "external_execution"
+        ],
+        "properties": {
+          "case": {
+            "type": "object"
+          },
+          "opening": {
+            "$ref": "#/components/schemas/ContinuityRecord"
+          },
+          "closure": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContinuityRecord"
+              }
+            ]
+          },
+          "reviews": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/ContinuityRecord"
+            }
+          },
+          "lifecycle": {
+            "enum": [
+              "active",
+              "closed"
+            ]
+          },
+          "context": {
+            "type": "object",
+            "description": "Snapshot hash-bound: current checkpoint, all available evidence refs and authoritative C05/C06 states; frozen on closure."
+          },
+          "operational_state": {
+            "const": "inactive"
+          },
+          "real_recovery_demonstrated": {
+            "const": false
+          },
+          "external_execution": {
+            "const": "blocked"
+          }
+        }
+      },
+      "OpenCycleRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tenant",
+          "customer",
+          "case_id",
+          "request_id",
+          "human_confirmed",
+          "reason",
+          "previous_case_id"
+        ],
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "human_confirmed": {
+            "const": true
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "previous_case_id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+              }
+            ]
+          }
+        }
+      },
+      "CloseCycleRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tenant",
+          "customer",
+          "case_id",
+          "request_id",
+          "human_confirmed",
+          "reason",
+          "disposition",
+          "expected_version",
+          "expected_context_hash"
+        ],
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "human_confirmed": {
+            "const": true
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "disposition": {
+            "enum": [
+              "follow_up_complete",
+              "no_intervention_needed",
+              "not_recovered",
+              "cancelled"
+            ]
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expected_context_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      },
+      "ReviewCycleRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tenant",
+          "customer",
+          "case_id",
+          "request_id",
+          "human_confirmed",
+          "note",
+          "evidence_ids",
+          "expected_context_hash"
+        ],
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "human_confirmed": {
+            "const": true
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "evidence_ids": {
+            "type": "array",
+            "maxItems": 100,
+            "uniqueItems": true,
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "expected_context_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
           }
         }
       }
@@ -4345,7 +5126,7 @@
         "description": "Versão do contrato HTTP; não é uma versão do cliente.",
         "schema": {
           "type": "string",
-          "const": "1.3.0"
+          "const": "1.4.0"
         }
       }
     }

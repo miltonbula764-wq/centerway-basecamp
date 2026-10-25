@@ -1,5 +1,7 @@
 # Orquestração M06–M12 — Missão 13
 
+A [Missão 14](CONTINUITY_CONTRACT.md) substitui a limitação de um único caso contínuo por múltiplos ciclos históricos e um ativo, com encerramento explícito. A descrição abaixo documenta a base M13; API atual é 1.4.0.
+
 Base: PR #42 (`e2026c5`), branch `centerway-v2/missao-13-orchestration`.
 Coordena os motores existentes; não reconstrói C01–C06, não altera Core/sandbox,
 não cria investigações/autorizações e não prova recuperação real. Os resultados

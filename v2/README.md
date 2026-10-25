@@ -1,4 +1,7 @@
-# CENTERWAY V2 — Missão 13
+# CENTERWAY V2 — Missão 14
+
+[Continuidade: encerramento autorizado, novos ciclos, API e atualização explícita](CONTINUITY_CONTRACT.md).
+Um ciclo ativo por cliente, histórico preservado e incerteza mantida bloqueada.
 
 [Contrato da orquestração, estados, lotes e consulta autenticada](ORCHESTRATION_CONTRACT.md).
 Encaminhamento automático até ao próximo requisito; sem fabricar investigação, IA ou aprovação.

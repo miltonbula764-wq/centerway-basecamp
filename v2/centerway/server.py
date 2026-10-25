@@ -15,7 +15,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from .core import Core, Problem
 from .store import Store
-from .http_contract import API_METHODS, API_VERSION, ERROR_CODES, strict_json, view_query, evidence_query, orchestration_query
+from .http_contract import API_METHODS, API_VERSION, ERROR_CODES, strict_json, view_query, evidence_query, orchestration_query, cycle_query
 
 STATIC = Path(__file__).resolve().parent.parent / 'static'
 
@@ -132,7 +132,7 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
             if expected and expected!=method:
                 self.respond(405,{'error':'Método não permitido.'},extra_headers={'Allow':expected+', OPTIONS'})
                 return None
-            if expected and parsed.path not in ('/api/view','/api/evidence/view','/api/orchestration/cases') and parsed.query:
+            if expected and parsed.path not in ('/api/view','/api/evidence/view','/api/orchestration/cases','/api/orchestration/cycle') and parsed.query:
                 raise Problem(400,'Este endpoint não aceita parâmetros na query.')
             return parsed
 
@@ -204,6 +204,10 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                             raise Problem(503,'Formulário privado indisponível; acesso recusado.')
                         payload = html.replace('LABORATÓRIO LOCAL','PRÉ-VISUALIZAÇÃO PRIVADA').encode()
                     self.respond(200,payload,content_type=mime)
+                elif parsed.path == '/api/orchestration/cycle':
+                    from .continuity import Continuity
+                    user=self.identity()
+                    self.respond(200,Continuity(store).context(user,**cycle_query(parsed.query)))
                 elif parsed.path == '/api/orchestration/cases':
                     from .orchestration import Orchestrator
                     user=self.identity()
@@ -236,7 +240,7 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                 self.check_origin(mutation=True)
                 if self.headers.get_content_type() != 'application/json':
                     raise Problem(415, 'Use application/json.')
-                if parsed.path=='/api/evidence':
+                if parsed.path in ('/api/evidence','/api/orchestration/open','/api/orchestration/close','/api/orchestration/review'):
                     lengths=self.headers.get_all('Content-Length',[])
                     if self.headers.get('Transfer-Encoding') or len(lengths)!=1 or not re.fullmatch(r'[0-9]{1,10}',lengths[0]):
                         raise Problem(400,'Enquadramento HTTP inválido.')
@@ -284,6 +288,13 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                         db.execute('DELETE FROM sessions WHERE token=?', (cookies[cookie_name].value,))
                     self.respond(200, {}, f'{cookie_name}={cookie_flags}; Max-Age=0')
                     return
+                if parsed.path in ('/api/orchestration/open','/api/orchestration/close','/api/orchestration/review'):
+                    from .continuity import Continuity,request_body
+                    operation=parsed.path.rsplit('/',1)[1];request_body(operation,body)
+                    if production: preview.block_operation(store,user,body['tenant'])
+                    cookies=SimpleCookie();cookies.load(self.headers.get('Cookie',''))
+                    result=getattr(Continuity(store),operation)(user,**body,session_token=cookies[cookie_name].value)
+                    self.respond(200,result);return
                 if parsed.path=='/api/evidence':
                     from .evidence import EvidenceRepository
                     self.respond(200,EvidenceRepository(store).ingest(user,body))

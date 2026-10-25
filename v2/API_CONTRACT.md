@@ -1,10 +1,25 @@
-# CENTERWAY V2 — contrato HTTP 1.3.0
+# CENTERWAY V2 — contrato HTTP 1.4.0
 
 Contrato do backend Python da Missão 03, baseado no PR #32. Especificação importável:
 [`contracts/openapi.json`](contracts/openapi.json), OpenAPI 3.1 / JSON Schema 2020-12.
 Não há URL publicado, interface nova, uso de Lovable ou integração real nesta missão.
 Na demo, tudo continua fictício: `environment_type: "sandbox"` e `decision_mode: "simulator-v1"`.
 Production devolve `production` / `disabled` na view operacional, sem dados ou intervenções simuladas. A API separada de evidências permanece inativa.
+
+## Extensão 1.4.0: continuidade e ciclos históricos
+
+GET `/api/orchestration/cases` acrescenta `lifecycle=active|closed|all` (default
+active), `cycle_number`, predecessor e resumo de fecho. GET
+`/api/orchestration/cycle` exige tenant/customer/case_id e fornece contexto ou
+snapshot histórico congelado. POST `/api/orchestration/open`, `/close` e `/review`
+são decisões administrativas explícitas, autenticadas, para operador: confirmação
+humana, request_id, contexto/versão quando aplicável e sessão do cookie. Nunca
+aceitam actor/role/token em JSON. Incerto/pendente bloqueia encerramento e sucessor;
+review apenas regista unresolved. Nenhum resultado C06 encerra automaticamente.
+Ver [contrato de continuidade, campos, erros e upgrade explícito](CONTINUITY_CONTRACT.md).
+Production recusa os novos POST; casos e operações de negócio continuam inativos.
+Sem DDL no HTTP ou migração automática. API global anuncia 1.4.0; contratos de
+motores e endpoints anteriores preservados, com extensão da consulta M13.
 
 ## Extensão 1.3.0: consulta da orquestração inativa
 
@@ -74,7 +89,7 @@ administração, integração real ou frontend production nesta missão.
   Não enviar campos extra, chaves repetidas, NaN/Infinity ou parâmetros na query.
   Schemas cobrem a estrutura; limites temporais e validações após trim são semânticos.
 - Respostas de API: JSON, `Cache-Control: no-store`, header
-  `X-Centerway-API-Version: 1.3.0`. As respostas de sucesso anteriores são preservadas.
+  `X-Centerway-API-Version: 1.4.0`. As respostas de sucesso anteriores são preservadas.
 - Autenticação por cookie HttpOnly; sem JWT, bearer token, API key ou role no browser.
   Login devolve apenas `user`; o browser guarda o cookie recebido por `Set-Cookie`.
 - Modo privado: `__Host-cw_session`, Secure, HttpOnly, SameSite=Strict, Path=/,
@@ -95,7 +110,11 @@ separada de evidências inativas, descrita na extensão 1.2.0.
 
 | Método e caminho | Entrada | Resposta de sucesso | Permissão |
 | --- | --- | --- | --- |
-| GET `/api/orchestration/cases` | SaaS, filtros e paginação | 200 estados/impedimentos inativos; não processa | Membership / leitor |
+| GET `/api/orchestration/cycle` | Escopo exato | 200 contexto/abertura/fecho/revisões históricos | Membership / leitor |
+| POST `/api/orchestration/open` | Motivo, predecessor, request_id e confirmação | 200 abertura idempotente | Operador + sessão |
+| POST `/api/orchestration/close` | Contexto/hash, versão, motivo, disposição, request_id e confirmação | 200 fecho imutável; não implica recuperação | Operador + sessão |
+| POST `/api/orchestration/review` | Nota, referências de evidências, contexto, request_id e confirmação | 200 revisão unresolved, sem desbloqueio | Operador + sessão |
+| GET `/api/orchestration/cases` | SaaS, lifecycle, filtros e paginação | 200 estados/impedimentos inativos; não processa | Membership / leitor |
 | POST `/api/evidence` | `tenant`, `customer`, `config_version`, `records` | 200 recibo atómico/idempotente; sempre inativo | Operador |
 | GET `/api/evidence/view` | Escopo/versão e paginação | 200 registos/proveniência/qualidade estrutural | Membership / leitor |
 | POST `/api/login` | `user`, `password` | 200 `{ "user": "…" }` + cookie | Credencial válida |
