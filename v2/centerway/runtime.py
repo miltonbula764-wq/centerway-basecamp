@@ -25,6 +25,7 @@ def main():
     serve.add_argument('--mode',choices=('demo','production'),required=True)
     for name in ('db','certfile','keyfile'): serve.add_argument('--'+name,required=True)
     serve.add_argument('--host',default='127.0.0.1');serve.add_argument('--port',type=int,default=8443)
+    serve.add_argument('--pilot-ai-config',help='Private configured AI; per-SaaS pilot consent also required. No fallback.')
     serve.add_argument('--webhook-config',help='Private owner-only webhook configuration outside the checkout; opt-in.')
     serve.add_argument('--frontend-origin',action='append',default=[])
     apply=sub.add_parser('apply-accounts')
@@ -50,7 +51,7 @@ def main():
         context=ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER);context.minimum_version=ssl.TLSVersion.TLSv1_2
         context.load_cert_chain(args.certfile,args.keyfile)
         from .server import make_server
-        server=make_server(store,args.host,args.port,preview=policy,tls_context=context,frontend_origins=args.frontend_origin,webhook_config=args.webhook_config)
+        server=make_server(store,args.host,args.port,preview=policy,tls_context=context,frontend_origins=args.frontend_origin,webhook_config=args.webhook_config,pilot_ai_config=args.pilot_ai_config)
     except (ValueError,OSError,sqlite3.Error):
         parser.exit(1,'{"status":"error","code":"configuration_refused"}\n')
     preview.run_private_server(server)

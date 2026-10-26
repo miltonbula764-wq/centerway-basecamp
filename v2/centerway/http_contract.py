@@ -2,8 +2,12 @@
 import json
 from urllib.parse import parse_qs
 
-API_VERSION = '1.5.0'
+API_VERSION = '1.6.0'
 API_METHODS = {
+    '/api/pilot/status':'GET', '/api/pilot/context':'GET', '/api/pilot/configuration':'GET', '/api/pilot/criteria':'GET',
+    '/api/pilot/customers':'GET', '/api/pilot/analysis':'GET',
+    '/api/pilot/configure':'POST', '/api/pilot/criteria/append':'POST', '/api/pilot/customers/append':'POST',
+    '/api/pilot/investigate':'POST', '/api/pilot/review':'POST', '/api/pilot/process':'POST',
     '/api/webhooks/ingest':'POST',
     '/api/orchestration/cases':'GET', '/api/orchestration/cycle':'GET',
     '/api/orchestration/open':'POST', '/api/orchestration/close':'POST', '/api/orchestration/review':'POST',

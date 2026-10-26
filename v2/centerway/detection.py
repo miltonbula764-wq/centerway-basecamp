@@ -76,10 +76,11 @@ class DetectionRepository:
         except (ValueError,TypeError,KeyError,AttributeError): raise Problem(503,'Histórico de critérios sem integridade.')
         return result
 
-    def append_criteria(self,user,tenant,document,expected_version):
+    def append_criteria(self,user,tenant,document,expected_version, *, _guard=None):
         self.evidence._runtime()
         with self.store.transaction() as db:
             configs=self._scope(db,user,tenant,write=True)
+            if _guard is not None: _guard(db)
             if not isinstance(document,dict) or document.get('tenant')!=tenant: raise Problem(403,'Critérios de outra SaaS não autorizados.')
             version=document.get('config_version')
             if type(version) is not int or version<1: raise ValueError('Explicit configuration version required.')

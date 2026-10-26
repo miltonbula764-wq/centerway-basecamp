@@ -20,7 +20,7 @@ from .http_contract import API_METHODS, API_VERSION, ERROR_CODES, strict_json, v
 STATIC = Path(__file__).resolve().parent.parent / 'static'
 
 
-def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context=None, frontend_origins=(), webhook_config=None):
+def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context=None, frontend_origins=(), webhook_config=None, pilot_ai_config=None):
     production=getattr(preview,'mode',None)=='production'
     with store.transaction() as db:
         marked_production=bool(db.execute("SELECT 1 FROM sqlite_master WHERE name='production_metadata'").fetchone())
@@ -142,7 +142,7 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
             if expected and expected!=method:
                 self.respond(405,{'error':'Método não permitido.'},extra_headers={'Allow':expected+', OPTIONS'})
                 return None
-            if expected and parsed.path not in ('/api/view','/api/evidence/view','/api/orchestration/cases','/api/orchestration/cycle') and parsed.query:
+            if expected and not parsed.path.startswith('/api/pilot/') and parsed.path not in ('/api/view','/api/evidence/view','/api/orchestration/cases','/api/orchestration/cycle') and parsed.query:
                 raise Problem(400,'Este endpoint não aceita parâmetros na query.')
             return parsed
 
@@ -216,6 +216,20 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                             raise Problem(503,'Formulário privado indisponível; acesso recusado.')
                         payload = html.replace('LABORATÓRIO LOCAL','PRÉ-VISUALIZAÇÃO PRIVADA').encode()
                     self.respond(200,payload,content_type=mime)
+                elif parsed.path.startswith('/api/pilot/'):
+                    if not production: raise Problem(503,'Piloto exige servidor privado permanente HTTPS.')
+                    from .pilot import Pilot,page_query
+                    routes={
+                        '/api/pilot/status':('status','tenant','tenant'),
+                        '/api/pilot/context':('context','tenant after limit','tenant'),
+                        '/api/pilot/configuration':('configuration','tenant version','tenant version'),
+                        '/api/pilot/criteria':('criteria','tenant version','tenant version'),
+                        '/api/pilot/customers':('customers','tenant customer after limit','tenant'),
+                        '/api/pilot/analysis':('analysis','tenant customer case_id after limit version','tenant customer case_id'),
+                    }
+                    if parsed.path not in routes: raise Problem(404,'Endpoint piloto inexistente.')
+                    user=self.identity();method,allowed,required=routes[parsed.path]
+                    self.respond(200,getattr(Pilot(store),method)(user,**page_query(parsed.query,allowed,required)))
                 elif parsed.path == '/api/orchestration/cycle':
                     from .continuity import Continuity
                     user=self.identity()
@@ -279,7 +293,7 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                 self.check_origin(mutation=True)
                 if self.headers.get_content_type() != 'application/json':
                     raise Problem(415, 'Use application/json.')
-                if parsed.path in ('/api/evidence','/api/orchestration/open','/api/orchestration/close','/api/orchestration/review'):
+                if parsed.path.startswith('/api/pilot/') or parsed.path in ('/api/evidence','/api/orchestration/open','/api/orchestration/close','/api/orchestration/review'):
                     lengths=self.headers.get_all('Content-Length',[])
                     if self.headers.get('Transfer-Encoding') or len(lengths)!=1 or not re.fullmatch(r'[0-9]{1,10}',lengths[0]):
                         raise Problem(400,'Enquadramento HTTP inválido.')
@@ -319,6 +333,25 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                     self.respond(200, {'user': user}, f'{cookie_name}={token}{cookie_flags}; Max-Age={session_seconds}')
                     return
                 user = self.identity()
+                if parsed.path.startswith('/api/pilot/'):
+                    if not production: raise Problem(503,'Piloto exige servidor privado permanente HTTPS.')
+                    from .pilot import Pilot
+                    from .integration_contract import shape
+                    routes={
+                        '/api/pilot/configure':('configure','tenant config expected_version'),
+                        '/api/pilot/criteria/append':('append_criteria','tenant document expected_version'),
+                        '/api/pilot/customers/append':('customer','tenant customer name context expected_version'),
+                        '/api/pilot/investigate':('investigate','tenant customer case_id c02_run_id document expected_version'),
+                        '/api/pilot/review':('review','tenant customer case_id request_id expected_checkpoint_hash note'),
+                        '/api/pilot/process':('process','tenant customer case_id request_id as_of'),
+                    }
+                    if parsed.query: raise Problem(400,'Operações piloto não aceitam query.')
+                    if parsed.path not in routes: raise Problem(404,'Operação piloto inexistente.')
+                    method,keys=routes[parsed.path];shape(body,keys,'pilot request')
+                    cookies=SimpleCookie();cookies.load(self.headers.get('Cookie',''))
+                    kwargs={'token':cookies[cookie_name].value}
+                    if method=='process': kwargs['ai_config']=pilot_ai_config
+                    self.respond(200,getattr(Pilot(store),method)(user,**body,**kwargs));return
                 if parsed.path=='/api/logout':
                     if body:
                         raise Problem(400,'Logout exige um objeto vazio.')

@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "CENTERWAY V2 HTTP API",
-    "version": "1.5.0",
-    "description": "API sandbox preservada; autenticação privada permanente e entrada/consulta de evidências inativas, validadas por configuração versionada. C01–C06 de production continuam bloqueados. Sem URL publicado. Consulta autenticada e inativa de estados coordenados M06–M12; nenhum endpoint de execução/orquestração operacional. Continuidade inativa: ciclos históricos, encerramento explícito autenticado e bloqueio de execuções incertas. Entrada HTTPS HMAC server-to-server limitada a evidências M07 inativas; nunca autoriza operações."
+    "version": "1.6.0",
+    "description": "API sandbox preservada; autenticação privada permanente e entrada/consulta de evidências inativas, validadas por configuração versionada. O fluxo operacional de production permanece bloqueado; análise inativa só é coordenada com grant explícito do piloto. Sem URL publicado. Consulta autenticada e inativa de estados coordenados M06–M12; nenhum endpoint de execução/orquestração operacional. Continuidade inativa: ciclos históricos, encerramento explícito autenticado e bloqueio de execuções incertas. Entrada HTTPS HMAC server-to-server limitada a evidências M07 inativas; nunca autoriza operações. Piloto de análise privado autorizado por SaaS: configuração e resultados M06–C04, revisão humana e processamento limitado; C05 e recuperação real bloqueados."
   },
   "servers": [
     {
@@ -2261,6 +2261,1115 @@
           }
         },
         "operationId": "rejectWebhookPreflight"
+      }
+    },
+    "/api/pilot/status": {
+      "get": {
+        "operationId": "pilot_status",
+        "summary": "Private pilot: status",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotStatus"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            }
+          }
+        ],
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_status",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/context": {
+      "get": {
+        "operationId": "pilot_context",
+        "summary": "Private pilot: context",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotContext"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        ],
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_context",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/configuration": {
+      "get": {
+        "operationId": "pilot_configuration",
+        "summary": "Private pilot: configuration",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationVersion"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            }
+          }
+        ],
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_configuration",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/criteria": {
+      "get": {
+        "operationId": "pilot_criteria",
+        "summary": "Private pilot: criteria",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CriteriaVersion"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            }
+          }
+        ],
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_criteria",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/customers": {
+      "get": {
+        "operationId": "pilot_customers",
+        "summary": "Private pilot: customers",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotCustomerPage"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            }
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        ],
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_customers",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/analysis": {
+      "get": {
+        "operationId": "pilot_analysis",
+        "summary": "Private pilot: analysis",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotAnalysis"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            }
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "case_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            }
+          }
+        ],
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_analysis",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/configure": {
+      "post": {
+        "operationId": "pilot_configure",
+        "summary": "Private pilot: configure",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationVersion"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotConfigureRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_configure",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/criteria/append": {
+      "post": {
+        "operationId": "pilot_criteria_append",
+        "summary": "Private pilot: criteria/append",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CriteriaVersion"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotCriteriaRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_criteria_append",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/customers/append": {
+      "post": {
+        "operationId": "pilot_customers_append",
+        "summary": "Private pilot: customers/append",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotCustomerRecord"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotCustomerRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_customers_append",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/investigate": {
+      "post": {
+        "operationId": "pilot_investigate",
+        "summary": "Private pilot: investigate",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotC03Investigation"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotInvestigationRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_investigate",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/review": {
+      "post": {
+        "operationId": "pilot_review",
+        "summary": "Private pilot: review",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotRecord"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotReviewRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_review",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
+      }
+    },
+    "/api/pilot/process": {
+      "post": {
+        "operationId": "pilot_process",
+        "summary": "Private pilot: process",
+        "description": "Private production HTTPS, current membership and explicit local per-SaaS analysis grant. No C05, external intervention or recovery claim. Read-only GET; operator/session/CSRF required for POST. See PILOT_INTEGRATION.md for exact engine semantics, limits and reproducible flow.",
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "200": {
+            "description": "Declared analysis or append-only record. No execution grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotProcessing"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotProcessRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProductionSession": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "pilot_preflight_process",
+        "summary": "Exact private origin preflight; no credential headers beyond Content-Type",
+        "responses": {
+          "204": {
+            "description": "Allowed same-site private frontend preflight"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        }
       }
     }
   },
@@ -5161,6 +6270,2446 @@
             "const": "inactive"
           }
         }
+      },
+      "SaaSConfiguration": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": 1
+          },
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "data_classification": {
+            "const": "declared"
+          },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "supplied_by": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "recorded_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+              }
+            },
+            "required": [
+              "source_ref",
+              "supplied_by",
+              "recorded_at"
+            ]
+          },
+          "product": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "name",
+              "description"
+            ]
+          },
+          "customers": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "entity": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "id_field": {
+                "type": "string",
+                "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "entity",
+              "id_field",
+              "description"
+            ]
+          },
+          "value_goals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "metric_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                },
+                "evidence_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                }
+              },
+              "required": [
+                "id",
+                "description",
+                "metric_refs",
+                "evidence_refs"
+              ]
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "unit": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "value_type": {
+                  "enum": [
+                    "integer",
+                    "number"
+                  ]
+                },
+                "source_ref": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "event_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                }
+              },
+              "required": [
+                "id",
+                "description",
+                "unit",
+                "value_type",
+                "source_ref",
+                "event_refs"
+              ]
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "source_ref": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "customer_id_field": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+                      },
+                      "type": {
+                        "enum": [
+                          "string",
+                          "number",
+                          "integer",
+                          "boolean",
+                          "timestamp"
+                        ]
+                      },
+                      "required": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "type",
+                      "required"
+                    ]
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                }
+              },
+              "required": [
+                "id",
+                "description",
+                "source_ref",
+                "customer_id_field",
+                "fields"
+              ]
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "kind": {
+                  "enum": [
+                    "event",
+                    "metric",
+                    "document",
+                    "state"
+                  ]
+                },
+                "source_ref": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "availability": {
+                  "enum": [
+                    "declared",
+                    "unavailable"
+                  ]
+                },
+                "event_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                },
+                "metric_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+                      },
+                      "type": {
+                        "enum": [
+                          "string",
+                          "number",
+                          "integer",
+                          "boolean",
+                          "timestamp"
+                        ]
+                      },
+                      "required": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "type",
+                      "required"
+                    ]
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                }
+              },
+              "required": [
+                "id",
+                "description",
+                "kind",
+                "source_ref",
+                "availability",
+                "event_refs",
+                "metric_refs",
+                "fields"
+              ]
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "conditions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "evidence_ref": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                      },
+                      "field": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+                      },
+                      "operator": {
+                        "enum": [
+                          "exists",
+                          "eq",
+                          "ne",
+                          "lt",
+                          "lte",
+                          "gt",
+                          "gte"
+                        ]
+                      },
+                      "value": {
+                        "type": [
+                          "string",
+                          "number",
+                          "boolean",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "evidence_ref",
+                      "field",
+                      "operator",
+                      "value"
+                    ]
+                  },
+                  "minItems": 1,
+                  "maxItems": 100
+                },
+                "permissions": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "required_role": {
+                      "const": "operator"
+                    },
+                    "requires_human_approval": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "required_role",
+                    "requires_human_approval"
+                  ]
+                },
+                "verification": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "operational": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "evidence_ref": {
+                            "type": "string",
+                            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                          },
+                          "field": {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+                          },
+                          "operator": {
+                            "enum": [
+                              "exists",
+                              "eq",
+                              "ne",
+                              "lt",
+                              "lte",
+                              "gt",
+                              "gte"
+                            ]
+                          },
+                          "value": {
+                            "type": [
+                              "string",
+                              "number",
+                              "boolean",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "evidence_ref",
+                          "field",
+                          "operator",
+                          "value"
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 100
+                    },
+                    "value": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "evidence_ref": {
+                            "type": "string",
+                            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                          },
+                          "field": {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+                          },
+                          "operator": {
+                            "enum": [
+                              "exists",
+                              "eq",
+                              "ne",
+                              "lt",
+                              "lte",
+                              "gt",
+                              "gte"
+                            ]
+                          },
+                          "value": {
+                            "type": [
+                              "string",
+                              "number",
+                              "boolean",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "evidence_ref",
+                          "field",
+                          "operator",
+                          "value"
+                        ]
+                      },
+                      "minItems": 0,
+                      "maxItems": 100
+                    },
+                    "value_goal_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                      },
+                      "minItems": 0,
+                      "maxItems": 100
+                    }
+                  },
+                  "required": [
+                    "operational",
+                    "value",
+                    "value_goal_refs"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "description",
+                "conditions",
+                "permissions",
+                "verification"
+              ]
+            },
+            "minItems": 0,
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "schema_version",
+          "tenant",
+          "data_classification",
+          "provenance",
+          "product",
+          "customers",
+          "value_goals",
+          "metrics",
+          "events",
+          "evidence",
+          "capabilities"
+        ],
+        "description": "M06 declaration, not evidence or execution grant. Server validates all typed references, units and goal associations; no frontend inference/default goals."
+      },
+      "DetectionCriteriaDocument": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": 1
+          },
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "config_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "supplied_by": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "recorded_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+              }
+            },
+            "required": [
+              "source_ref",
+              "supplied_by",
+              "recorded_at"
+            ]
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "dimension": {
+                  "enum": [
+                    "operational",
+                    "value"
+                  ]
+                },
+                "metric_ref": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "goal_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                },
+                "evidence_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                },
+                "source": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "metric",
+                        "evidence"
+                      ]
+                    },
+                    "definition_id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                    },
+                    "field": {
+                      "type": "string",
+                      "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "definition_id",
+                    "field"
+                  ]
+                },
+                "method": {
+                  "enum": [
+                    "threshold",
+                    "absolute_change",
+                    "relative_change"
+                  ]
+                },
+                "aggregation": {
+                  "enum": [
+                    "mean",
+                    "sum",
+                    "min",
+                    "max"
+                  ]
+                },
+                "comparison": {
+                  "enum": [
+                    "lt",
+                    "lte",
+                    "gt",
+                    "gte"
+                  ]
+                },
+                "threshold": {
+                  "type": "number",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "threshold_unit": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "window_seconds": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 2147483647
+                },
+                "cadence_seconds": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 2147483647
+                },
+                "coverage": {
+                  "const": "aligned_complete"
+                }
+              },
+              "required": [
+                "id",
+                "description",
+                "dimension",
+                "metric_ref",
+                "goal_refs",
+                "evidence_refs",
+                "source",
+                "method",
+                "aggregation",
+                "comparison",
+                "threshold",
+                "threshold_unit",
+                "window_seconds",
+                "cadence_seconds",
+                "coverage"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "schema_version",
+          "tenant",
+          "config_version",
+          "provenance",
+          "criteria"
+        ]
+      },
+      "InvestigationDeclaration": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schema_version": {
+            "const": 1
+          },
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "c02_run_id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "provenance": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_ref": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "supplied_by": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "recorded_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+              }
+            },
+            "required": [
+              "source_ref",
+              "supplied_by",
+              "recorded_at"
+            ]
+          },
+          "hypotheses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "statement": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "support_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "evidence_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 2147483647
+                      },
+                      "field": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+                      }
+                    },
+                    "required": [
+                      "evidence_id",
+                      "field"
+                    ]
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                },
+                "contrary_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "evidence_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 2147483647
+                      },
+                      "field": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+                      }
+                    },
+                    "required": [
+                      "evidence_id",
+                      "field"
+                    ]
+                  },
+                  "minItems": 0,
+                  "maxItems": 100
+                }
+              },
+              "required": [
+                "id",
+                "statement",
+                "support_refs",
+                "contrary_refs"
+              ]
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "declaration": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "criterion_id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                },
+                "window": {
+                  "enum": [
+                    "current",
+                    "baseline"
+                  ]
+                },
+                "selector": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "event",
+                        "metric",
+                        "evidence"
+                      ]
+                    },
+                    "definition_id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                    },
+                    "field": {
+                      "type": "string",
+                      "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "definition_id",
+                    "field"
+                  ]
+                },
+                "comparison": {
+                  "enum": [
+                    "eq",
+                    "ne",
+                    "lt",
+                    "lte",
+                    "gt",
+                    "gte"
+                  ]
+                },
+                "expected": {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "declaration",
+                "criterion_id",
+                "window",
+                "selector",
+                "comparison",
+                "expected"
+              ]
+            },
+            "minItems": 0,
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "schema_version",
+          "tenant",
+          "customer",
+          "c02_run_id",
+          "provenance",
+          "hypotheses",
+          "requirements"
+        ]
+      },
+      "PilotRecord": {
+        "type": "object",
+        "required": [
+          "tenant",
+          "payload",
+          "record_hash"
+        ],
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "payload": {
+            "type": "object"
+          },
+          "actor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          },
+          "record_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": true,
+        "description": "Append-only engine/registry record. Engine-specific payloads remain versioned by M06–M14 contracts; actor is server owned."
+      },
+      "PilotStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "pilot_authorized": {
+            "type": "boolean"
+          },
+          "grant_version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "ai_consent": {
+            "type": "boolean"
+          },
+          "customer_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "configuration_version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "criteria_version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "analysis_ready": {
+            "type": "boolean"
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "external_execution": {
+            "const": "blocked"
+          },
+          "real_recovery_demonstrated": {
+            "const": false
+          }
+        },
+        "required": [
+          "tenant",
+          "pilot_authorized",
+          "grant_version",
+          "ai_consent",
+          "customer_count",
+          "configuration_version",
+          "criteria_version",
+          "analysis_ready",
+          "blockers",
+          "external_execution",
+          "real_recovery_demonstrated"
+        ]
+      },
+      "PilotContext": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "configuration": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ConfigurationVersion"
+              }
+            ]
+          },
+          "criteria": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CriteriaVersion"
+              }
+            ]
+          },
+          "configuration_history": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "minItems": 0,
+            "maxItems": 50
+          },
+          "criteria_history": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "minItems": 0,
+            "maxItems": 50
+          },
+          "next_after": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              }
+            ]
+          },
+          "scope": {
+            "const": "declared_analysis_only"
+          }
+        },
+        "required": [
+          "tenant",
+          "configuration",
+          "criteria",
+          "configuration_history",
+          "criteria_history",
+          "next_after",
+          "scope"
+        ]
+      },
+      "PilotCustomerPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PilotCustomerRecord"
+            },
+            "maxItems": 50
+          },
+          "next_after": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              }
+            ]
+          }
+        },
+        "required": [
+          "tenant",
+          "items",
+          "next_after"
+        ]
+      },
+      "PilotAnalysis": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "checkpoint": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PilotCheckpoint"
+              }
+            ]
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PilotCheckpoint"
+            },
+            "maxItems": 50
+          },
+          "next_after": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              }
+            ]
+          },
+          "c02": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PilotC02Result"
+              }
+            ]
+          },
+          "c03": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PilotC03Investigation"
+              }
+            ]
+          },
+          "c04": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PilotC04Card"
+              }
+            ]
+          },
+          "human_reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PilotRecord"
+            },
+            "minItems": 0,
+            "maxItems": 100
+          },
+          "explanation": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "external_execution": {
+            "const": "blocked"
+          },
+          "real_recovery_demonstrated": {
+            "const": false
+          },
+          "scope": {
+            "const": "declared_analysis_only"
+          },
+          "interpretation": {
+            "type": "object",
+            "required": [
+              "evidence",
+              "operational_deterioration",
+              "value_loss",
+              "c02_states",
+              "c03",
+              "c04"
+            ],
+            "description": "Server-owned explanations separating source claims, operation/value, unconfirmed hypotheses and proposal versus authority."
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "case_id",
+          "checkpoint",
+          "history",
+          "next_after",
+          "c02",
+          "c03",
+          "c04",
+          "human_reviews",
+          "explanation",
+          "external_execution",
+          "real_recovery_demonstrated",
+          "scope",
+          "interpretation"
+        ]
+      },
+      "PilotProcessing": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "checkpoint": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PilotCheckpoint"
+              }
+            ]
+          },
+          "explanation": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "external_execution": {
+            "const": "blocked"
+          },
+          "real_recovery_demonstrated": {
+            "const": false
+          },
+          "scope": {
+            "const": "declared_analysis_only"
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "case_id",
+          "checkpoint",
+          "explanation",
+          "external_execution",
+          "real_recovery_demonstrated",
+          "scope"
+        ]
+      },
+      "PilotConfigureRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "config": {
+            "$ref": "#/components/schemas/SaaSConfiguration"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "tenant",
+          "config",
+          "expected_version"
+        ]
+      },
+      "PilotCriteriaRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "document": {
+            "$ref": "#/components/schemas/DetectionCriteriaDocument"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "tenant",
+          "document",
+          "expected_version"
+        ]
+      },
+      "PilotCustomerRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "context": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "name",
+          "context",
+          "expected_version"
+        ]
+      },
+      "PilotInvestigationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "c02_run_id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "document": {
+            "$ref": "#/components/schemas/InvestigationDeclaration"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "case_id",
+          "c02_run_id",
+          "document",
+          "expected_version"
+        ]
+      },
+      "PilotReviewRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "expected_checkpoint_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "case_id",
+          "request_id",
+          "expected_checkpoint_hash",
+          "note"
+        ]
+      },
+      "PilotProcessRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "case_id",
+          "request_id",
+          "as_of"
+        ]
+      },
+      "ConfigurationVersion": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "parent_hash": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            ]
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          },
+          "record_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "config": {
+            "$ref": "#/components/schemas/SaaSConfiguration"
+          }
+        },
+        "required": [
+          "tenant",
+          "version",
+          "parent_hash",
+          "content_hash",
+          "actor",
+          "created_at",
+          "record_hash",
+          "config"
+        ],
+        "additionalProperties": false
+      },
+      "CriteriaVersion": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "parent_hash": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            ]
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          },
+          "record_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "config_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "config_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "document": {
+            "$ref": "#/components/schemas/DetectionCriteriaDocument"
+          }
+        },
+        "required": [
+          "tenant",
+          "version",
+          "parent_hash",
+          "content_hash",
+          "actor",
+          "created_at",
+          "record_hash",
+          "config_version",
+          "config_hash",
+          "document"
+        ],
+        "additionalProperties": false
+      },
+      "PilotCustomerRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "context": {
+                "type": "string"
+              },
+              "previous_hash": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "context",
+              "previous_hash"
+            ],
+            "additionalProperties": false
+          },
+          "actor": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          },
+          "record_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "id",
+          "tenant",
+          "customer",
+          "version",
+          "payload",
+          "actor",
+          "created_at",
+          "record_hash"
+        ],
+        "additionalProperties": false
+      },
+      "PilotCheckpoint": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string"
+          },
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "parent_hash": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            ]
+          },
+          "actor": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          },
+          "record_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "enum": [
+                  "awaiting_data",
+                  "awaiting_investigation",
+                  "awaiting_ai",
+                  "awaiting_approval",
+                  "awaiting_execution",
+                  "awaiting_verification",
+                  "stable",
+                  "no_action",
+                  "needs_review",
+                  "verification_recorded"
+                ]
+              },
+              "blockers": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 100
+              },
+              "refs": {
+                "type": "object"
+              },
+              "basis": {
+                "type": "object"
+              },
+              "operational_state": {
+                "const": "inactive"
+              },
+              "real_recovery_demonstrated": {
+                "const": false
+              },
+              "core_transition_authorized": {
+                "const": false
+              }
+            },
+            "required": [
+              "state",
+              "blockers",
+              "refs",
+              "basis",
+              "operational_state",
+              "real_recovery_demonstrated",
+              "core_transition_authorized"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "tenant",
+          "customer",
+          "case_id",
+          "version",
+          "parent_hash",
+          "actor",
+          "created_at",
+          "record_hash",
+          "payload"
+        ],
+        "additionalProperties": false
+      },
+      "PilotC02Result": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string"
+          },
+          "criteria_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "request_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "algorithm": {
+                "const": "c02-adaptive-v1"
+              },
+              "tenant": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+              },
+              "customer": {
+                "type": "string"
+              },
+              "criteria_version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "criteria_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "config_version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "config_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "as_of": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+              },
+              "through": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "record_hash": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "record_hash"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 1000
+              },
+              "operational_state": {
+                "const": "inactive"
+              },
+              "classification": {
+                "const": "declared"
+              },
+              "proof_scope": {
+                "const": "declared_criteria_and_supplied_evidence"
+              },
+              "criteria_snapshot": {
+                "$ref": "#/components/schemas/DetectionCriteriaDocument"
+              },
+              "operational_deterioration": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "demonstrated",
+                      "stable",
+                      "insufficient",
+                      "contradictory"
+                    ]
+                  },
+                  "criterion_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                    },
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "state",
+                  "criterion_ids"
+                ],
+                "additionalProperties": false
+              },
+              "value_loss": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "demonstrated",
+                      "stable",
+                      "insufficient",
+                      "contradictory"
+                    ]
+                  },
+                  "criterion_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                    },
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "state",
+                  "criterion_ids"
+                ],
+                "additionalProperties": false
+              },
+              "criteria_results": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "criterion_id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                    },
+                    "dimension": {
+                      "enum": [
+                        "operational",
+                        "value"
+                      ]
+                    },
+                    "state": {
+                      "enum": [
+                        "demonstrated",
+                        "stable",
+                        "insufficient",
+                        "contradictory"
+                      ]
+                    },
+                    "measured": {
+                      "oneOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "numerator": {
+                              "type": "string"
+                            },
+                            "denominator": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "numerator",
+                            "denominator"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "windows": {
+                      "type": "object"
+                    },
+                    "issues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "maxItems": 10000
+                    },
+                    "contradictions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "maxItems": 10000
+                    }
+                  },
+                  "required": [
+                    "criterion_id",
+                    "dimension",
+                    "state",
+                    "measured",
+                    "windows",
+                    "issues",
+                    "contradictions"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 100
+              }
+            },
+            "required": [
+              "algorithm",
+              "tenant",
+              "customer",
+              "criteria_version",
+              "criteria_hash",
+              "config_version",
+              "config_hash",
+              "as_of",
+              "through",
+              "evidence",
+              "operational_state",
+              "classification",
+              "proof_scope",
+              "criteria_snapshot",
+              "operational_deterioration",
+              "value_loss",
+              "criteria_results"
+            ],
+            "additionalProperties": false
+          },
+          "actor": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          },
+          "record_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "reused": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "tenant",
+          "customer",
+          "criteria_version",
+          "request_hash",
+          "payload",
+          "actor",
+          "created_at",
+          "record_hash",
+          "reused"
+        ],
+        "additionalProperties": false
+      },
+      "PilotC03Investigation": {
+        "type": "object",
+        "required": [
+          "tenant",
+          "customer",
+          "c02_run_id",
+          "version",
+          "c02_hash",
+          "declaration",
+          "payload",
+          "actor",
+          "created_at",
+          "record_hash"
+        ],
+        "properties": {
+          "tenant": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "customer": {
+            "type": "string"
+          },
+          "c02_run_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "c02_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "declaration": {
+            "$ref": "#/components/schemas/InvestigationDeclaration"
+          },
+          "payload": {
+            "type": "object",
+            "required": [
+              "algorithm",
+              "facts",
+              "hypotheses",
+              "requirements",
+              "supported_impediments",
+              "contradictions",
+              "missing_information",
+              "analysis_limitations",
+              "causal_status",
+              "operational_state",
+              "c02_run_hash",
+              "config_hash",
+              "criteria_hash"
+            ],
+            "properties": {
+              "algorithm": {
+                "const": "c03-structured-v1"
+              },
+              "facts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "evidence_id",
+                    "kind",
+                    "definition_id",
+                    "payload",
+                    "provenance",
+                    "claim_scope"
+                  ]
+                },
+                "maxItems": 1000
+              },
+              "hypotheses": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "statement",
+                    "state",
+                    "causal_status",
+                    "support_refs",
+                    "contrary_refs"
+                  ],
+                  "properties": {
+                    "state": {
+                      "const": "unconfirmed"
+                    },
+                    "causal_status": {
+                      "const": "not_established"
+                    }
+                  }
+                },
+                "maxItems": 100
+              },
+              "requirements": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "maxItems": 100
+              },
+              "supported_impediments": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "maxItems": 100
+              },
+              "contradictions": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "maxItems": 10000
+              },
+              "missing_information": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "maxItems": 10000
+              },
+              "analysis_limitations": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "maxItems": 10000
+              },
+              "causal_status": {
+                "const": "not_established"
+              },
+              "operational_state": {
+                "const": "inactive"
+              }
+            }
+          },
+          "actor": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+          },
+          "record_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      },
+      "PilotC04Card": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+              },
+              "status": {
+                "enum": [
+                  "not_requested",
+                  "pending_or_interrupted"
+                ]
+              },
+              "execution_authorized": {
+                "const": false
+              }
+            },
+            "required": [
+              "request_id",
+              "status",
+              "execution_authorized"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+              },
+              "record_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d{1,6})?(?:Z|\\+00:00)$"
+              },
+              "receipt": {
+                "type": "object",
+                "properties": {
+                  "inference_kind": {
+                    "enum": [
+                      "configured_provider",
+                      "unavailable",
+                      "test_fixture"
+                    ]
+                  },
+                  "requested_model": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "reported_model": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "completion_received": {
+                    "type": "boolean"
+                  },
+                  "failure": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "revalidation": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "inference_kind",
+                  "requested_model",
+                  "reported_model",
+                  "completion_received",
+                  "failure",
+                  "revalidation"
+                ],
+                "additionalProperties": false
+              },
+              "decision": {
+                "type": "object",
+                "required": [
+                  "status",
+                  "reason_codes",
+                  "execution_authorized",
+                  "authorization",
+                  "operational_state",
+                  "causal_status",
+                  "human_review_required"
+                ],
+                "properties": {
+                  "status": {
+                    "enum": [
+                      "proposal_validated",
+                      "no_action",
+                      "unavailable",
+                      "human_review",
+                      "refused"
+                    ]
+                  },
+                  "reason_codes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 100
+                  },
+                  "execution_authorized": {
+                    "const": false
+                  },
+                  "authorization": {
+                    "const": "not_granted"
+                  },
+                  "operational_state": {
+                    "const": "inactive"
+                  },
+                  "causal_status": {
+                    "const": "not_established"
+                  },
+                  "human_review_required": {
+                    "const": true
+                  },
+                  "validated_capability_id": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "required": [
+              "request_id",
+              "record_hash",
+              "created_at",
+              "receipt",
+              "decision"
+            ],
+            "additionalProperties": false
+          }
+        ]
       }
     },
     "responses": {
@@ -5361,7 +8910,7 @@
         "description": "Versão do contrato HTTP; não é uma versão do cliente.",
         "schema": {
           "type": "string",
-          "const": "1.5.0"
+          "const": "1.6.0"
         }
       }
     }

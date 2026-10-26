@@ -54,7 +54,10 @@ def install(store):
 
 
 class Orchestrator:
-    def __init__(self,store):
+    def __init__(self,store,*,analysis_only=False):
+        if type(analysis_only) is not bool: raise ValueError('Explicit analysis mode required.')
+        self.analysis_only=analysis_only
+        self.analysis_session=None
         self.store=store;self.recovery=RecoveryRepository(store);self.execution=self.recovery.execution
         self.proposals=self.execution.proposals;self.investigation=self.proposals.investigation
         self.detection=self.investigation.detection;self.evidence=self.detection.evidence
@@ -71,7 +74,15 @@ class Orchestrator:
     def _access(self,db,user,tenant,write=False):
         identifier(tenant,'tenant');Core(self.store).authorize(db,user,tenant,write=write)
         self.execution._access(db,user,tenant,write=False);self.recovery._storage(db);self._storage(db)
-        if write and self.execution.mode=='production': raise Problem(503,'Orquestração operacional de production bloqueada.')
+        if write and self.execution.mode=='production' and not self.analysis_only:
+            raise Problem(503,'Orquestração operacional de production bloqueada.')
+        if self.analysis_only:
+            if self.execution.mode!='production': raise Problem(503,'Piloto exige fundação permanente isolada.')
+            from .pilot import access
+            access(db,user,tenant,write)
+            if write: self.execution._session(db,user,self.analysis_session)
+            configs=self.evidence.integrations._chain(db,tenant)
+            if configs and configs[-1]['config']['data_classification']!='declared': raise Problem(403,'Piloto exige dados declarados.')
 
     def _case(self,db,tenant,customer,case_id):
         customer_id(customer);identifier(case_id,'case_id')
@@ -212,7 +223,11 @@ class Orchestrator:
         if type(max_steps) is not int or not 1<=max_steps<=12 or type(allow_test_dispatch) is not bool: raise ValueError('Invalid processing limits.')
         with self.store.transaction() as db:
             self._access(db,user,tenant,write=True);continuity.active(db,self._case(db,tenant,customer,case_id))
+        if self.analysis_only and (execution_adapter is not None or allow_test_dispatch):
+            raise Problem(403,'Piloto não aceita adaptadores nem despacho C05.')
         adapter=ai_adapter or AIAdapter()
+        if self.analysis_only and adapter.descriptor().get('inference_kind')=='test_fixture':
+            raise Problem(403,'Fixtures não são IA do piloto.')
         for _ in range(max_steps):
             if deadline is not None and monotonic()>=deadline: break
             view=self.history(user,tenant,customer,case_id);case=view['case'];events=view['history'];last=events[-1]['payload'] if events else {'refs':{},'basis':{}}
@@ -220,6 +235,8 @@ class Orchestrator:
             def record(state,*blockers): return self._record(user,case,expected,state,list(blockers),refs,basis)
             scope=(user,tenant,customer)
             # A reserved C05 attempt permanently freezes the pre-dispatch lineage.
+            if self.analysis_only and refs.get('c05'):
+                record('needs_review','pilot_execution_lineage_blocked');break
             c05=None
             if refs.get('c05'):
                 try: c05=self.execution.get(*scope,refs['c05']['execution_id'])
@@ -278,6 +295,13 @@ class Orchestrator:
                 if e.status!=404: raise
                 record('awaiting_investigation','operator_investigation_missing');break
             refs['c03']={'version':c03['version'],'record_hash':c03['record_hash']}
+            if self.analysis_only:
+                from .pilot import follow_up
+                with self.store.transaction() as db:
+                    self._access(db,user,tenant,write=True)
+                    review=follow_up(db,tenant,customer,case_id,refs)
+                if review:
+                    refs['pilot_review']=review;record('needs_review','human_follow_up_recorded');break
             request_id=key('c04',case['record_hash'],c02['record_hash'],c03['record_hash'])
             # Save the deterministic binding before provider I/O so interruption is resumable.
             if refs.get('c04',{}).get('request_id')!=request_id:
@@ -294,6 +318,8 @@ class Orchestrator:
                 record('awaiting_ai' if decision['status']=='unavailable' else 'needs_review','ai_unavailable_no_automatic_retry' if decision['status']=='unavailable' else 'proposal_requires_review');break
             if decision['status']=='no_action': record('no_action','validated_recommendation_no_action');break
             if decision['status']!='proposal_validated': record('needs_review','proposal_not_validated');break
+            if self.analysis_only:
+                record('needs_review','pilot_proposal_requires_human_follow_up');break
             execution_id=key('c05',case['record_hash'],proposal['result']['record_hash'])
             if refs.get('c05',{}).get('execution_id')!=execution_id:
                 refs['c05']={'execution_id':execution_id};record('awaiting_execution','intent_not_prepared');continue

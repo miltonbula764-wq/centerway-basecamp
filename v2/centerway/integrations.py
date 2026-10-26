@@ -108,10 +108,11 @@ class IntegrationRepository:
         # Outside the write transaction: private demo validation has its own transaction.
         if runtime_mode(self.store)!=self.mode: raise ValueError('Runtime mode changed.')
 
-    def append(self, user, tenant, config, expected_version):
+    def append(self, user, tenant, config, expected_version, *, _guard=None):
         self._runtime()
         with self.store.transaction() as db:
             self._authorize(db,user,tenant,write=True)
+            if _guard is not None: _guard(db)
             config=validate(config)
             if config['tenant']!=tenant: raise Problem(403,'Configuration belongs to another SaaS.')
             if self.mode=='production' and config['data_classification']!='declared':
