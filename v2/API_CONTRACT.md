@@ -1,10 +1,21 @@
-# CENTERWAY V2 — contrato HTTP 1.5.0
+# CENTERWAY V2 — contrato HTTP 1.6.0
 
 Contrato do backend Python da Missão 03, baseado no PR #32. Especificação importável:
 [`contracts/openapi.json`](contracts/openapi.json), OpenAPI 3.1 / JSON Schema 2020-12.
 Não há URL publicado, interface nova, uso de Lovable ou integração real nesta missão.
 Na demo, tudo continua fictício: `environment_type: "sandbox"` e `decision_mode: "simulator-v1"`.
 Production devolve `production` / `disabled` na view operacional, sem dados ou intervenções simuladas. A API separada de evidências permanece inativa.
+
+## Extensão 1.6.0: piloto privado de análise
+
+`/api/pilot/*` oferece configuração/consulta M06–M08, registo de clientes,
+C02/C03/C04 históricos com explicações, investigação do operador, revisão humana
+e processamento limitado do orquestrador. Só em HTTPS privado production, com
+cookie atual e autorização local explícita por SaaS; escritas exigem operator e
+origem/CSRF. A API não concede o grant nem expõe administração local. C05,
+intervenções e recuperação real continuam bloqueados. Sem IA autorizada há revisão
+humana, sem fallback fictício. [Integração Lovable futura, percurso, limites e
+critérios objetivos de prontidão](PILOT_INTEGRATION.md). Não há interface/publicação.
 
 ## Extensão 1.5.0: entrada SaaS server-to-server
 
@@ -14,7 +25,7 @@ funcional com configuração privada explícita e HTTPS; não aceita browser/COR
 A origem configurada fixa SaaS, clientes, versão/hash M06 e mapeamento declarativo.
 Cada mensagem insere no máximo uma declaração M07 inativa; não consulta dados,
 não autoriza e não executa. Replay/idempotência, rotação, limites e exemplos:
-[contrato de integração](WEBHOOK_CONTRACT.md). API global anuncia 1.5.0.
+[contrato de integração](WEBHOOK_CONTRACT.md). A extensão foi introduzida em 1.5.0.
 
 ## Extensão 1.4.0: continuidade e ciclos históricos
 

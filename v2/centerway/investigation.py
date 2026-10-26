@@ -81,11 +81,12 @@ class InvestigationRepository:
             raise Problem(503,'Investigação sem integridade ou não reproduzível.')
         return result
 
-    def append(self,user,tenant,customer,c02_run_id,document,expected_version):
+    def append(self,user,tenant,customer,c02_run_id,document,expected_version, *, _guard=None):
         self.detection.evidence._runtime()
         if type(expected_version) is not int or not 0<=expected_version<=2**31-1: raise ValueError('Expected version must be explicit and nonnegative.')
         with self.store.transaction() as db:
             c02,config,records=self._context(db,user,tenant,customer,c02_run_id,write=True)
+            if _guard is not None: _guard(db)
             document=validate(document,c02,config,records)
             history=self._history(db,tenant,customer,c02,config,records);input_hash=digest(document)
             # An exact retry refers to the revision it originally created, even if later revisions exist.

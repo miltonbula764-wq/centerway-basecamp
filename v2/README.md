@@ -169,3 +169,12 @@ rotação privada e mapeamento declarativo para o M07 existente. Só persiste
 **declarações inativas da origem**. Sem contas de máquina com permissões humanas,
 conectores de fornecedor, execução ou publicação.
 [Contrato, configuração e exemplo executável](WEBHOOK_CONTRACT.md).
+
+### Missão 16 — preparação do piloto privado
+
+API 1.6.0 para configurar contexto/clientes/critérios e acompanhar evidências,
+C02, C03 e C04 históricos. Piloto por SaaS, autorização administrativa local,
+sessão privada e CSRF; processamento apenas de análise e revisão humana.
+C05/intervenções e alegações de recuperação real bloqueados. Sem IA configurada
+**e** consentida, não há inferência nem simulação.
+[Contrato de integração, percurso reproduzível e prontidão](PILOT_INTEGRATION.md).

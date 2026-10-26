@@ -75,6 +75,11 @@ class InfraProxyTests(unittest.TestCase):
                     'routes':{'paused':{'kind':'evidence','definition_id':'operation-state','source_ref':saas_configuration['evidence'][0]['source_ref'],'fields':{'paused':'data.flag'}}},
                     'keys':[{'id':'key-1','secret_file':str(webhook_key),'not_before':int(time.time())-10,'expires_at':int(time.time())+3600}]}]}))
                 webhook_config.chmod(0o600)
+                # M16: a locally authorized analysis pilot, no operational production unlock.
+                from centerway import detection,investigation,ai_proposals,controlled_execution,recovery,orchestration,pilot
+                for module in (detection,investigation,ai_proposals,controlled_execution,recovery,orchestration,pilot): module.install(production_store)
+                pilot.authorize(production_store,'owner','company-a',True,False,'Explicit local proxy TEST pilot authorization.',0)
+
             else:
                 provision(path,credentials,origin)
             passwords=json.loads(credentials.read_text())['accounts']
@@ -147,6 +152,15 @@ class InfraProxyTests(unittest.TestCase):
                     view=json.loads(call('/api/view')[1])
                     self.assertEqual('production',view['environment_type']);self.assertEqual('disabled',view['decision_mode'])
                     self.assertEqual([],view['registry'])
+                    self.assertEqual(200,call('/api/pilot/context?tenant=company-a')[0])
+                    customer={'tenant':'company-a','customer':'pilot-test-client','name':'Explicit proxy TEST client','context':'Synthetic protocol check, no real results.','expected_version':0}
+                    self.assertEqual(200,call('/api/pilot/customers/append',customer)[0])
+                    process={'tenant':'company-a','customer':'pilot-test-client','case_id':'pilot-case','request_id':'proxy-test-process','as_of':'2026-01-01T00:00:00Z'}
+                    status,result,_=call('/api/pilot/process',process);self.assertEqual(200,status)
+                    self.assertEqual('awaiting_data',json.loads(result)['checkpoint']['payload']['state'])
+                    self.assertFalse(json.loads(result)['real_recovery_demonstrated'])
+                    self.assertEqual(200,call('/api/pilot/analysis?tenant=company-a&customer=pilot-test-client&case_id=pilot-case')[0])
+
                     evidence_body={'tenant':'company-a','customer':'c','config_version':1,'records':[{
                         'external_id':'proxy-evidence-1','kind':'evidence','definition_id':'operation-state',
                         'source_ref':saas_configuration['evidence'][0]['source_ref'],'occurred_at':'2026-01-01T00:00:00Z',
