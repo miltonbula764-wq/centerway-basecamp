@@ -20,7 +20,7 @@ from .http_contract import API_METHODS, API_VERSION, ERROR_CODES, strict_json, v
 STATIC = Path(__file__).resolve().parent.parent / 'static'
 
 
-def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context=None, frontend_origins=()):
+def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context=None, frontend_origins=(), webhook_config=None):
     production=getattr(preview,'mode',None)=='production'
     with store.transaction() as db:
         marked_production=bool(db.execute("SELECT 1 FROM sqlite_master WHERE name='production_metadata'").fetchone())
@@ -40,6 +40,14 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
         with store.transaction() as db:
             if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name IN ('preview_metadata','production_metadata')").fetchone():
                 raise ValueError('Base privada exige o servidor HTTPS de pré-visualização.')
+    intake=None
+    if webhook_config is not None:
+        if not preview or not tls_context:
+            raise ValueError('Webhook intake requires the private HTTPS entrypoint.')
+        from .webhooks import WebhookIntake
+        try: intake=WebhookIntake(store,webhook_config)
+        except (ValueError,OSError,Problem,sqlite3.Error,RecursionError):
+            raise ValueError('Private webhook preparation unavailable; verify configuration, mode and storage.') from None
     core = Core(store)
     cookie_name = '__Host-cw_production_session' if production else '__Host-cw_session' if preview else 'cw_session'
     cookie_flags = '; HttpOnly; SameSite=Strict; Path=/' + ('; Secure' if preview else '')
@@ -58,7 +66,7 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
             if urlparse(self.path).path.startswith('/api/'):
                 self.send_header('Vary','Origin')
                 origin=self.headers.get('Origin')
-                if preview and origin in ({preview.origin} | frontend_origins):
+                if urlparse(self.path).path!='/api/webhooks/ingest' and preview and origin in ({preview.origin} | frontend_origins):
                     self.send_header('Access-Control-Allow-Origin',origin)
                     self.send_header('Access-Control-Allow-Credentials','true')
                     self.send_header('Access-Control-Expose-Headers','Retry-After, X-Centerway-API-Version')
@@ -84,7 +92,9 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
             # Queries may contain an accidental secret; never log request lines/headers/body.
             path=getattr(self,'path','').split('?',1)[0]
             safe_path=path if path in API_METHODS or path in ('/','/app.js','/style.css') else '<unknown>'
-            self.log_message('%s %s %s',getattr(self,'command',None) or '<invalid>',safe_path,str(code))
+            method=getattr(self,'command',None)
+            safe_method=method if method in ('GET','POST','OPTIONS','PUT','DELETE','PATCH','HEAD','TRACE','CONNECT') else '<unknown>'
+            self.log_message('%s %s %s',safe_method,safe_path,str(code))
 
         def log_error(self, _format, *_args):
             self.log_message('HTTP error (details omitted)')
@@ -143,6 +153,8 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                 expected=API_METHODS.get(parsed.path)
                 if not expected:
                     raise Problem(404,'Endpoint não encontrado.')
+                if parsed.path=='/api/webhooks/ingest':
+                    raise Problem(403,'Webhooks não aceitam acesso pelo navegador.')
                 if not self.headers.get('Origin'):
                     raise Problem(403,'Origem necessária para preflight.')
                 self.check_origin(mutation=True)
@@ -229,6 +241,30 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                 self.log_error('Internal request failure')
                 self.respond(500,{'error':'Falha interna; pedido não concluído.'})
 
+        def receive_webhook(self):
+            # No cookies, CORS or human session can authorize this service endpoint.
+            self.close_connection=True
+            if intake is None:
+                raise Problem(503,'Entrada de webhooks não configurada.')
+            if any(self.headers.get_all(name,[]) for name in ('Origin','Cookie','Sec-Fetch-Site')):
+                raise Problem(403,'Entrada exclusiva server-to-server.')
+            if len(self.headers.get_all('Host',[]))!=1:
+                raise Problem(400,'Host ambíguo.')
+            if len(self.headers.get_all('Content-Type',[]))!=1 or self.headers.get_content_type()!='application/json':
+                raise Problem(415,'Use application/json.')
+            lengths=self.headers.get_all('Content-Length',[])
+            if self.headers.get_all('Transfer-Encoding',[]) or len(lengths)!=1 or not re.fullmatch(r'[0-9]{1,10}',lengths[0]):
+                raise Problem(400,'Enquadramento HTTP inválido.')
+            if self.headers.get_all('Content-Encoding',[]):
+                raise Problem(415,'Corpo comprimido não suportado.')
+            length=int(lengths[0])
+            if length>65536: raise Problem(413,'Corpo excede 65536 bytes.')
+            if length<=0: raise Problem(400,'Corpo vazio.')
+            raw=self.rfile.read(length)
+            if len(raw)!=length: raise Problem(400,'Corpo incompleto.')
+            status,result=intake.receive(self.headers,raw)
+            self.respond(status,result)
+
         def do_POST(self):
             try:
                 self.check_transport()
@@ -237,6 +273,9 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
                     return
                 if parsed.path not in API_METHODS:
                     raise Problem(404,'Endpoint não encontrado.')
+                if parsed.path=='/api/webhooks/ingest':
+                    self.receive_webhook()
+                    return
                 self.check_origin(mutation=True)
                 if self.headers.get_content_type() != 'application/json':
                     raise Problem(415, 'Use application/json.')

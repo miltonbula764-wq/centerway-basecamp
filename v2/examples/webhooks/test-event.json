@@ -1,0 +1,10 @@
+{
+  "mapping_version": 1,
+  "config_version": 1,
+  "customer_id": "external-account-001",
+  "event_type": "completed",
+  "event_id": "explicit-test-event-001",
+  "occurred_at": "2026-01-02T00:00:00Z",
+  "period": null,
+  "data": {}
+}

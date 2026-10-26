@@ -164,57 +164,66 @@ class EvidenceRepository:
         if len(canonical(body).encode('utf-8'))>65536: raise Problem(413,'Lote excede 65536 bytes.')
         with self.store.transaction() as db:
             snapshot=self._snapshot(db,user,tenant,customer,version,write=True)
-            received=utc(now())
-            records=[normalize(r,snapshot['config'],customer,received) for r in body['records']]
-            request_hash=digest(records)
-            existing_batch=db.execute('SELECT * FROM evidence_batches WHERE tenant=? AND customer=? AND config_version=? AND request_hash=?',(tenant,customer,version,request_hash)).fetchone()
-            configs=self.integrations._chain(db,tenant)
-            stored=self._records(db,tenant,customer,configs)
-            if existing_batch:
-                batch=dict(existing_batch);claimed=batch.pop('record_hash')
-                if claimed!=digest(batch): raise Problem(503,'Integridade do lote não confirmada.')
-                result=strict_json(batch['result'].encode('utf-8'))
-                indexed={r['id']:r for r in stored}
-                if len(result['record_ids'])!=len(records) or any(
-                        item not in indexed or indexed[item]['config_version']!=version or indexed[item]['content_hash']!=digest(record)
-                        for item,record in zip(result['record_ids'],records)):
-                    raise Problem(503,'Proveniência do lote não confirmada.')
-                return {**result,'inserted':0,'duplicates':len(records),'batch_id':batch['id'],'reused':True}
-            ids=[];inserted=0;reused=0
-            for record in records:
-                identity={key:record[key] for key in ('kind','definition_id','source_ref','external_id')}
-                content_hash=digest(record)
-                previous=next((r for r in stored if all(r[k]==v for k,v in identity.items())),None)
-                if previous:
-                    if previous['config_version']!=version or previous['content_hash']!=content_hash:
-                        raise Problem(409,'Identidade de origem já utilizada com conteúdo/versão diferente; histórico preservado.')
-                    ids.append(previous['id']);reused+=1;continue
-                fact={key:record[key] for key in ('kind','definition_id','source_ref','occurred_at','period')}
-                fact_hash=digest(fact)
-                if record['kind']!='event' and any(r['config_version']==version and r['fact_hash']==fact_hash and r['payload']==record['payload'] for r in stored):
-                    raise Problem(409,'Snapshot duplicado com outro external_id; reutilize a identidade original.')
-                if len(stored)>=MAX_CUSTOMER_RECORDS: raise Problem(413,'Limite de 1000 evidências por cliente atingido.')
-                row={'tenant':tenant,'customer':customer,'config_version':version,'config_hash':snapshot['content_hash'],
-                     **{k:record[k] for k in ('kind','definition_id','source_ref','external_id','occurred_at')},
-                     'period_start':record['period']['start'] if record['period'] else None,
-                     'period_end':record['period']['end'] if record['period'] else None,
-                     'payload':canonical(record['payload']),'content_hash':content_hash,'fact_hash':fact_hash,'actor':user,'received_at':received}
-                # Include the generated id in the integrity hash without ever updating a row.
-                row['id']=db.execute('SELECT coalesce(max(id),0)+1 FROM evidence_items').fetchone()[0]
-                row['record_hash']=digest(row)
-                db.execute('INSERT INTO evidence_items ('+','.join(row)+') VALUES ('+','.join('?' for _ in row)+')',tuple(row.values()))
-                stored.append({**row,'payload':record['payload']});ids.append(row['id']);inserted+=1
-            if db.execute('SELECT count(*) FROM evidence_batches WHERE tenant=? AND customer=?',(tenant,customer)).fetchone()[0]>=MAX_CUSTOMER_BATCHES:
-                raise Problem(413,'Limite de 5000 lotes por cliente atingido.')
-            result={'tenant':tenant,'customer':customer,'config_version':version,'config_hash':snapshot['content_hash'],
-                    'operational_state':'inactive','classification':snapshot['config']['data_classification'],
-                    'inserted':inserted,'duplicates':reused,'record_ids':ids}
-            batch={'tenant':tenant,'customer':customer,'config_version':version,'request_hash':request_hash,'actor':user,
-                   'received_at':received,'result':canonical(result)}
-            batch['id']=db.execute('SELECT coalesce(max(id),0)+1 FROM evidence_batches').fetchone()[0]
-            batch['record_hash']=digest(batch)
-            db.execute('INSERT INTO evidence_batches ('+','.join(batch)+') VALUES ('+','.join('?' for _ in batch)+')',tuple(batch.values()))
-            return {**result,'batch_id':batch['id'],'reused':False}
+            return self._ingest(db,user,body,snapshot)
+
+    def _ingest(self, db, user, body, snapshot):
+        """Shared M07 persistence; caller supplies a transaction and authorized snapshot.
+
+        Human ingest authorizes through Core; private webhook intake authenticates
+        its own strictly scoped service grant before calling this internal method.
+        """
+        tenant,customer,version=body['tenant'],body['customer'],body['config_version']
+        received=utc(now())
+        records=[normalize(r,snapshot['config'],customer,received) for r in body['records']]
+        request_hash=digest(records)
+        existing_batch=db.execute('SELECT * FROM evidence_batches WHERE tenant=? AND customer=? AND config_version=? AND request_hash=?',(tenant,customer,version,request_hash)).fetchone()
+        configs=self.integrations._chain(db,tenant)
+        stored=self._records(db,tenant,customer,configs)
+        if existing_batch:
+            batch=dict(existing_batch);claimed=batch.pop('record_hash')
+            if claimed!=digest(batch): raise Problem(503,'Integridade do lote não confirmada.')
+            result=strict_json(batch['result'].encode('utf-8'))
+            indexed={r['id']:r for r in stored}
+            if len(result['record_ids'])!=len(records) or any(
+                    item not in indexed or indexed[item]['config_version']!=version or indexed[item]['content_hash']!=digest(record)
+                    for item,record in zip(result['record_ids'],records)):
+                raise Problem(503,'Proveniência do lote não confirmada.')
+            return {**result,'inserted':0,'duplicates':len(records),'batch_id':batch['id'],'reused':True}
+        ids=[];inserted=0;reused=0
+        for record in records:
+            identity={key:record[key] for key in ('kind','definition_id','source_ref','external_id')}
+            content_hash=digest(record)
+            previous=next((r for r in stored if all(r[k]==v for k,v in identity.items())),None)
+            if previous:
+                if previous['config_version']!=version or previous['content_hash']!=content_hash:
+                    raise Problem(409,'Identidade de origem já utilizada com conteúdo/versão diferente; histórico preservado.')
+                ids.append(previous['id']);reused+=1;continue
+            fact={key:record[key] for key in ('kind','definition_id','source_ref','occurred_at','period')}
+            fact_hash=digest(fact)
+            if record['kind']!='event' and any(r['config_version']==version and r['fact_hash']==fact_hash and r['payload']==record['payload'] for r in stored):
+                raise Problem(409,'Snapshot duplicado com outro external_id; reutilize a identidade original.')
+            if len(stored)>=MAX_CUSTOMER_RECORDS: raise Problem(413,'Limite de 1000 evidências por cliente atingido.')
+            row={'tenant':tenant,'customer':customer,'config_version':version,'config_hash':snapshot['content_hash'],
+                 **{k:record[k] for k in ('kind','definition_id','source_ref','external_id','occurred_at')},
+                 'period_start':record['period']['start'] if record['period'] else None,
+                 'period_end':record['period']['end'] if record['period'] else None,
+                 'payload':canonical(record['payload']),'content_hash':content_hash,'fact_hash':fact_hash,'actor':user,'received_at':received}
+            # Include the generated id in the integrity hash without ever updating a row.
+            row['id']=db.execute('SELECT coalesce(max(id),0)+1 FROM evidence_items').fetchone()[0]
+            row['record_hash']=digest(row)
+            db.execute('INSERT INTO evidence_items ('+','.join(row)+') VALUES ('+','.join('?' for _ in row)+')',tuple(row.values()))
+            stored.append({**row,'payload':record['payload']});ids.append(row['id']);inserted+=1
+        if db.execute('SELECT count(*) FROM evidence_batches WHERE tenant=? AND customer=?',(tenant,customer)).fetchone()[0]>=MAX_CUSTOMER_BATCHES:
+            raise Problem(413,'Limite de 5000 lotes por cliente atingido.')
+        result={'tenant':tenant,'customer':customer,'config_version':version,'config_hash':snapshot['content_hash'],
+                'operational_state':'inactive','classification':snapshot['config']['data_classification'],
+                'inserted':inserted,'duplicates':reused,'record_ids':ids}
+        batch={'tenant':tenant,'customer':customer,'config_version':version,'request_hash':request_hash,'actor':user,
+               'received_at':received,'result':canonical(result)}
+        batch['id']=db.execute('SELECT coalesce(max(id),0)+1 FROM evidence_batches').fetchone()[0]
+        batch['record_hash']=digest(batch)
+        db.execute('INSERT INTO evidence_batches ('+','.join(batch)+') VALUES ('+','.join('?' for _ in batch)+')',tuple(batch.values()))
+        return {**result,'batch_id':batch['id'],'reused':False}
 
     def query(self, user, tenant, customer, config_version, after=0, through=None, limit=100):
         self._runtime()

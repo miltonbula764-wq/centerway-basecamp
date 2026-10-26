@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "mode": "demo",
+  "sources": [{
+    "id": "test-collaboration",
+    "tenant": "atlas",
+    "config_version": 1,
+    "config_hash": "REPLACE_WITH_EXACT_M06_HASH",
+    "mapping_version": 1,
+    "classification": "test",
+    "customers": {"external-account-001": "test-account-001"},
+    "routes": {
+      "completed": {
+        "kind": "event",
+        "definition_id": "item-completed",
+        "source_ref": "fixture:collaboration:event-definition",
+        "fields": {"account_id": "$customer", "occurred_at": "$occurred_at"}
+      },
+      "total": {
+        "kind": "metric",
+        "definition_id": "completed-items",
+        "source_ref": "fixture:collaboration:metric-definition",
+        "fields": {"value": "data.count"}
+      }
+    },
+    "keys": [{
+      "id": "key-2026-01",
+      "secret_file": "/private/centerway/source.key",
+      "not_before": null,
+      "expires_at": null
+    }]
+  }]
+}

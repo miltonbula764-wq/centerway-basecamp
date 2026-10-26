@@ -150,6 +150,7 @@ def main():
     serve.add_argument('--keyfile',required=True)
     serve.add_argument('--host',default='127.0.0.1')
     serve.add_argument('--port',type=int,default=8443)
+    serve.add_argument('--webhook-config',help='Private owner-only webhook configuration outside the checkout; opt-in.')
     serve.add_argument('--frontend-origin',action='append',default=[],help='Origem HTTPS exata do frontend same-site; CORS desativado por omissão.')
     args = parser.parse_args()
     try:
@@ -164,7 +165,7 @@ def main():
         store = Store.open_existing(args.db)
         policy = PreviewPolicy(store)
         from .server import make_server
-        server = make_server(store,args.host,args.port,preview=policy,tls_context=context,frontend_origins=args.frontend_origin)
+        server = make_server(store,args.host,args.port,preview=policy,tls_context=context,frontend_origins=args.frontend_origin,webhook_config=args.webhook_config)
     except (ValueError,OSError,sqlite3.Error) as error:
         parser.exit(1,'Arranque recusado: '+str(error)+'\n')
     run_private_server(server)

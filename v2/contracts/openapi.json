@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "CENTERWAY V2 HTTP API",
-    "version": "1.4.0",
-    "description": "API sandbox preservada; autenticação privada permanente e entrada/consulta de evidências inativas, validadas por configuração versionada. C01–C06 de production continuam bloqueados. Sem URL publicado. Consulta autenticada e inativa de estados coordenados M06–M12; nenhum endpoint de execução/orquestração operacional. Continuidade inativa: ciclos históricos, encerramento explícito autenticado e bloqueio de execuções incertas."
+    "version": "1.5.0",
+    "description": "API sandbox preservada; autenticação privada permanente e entrada/consulta de evidências inativas, validadas por configuração versionada. C01–C06 de production continuam bloqueados. Sem URL publicado. Consulta autenticada e inativa de estados coordenados M06–M12; nenhum endpoint de execução/orquestração operacional. Continuidade inativa: ciclos históricos, encerramento explícito autenticado e bloqueio de execuções incertas. Entrada HTTPS HMAC server-to-server limitada a evidências M07 inativas; nunca autoriza operações."
   },
   "servers": [
     {
@@ -2150,6 +2150,118 @@
           }
         }
       }
+    },
+    "/api/webhooks/ingest": {
+      "post": {
+        "operationId": "ingestSignedWebhook",
+        "summary": "Receive one authenticated source claim through a pinned declarative mapping",
+        "description": "Private HTTPS only; no Origin/Cookie/Sec-Fetch-Site; no CORS. Requires one Content-Length, uncompressed application/json, original body <=65536 bytes. Timestamp +/-300s, nonce persistent per source, exact retry returns original response, conflicting reuse 409. Only M07 inactive persistence.",
+        "security": [
+          {
+            "WebhookHMAC": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CW-Source",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          },
+          {
+            "name": "X-CW-Key-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          },
+          {
+            "name": "X-CW-Timestamp",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{1,12}$"
+            }
+          },
+          {
+            "name": "X-CW-Nonce",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{16,128}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Committed inactive source claim, or exact idempotent replay of its original receipt. No recovery or operational grant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookReceipt"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "421": {
+            "$ref": "#/components/responses/Error421"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "options": {
+        "summary": "Webhooks have no browser preflight permission",
+        "security": [],
+        "responses": {
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          }
+        },
+        "operationId": "rejectWebhookPreflight"
+      }
     }
   },
   "components": {
@@ -2171,6 +2283,12 @@
         "in": "cookie",
         "name": "__Host-cw_production_session",
         "description": "Apenas production, HTTPS Secure/HttpOnly/SameSite=Strict, sessão 1 h. Cookie e base separados da demo."
+      },
+      "WebhookHMAC": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-CW-Signature",
+        "description": "v1=lowercase HMAC-SHA256 of the exact domain-separated POST/path/source/key/timestamp/nonce prefix and original UTF-8 body bytes. Requires all X-CW-* headers, configured private source/key and finite freshness/key windows. No human session authority. See WEBHOOK_CONTRACT.md."
       }
     },
     "schemas": {
@@ -4926,6 +5044,123 @@
             "pattern": "^[0-9a-f]{64}$"
           }
         }
+      },
+      "WebhookRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mapping_version",
+          "config_version",
+          "customer_id",
+          "event_type",
+          "event_id",
+          "occurred_at",
+          "period",
+          "data"
+        ],
+        "properties": {
+          "mapping_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "config_version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "customer_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "event_type": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+          },
+          "event_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "period": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "start",
+                  "end"
+                ],
+                "properties": {
+                  "start": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "end": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            ]
+          },
+          "data": {
+            "type": "object",
+            "description": "Exact externally declared direct fields for this route; types checked through the pinned M06/M07 contract."
+          }
+        }
+      },
+      "WebhookReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "receipt_id",
+          "inserted",
+          "duplicates",
+          "claim_classification",
+          "source_classification",
+          "operational_state"
+        ],
+        "properties": {
+          "status": {
+            "const": "accepted"
+          },
+          "receipt_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "inserted": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "duplicates": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "claim_classification": {
+            "const": "source_claim"
+          },
+          "source_classification": {
+            "enum": [
+              "test",
+              "declared"
+            ]
+          },
+          "operational_state": {
+            "const": "inactive"
+          }
+        }
       }
     },
     "responses": {
@@ -5126,7 +5361,7 @@
         "description": "Versão do contrato HTTP; não é uma versão do cliente.",
         "schema": {
           "type": "string",
-          "const": "1.4.0"
+          "const": "1.5.0"
         }
       }
     }

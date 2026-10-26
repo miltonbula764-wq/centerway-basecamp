@@ -161,3 +161,11 @@ resposta atrasada entre clientes e larguras 360/390/1280. Não usa credenciais e
 - HTTP local, contas públicas, sem TLS/rate limiting; não preparado para produção.
   Isolamento é aplicado no backend, não por RLS. Quem acede diretamente ao ficheiro
   SQLite tem acesso administrativo. A aplicação histórica não foi executada.
+
+### Missão 15 — entrada SaaS assinada
+
+Entrada HTTPS server-to-server opt-in, HMAC sobre o corpo original, anti-replay,
+rotação privada e mapeamento declarativo para o M07 existente. Só persiste
+**declarações inativas da origem**. Sem contas de máquina com permissões humanas,
+conectores de fornecedor, execução ou publicação.
+[Contrato, configuração e exemplo executável](WEBHOOK_CONTRACT.md).
