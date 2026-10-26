@@ -206,6 +206,11 @@ class WebhookTests(unittest.TestCase):
             status,reply=self.call((raw,headers));self.assertEqual(400,status);self.assertEqual(401,self.call(headers={'X-CW-Signature':'v1='+'0'*64})[0])
             text=output.getvalue()+json.dumps(reply)
             for value in ('DO-NOT-LOG',self.secret.hex(),headers['X-CW-Signature'],headers['X-CW-Nonce']): self.assertNotIn(value,text)
+        with patch('sys.stderr',new_callable=io.StringIO) as output:
+            connection=http.client.HTTPSConnection('127.0.0.1',int(self.origin.rsplit(':',1)[1]),context=ssl.create_default_context(cafile=str(self.cert)))
+            connection.request('SENSITIVE-MALFORMED-METHOD',PATH)
+            response=connection.getresponse();self.assertEqual(501,response.status);response.read();connection.close()
+            self.assertNotIn('SENSITIVE-MALFORMED-METHOD',output.getvalue())
         with self.store.transaction() as db: db.execute('DROP TRIGGER '+next(iter(GUARDS)))
         self.assertEqual(503,self.call()[0])
 

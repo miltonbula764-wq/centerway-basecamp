@@ -92,7 +92,9 @@ def make_server(store, host='127.0.0.1', port=8080, *, preview=None, tls_context
             # Queries may contain an accidental secret; never log request lines/headers/body.
             path=getattr(self,'path','').split('?',1)[0]
             safe_path=path if path in API_METHODS or path in ('/','/app.js','/style.css') else '<unknown>'
-            self.log_message('%s %s %s',getattr(self,'command',None) or '<invalid>',safe_path,str(code))
+            method=getattr(self,'command',None)
+            safe_method=method if method in ('GET','POST','OPTIONS','PUT','DELETE','PATCH','HEAD','TRACE','CONNECT') else '<unknown>'
+            self.log_message('%s %s %s',safe_method,safe_path,str(code))
 
         def log_error(self, _format, *_args):
             self.log_message('HTTP error (details omitted)')
