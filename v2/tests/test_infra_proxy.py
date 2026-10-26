@@ -61,6 +61,20 @@ class InfraProxyTests(unittest.TestCase):
                 saas_configuration['tenant']='company-a';saas_configuration['data_classification']='declared'
                 IntegrationRepository(production_store).append('owner','company-a',saas_configuration,0)
                 install_evidence(production_store)
+                # M15: identified source claims through the actual Caddy -> HTTPS Python path.
+                from centerway.webhooks import install as install_webhooks,signed_bytes,PATH
+                import secrets,hmac,hashlib
+                install_webhooks(production_store)
+                webhook_secret=secrets.token_bytes(32);webhook_key=root/'source.key'
+                webhook_key.write_text(webhook_secret.hex());webhook_key.chmod(0o600)
+                snapshot=IntegrationRepository(production_store).get('owner','company-a')
+                webhook_config=root/'webhooks.json'
+                webhook_config.write_text(json.dumps({'schema_version':1,'mode':'production','sources':[{
+                    'id':'proxy-test-source','tenant':'company-a','config_version':1,'config_hash':snapshot['content_hash'],
+                    'mapping_version':1,'classification':'declared','customers':{'proxy-external':'webhook-c'},
+                    'routes':{'paused':{'kind':'evidence','definition_id':'operation-state','source_ref':saas_configuration['evidence'][0]['source_ref'],'fields':{'paused':'data.flag'}}},
+                    'keys':[{'id':'key-1','secret_file':str(webhook_key),'not_before':int(time.time())-10,'expires_at':int(time.time())+3600}]}]}))
+                webhook_config.chmod(0o600)
             else:
                 provision(path,credentials,origin)
             passwords=json.loads(credentials.read_text())['accounts']
@@ -92,7 +106,7 @@ class InfraProxyTests(unittest.TestCase):
                 self.fail('Local proxy/backend startup failed: '+diagnostic[-3500:])
             def start_backend():
                 with backend_log.open('ab') as output:
-                    return subprocess.Popen([sys.executable,'-u','-m','centerway.runtime','serve','--mode','production' if production else 'demo','--db',str(path),'--certfile',str(cert),'--keyfile',str(key),'--port',str(backend_port)],cwd=cwd,stdout=output,stderr=output)
+                    return subprocess.Popen([sys.executable,'-u','-m','centerway.runtime','serve','--mode','production' if production else 'demo','--db',str(path),'--certfile',str(cert),'--keyfile',str(key),'--port',str(backend_port),*(['--webhook-config',str(webhook_config)] if production else [])],cwd=cwd,stdout=output,stderr=output)
             def start_proxy():
                 with log.open('ab') as output:
                     return subprocess.Popen([CADDY,'run','--config',str(config),'--adapter','caddyfile'],env=environment,stdout=output,stderr=output)
@@ -106,6 +120,24 @@ class InfraProxyTests(unittest.TestCase):
                 status,payload,_=call('/api/missing')
                 self.assertEqual(404,status);self.assertEqual('not_found',json.loads(payload)['code'])
                 self.assertEqual(401,call('/api/view')[0])
+                if production:
+                    raw=json.dumps({'mapping_version':1,'config_version':1,'customer_id':'proxy-external','event_type':'paused',
+                        'event_id':'proxy-test-claim-1','occurred_at':'2026-01-01T00:00:00Z','period':None,'data':{'flag':True}},indent=2).encode()
+                    stamp=str(int(time.time()));nonce=secrets.token_hex(16)
+                    signature='v1='+hmac.new(webhook_secret,signed_bytes('proxy-test-source','key-1',stamp,nonce,raw),hashlib.sha256).hexdigest()
+                    machine=build_opener(HTTPSHandler(context=ssl.create_default_context(cafile=str(cert))))
+                    signed_headers={'Content-Type':'application/json','X-CW-Source':'proxy-test-source','X-CW-Key-Id':'key-1',
+                                    'X-CW-Timestamp':stamp,'X-CW-Nonce':nonce,'X-CW-Signature':signature}
+                    def send_claim(headers=signed_headers):
+                        try: response=machine.open(Request(origin+PATH,raw,headers),timeout=5)
+                        except HTTPError as error: response=error
+                        with response: return response.status,json.loads(response.read())
+                    receipt=send_claim();self.assertEqual(200,receipt[0]);self.assertEqual('source_claim',receipt[1]['claim_classification'])
+                    self.assertEqual(receipt,send_claim())
+                    self.assertEqual(401,send_claim({**signed_headers,'X-CW-Signature':'v1='+'0'*64})[0])
+                    with production_store.transaction() as db:
+                        self.assertEqual(1,db.execute('SELECT count(*) FROM webhook_receipts').fetchone()[0])
+                        self.assertEqual('webhook:proxy-test-source',db.execute('SELECT actor FROM evidence_items').fetchone()[0])
                 status,_,headers=call('/api/login',{'user':'owner' if production else 'founder','password':passwords['owner' if production else 'founder']})
                 self.assertEqual(200,status)
                 session_tokens=[headers['Set-Cookie'].split(';',1)[0].split('=',1)[1]]
@@ -166,7 +198,7 @@ class InfraProxyTests(unittest.TestCase):
                 proxy=start_proxy();ready('/')
                 self.assertEqual(502,call('/api/view')[0])
                 self.assertEqual(502,call('/api/view?password=query-secret-marker')[0])
-                for secret in [*passwords.values(),*session_tokens,'query-secret-marker']:
+                for secret in [*passwords.values(),*session_tokens,'query-secret-marker',*([webhook_secret.hex(),signature,nonce] if production else [])]:
                     self.assertTrue(secret not in log.read_text(),'Proxy log leaked a test secret')
                 with Store.open_existing(path).transaction() as db:
                     if production:

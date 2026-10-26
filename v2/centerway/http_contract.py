@@ -2,8 +2,9 @@
 import json
 from urllib.parse import parse_qs
 
-API_VERSION = '1.4.0'
+API_VERSION = '1.5.0'
 API_METHODS = {
+    '/api/webhooks/ingest':'POST',
     '/api/orchestration/cases':'GET', '/api/orchestration/cycle':'GET',
     '/api/orchestration/open':'POST', '/api/orchestration/close':'POST', '/api/orchestration/review':'POST',
     '/api/evidence':'POST', '/api/evidence/view':'GET',

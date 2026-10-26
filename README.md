@@ -70,3 +70,5 @@ python3 -m unittest discover -s tests -v
 A Missão 14 parte do PR #43, commit `8fb11ac`, na branch `centerway-v2/missao-14-continuity`. A `main` não foi
 alterada. A V2 não importa a aplicação histórica dos restantes diretórios; os
 comandos npm da raiz pertencem à versão antiga. Não houve deploy.
+
+Missão 15 V2: [entrada SaaS HTTPS/HMAC, configuração privada e limites](v2/WEBHOOK_CONTRACT.md), sem ativação operacional ou publicação.

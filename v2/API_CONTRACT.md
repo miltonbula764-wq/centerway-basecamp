@@ -1,10 +1,20 @@
-# CENTERWAY V2 — contrato HTTP 1.4.0
+# CENTERWAY V2 — contrato HTTP 1.5.0
 
 Contrato do backend Python da Missão 03, baseado no PR #32. Especificação importável:
 [`contracts/openapi.json`](contracts/openapi.json), OpenAPI 3.1 / JSON Schema 2020-12.
 Não há URL publicado, interface nova, uso de Lovable ou integração real nesta missão.
 Na demo, tudo continua fictício: `environment_type: "sandbox"` e `decision_mode: "simulator-v1"`.
 Production devolve `production` / `disabled` na view operacional, sem dados ou intervenções simuladas. A API separada de evidências permanece inativa.
+
+## Extensão 1.5.0: entrada SaaS server-to-server
+
+POST `/api/webhooks/ingest` usa HMAC-SHA256 sobre os bytes originais e headers
+assinados (origem, chave, timestamp e nonce), sem sessão humana. Só existe entrada
+funcional com configuração privada explícita e HTTPS; não aceita browser/CORS.
+A origem configurada fixa SaaS, clientes, versão/hash M06 e mapeamento declarativo.
+Cada mensagem insere no máximo uma declaração M07 inativa; não consulta dados,
+não autoriza e não executa. Replay/idempotência, rotação, limites e exemplos:
+[contrato de integração](WEBHOOK_CONTRACT.md). API global anuncia 1.5.0.
 
 ## Extensão 1.4.0: continuidade e ciclos históricos
 
@@ -18,7 +28,7 @@ aceitam actor/role/token em JSON. Incerto/pendente bloqueia encerramento e suces
 review apenas regista unresolved. Nenhum resultado C06 encerra automaticamente.
 Ver [contrato de continuidade, campos, erros e upgrade explícito](CONTINUITY_CONTRACT.md).
 Production recusa os novos POST; casos e operações de negócio continuam inativos.
-Sem DDL no HTTP ou migração automática. API global anuncia 1.4.0; contratos de
+Sem DDL no HTTP ou migração automática. A extensão foi introduzida em 1.4.0; contratos de
 motores e endpoints anteriores preservados, com extensão da consulta M13.
 
 ## Extensão 1.3.0: consulta da orquestração inativa
