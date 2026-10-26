@@ -1,0 +1,146 @@
+{
+  "complete": {
+    "scenario": "complete",
+    "classification": "synthetic_test_only",
+    "case_state": "awaiting_approval",
+    "blockers": [
+      "explicit_human_approval_required"
+    ],
+    "ai": [
+      {
+        "inference_kind": "test_fixture",
+        "reported_model": "explicit-fixture-not-ai",
+        "failure": null
+      }
+    ],
+    "effects": 0,
+    "samples": 0,
+    "c06": [],
+    "case_closed": false,
+    "real_recovery_demonstrated": false,
+    "external_execution": "blocked"
+  },
+  "insufficient": {
+    "scenario": "insufficient",
+    "classification": "synthetic_test_only",
+    "case_state": "awaiting_data",
+    "blockers": [
+      "insufficient_detection"
+    ],
+    "ai": [],
+    "effects": 0,
+    "samples": 0,
+    "c06": [],
+    "case_closed": false,
+    "real_recovery_demonstrated": false,
+    "external_execution": "blocked"
+  },
+  "contradictory": {
+    "scenario": "contradictory",
+    "classification": "synthetic_test_only",
+    "case_state": "needs_review",
+    "blockers": [
+      "contradictory_detection"
+    ],
+    "ai": [],
+    "effects": 0,
+    "samples": 0,
+    "c06": [],
+    "case_closed": false,
+    "real_recovery_demonstrated": false,
+    "external_execution": "blocked"
+  },
+  "investigation_pending": {
+    "scenario": "investigation_pending",
+    "classification": "synthetic_test_only",
+    "case_state": "awaiting_investigation",
+    "blockers": [
+      "operator_investigation_missing"
+    ],
+    "ai": [],
+    "effects": 0,
+    "samples": 0,
+    "c06": [],
+    "case_closed": false,
+    "real_recovery_demonstrated": false,
+    "external_execution": "blocked"
+  },
+  "ai_unavailable": {
+    "scenario": "ai_unavailable",
+    "classification": "synthetic_test_only",
+    "case_state": "awaiting_ai",
+    "blockers": [
+      "authorized_ai_not_configured"
+    ],
+    "ai": [],
+    "effects": 0,
+    "samples": 0,
+    "c06": [],
+    "case_closed": false,
+    "real_recovery_demonstrated": false,
+    "external_execution": "blocked"
+  },
+  "approval_pending": {
+    "scenario": "approval_pending",
+    "classification": "synthetic_test_only",
+    "case_state": "awaiting_approval",
+    "blockers": [
+      "explicit_human_approval_required"
+    ],
+    "ai": [
+      {
+        "inference_kind": "test_fixture",
+        "reported_model": "explicit-fixture-not-ai",
+        "failure": null
+      }
+    ],
+    "effects": 0,
+    "samples": 0,
+    "c06": [],
+    "case_closed": false,
+    "real_recovery_demonstrated": false,
+    "external_execution": "blocked"
+  },
+  "uncertain": {
+    "scenario": "uncertain",
+    "classification": "synthetic_test_only",
+    "case_state": "awaiting_approval",
+    "blockers": [
+      "explicit_human_approval_required"
+    ],
+    "ai": [
+      {
+        "inference_kind": "test_fixture",
+        "reported_model": "explicit-fixture-not-ai",
+        "failure": null
+      }
+    ],
+    "effects": 0,
+    "samples": 0,
+    "c06": [],
+    "case_closed": false,
+    "real_recovery_demonstrated": false,
+    "external_execution": "blocked"
+  },
+  "operation_only": {
+    "scenario": "operation_only",
+    "classification": "synthetic_test_only",
+    "case_state": "awaiting_approval",
+    "blockers": [
+      "explicit_human_approval_required"
+    ],
+    "ai": [
+      {
+        "inference_kind": "test_fixture",
+        "reported_model": "explicit-fixture-not-ai",
+        "failure": null
+      }
+    ],
+    "effects": 0,
+    "samples": 0,
+    "c06": [],
+    "case_closed": false,
+    "real_recovery_demonstrated": false,
+    "external_execution": "blocked"
+  }
+}

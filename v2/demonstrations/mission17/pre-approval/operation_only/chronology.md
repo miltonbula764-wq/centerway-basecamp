@@ -1,0 +1,2737 @@
+# CENTERWAY — execução local observável
+
+**SOMENTE ENSAIO SINTÉTICO. Uma fixture C04 não comprova inferência real; efeitos/resultados sintéticos não comprovam execução externa ou recuperação real.**
+
+Gerado: 2026-10-26T11:20:45.921753+00:00
+
+## Resultado efetivamente calculado
+
+```json
+{
+  "scenario": "operation_only",
+  "classification": "synthetic_test_only",
+  "case_state": "awaiting_approval",
+  "blockers": [
+    "explicit_human_approval_required"
+  ],
+  "ai": [
+    {
+      "inference_kind": "test_fixture",
+      "reported_model": "explicit-fixture-not-ai",
+      "failure": null
+    }
+  ],
+  "effects": 0,
+  "samples": 0,
+  "c06": [],
+  "case_closed": false,
+  "real_recovery_demonstrated": false,
+  "external_execution": "blocked"
+}
+```
+
+## Cronologia completa
+
+A ordenação usa o momento de registo; occurred_at/períodos das declarações permanecem nos outputs, sem transformar uma fixture histórica numa observação real.
+
+### 1. 2026-10-26T11:01:31.841783+00:00 — M06
+
+Participação: supplied_synthetic_contract
+
+```json
+{
+  "tenant": "collaboration",
+  "version": 1,
+  "parent_hash": null,
+  "content_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.841783+00:00",
+  "record_hash": "ab758f32c2b3b7082aad0c9e36b3db3e9756da4bc7821840cc01192a39fed9a2",
+  "config": {
+    "capabilities": [
+      {
+        "conditions": [
+          {
+            "evidence_ref": "operation-state",
+            "field": "paused",
+            "operator": "eq",
+            "value": true
+          }
+        ],
+        "description": "Fictional declared capability for proposal tests only; no executor or real authorization.",
+        "id": "reopen-delivery-queue",
+        "permissions": {
+          "required_role": "operator",
+          "requires_human_approval": true
+        },
+        "verification": {
+          "operational": [
+            {
+              "evidence_ref": "operation-state",
+              "field": "paused",
+              "operator": "eq",
+              "value": false
+            }
+          ],
+          "value": [
+            {
+              "evidence_ref": "value-snapshot",
+              "field": "outcome_count",
+              "operator": "gte",
+              "value": 3
+            }
+          ],
+          "value_goal_refs": [
+            "deliver-agreed-work"
+          ]
+        }
+      }
+    ],
+    "customers": {
+      "description": "Fictional account identity contract only; no customer records.",
+      "entity": "account",
+      "id_field": "account_id"
+    },
+    "data_classification": "synthetic",
+    "events": [
+      {
+        "customer_id_field": "account_id",
+        "description": "Synthetic declared outcome event schema, not a received event.",
+        "fields": [
+          {
+            "name": "account_id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "occurred_at",
+            "required": true,
+            "type": "timestamp"
+          }
+        ],
+        "id": "item-completed",
+        "source_ref": "fixture:collaboration:event-definition"
+      }
+    ],
+    "evidence": [
+      {
+        "availability": "declared",
+        "description": "Synthetic declared operation state; not a live state read.",
+        "event_refs": [],
+        "fields": [
+          {
+            "name": "paused",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "id": "operation-state",
+        "kind": "state",
+        "metric_refs": [],
+        "source_ref": "fixture:collaboration:state-definition"
+      },
+      {
+        "availability": "declared",
+        "description": "Synthetic declared measured outcome for a supplier-defined evaluation period. No data is collected.",
+        "event_refs": [],
+        "fields": [
+          {
+            "name": "outcome_count",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "id": "value-snapshot",
+        "kind": "metric",
+        "metric_refs": [
+          "completed-items"
+        ],
+        "source_ref": "fixture:collaboration:value-definition"
+      },
+      {
+        "availability": "declared",
+        "description": "Fictional owner-declared corroborating snapshot, not a connector read.",
+        "event_refs": [],
+        "fields": [
+          {
+            "name": "delay_seconds",
+            "required": true,
+            "type": "number"
+          }
+        ],
+        "id": "processing-snapshot",
+        "kind": "metric",
+        "metric_refs": [
+          "processing-delay"
+        ],
+        "source_ref": "fixture:collaboration:processing-evidence"
+      }
+    ],
+    "metrics": [
+      {
+        "description": "Synthetic owner-supplied outcome count; no automatic computation is implemented.",
+        "event_refs": [
+          "item-completed"
+        ],
+        "id": "completed-items",
+        "source_ref": "fixture:collaboration:metric-definition",
+        "unit": "count",
+        "value_type": "integer"
+      },
+      {
+        "description": "Fictional owner-declared processing delay sample. Not a discovered business metric.",
+        "event_refs": [],
+        "id": "processing-delay",
+        "source_ref": "fixture:collaboration:processing-metric",
+        "unit": "seconds",
+        "value_type": "number"
+      }
+    ],
+    "product": {
+      "description": "Synthetic collaborative work product. All declarations below are fictional test inputs, not real customer objectives.",
+      "name": "Fictional Collaboration"
+    },
+    "provenance": {
+      "recorded_at": "2026-10-25T00:00:00Z",
+      "source_ref": "fixture:collaboration:m08-owner-config",
+      "supplied_by": "synthetic-fixture-author"
+    },
+    "schema_version": 1,
+    "tenant": "collaboration",
+    "value_goals": [
+      {
+        "description": "Fictional owner-declared value objective: deliver-agreed-work. No real goal is inferred.",
+        "evidence_refs": [
+          "value-snapshot",
+          "processing-snapshot"
+        ],
+        "id": "deliver-agreed-work",
+        "metric_refs": [
+          "completed-items",
+          "processing-delay"
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 2. 2026-10-26T11:01:31.847676+00:00 — C02 criteria
+
+Participação: supplied_synthetic_criteria
+
+```json
+{
+  "tenant": "collaboration",
+  "version": 1,
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "parent_hash": null,
+  "content_hash": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.847676+00:00",
+  "record_hash": "67ac663fee3de480baa78108f3b5e20d36b79d024519f67ef10f55ec55115fbf",
+  "document": {
+    "config_version": 1,
+    "criteria": [
+      {
+        "aggregation": "mean",
+        "cadence_seconds": 1,
+        "comparison": "gt",
+        "coverage": "aligned_complete",
+        "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+        "dimension": "operational",
+        "evidence_refs": [
+          "processing-snapshot"
+        ],
+        "goal_refs": [
+          "deliver-agreed-work"
+        ],
+        "id": "operational-degradation",
+        "method": "threshold",
+        "metric_ref": "processing-delay",
+        "source": {
+          "definition_id": "processing-delay",
+          "field": "value",
+          "kind": "metric"
+        },
+        "threshold": 10,
+        "threshold_unit": "seconds",
+        "window_seconds": 2
+      },
+      {
+        "aggregation": "sum",
+        "cadence_seconds": 1,
+        "comparison": "lt",
+        "coverage": "aligned_complete",
+        "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+        "dimension": "value",
+        "evidence_refs": [
+          "value-snapshot"
+        ],
+        "goal_refs": [
+          "deliver-agreed-work"
+        ],
+        "id": "value-loss",
+        "method": "absolute_change",
+        "metric_ref": "completed-items",
+        "source": {
+          "definition_id": "value-snapshot",
+          "field": "outcome_count",
+          "kind": "evidence"
+        },
+        "threshold": -3,
+        "threshold_unit": "count",
+        "window_seconds": 2
+      }
+    ],
+    "provenance": {
+      "recorded_at": "2026-10-25T00:00:00Z",
+      "source_ref": "fixture:collaboration:m08-owner-criteria",
+      "supplied_by": "synthetic-fixture-author"
+    },
+    "schema_version": 1,
+    "tenant": "collaboration"
+  }
+}
+```
+
+### 3. 2026-10-26T11:01:31.860502+00:00 — command initialize
+
+Participação: human_supplied_test_profile
+
+```json
+{
+  "id": 1,
+  "operation": "initialize",
+  "participation": "human_supplied_test_profile",
+  "payload": {
+    "input_hashes": {
+      "configuration.json": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+      "criteria.json": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+      "initial-evidence.json": "884ebac1f73be1ca39c1be9a7c128289b669f0c4495bd89e3904cae791d11b85",
+      "investigation.json": "8be1e8a3e448c938d769e2ddd052f4cc79417cd161baf7ad625ceb305c77fe67"
+    },
+    "profile": {
+      "as_of": "2026-10-26T11:01:30.000000Z",
+      "case_id": "observed-cycle",
+      "classification": "synthetic",
+      "customer": "fictional-account",
+      "fault": "none",
+      "operator": "operator",
+      "real_recovery_demonstrated": false,
+      "scenario": "operation_only",
+      "tenant": "collaboration",
+      "usage_step": 0
+    }
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.860502+00:00",
+  "previous_hash": null,
+  "record_hash": "3d405a6e16915101e6b541151b3a9fde2964c0ecf891d7caff9523b6b764e264"
+}
+```
+
+### 4. 2026-10-26T11:01:31.906283+00:00 — command login
+
+Participação: human_session
+
+```json
+{
+  "id": 2,
+  "operation": "login",
+  "participation": "human_session",
+  "payload": {
+    "expires_at": "2026-10-26T12:01:31.905139+00:00",
+    "user": "operator"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.906283+00:00",
+  "previous_hash": "3d405a6e16915101e6b541151b3a9fde2964c0ecf891d7caff9523b6b764e264",
+  "record_hash": "4b95b53282c4c9ade79020f2159c2adbd7718dd48e769b967001294c746134cb"
+}
+```
+
+### 5. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 1,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "metric",
+  "definition_id": "processing-delay",
+  "source_ref": "fixture:collaboration:processing-metric",
+  "external_id": "fictional-processing-delay-0",
+  "occurred_at": "2026-10-26T11:01:27.000000Z",
+  "period_start": "2026-10-26T11:01:26.000000Z",
+  "period_end": "2026-10-26T11:01:27.000000Z",
+  "payload": {
+    "value": 5
+  },
+  "content_hash": "4315456fe0cf3dd331e4c6f96f01a10f8156dd9a8f3ae8016fc2ade6f8674007",
+  "fact_hash": "095655a0e263f6a6926978d4b4e668cdf11016c6e3b961146d5260383d2c3eae",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "a04d5db9d2b9cbf8005a5fe00d9144d1b1ec73acfb9c282bf9c6288706535fa8"
+}
+```
+
+### 6. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 2,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "evidence",
+  "definition_id": "processing-snapshot",
+  "source_ref": "fixture:collaboration:processing-evidence",
+  "external_id": "fictional-processing-snapshot-0",
+  "occurred_at": "2026-10-26T11:01:27.000000Z",
+  "period_start": "2026-10-26T11:01:26.000000Z",
+  "period_end": "2026-10-26T11:01:27.000000Z",
+  "payload": {
+    "delay_seconds": 5
+  },
+  "content_hash": "1fc7700ac0c4f8d5259bd00cbfb8492ff0ef84bb0877886095ceaeca3895199b",
+  "fact_hash": "f4c6231440281772438731e913a61701a71263f8ae498cc99104f5b09fe7caa1",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "2b5020a705f46b5d6ad9ba27e9ee6c900db9eba0caa5efba2a4e137eebd280fc"
+}
+```
+
+### 7. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 3,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "evidence",
+  "definition_id": "value-snapshot",
+  "source_ref": "fixture:collaboration:value-definition",
+  "external_id": "fictional-value-snapshot-0",
+  "occurred_at": "2026-10-26T11:01:27.000000Z",
+  "period_start": "2026-10-26T11:01:26.000000Z",
+  "period_end": "2026-10-26T11:01:27.000000Z",
+  "payload": {
+    "outcome_count": 6
+  },
+  "content_hash": "50cbf4e7b8ad72eb4a4bfe13b363b388f86fc1d2bb1bcc0036726e6b4bbb75e9",
+  "fact_hash": "1a1bbba056d7e39a871d7b5bd208b26131921a801b1ced9cbe7c09b7403982dc",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "4ddaa54f2962c787e05b7619143f7c3b049a92ff7e939bf2503502846543e4c7"
+}
+```
+
+### 8. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 4,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "metric",
+  "definition_id": "processing-delay",
+  "source_ref": "fixture:collaboration:processing-metric",
+  "external_id": "fictional-processing-delay-1",
+  "occurred_at": "2026-10-26T11:01:28.000000Z",
+  "period_start": "2026-10-26T11:01:27.000000Z",
+  "period_end": "2026-10-26T11:01:28.000000Z",
+  "payload": {
+    "value": 5
+  },
+  "content_hash": "4193c735419a20f6d09485f71aa8ed007087b18302ea53f1c248628d4dc7c46d",
+  "fact_hash": "619bd74cffb3b36c36decea949ece3e28cffe8eeb8b1bb07070ffe7902b86329",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "52c7de777bb491b39cae6aa41b372f14a639a931e897f42f7acdbcf4709486ca"
+}
+```
+
+### 9. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 5,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "evidence",
+  "definition_id": "processing-snapshot",
+  "source_ref": "fixture:collaboration:processing-evidence",
+  "external_id": "fictional-processing-snapshot-1",
+  "occurred_at": "2026-10-26T11:01:28.000000Z",
+  "period_start": "2026-10-26T11:01:27.000000Z",
+  "period_end": "2026-10-26T11:01:28.000000Z",
+  "payload": {
+    "delay_seconds": 5
+  },
+  "content_hash": "42df480cb63e1c723eec93c81ac21000057532a2265fd2daf14f91cfe0eec3c9",
+  "fact_hash": "39ad56de1d024e4691113bb47ccf6be2571c2761ff43c080fbd87412c8d83c65",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "e8591596216d590c2528fdc3446faa4234ad19a3efc8a4f87edb0f78d3bae19d"
+}
+```
+
+### 10. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 6,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "evidence",
+  "definition_id": "value-snapshot",
+  "source_ref": "fixture:collaboration:value-definition",
+  "external_id": "fictional-value-snapshot-1",
+  "occurred_at": "2026-10-26T11:01:28.000000Z",
+  "period_start": "2026-10-26T11:01:27.000000Z",
+  "period_end": "2026-10-26T11:01:28.000000Z",
+  "payload": {
+    "outcome_count": 6
+  },
+  "content_hash": "73642c0f32b6ff4dbc5591fe24a964ddba895f5b7fa0f0b8add986cb805b92be",
+  "fact_hash": "44523c650f644132fb5c5dcdb3079e1af63377228b66c3dce78f1ba0d84bafd2",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "a0017387ef638a0414f8b6cb9bbe213e1d8c43dc41510d03d493172432c9b4d1"
+}
+```
+
+### 11. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 7,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "metric",
+  "definition_id": "processing-delay",
+  "source_ref": "fixture:collaboration:processing-metric",
+  "external_id": "fictional-processing-delay-2",
+  "occurred_at": "2026-10-26T11:01:29.000000Z",
+  "period_start": "2026-10-26T11:01:28.000000Z",
+  "period_end": "2026-10-26T11:01:29.000000Z",
+  "payload": {
+    "value": 20
+  },
+  "content_hash": "f0cf61169accb386e9b279aaefa150e4571813eebcdf6b0b524e122532a2b204",
+  "fact_hash": "8e4d84595f62c390c9fd6c25beebf471c2042b61a9d169b8ed9f48db0cb671bc",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "0fd07822ab8c57e3405ef703e12251832ecb24a212d097190de175f6c7bd0fd3"
+}
+```
+
+### 12. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 8,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "evidence",
+  "definition_id": "processing-snapshot",
+  "source_ref": "fixture:collaboration:processing-evidence",
+  "external_id": "fictional-processing-snapshot-2",
+  "occurred_at": "2026-10-26T11:01:29.000000Z",
+  "period_start": "2026-10-26T11:01:28.000000Z",
+  "period_end": "2026-10-26T11:01:29.000000Z",
+  "payload": {
+    "delay_seconds": 20
+  },
+  "content_hash": "3b50749dc7fceb3a56d0487dc9bf53abb6bfaf3400c9acfa4e6d7d3966718fff",
+  "fact_hash": "497ac3f9a9dff25f85a1840006962e16439bfc667b99b53d68c885f105ff4c42",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "a9a09a15e9019a1805fa9f1c59676e4ae1aa020863353c68674611d03fa28878"
+}
+```
+
+### 13. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 9,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "evidence",
+  "definition_id": "value-snapshot",
+  "source_ref": "fixture:collaboration:value-definition",
+  "external_id": "fictional-value-snapshot-2",
+  "occurred_at": "2026-10-26T11:01:29.000000Z",
+  "period_start": "2026-10-26T11:01:28.000000Z",
+  "period_end": "2026-10-26T11:01:29.000000Z",
+  "payload": {
+    "outcome_count": 1
+  },
+  "content_hash": "7ebc349e01f050233abd34954138c47172a80ed3ccd01be7bb805ac0ddb2352d",
+  "fact_hash": "e8de1ac5ae584b281e1606c3182b8dc8c876f9be672e58debefa9940f1db5332",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "5549074b6a53477ff3acddd4e659cfe747a5a27bc5bfae6774a4716747bc91ba"
+}
+```
+
+### 14. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 10,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "metric",
+  "definition_id": "processing-delay",
+  "source_ref": "fixture:collaboration:processing-metric",
+  "external_id": "fictional-processing-delay-3",
+  "occurred_at": "2026-10-26T11:01:30.000000Z",
+  "period_start": "2026-10-26T11:01:29.000000Z",
+  "period_end": "2026-10-26T11:01:30.000000Z",
+  "payload": {
+    "value": 20
+  },
+  "content_hash": "901412552841fe389b3ff3c3624de38346b1b6b754370aea322d21ea23f24af4",
+  "fact_hash": "df04e4908c32a17aaba7c72399916663cd9c96cd0703acb03b906bcf70543383",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "8150edddd0e293258d3e42ce9d6d74856b8c4d42e784cf96bec1358d7481a632"
+}
+```
+
+### 15. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 11,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "evidence",
+  "definition_id": "processing-snapshot",
+  "source_ref": "fixture:collaboration:processing-evidence",
+  "external_id": "fictional-processing-snapshot-3",
+  "occurred_at": "2026-10-26T11:01:30.000000Z",
+  "period_start": "2026-10-26T11:01:29.000000Z",
+  "period_end": "2026-10-26T11:01:30.000000Z",
+  "payload": {
+    "delay_seconds": 20
+  },
+  "content_hash": "c1bcda8d49f10c6116a98ae8062a21345014a1fca5dd92e11309afc32bb1f139",
+  "fact_hash": "e09e04b719b643907f2420cc21f61ff8760b5fd36ce4bc3589ea02062fe10b42",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "f3c76d795bd321fc080343939a9e8ec3216dd582f7a4b874e28dcb1938eb28ef"
+}
+```
+
+### 16. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 12,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "evidence",
+  "definition_id": "value-snapshot",
+  "source_ref": "fixture:collaboration:value-definition",
+  "external_id": "fictional-value-snapshot-3",
+  "occurred_at": "2026-10-26T11:01:30.000000Z",
+  "period_start": "2026-10-26T11:01:29.000000Z",
+  "period_end": "2026-10-26T11:01:30.000000Z",
+  "payload": {
+    "outcome_count": 1
+  },
+  "content_hash": "4eb0c56ccf45c294032bc1edb006e4d25c879f3ca5af94af5364bd851d8d6edd",
+  "fact_hash": "d18fe79a82fd23491a9306525397bb6d06f977536b4888a7f34f8a721e3fbf99",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "94af2ef1e8d85d32503773c6d58e5b08033d1ef06a3b8f87a26519460326ddcc"
+}
+```
+
+### 17. 2026-10-26T11:01:31.909468Z — M07
+
+Participação: synthetic_source_claim
+
+```json
+{
+  "id": 13,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+  "kind": "evidence",
+  "definition_id": "operation-state",
+  "source_ref": "fixture:collaboration:state-definition",
+  "external_id": "fictional-paused-observation",
+  "occurred_at": "2026-10-26T11:01:30.000000Z",
+  "period_start": null,
+  "period_end": null,
+  "payload": {
+    "paused": true
+  },
+  "content_hash": "6198467cb938c56667fe1f31c961551c0e0f8c6a4a7e5173853c42cf0b75d566",
+  "fact_hash": "48894d4496998b4fa3445b6abd02990fa7eaf839358634b37976653d23a2389e",
+  "actor": "operator",
+  "received_at": "2026-10-26T11:01:31.909468Z",
+  "record_hash": "6fc2d463edbd12b8fb37ff4f081de874a5e02eb8e0965bf57d1502fba7fb0cd7"
+}
+```
+
+### 18. 2026-10-26T11:01:31.912173+00:00 — command M07_ingest
+
+Participação: human_supplied_synthetic_evidence
+
+```json
+{
+  "id": 3,
+  "operation": "M07_ingest",
+  "participation": "human_supplied_synthetic_evidence",
+  "payload": {
+    "input_hash": "884ebac1f73be1ca39c1be9a7c128289b669f0c4495bd89e3904cae791d11b85",
+    "result": {
+      "batch_id": 1,
+      "classification": "synthetic",
+      "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+      "config_version": 1,
+      "customer": "fictional-account",
+      "duplicates": 0,
+      "inserted": 13,
+      "operational_state": "inactive",
+      "record_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "reused": false,
+      "tenant": "collaboration"
+    }
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.912173+00:00",
+  "previous_hash": "4b95b53282c4c9ade79020f2159c2adbd7718dd48e769b967001294c746134cb",
+  "record_hash": "4feaff564477cd3d76d7cb770f0d9739d13ec78107221dac9d1ceb2a4ad39c25"
+}
+```
+
+### 19. 2026-10-26T11:01:31.915263+00:00 — M14 opening
+
+Participação: explicit_local_case_registration
+
+```json
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "case_id": "observed-cycle",
+  "request_id": "observed-cycle",
+  "payload": {
+    "cycle_number": 1,
+    "legacy_upgrade": false,
+    "new_evidence_ids": [],
+    "predecessor_closure_hash": null,
+    "previous_case_id": null,
+    "reason": "initial_registration",
+    "session_hash": null
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.915263+00:00",
+  "record_hash": "9a36b24d12de5a1f19c4dd211f26243581135b2d7440d64affc8afef4ae24392"
+}
+```
+
+### 20. 2026-10-26T11:01:31.920287+00:00 — orchestrator checkpoint
+
+Participação: automatic_state_and_blockers
+
+```json
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "case_id": "observed-cycle",
+  "version": 1,
+  "parent_hash": null,
+  "payload": {
+    "basis": {},
+    "blockers": [
+      "not_processed"
+    ],
+    "core_transition_authorized": false,
+    "operational_state": "inactive",
+    "real_recovery_demonstrated": false,
+    "refs": {},
+    "state": "awaiting_data"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.920287+00:00",
+  "record_hash": "4c05548a019e774acbbbee203b20ac849811fa84490b7917bfb681d96dc2033e"
+}
+```
+
+### 21. 2026-10-26T11:01:31.935069+00:00 — C02
+
+Participação: automatic_deterministic_assessment
+
+```json
+{
+  "id": 1,
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "criteria_version": 1,
+  "request_hash": "c556a74574c46f25e42fb6ea88966f119cf978127562e68b781b8e43976ddbf8",
+  "payload": {
+    "algorithm": "c02-adaptive-v1",
+    "as_of": "2026-10-26T11:01:30.000000Z",
+    "classification": "synthetic",
+    "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+    "config_version": 1,
+    "criteria_hash": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+    "criteria_results": [
+      {
+        "contradictions": [],
+        "criterion_id": "operational-degradation",
+        "dimension": "operational",
+        "issues": [],
+        "measured": {
+          "denominator": "1",
+          "numerator": "20"
+        },
+        "state": "demonstrated",
+        "windows": {
+          "current": {
+            "aggregate": {
+              "denominator": "1",
+              "numerator": "20"
+            },
+            "contradictions": [],
+            "end": "2026-10-26T11:01:30.000000Z",
+            "evidence_ids": [
+              7,
+              8,
+              10,
+              11
+            ],
+            "issues": [],
+            "start": "2026-10-26T11:01:28.000000Z"
+          }
+        }
+      },
+      {
+        "contradictions": [],
+        "criterion_id": "value-loss",
+        "dimension": "value",
+        "issues": [],
+        "measured": {
+          "denominator": "1",
+          "numerator": "-10"
+        },
+        "state": "demonstrated",
+        "windows": {
+          "baseline": {
+            "aggregate": {
+              "denominator": "1",
+              "numerator": "12"
+            },
+            "contradictions": [],
+            "end": "2026-10-26T11:01:28.000000Z",
+            "evidence_ids": [
+              3,
+              6
+            ],
+            "issues": [],
+            "start": "2026-10-26T11:01:26.000000Z"
+          },
+          "current": {
+            "aggregate": {
+              "denominator": "1",
+              "numerator": "2"
+            },
+            "contradictions": [],
+            "end": "2026-10-26T11:01:30.000000Z",
+            "evidence_ids": [
+              9,
+              12
+            ],
+            "issues": [],
+            "start": "2026-10-26T11:01:28.000000Z"
+          }
+        }
+      }
+    ],
+    "criteria_snapshot": {
+      "config_version": 1,
+      "criteria": [
+        {
+          "aggregation": "mean",
+          "cadence_seconds": 1,
+          "comparison": "gt",
+          "coverage": "aligned_complete",
+          "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+          "dimension": "operational",
+          "evidence_refs": [
+            "processing-snapshot"
+          ],
+          "goal_refs": [
+            "deliver-agreed-work"
+          ],
+          "id": "operational-degradation",
+          "method": "threshold",
+          "metric_ref": "processing-delay",
+          "source": {
+            "definition_id": "processing-delay",
+            "field": "value",
+            "kind": "metric"
+          },
+          "threshold": 10,
+          "threshold_unit": "seconds",
+          "window_seconds": 2
+        },
+        {
+          "aggregation": "sum",
+          "cadence_seconds": 1,
+          "comparison": "lt",
+          "coverage": "aligned_complete",
+          "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+          "dimension": "value",
+          "evidence_refs": [
+            "value-snapshot"
+          ],
+          "goal_refs": [
+            "deliver-agreed-work"
+          ],
+          "id": "value-loss",
+          "method": "absolute_change",
+          "metric_ref": "completed-items",
+          "source": {
+            "definition_id": "value-snapshot",
+            "field": "outcome_count",
+            "kind": "evidence"
+          },
+          "threshold": -3,
+          "threshold_unit": "count",
+          "window_seconds": 2
+        }
+      ],
+      "provenance": {
+        "recorded_at": "2026-10-25T00:00:00Z",
+        "source_ref": "fixture:collaboration:m08-owner-criteria",
+        "supplied_by": "synthetic-fixture-author"
+      },
+      "schema_version": 1,
+      "tenant": "collaboration"
+    },
+    "criteria_version": 1,
+    "customer": "fictional-account",
+    "evidence": [
+      {
+        "id": 1,
+        "record_hash": "a04d5db9d2b9cbf8005a5fe00d9144d1b1ec73acfb9c282bf9c6288706535fa8"
+      },
+      {
+        "id": 2,
+        "record_hash": "2b5020a705f46b5d6ad9ba27e9ee6c900db9eba0caa5efba2a4e137eebd280fc"
+      },
+      {
+        "id": 3,
+        "record_hash": "4ddaa54f2962c787e05b7619143f7c3b049a92ff7e939bf2503502846543e4c7"
+      },
+      {
+        "id": 4,
+        "record_hash": "52c7de777bb491b39cae6aa41b372f14a639a931e897f42f7acdbcf4709486ca"
+      },
+      {
+        "id": 5,
+        "record_hash": "e8591596216d590c2528fdc3446faa4234ad19a3efc8a4f87edb0f78d3bae19d"
+      },
+      {
+        "id": 6,
+        "record_hash": "a0017387ef638a0414f8b6cb9bbe213e1d8c43dc41510d03d493172432c9b4d1"
+      },
+      {
+        "id": 7,
+        "record_hash": "0fd07822ab8c57e3405ef703e12251832ecb24a212d097190de175f6c7bd0fd3"
+      },
+      {
+        "id": 8,
+        "record_hash": "a9a09a15e9019a1805fa9f1c59676e4ae1aa020863353c68674611d03fa28878"
+      },
+      {
+        "id": 9,
+        "record_hash": "5549074b6a53477ff3acddd4e659cfe747a5a27bc5bfae6774a4716747bc91ba"
+      },
+      {
+        "id": 10,
+        "record_hash": "8150edddd0e293258d3e42ce9d6d74856b8c4d42e784cf96bec1358d7481a632"
+      },
+      {
+        "id": 11,
+        "record_hash": "f3c76d795bd321fc080343939a9e8ec3216dd582f7a4b874e28dcb1938eb28ef"
+      },
+      {
+        "id": 12,
+        "record_hash": "94af2ef1e8d85d32503773c6d58e5b08033d1ef06a3b8f87a26519460326ddcc"
+      },
+      {
+        "id": 13,
+        "record_hash": "6fc2d463edbd12b8fb37ff4f081de874a5e02eb8e0965bf57d1502fba7fb0cd7"
+      }
+    ],
+    "operational_deterioration": {
+      "criterion_ids": [
+        "operational-degradation"
+      ],
+      "state": "demonstrated"
+    },
+    "operational_state": "inactive",
+    "proof_scope": "declared_criteria_and_supplied_evidence",
+    "tenant": "collaboration",
+    "through": 13,
+    "value_loss": {
+      "criterion_ids": [
+        "value-loss"
+      ],
+      "state": "demonstrated"
+    }
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.935069+00:00",
+  "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b",
+  "reused": true
+}
+```
+
+### 22. 2026-10-26T11:01:31.937429+00:00 — orchestrator checkpoint
+
+Participação: automatic_state_and_blockers
+
+```json
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "case_id": "observed-cycle",
+  "version": 2,
+  "parent_hash": "4c05548a019e774acbbbee203b20ac849811fa84490b7917bfb681d96dc2033e",
+  "payload": {
+    "basis": {
+      "as_of": "2026-10-26T11:01:30.000000Z",
+      "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+      "source_heads": {
+        "config_version": 1,
+        "criteria_version": 1,
+        "eligible_ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "through": 13
+      }
+    },
+    "blockers": [
+      "c02_recorded"
+    ],
+    "core_transition_authorized": false,
+    "operational_state": "inactive",
+    "real_recovery_demonstrated": false,
+    "refs": {
+      "c02": {
+        "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+        "id": 1,
+        "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b"
+      }
+    },
+    "state": "awaiting_investigation"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.937429+00:00",
+  "record_hash": "f16a058cf7e2c1736f78a7b1e9ef625428686fb41f3040e49aa190a27958f620"
+}
+```
+
+### 23. 2026-10-26T11:01:31.953775+00:00 — orchestrator checkpoint
+
+Participação: automatic_state_and_blockers
+
+```json
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "case_id": "observed-cycle",
+  "version": 3,
+  "parent_hash": "f16a058cf7e2c1736f78a7b1e9ef625428686fb41f3040e49aa190a27958f620",
+  "payload": {
+    "basis": {
+      "as_of": "2026-10-26T11:01:30.000000Z",
+      "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+      "source_heads": {
+        "config_version": 1,
+        "criteria_version": 1,
+        "eligible_ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "through": 13
+      }
+    },
+    "blockers": [
+      "operator_investigation_missing"
+    ],
+    "core_transition_authorized": false,
+    "operational_state": "inactive",
+    "real_recovery_demonstrated": false,
+    "refs": {
+      "c02": {
+        "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+        "id": 1,
+        "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b"
+      }
+    },
+    "state": "awaiting_investigation"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.953775+00:00",
+  "record_hash": "53eaf374b57f06d6da5d19e75394e58cfa15eeaf90f1f2b907811b9f85d1b3f2"
+}
+```
+
+### 24. 2026-10-26T11:01:31.957207+00:00 — command orchestrator_advance
+
+Participação: automatic_bounded_processing
+
+```json
+{
+  "id": 4,
+  "operation": "orchestrator_advance",
+  "participation": "automatic_bounded_processing",
+  "payload": {
+    "ai_kind": "unavailable",
+    "checkpoint": {
+      "actor": "operator",
+      "case_id": "observed-cycle",
+      "created_at": "2026-10-26T11:01:31.953775+00:00",
+      "customer": "fictional-account",
+      "parent_hash": "f16a058cf7e2c1736f78a7b1e9ef625428686fb41f3040e49aa190a27958f620",
+      "payload": {
+        "basis": {
+          "as_of": "2026-10-26T11:01:30.000000Z",
+          "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+          "source_heads": {
+            "config_version": 1,
+            "criteria_version": 1,
+            "eligible_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "through": 13
+          }
+        },
+        "blockers": [
+          "operator_investigation_missing"
+        ],
+        "core_transition_authorized": false,
+        "operational_state": "inactive",
+        "real_recovery_demonstrated": false,
+        "refs": {
+          "c02": {
+            "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "id": 1,
+            "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b"
+          }
+        },
+        "state": "awaiting_investigation"
+      },
+      "record_hash": "53eaf374b57f06d6da5d19e75394e58cfa15eeaf90f1f2b907811b9f85d1b3f2",
+      "tenant": "collaboration",
+      "version": 3
+    },
+    "external_execution": "blocked"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.957207+00:00",
+  "previous_hash": "4feaff564477cd3d76d7cb770f0d9739d13ec78107221dac9d1ceb2a4ad39c25",
+  "record_hash": "994d18d7818aed8bd315111e1cfa00b421ff880e5e0d61da301d3afa0782f326"
+}
+```
+
+### 25. 2026-10-26T11:01:31.968703+00:00 — C03
+
+Participação: supplied_document_NOT_autonomous
+
+```json
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "c02_run_id": 1,
+  "version": 1,
+  "parent_hash": null,
+  "c02_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b",
+  "input_hash": "8be1e8a3e448c938d769e2ddd052f4cc79417cd161baf7ad625ceb305c77fe67",
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.968703+00:00",
+  "record_hash": "5e4a89e783dfd3f1f89049d5a3737c1c9df5d6b3bd970bb9d8d27eaa6c480c89",
+  "declaration": {
+    "c02_run_id": 1,
+    "customer": "fictional-account",
+    "hypotheses": [
+      {
+        "contrary_refs": [],
+        "id": "unconfirmed-prerequisite-hypothesis",
+        "statement": "A declared prerequisite may be unmet. Whether this explains the deterioration has not been established.",
+        "support_refs": [
+          {
+            "evidence_id": 13,
+            "field": "paused"
+          }
+        ]
+      }
+    ],
+    "provenance": {
+      "recorded_at": "2026-10-25T00:00:00Z",
+      "source_ref": "fixture:collaboration:m09-operator-declaration",
+      "supplied_by": "synthetic-fixture-author"
+    },
+    "requirements": [
+      {
+        "comparison": "eq",
+        "criterion_id": "operational-degradation",
+        "declaration": "Fictional owner-declared prerequisite: processing must not be paused. This declaration is not causal proof.",
+        "expected": false,
+        "id": "explicit-unpaused-requirement",
+        "selector": {
+          "definition_id": "operation-state",
+          "field": "paused",
+          "kind": "evidence"
+        },
+        "window": "current"
+      }
+    ],
+    "schema_version": 1,
+    "tenant": "collaboration"
+  },
+  "payload": {
+    "algorithm": "c03-structured-v1",
+    "tenant": "collaboration",
+    "customer": "fictional-account",
+    "investigation_version": 1,
+    "c02_run_id": 1,
+    "c02_run_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b",
+    "config_version": 1,
+    "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+    "criteria_version": 1,
+    "criteria_hash": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+    "as_of": "2026-10-26T11:01:30.000000Z",
+    "through": 13,
+    "classification": "synthetic",
+    "operational_state": "inactive",
+    "causal_status": "not_established",
+    "declaration_provenance": {
+      "recorded_at": "2026-10-25T00:00:00Z",
+      "source_ref": "fixture:collaboration:m09-operator-declaration",
+      "supplied_by": "synthetic-fixture-author"
+    },
+    "facts": [
+      {
+        "evidence_id": 1,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "payload": {
+          "value": 5
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:processing-metric",
+          "external_id": "fictional-processing-delay-0",
+          "occurred_at": "2026-10-26T11:01:27.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:26.000000Z",
+          "period_end": "2026-10-26T11:01:27.000000Z",
+          "actor": "operator",
+          "record_hash": "a04d5db9d2b9cbf8005a5fe00d9144d1b1ec73acfb9c282bf9c6288706535fa8"
+        }
+      },
+      {
+        "evidence_id": 2,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "payload": {
+          "delay_seconds": 5
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:processing-evidence",
+          "external_id": "fictional-processing-snapshot-0",
+          "occurred_at": "2026-10-26T11:01:27.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:26.000000Z",
+          "period_end": "2026-10-26T11:01:27.000000Z",
+          "actor": "operator",
+          "record_hash": "2b5020a705f46b5d6ad9ba27e9ee6c900db9eba0caa5efba2a4e137eebd280fc"
+        }
+      },
+      {
+        "evidence_id": 3,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "payload": {
+          "outcome_count": 6
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:value-definition",
+          "external_id": "fictional-value-snapshot-0",
+          "occurred_at": "2026-10-26T11:01:27.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:26.000000Z",
+          "period_end": "2026-10-26T11:01:27.000000Z",
+          "actor": "operator",
+          "record_hash": "4ddaa54f2962c787e05b7619143f7c3b049a92ff7e939bf2503502846543e4c7"
+        }
+      },
+      {
+        "evidence_id": 4,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "payload": {
+          "value": 5
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:processing-metric",
+          "external_id": "fictional-processing-delay-1",
+          "occurred_at": "2026-10-26T11:01:28.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:27.000000Z",
+          "period_end": "2026-10-26T11:01:28.000000Z",
+          "actor": "operator",
+          "record_hash": "52c7de777bb491b39cae6aa41b372f14a639a931e897f42f7acdbcf4709486ca"
+        }
+      },
+      {
+        "evidence_id": 5,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "payload": {
+          "delay_seconds": 5
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:processing-evidence",
+          "external_id": "fictional-processing-snapshot-1",
+          "occurred_at": "2026-10-26T11:01:28.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:27.000000Z",
+          "period_end": "2026-10-26T11:01:28.000000Z",
+          "actor": "operator",
+          "record_hash": "e8591596216d590c2528fdc3446faa4234ad19a3efc8a4f87edb0f78d3bae19d"
+        }
+      },
+      {
+        "evidence_id": 6,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "payload": {
+          "outcome_count": 6
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:value-definition",
+          "external_id": "fictional-value-snapshot-1",
+          "occurred_at": "2026-10-26T11:01:28.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:27.000000Z",
+          "period_end": "2026-10-26T11:01:28.000000Z",
+          "actor": "operator",
+          "record_hash": "a0017387ef638a0414f8b6cb9bbe213e1d8c43dc41510d03d493172432c9b4d1"
+        }
+      },
+      {
+        "evidence_id": 7,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "payload": {
+          "value": 20
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:processing-metric",
+          "external_id": "fictional-processing-delay-2",
+          "occurred_at": "2026-10-26T11:01:29.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:28.000000Z",
+          "period_end": "2026-10-26T11:01:29.000000Z",
+          "actor": "operator",
+          "record_hash": "0fd07822ab8c57e3405ef703e12251832ecb24a212d097190de175f6c7bd0fd3"
+        }
+      },
+      {
+        "evidence_id": 8,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "payload": {
+          "delay_seconds": 20
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:processing-evidence",
+          "external_id": "fictional-processing-snapshot-2",
+          "occurred_at": "2026-10-26T11:01:29.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:28.000000Z",
+          "period_end": "2026-10-26T11:01:29.000000Z",
+          "actor": "operator",
+          "record_hash": "a9a09a15e9019a1805fa9f1c59676e4ae1aa020863353c68674611d03fa28878"
+        }
+      },
+      {
+        "evidence_id": 9,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "payload": {
+          "outcome_count": 1
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:value-definition",
+          "external_id": "fictional-value-snapshot-2",
+          "occurred_at": "2026-10-26T11:01:29.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:28.000000Z",
+          "period_end": "2026-10-26T11:01:29.000000Z",
+          "actor": "operator",
+          "record_hash": "5549074b6a53477ff3acddd4e659cfe747a5a27bc5bfae6774a4716747bc91ba"
+        }
+      },
+      {
+        "evidence_id": 10,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "payload": {
+          "value": 20
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:processing-metric",
+          "external_id": "fictional-processing-delay-3",
+          "occurred_at": "2026-10-26T11:01:30.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:29.000000Z",
+          "period_end": "2026-10-26T11:01:30.000000Z",
+          "actor": "operator",
+          "record_hash": "8150edddd0e293258d3e42ce9d6d74856b8c4d42e784cf96bec1358d7481a632"
+        }
+      },
+      {
+        "evidence_id": 11,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "payload": {
+          "delay_seconds": 20
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:processing-evidence",
+          "external_id": "fictional-processing-snapshot-3",
+          "occurred_at": "2026-10-26T11:01:30.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:29.000000Z",
+          "period_end": "2026-10-26T11:01:30.000000Z",
+          "actor": "operator",
+          "record_hash": "f3c76d795bd321fc080343939a9e8ec3216dd582f7a4b874e28dcb1938eb28ef"
+        }
+      },
+      {
+        "evidence_id": 12,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "payload": {
+          "outcome_count": 1
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:value-definition",
+          "external_id": "fictional-value-snapshot-3",
+          "occurred_at": "2026-10-26T11:01:30.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": "2026-10-26T11:01:29.000000Z",
+          "period_end": "2026-10-26T11:01:30.000000Z",
+          "actor": "operator",
+          "record_hash": "94af2ef1e8d85d32503773c6d58e5b08033d1ef06a3b8f87a26519460326ddcc"
+        }
+      },
+      {
+        "evidence_id": 13,
+        "claim_scope": "recorded_observation",
+        "temporal_relation": "at_or_before_c02_as_of",
+        "kind": "evidence",
+        "definition_id": "operation-state",
+        "payload": {
+          "paused": true
+        },
+        "disputed_fields": [],
+        "provenance": {
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "source_ref": "fixture:collaboration:state-definition",
+          "external_id": "fictional-paused-observation",
+          "occurred_at": "2026-10-26T11:01:30.000000Z",
+          "received_at": "2026-10-26T11:01:31.909468Z",
+          "period_start": null,
+          "period_end": null,
+          "actor": "operator",
+          "record_hash": "6fc2d463edbd12b8fb37ff4f081de874a5e02eb8e0965bf57d1502fba7fb0cd7"
+        }
+      }
+    ],
+    "c02_findings": {
+      "algorithm": "c02-adaptive-v1",
+      "proof_scope": "declared_criteria_and_supplied_evidence",
+      "dimensions": {
+        "operational_deterioration": {
+          "criterion_ids": [
+            "operational-degradation"
+          ],
+          "state": "demonstrated"
+        },
+        "value_loss": {
+          "criterion_ids": [
+            "value-loss"
+          ],
+          "state": "demonstrated"
+        }
+      },
+      "criteria_snapshot": {
+        "config_version": 1,
+        "criteria": [
+          {
+            "aggregation": "mean",
+            "cadence_seconds": 1,
+            "comparison": "gt",
+            "coverage": "aligned_complete",
+            "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+            "dimension": "operational",
+            "evidence_refs": [
+              "processing-snapshot"
+            ],
+            "goal_refs": [
+              "deliver-agreed-work"
+            ],
+            "id": "operational-degradation",
+            "method": "threshold",
+            "metric_ref": "processing-delay",
+            "source": {
+              "definition_id": "processing-delay",
+              "field": "value",
+              "kind": "metric"
+            },
+            "threshold": 10,
+            "threshold_unit": "seconds",
+            "window_seconds": 2
+          },
+          {
+            "aggregation": "sum",
+            "cadence_seconds": 1,
+            "comparison": "lt",
+            "coverage": "aligned_complete",
+            "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+            "dimension": "value",
+            "evidence_refs": [
+              "value-snapshot"
+            ],
+            "goal_refs": [
+              "deliver-agreed-work"
+            ],
+            "id": "value-loss",
+            "method": "absolute_change",
+            "metric_ref": "completed-items",
+            "source": {
+              "definition_id": "value-snapshot",
+              "field": "outcome_count",
+              "kind": "evidence"
+            },
+            "threshold": -3,
+            "threshold_unit": "count",
+            "window_seconds": 2
+          }
+        ],
+        "provenance": {
+          "recorded_at": "2026-10-25T00:00:00Z",
+          "source_ref": "fixture:collaboration:m08-owner-criteria",
+          "supplied_by": "synthetic-fixture-author"
+        },
+        "schema_version": 1,
+        "tenant": "collaboration"
+      },
+      "criteria_results": [
+        {
+          "contradictions": [],
+          "criterion_id": "operational-degradation",
+          "dimension": "operational",
+          "issues": [],
+          "measured": {
+            "denominator": "1",
+            "numerator": "20"
+          },
+          "state": "demonstrated",
+          "windows": {
+            "current": {
+              "aggregate": {
+                "denominator": "1",
+                "numerator": "20"
+              },
+              "contradictions": [],
+              "end": "2026-10-26T11:01:30.000000Z",
+              "evidence_ids": [
+                7,
+                8,
+                10,
+                11
+              ],
+              "issues": [],
+              "start": "2026-10-26T11:01:28.000000Z"
+            }
+          }
+        },
+        {
+          "contradictions": [],
+          "criterion_id": "value-loss",
+          "dimension": "value",
+          "issues": [],
+          "measured": {
+            "denominator": "1",
+            "numerator": "-10"
+          },
+          "state": "demonstrated",
+          "windows": {
+            "baseline": {
+              "aggregate": {
+                "denominator": "1",
+                "numerator": "12"
+              },
+              "contradictions": [],
+              "end": "2026-10-26T11:01:28.000000Z",
+              "evidence_ids": [
+                3,
+                6
+              ],
+              "issues": [],
+              "start": "2026-10-26T11:01:26.000000Z"
+            },
+            "current": {
+              "aggregate": {
+                "denominator": "1",
+                "numerator": "2"
+              },
+              "contradictions": [],
+              "end": "2026-10-26T11:01:30.000000Z",
+              "evidence_ids": [
+                9,
+                12
+              ],
+              "issues": [],
+              "start": "2026-10-26T11:01:28.000000Z"
+            }
+          }
+        }
+      ]
+    },
+    "hypotheses": [
+      {
+        "contrary_refs": [],
+        "id": "unconfirmed-prerequisite-hypothesis",
+        "statement": "A declared prerequisite may be unmet. Whether this explains the deterioration has not been established.",
+        "support_refs": [
+          {
+            "evidence_id": 13,
+            "field": "paused"
+          }
+        ],
+        "state": "unconfirmed",
+        "support_scope": "operator_declared_references_only",
+        "causal_status": "not_established",
+        "disputed_refs": []
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "explicit-unpaused-requirement",
+        "declared_requirement": {
+          "comparison": "eq",
+          "criterion_id": "operational-degradation",
+          "declaration": "Fictional owner-declared prerequisite: processing must not be paused. This declaration is not causal proof.",
+          "expected": false,
+          "id": "explicit-unpaused-requirement",
+          "selector": {
+            "definition_id": "operation-state",
+            "field": "paused",
+            "kind": "evidence"
+          },
+          "window": "current"
+        },
+        "status": "supported",
+        "claim_type": "observed_requirement_noncompliance",
+        "support_scope": "observed_condition_only",
+        "causal_status": "not_established",
+        "checked_refs": [
+          {
+            "evidence_id": 13,
+            "field": "paused"
+          }
+        ],
+        "violation_refs": [
+          {
+            "evidence_id": 13,
+            "field": "paused"
+          }
+        ],
+        "compliant_refs": []
+      }
+    ],
+    "supported_impediments": [
+      {
+        "requirement_id": "explicit-unpaused-requirement",
+        "declared_requirement": {
+          "comparison": "eq",
+          "criterion_id": "operational-degradation",
+          "declaration": "Fictional owner-declared prerequisite: processing must not be paused. This declaration is not causal proof.",
+          "expected": false,
+          "id": "explicit-unpaused-requirement",
+          "selector": {
+            "definition_id": "operation-state",
+            "field": "paused",
+            "kind": "evidence"
+          },
+          "window": "current"
+        },
+        "status": "supported",
+        "claim_type": "observed_requirement_noncompliance",
+        "support_scope": "observed_condition_only",
+        "causal_status": "not_established",
+        "checked_refs": [
+          {
+            "evidence_id": 13,
+            "field": "paused"
+          }
+        ],
+        "violation_refs": [
+          {
+            "evidence_id": 13,
+            "field": "paused"
+          }
+        ],
+        "compliant_refs": []
+      }
+    ],
+    "missing_information": [],
+    "analysis_limitations": [],
+    "contradictions": []
+  }
+}
+```
+
+### 26. 2026-10-26T11:01:31.969959+00:00 — command C03_declaration
+
+Participação: human_supplied_investigation
+
+```json
+{
+  "id": 5,
+  "operation": "C03_declaration",
+  "participation": "human_supplied_investigation",
+  "payload": {
+    "input_hash": "8be1e8a3e448c938d769e2ddd052f4cc79417cd161baf7ad625ceb305c77fe67",
+    "record_hash": "5e4a89e783dfd3f1f89049d5a3737c1c9df5d6b3bd970bb9d8d27eaa6c480c89",
+    "version": 1
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.969959+00:00",
+  "previous_hash": "994d18d7818aed8bd315111e1cfa00b421ff880e5e0d61da301d3afa0782f326",
+  "record_hash": "e65cb891664b5461cd727f9f6ecd1089a3dd08745641f04f3f90d44bf9fadecb"
+}
+```
+
+### 27. 2026-10-26T11:01:31.998770+00:00 — orchestrator checkpoint
+
+Participação: automatic_state_and_blockers
+
+```json
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "case_id": "observed-cycle",
+  "version": 4,
+  "parent_hash": "53eaf374b57f06d6da5d19e75394e58cfa15eeaf90f1f2b907811b9f85d1b3f2",
+  "payload": {
+    "basis": {
+      "as_of": "2026-10-26T11:01:30.000000Z",
+      "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+      "source_heads": {
+        "config_version": 1,
+        "criteria_version": 1,
+        "eligible_ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "through": 13
+      }
+    },
+    "blockers": [
+      "proposal_not_recorded"
+    ],
+    "core_transition_authorized": false,
+    "operational_state": "inactive",
+    "real_recovery_demonstrated": false,
+    "refs": {
+      "c02": {
+        "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+        "id": 1,
+        "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b"
+      },
+      "c03": {
+        "record_hash": "5e4a89e783dfd3f1f89049d5a3737c1c9df5d6b3bd970bb9d8d27eaa6c480c89",
+        "version": 1
+      },
+      "c04": {
+        "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a"
+      }
+    },
+    "state": "awaiting_ai"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:31.998770+00:00",
+  "record_hash": "29d33454abac4dfc025ec97236fa08e72e5685d967c46005f0f01d6717fee81e"
+}
+```
+
+### 28. 2026-10-26T11:01:32.016443+00:00 — orchestrator checkpoint
+
+Participação: automatic_state_and_blockers
+
+```json
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "case_id": "observed-cycle",
+  "version": 5,
+  "parent_hash": "29d33454abac4dfc025ec97236fa08e72e5685d967c46005f0f01d6717fee81e",
+  "payload": {
+    "basis": {
+      "as_of": "2026-10-26T11:01:30.000000Z",
+      "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+      "source_heads": {
+        "config_version": 1,
+        "criteria_version": 1,
+        "eligible_ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "through": 13
+      }
+    },
+    "blockers": [
+      "authorized_ai_not_configured"
+    ],
+    "core_transition_authorized": false,
+    "operational_state": "inactive",
+    "real_recovery_demonstrated": false,
+    "refs": {
+      "c02": {
+        "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+        "id": 1,
+        "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b"
+      },
+      "c03": {
+        "record_hash": "5e4a89e783dfd3f1f89049d5a3737c1c9df5d6b3bd970bb9d8d27eaa6c480c89",
+        "version": 1
+      },
+      "c04": {
+        "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a"
+      }
+    },
+    "state": "awaiting_ai"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:32.016443+00:00",
+  "record_hash": "2eb75a485dc15fd9756485285b4c7372fded0eaec65953f1af9a0444ae2460de"
+}
+```
+
+### 29. 2026-10-26T11:01:32.019879+00:00 — command orchestrator_advance
+
+Participação: automatic_bounded_processing
+
+```json
+{
+  "id": 6,
+  "operation": "orchestrator_advance",
+  "participation": "automatic_bounded_processing",
+  "payload": {
+    "ai_kind": "unavailable",
+    "checkpoint": {
+      "actor": "operator",
+      "case_id": "observed-cycle",
+      "created_at": "2026-10-26T11:01:32.016443+00:00",
+      "customer": "fictional-account",
+      "parent_hash": "29d33454abac4dfc025ec97236fa08e72e5685d967c46005f0f01d6717fee81e",
+      "payload": {
+        "basis": {
+          "as_of": "2026-10-26T11:01:30.000000Z",
+          "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+          "source_heads": {
+            "config_version": 1,
+            "criteria_version": 1,
+            "eligible_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "through": 13
+          }
+        },
+        "blockers": [
+          "authorized_ai_not_configured"
+        ],
+        "core_transition_authorized": false,
+        "operational_state": "inactive",
+        "real_recovery_demonstrated": false,
+        "refs": {
+          "c02": {
+            "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "id": 1,
+            "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b"
+          },
+          "c03": {
+            "record_hash": "5e4a89e783dfd3f1f89049d5a3737c1c9df5d6b3bd970bb9d8d27eaa6c480c89",
+            "version": 1
+          },
+          "c04": {
+            "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a"
+          }
+        },
+        "state": "awaiting_ai"
+      },
+      "record_hash": "2eb75a485dc15fd9756485285b4c7372fded0eaec65953f1af9a0444ae2460de",
+      "tenant": "collaboration",
+      "version": 5
+    },
+    "external_execution": "blocked"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:32.019879+00:00",
+  "previous_hash": "e65cb891664b5461cd727f9f6ecd1089a3dd08745641f04f3f90d44bf9fadecb",
+  "record_hash": "61ce3cd0e51680186613c295a4779d8369dac7edd13f85a9339ecd1ffdc43834"
+}
+```
+
+### 30. 2026-10-26T11:01:32.056900+00:00 — command orchestrator_advance
+
+Participação: automatic_bounded_processing
+
+```json
+{
+  "id": 7,
+  "operation": "orchestrator_advance",
+  "participation": "automatic_bounded_processing",
+  "payload": {
+    "ai_kind": "unavailable",
+    "checkpoint": {
+      "actor": "operator",
+      "case_id": "observed-cycle",
+      "created_at": "2026-10-26T11:01:32.016443+00:00",
+      "customer": "fictional-account",
+      "parent_hash": "29d33454abac4dfc025ec97236fa08e72e5685d967c46005f0f01d6717fee81e",
+      "payload": {
+        "basis": {
+          "as_of": "2026-10-26T11:01:30.000000Z",
+          "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+          "source_heads": {
+            "config_version": 1,
+            "criteria_version": 1,
+            "eligible_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "through": 13
+          }
+        },
+        "blockers": [
+          "authorized_ai_not_configured"
+        ],
+        "core_transition_authorized": false,
+        "operational_state": "inactive",
+        "real_recovery_demonstrated": false,
+        "refs": {
+          "c02": {
+            "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "id": 1,
+            "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b"
+          },
+          "c03": {
+            "record_hash": "5e4a89e783dfd3f1f89049d5a3737c1c9df5d6b3bd970bb9d8d27eaa6c480c89",
+            "version": 1
+          },
+          "c04": {
+            "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a"
+          }
+        },
+        "state": "awaiting_ai"
+      },
+      "record_hash": "2eb75a485dc15fd9756485285b4c7372fded0eaec65953f1af9a0444ae2460de",
+      "tenant": "collaboration",
+      "version": 5
+    },
+    "external_execution": "blocked"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:32.056900+00:00",
+  "previous_hash": "61ce3cd0e51680186613c295a4779d8369dac7edd13f85a9339ecd1ffdc43834",
+  "record_hash": "a6c50d9eb0dc954f0805e2de0f7d987ae90572a584e105cb864c4d9bfd7d5f83"
+}
+```
+
+### 31. 2026-10-26T11:01:32.070188+00:00 — C04 request
+
+Participação: explicit_fixture_or_authorized_provider_request
+
+```json
+{
+  "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a",
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:32.070188+00:00",
+  "record_hash": "9f49772097db0a09a6a3e5010601d4efebae2e6e57cd7368e22cd50ba37bdb4a"
+}
+```
+
+### 32. 2026-10-26T11:01:32.077066+00:00 — C04 result
+
+Participação: test_fixture_NOT_AI
+
+```json
+{
+  "request": {
+    "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a",
+    "c02_run_id": 1,
+    "c03_version": 1,
+    "context_hash": "003e71840393968147378809d82ea662b13ef404b93d518862f3b0d33a9df84d",
+    "actor": "operator",
+    "created_at": "2026-10-26T11:01:32.070188+00:00",
+    "record_hash": "9f49772097db0a09a6a3e5010601d4efebae2e6e57cd7368e22cd50ba37bdb4a"
+  },
+  "result": {
+    "tenant": "collaboration",
+    "customer": "fictional-account",
+    "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a",
+    "receipt": {
+      "completion_received": true,
+      "failure": null,
+      "inference_kind": "test_fixture",
+      "post_context_hash": "003e71840393968147378809d82ea662b13ef404b93d518862f3b0d33a9df84d",
+      "post_current_heads": {
+        "c02_run_id": 1,
+        "c03_version": 1,
+        "config_version": 1,
+        "criteria_version": 1,
+        "evidence_id": 13
+      },
+      "reported_model": "explicit-fixture-not-ai",
+      "requested_model": "explicit-fixture-not-ai",
+      "response_id": "supplied-fixture",
+      "revalidation": "matched"
+    },
+    "response_hash": "569d00518d7f8fc5966ac1977f1788119f2bb18b31e998102965086b759fc2ab",
+    "payload": {
+      "authorization": "not_granted",
+      "causal_status": "not_established",
+      "condition_checks": [
+        {
+          "condition": {
+            "evidence_ref": "operation-state",
+            "field": "paused",
+            "operator": "eq",
+            "value": true
+          },
+          "fact_refs": [
+            {
+              "evidence_id": 13,
+              "field": "paused"
+            }
+          ],
+          "state": "satisfied"
+        }
+      ],
+      "execution_authorized": false,
+      "human_review_required": true,
+      "model_response": {
+        "analysis_limitation_refs": [],
+        "context_hash": "003e71840393968147378809d82ea662b13ef404b93d518862f3b0d33a9df84d",
+        "contradiction_refs": [],
+        "hypothesis_reviews": [
+          {
+            "contrary_refs": [],
+            "disposition": "retain_unconfirmed",
+            "hypothesis_id": "unconfirmed-prerequisite-hypothesis",
+            "support_refs": [
+              {
+                "evidence_id": 13,
+                "field": "paused"
+              }
+            ]
+          }
+        ],
+        "impediment_refs": [
+          "explicit-unpaused-requirement"
+        ],
+        "missing_information_refs": [],
+        "recommendation": {
+          "capability_id": "reopen-delivery-queue",
+          "criterion_refs": [
+            "operational-degradation",
+            "value-loss"
+          ],
+          "evidence_refs": [
+            {
+              "evidence_id": 13,
+              "field": "paused"
+            }
+          ],
+          "kind": "action_proposal",
+          "reason_code": "catalogue_match"
+        },
+        "schema_version": 1
+      },
+      "operational_state": "inactive",
+      "reason_codes": [
+        "declared_conditions_and_evidence_match"
+      ],
+      "status": "proposal_validated",
+      "validated_capability_id": "reopen-delivery-queue",
+      "validator": "c04-grounded-v1",
+      "verification_plan": {
+        "operational": [
+          {
+            "evidence_ref": "operation-state",
+            "field": "paused",
+            "operator": "eq",
+            "value": false
+          }
+        ],
+        "value": [
+          {
+            "evidence_ref": "value-snapshot",
+            "field": "outcome_count",
+            "operator": "gte",
+            "value": 3
+          }
+        ],
+        "value_goal_refs": [
+          "deliver-agreed-work"
+        ]
+      },
+      "verification_status": "not_performed"
+    },
+    "created_at": "2026-10-26T11:01:32.077066+00:00",
+    "record_hash": "343cdd4c7aa96d549df0ac63d695d51fa3868f9050e6bfab8b935a1b611ea4be"
+  }
+}
+```
+
+### 33. 2026-10-26T11:01:32.082885+00:00 — command C04_supplied_fixture
+
+Participação: test_fixture_NOT_AI
+
+```json
+{
+  "id": 8,
+  "operation": "C04_supplied_fixture",
+  "participation": "test_fixture_NOT_AI",
+  "payload": {
+    "input_hash": "569d00518d7f8fc5966ac1977f1788119f2bb18b31e998102965086b759fc2ab",
+    "result": {
+      "created_at": "2026-10-26T11:01:32.077066+00:00",
+      "customer": "fictional-account",
+      "payload": {
+        "authorization": "not_granted",
+        "causal_status": "not_established",
+        "condition_checks": [
+          {
+            "condition": {
+              "evidence_ref": "operation-state",
+              "field": "paused",
+              "operator": "eq",
+              "value": true
+            },
+            "fact_refs": [
+              {
+                "evidence_id": 13,
+                "field": "paused"
+              }
+            ],
+            "state": "satisfied"
+          }
+        ],
+        "execution_authorized": false,
+        "human_review_required": true,
+        "model_response": {
+          "analysis_limitation_refs": [],
+          "context_hash": "003e71840393968147378809d82ea662b13ef404b93d518862f3b0d33a9df84d",
+          "contradiction_refs": [],
+          "hypothesis_reviews": [
+            {
+              "contrary_refs": [],
+              "disposition": "retain_unconfirmed",
+              "hypothesis_id": "unconfirmed-prerequisite-hypothesis",
+              "support_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ]
+            }
+          ],
+          "impediment_refs": [
+            "explicit-unpaused-requirement"
+          ],
+          "missing_information_refs": [],
+          "recommendation": {
+            "capability_id": "reopen-delivery-queue",
+            "criterion_refs": [
+              "operational-degradation",
+              "value-loss"
+            ],
+            "evidence_refs": [
+              {
+                "evidence_id": 13,
+                "field": "paused"
+              }
+            ],
+            "kind": "action_proposal",
+            "reason_code": "catalogue_match"
+          },
+          "schema_version": 1
+        },
+        "operational_state": "inactive",
+        "reason_codes": [
+          "declared_conditions_and_evidence_match"
+        ],
+        "status": "proposal_validated",
+        "validated_capability_id": "reopen-delivery-queue",
+        "validator": "c04-grounded-v1",
+        "verification_plan": {
+          "operational": [
+            {
+              "evidence_ref": "operation-state",
+              "field": "paused",
+              "operator": "eq",
+              "value": false
+            }
+          ],
+          "value": [
+            {
+              "evidence_ref": "value-snapshot",
+              "field": "outcome_count",
+              "operator": "gte",
+              "value": 3
+            }
+          ],
+          "value_goal_refs": [
+            "deliver-agreed-work"
+          ]
+        },
+        "verification_status": "not_performed"
+      },
+      "receipt": {
+        "completion_received": true,
+        "failure": null,
+        "inference_kind": "test_fixture",
+        "post_context_hash": "003e71840393968147378809d82ea662b13ef404b93d518862f3b0d33a9df84d",
+        "post_current_heads": {
+          "c02_run_id": 1,
+          "c03_version": 1,
+          "config_version": 1,
+          "criteria_version": 1,
+          "evidence_id": 13
+        },
+        "reported_model": "explicit-fixture-not-ai",
+        "requested_model": "explicit-fixture-not-ai",
+        "response_id": "supplied-fixture",
+        "revalidation": "matched"
+      },
+      "record_hash": "343cdd4c7aa96d549df0ac63d695d51fa3868f9050e6bfab8b935a1b611ea4be",
+      "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a",
+      "response_hash": "569d00518d7f8fc5966ac1977f1788119f2bb18b31e998102965086b759fc2ab",
+      "tenant": "collaboration"
+    }
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:32.082885+00:00",
+  "previous_hash": "a6c50d9eb0dc954f0805e2de0f7d987ae90572a584e105cb864c4d9bfd7d5f83",
+  "record_hash": "b1d82b90b2bfe3c05e6b8800b6db6da9472d3bd2382e4cdffeb1fd62e3557d6c"
+}
+```
+
+### 34. 2026-10-26T11:01:32.127116+00:00 — orchestrator checkpoint
+
+Participação: automatic_state_and_blockers
+
+```json
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "case_id": "observed-cycle",
+  "version": 6,
+  "parent_hash": "2eb75a485dc15fd9756485285b4c7372fded0eaec65953f1af9a0444ae2460de",
+  "payload": {
+    "basis": {
+      "as_of": "2026-10-26T11:01:30.000000Z",
+      "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+      "source_heads": {
+        "config_version": 1,
+        "criteria_version": 1,
+        "eligible_ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "through": 13
+      }
+    },
+    "blockers": [
+      "intent_not_prepared"
+    ],
+    "core_transition_authorized": false,
+    "operational_state": "inactive",
+    "real_recovery_demonstrated": false,
+    "refs": {
+      "c02": {
+        "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+        "id": 1,
+        "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b"
+      },
+      "c03": {
+        "record_hash": "5e4a89e783dfd3f1f89049d5a3737c1c9df5d6b3bd970bb9d8d27eaa6c480c89",
+        "version": 1
+      },
+      "c04": {
+        "inference_kind": "test_fixture",
+        "record_hash": "343cdd4c7aa96d549df0ac63d695d51fa3868f9050e6bfab8b935a1b611ea4be",
+        "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a",
+        "status": "proposal_validated"
+      },
+      "c05": {
+        "execution_id": "orch-4bed8ccc7b09c12641fa67b7c3fd2ac1bbf3b7798431d8d69c13f5fe2d"
+      }
+    },
+    "state": "awaiting_execution"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:32.127116+00:00",
+  "record_hash": "ef09b16687c161779e754ff9e1ee7c49a2355c81ceed49e2aa0d638cae2085cb"
+}
+```
+
+### 35. 2026-10-26T11:01:32.196470+00:00 — C05 prepare
+
+Participação: automatic_controlled_synthetic_execution
+
+```json
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "execution_id": "orch-4bed8ccc7b09c12641fa67b7c3fd2ac1bbf3b7798431d8d69c13f5fe2d",
+  "payload": {
+    "actor": "operator",
+    "created_at": "2026-10-26T11:01:32.196470+00:00",
+    "identity_basis": "trusted_local_core_principal",
+    "operation": "prepare",
+    "reason_code": null,
+    "status": "prepared"
+  },
+  "previous_hash": "",
+  "record_hash": "7678656ad6b1a06ecd8bb702fc840ae08274b82f41a54ff6c2d6a80b4ebf267a"
+}
+```
+
+### 36. 2026-10-26T11:01:32.215985+00:00 — orchestrator checkpoint
+
+Participação: automatic_state_and_blockers
+
+```json
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "case_id": "observed-cycle",
+  "version": 7,
+  "parent_hash": "ef09b16687c161779e754ff9e1ee7c49a2355c81ceed49e2aa0d638cae2085cb",
+  "payload": {
+    "basis": {
+      "as_of": "2026-10-26T11:01:30.000000Z",
+      "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+      "source_heads": {
+        "config_version": 1,
+        "criteria_version": 1,
+        "eligible_ids": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "through": 13
+      }
+    },
+    "blockers": [
+      "explicit_human_approval_required"
+    ],
+    "core_transition_authorized": false,
+    "operational_state": "inactive",
+    "real_recovery_demonstrated": false,
+    "refs": {
+      "c02": {
+        "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+        "id": 1,
+        "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b"
+      },
+      "c03": {
+        "record_hash": "5e4a89e783dfd3f1f89049d5a3737c1c9df5d6b3bd970bb9d8d27eaa6c480c89",
+        "version": 1
+      },
+      "c04": {
+        "inference_kind": "test_fixture",
+        "record_hash": "343cdd4c7aa96d549df0ac63d695d51fa3868f9050e6bfab8b935a1b611ea4be",
+        "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a",
+        "status": "proposal_validated"
+      },
+      "c05": {
+        "execution_id": "orch-4bed8ccc7b09c12641fa67b7c3fd2ac1bbf3b7798431d8d69c13f5fe2d",
+        "intent_hash": "ae7e354053a53c386c1b1d949249ae6dba3bde934714b9b30930dea8abb8c51b",
+        "state": "awaiting_human_approval"
+      }
+    },
+    "state": "awaiting_approval"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:32.215985+00:00",
+  "record_hash": "983df3348eb2d4df3b84181a4b43a6cf8ef0245eb4fefba89cf17829da820b02"
+}
+```
+
+### 37. 2026-10-26T11:01:32.223845+00:00 — command orchestrator_advance
+
+Participação: automatic_bounded_processing
+
+```json
+{
+  "id": 9,
+  "operation": "orchestrator_advance",
+  "participation": "automatic_bounded_processing",
+  "payload": {
+    "ai_kind": "unavailable",
+    "checkpoint": {
+      "actor": "operator",
+      "case_id": "observed-cycle",
+      "created_at": "2026-10-26T11:01:32.215985+00:00",
+      "customer": "fictional-account",
+      "parent_hash": "ef09b16687c161779e754ff9e1ee7c49a2355c81ceed49e2aa0d638cae2085cb",
+      "payload": {
+        "basis": {
+          "as_of": "2026-10-26T11:01:30.000000Z",
+          "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+          "source_heads": {
+            "config_version": 1,
+            "criteria_version": 1,
+            "eligible_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "through": 13
+          }
+        },
+        "blockers": [
+          "explicit_human_approval_required"
+        ],
+        "core_transition_authorized": false,
+        "operational_state": "inactive",
+        "real_recovery_demonstrated": false,
+        "refs": {
+          "c02": {
+            "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "id": 1,
+            "record_hash": "347cf0e5746796db240670e281bb531fc29f3ea3599efa6d7c0ed9a9d89fe98b"
+          },
+          "c03": {
+            "record_hash": "5e4a89e783dfd3f1f89049d5a3737c1c9df5d6b3bd970bb9d8d27eaa6c480c89",
+            "version": 1
+          },
+          "c04": {
+            "inference_kind": "test_fixture",
+            "record_hash": "343cdd4c7aa96d549df0ac63d695d51fa3868f9050e6bfab8b935a1b611ea4be",
+            "request_id": "orch-c3f6fa99733e436d25bea76a456ff9b067f04de23467f3a8d0b65d094a",
+            "status": "proposal_validated"
+          },
+          "c05": {
+            "execution_id": "orch-4bed8ccc7b09c12641fa67b7c3fd2ac1bbf3b7798431d8d69c13f5fe2d",
+            "intent_hash": "ae7e354053a53c386c1b1d949249ae6dba3bde934714b9b30930dea8abb8c51b",
+            "state": "awaiting_human_approval"
+          }
+        },
+        "state": "awaiting_approval"
+      },
+      "record_hash": "983df3348eb2d4df3b84181a4b43a6cf8ef0245eb4fefba89cf17829da820b02",
+      "tenant": "collaboration",
+      "version": 7
+    },
+    "external_execution": "blocked"
+  },
+  "actor": "operator",
+  "created_at": "2026-10-26T11:01:32.223845+00:00",
+  "previous_hash": "b1d82b90b2bfe3c05e6b8800b6db6da9472d3bd2382e4cdffeb1fd62e3557d6c",
+  "record_hash": "7e41305220e9357cebde39ac0ff5b93991157539bd26c1720e3c42c01f3f1bd5"
+}
+```
+
+## Limitações
+
+- No autonomous investigation: C03 requires an operator-supplied document.
+- No external research or SaaS connector.
+- No real AI verified by a supplied test fixture; no configured AI means unavailable.
+- Only synthetic persisted effects, never real customer/value recovery.
+- No automatic resolution, retry or erasure of uncertain executions.
+- Human approval is an explicit local session assertion, not biometric verification.
+- C06 does not close the case; M14 remains explicit.
+- CLI only; pilot/production/HTTP unchanged. Local row hashes are not external audit signatures.

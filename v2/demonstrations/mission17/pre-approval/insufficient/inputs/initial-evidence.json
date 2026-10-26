@@ -1,0 +1,21 @@
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "records": [
+    {
+      "external_id": "fictional-processing-delay-0",
+      "kind": "metric",
+      "definition_id": "processing-delay",
+      "source_ref": "fixture:collaboration:processing-metric",
+      "occurred_at": "2026-10-26T11:03:42.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:41.000000Z",
+        "end": "2026-10-26T11:03:42.000000Z"
+      },
+      "payload": {
+        "value": 5
+      }
+    }
+  ]
+}

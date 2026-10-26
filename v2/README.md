@@ -178,3 +178,11 @@ sessão privada e CSRF; processamento apenas de análise e revisão humana.
 C05/intervenções e alegações de recuperação real bloqueados. Sem IA configurada
 **e** consentida, não há inferência nem simulação.
 [Contrato de integração, percurso reproduzível e prontidão](PILOT_INTEGRATION.md).
+
+### Missão 17 — execução integral observável, sem interface
+
+Comando `python -m centerway.journey`: laboratório local privado e sintético que
+reutiliza M06–M14, mostra fronteiras humanas/automáticas, aprova hash C05 concreto,
+persiste efeito num serviço SQLite de teste e recolhe amostras posteriores para C06.
+Sem IA configurada há bloqueio; fixture C04 é entrada de teste explícita, nunca
+inferência. Não altera o piloto/production. [Instruções exatas e limites](OBSERVABLE_EXECUTION.md).
