@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "context_hash": "003e71840393968147378809d82ea662b13ef404b93d518862f3b0d33a9df84d",
+  "hypothesis_reviews": [
+    {
+      "hypothesis_id": "unconfirmed-prerequisite-hypothesis",
+      "disposition": "retain_unconfirmed",
+      "support_refs": [
+        {
+          "evidence_id": 13,
+          "field": "paused"
+        }
+      ],
+      "contrary_refs": []
+    }
+  ],
+  "impediment_refs": [
+    "explicit-unpaused-requirement"
+  ],
+  "contradiction_refs": [],
+  "missing_information_refs": [],
+  "analysis_limitation_refs": [],
+  "recommendation": {
+    "kind": "action_proposal",
+    "capability_id": "reopen-delivery-queue",
+    "reason_code": "catalogue_match",
+    "evidence_refs": [
+      {
+        "evidence_id": 13,
+        "field": "paused"
+      }
+    ],
+    "criterion_refs": [
+      "operational-degradation",
+      "value-loss"
+    ]
+  }
+}

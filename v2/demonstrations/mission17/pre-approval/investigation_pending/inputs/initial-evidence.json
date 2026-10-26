@@ -1,0 +1,186 @@
+{
+  "tenant": "collaboration",
+  "customer": "fictional-account",
+  "config_version": 1,
+  "records": [
+    {
+      "external_id": "fictional-processing-delay-0",
+      "kind": "metric",
+      "definition_id": "processing-delay",
+      "source_ref": "fixture:collaboration:processing-metric",
+      "occurred_at": "2026-10-26T11:03:43.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:42.000000Z",
+        "end": "2026-10-26T11:03:43.000000Z"
+      },
+      "payload": {
+        "value": 5
+      }
+    },
+    {
+      "external_id": "fictional-processing-snapshot-0",
+      "kind": "evidence",
+      "definition_id": "processing-snapshot",
+      "source_ref": "fixture:collaboration:processing-evidence",
+      "occurred_at": "2026-10-26T11:03:43.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:42.000000Z",
+        "end": "2026-10-26T11:03:43.000000Z"
+      },
+      "payload": {
+        "delay_seconds": 5
+      }
+    },
+    {
+      "external_id": "fictional-value-snapshot-0",
+      "kind": "evidence",
+      "definition_id": "value-snapshot",
+      "source_ref": "fixture:collaboration:value-definition",
+      "occurred_at": "2026-10-26T11:03:43.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:42.000000Z",
+        "end": "2026-10-26T11:03:43.000000Z"
+      },
+      "payload": {
+        "outcome_count": 6
+      }
+    },
+    {
+      "external_id": "fictional-processing-delay-1",
+      "kind": "metric",
+      "definition_id": "processing-delay",
+      "source_ref": "fixture:collaboration:processing-metric",
+      "occurred_at": "2026-10-26T11:03:44.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:43.000000Z",
+        "end": "2026-10-26T11:03:44.000000Z"
+      },
+      "payload": {
+        "value": 5
+      }
+    },
+    {
+      "external_id": "fictional-processing-snapshot-1",
+      "kind": "evidence",
+      "definition_id": "processing-snapshot",
+      "source_ref": "fixture:collaboration:processing-evidence",
+      "occurred_at": "2026-10-26T11:03:44.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:43.000000Z",
+        "end": "2026-10-26T11:03:44.000000Z"
+      },
+      "payload": {
+        "delay_seconds": 5
+      }
+    },
+    {
+      "external_id": "fictional-value-snapshot-1",
+      "kind": "evidence",
+      "definition_id": "value-snapshot",
+      "source_ref": "fixture:collaboration:value-definition",
+      "occurred_at": "2026-10-26T11:03:44.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:43.000000Z",
+        "end": "2026-10-26T11:03:44.000000Z"
+      },
+      "payload": {
+        "outcome_count": 6
+      }
+    },
+    {
+      "external_id": "fictional-processing-delay-2",
+      "kind": "metric",
+      "definition_id": "processing-delay",
+      "source_ref": "fixture:collaboration:processing-metric",
+      "occurred_at": "2026-10-26T11:03:45.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:44.000000Z",
+        "end": "2026-10-26T11:03:45.000000Z"
+      },
+      "payload": {
+        "value": 20
+      }
+    },
+    {
+      "external_id": "fictional-processing-snapshot-2",
+      "kind": "evidence",
+      "definition_id": "processing-snapshot",
+      "source_ref": "fixture:collaboration:processing-evidence",
+      "occurred_at": "2026-10-26T11:03:45.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:44.000000Z",
+        "end": "2026-10-26T11:03:45.000000Z"
+      },
+      "payload": {
+        "delay_seconds": 20
+      }
+    },
+    {
+      "external_id": "fictional-value-snapshot-2",
+      "kind": "evidence",
+      "definition_id": "value-snapshot",
+      "source_ref": "fixture:collaboration:value-definition",
+      "occurred_at": "2026-10-26T11:03:45.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:44.000000Z",
+        "end": "2026-10-26T11:03:45.000000Z"
+      },
+      "payload": {
+        "outcome_count": 1
+      }
+    },
+    {
+      "external_id": "fictional-processing-delay-3",
+      "kind": "metric",
+      "definition_id": "processing-delay",
+      "source_ref": "fixture:collaboration:processing-metric",
+      "occurred_at": "2026-10-26T11:03:46.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:45.000000Z",
+        "end": "2026-10-26T11:03:46.000000Z"
+      },
+      "payload": {
+        "value": 20
+      }
+    },
+    {
+      "external_id": "fictional-processing-snapshot-3",
+      "kind": "evidence",
+      "definition_id": "processing-snapshot",
+      "source_ref": "fixture:collaboration:processing-evidence",
+      "occurred_at": "2026-10-26T11:03:46.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:45.000000Z",
+        "end": "2026-10-26T11:03:46.000000Z"
+      },
+      "payload": {
+        "delay_seconds": 20
+      }
+    },
+    {
+      "external_id": "fictional-value-snapshot-3",
+      "kind": "evidence",
+      "definition_id": "value-snapshot",
+      "source_ref": "fixture:collaboration:value-definition",
+      "occurred_at": "2026-10-26T11:03:46.000000Z",
+      "period": {
+        "start": "2026-10-26T11:03:45.000000Z",
+        "end": "2026-10-26T11:03:46.000000Z"
+      },
+      "payload": {
+        "outcome_count": 1
+      }
+    },
+    {
+      "external_id": "fictional-paused-observation",
+      "kind": "evidence",
+      "definition_id": "operation-state",
+      "source_ref": "fixture:collaboration:state-definition",
+      "occurred_at": "2026-10-26T11:03:46.000000Z",
+      "period": null,
+      "payload": {
+        "paused": true
+      }
+    }
+  ]
+}

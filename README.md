@@ -74,3 +74,5 @@ comandos npm da raiz pertencem à versão antiga. Não houve deploy.
 Missão 15 V2: [entrada SaaS HTTPS/HMAC, configuração privada e limites](v2/WEBHOOK_CONTRACT.md), sem ativação operacional ou publicação.
 
 Missão 16 V2: [APIs do piloto privado, integração Lovable futura e critérios de prontidão](v2/PILOT_INTEGRATION.md), sem interface ou publicação.
+
+Missão 17 V2: [execução e inspeção local dos motores, sem interface](v2/OBSERVABLE_EXECUTION.md), com efeitos exclusivamente sintéticos e autorização explícita por intervenção.

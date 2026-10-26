@@ -1,0 +1,4007 @@
+{
+  "report_version": 1,
+  "generated_at": "2026-10-26T11:20:45.758359+00:00",
+  "environment": {
+    "as_of": "2026-10-26T11:03:46.000000Z",
+    "case_id": "observed-cycle",
+    "classification": "synthetic",
+    "customer": "fictional-account",
+    "fault": "none",
+    "operator": "operator",
+    "real_recovery_demonstrated": false,
+    "scenario": "ai_unavailable",
+    "tenant": "collaboration",
+    "usage_step": 2
+  },
+  "summary": {
+    "scenario": "ai_unavailable",
+    "classification": "synthetic_test_only",
+    "case_state": "awaiting_ai",
+    "blockers": [
+      "authorized_ai_not_configured"
+    ],
+    "ai": [],
+    "effects": 0,
+    "samples": 0,
+    "c06": [],
+    "case_closed": false,
+    "real_recovery_demonstrated": false,
+    "external_execution": "blocked"
+  },
+  "timeline": [
+    {
+      "recorded_at": "2026-10-26T11:03:47.321427+00:00",
+      "stage": "M06",
+      "participation": "supplied_synthetic_contract",
+      "source": {
+        "tenant": "collaboration",
+        "version": 1,
+        "parent_hash": null,
+        "content_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.321427+00:00",
+        "record_hash": "d4ba788aef25e4fa4e102dfff48f09e691ed0fc76278e9702c08b2d51bc8d79e",
+        "config": {
+          "capabilities": [
+            {
+              "conditions": [
+                {
+                  "evidence_ref": "operation-state",
+                  "field": "paused",
+                  "operator": "eq",
+                  "value": true
+                }
+              ],
+              "description": "Fictional declared capability for proposal tests only; no executor or real authorization.",
+              "id": "reopen-delivery-queue",
+              "permissions": {
+                "required_role": "operator",
+                "requires_human_approval": true
+              },
+              "verification": {
+                "operational": [
+                  {
+                    "evidence_ref": "operation-state",
+                    "field": "paused",
+                    "operator": "eq",
+                    "value": false
+                  }
+                ],
+                "value": [
+                  {
+                    "evidence_ref": "value-snapshot",
+                    "field": "outcome_count",
+                    "operator": "gte",
+                    "value": 3
+                  }
+                ],
+                "value_goal_refs": [
+                  "deliver-agreed-work"
+                ]
+              }
+            }
+          ],
+          "customers": {
+            "description": "Fictional account identity contract only; no customer records.",
+            "entity": "account",
+            "id_field": "account_id"
+          },
+          "data_classification": "synthetic",
+          "events": [
+            {
+              "customer_id_field": "account_id",
+              "description": "Synthetic declared outcome event schema, not a received event.",
+              "fields": [
+                {
+                  "name": "account_id",
+                  "required": true,
+                  "type": "string"
+                },
+                {
+                  "name": "occurred_at",
+                  "required": true,
+                  "type": "timestamp"
+                }
+              ],
+              "id": "item-completed",
+              "source_ref": "fixture:collaboration:event-definition"
+            }
+          ],
+          "evidence": [
+            {
+              "availability": "declared",
+              "description": "Synthetic declared operation state; not a live state read.",
+              "event_refs": [],
+              "fields": [
+                {
+                  "name": "paused",
+                  "required": true,
+                  "type": "boolean"
+                }
+              ],
+              "id": "operation-state",
+              "kind": "state",
+              "metric_refs": [],
+              "source_ref": "fixture:collaboration:state-definition"
+            },
+            {
+              "availability": "declared",
+              "description": "Synthetic declared measured outcome for a supplier-defined evaluation period. No data is collected.",
+              "event_refs": [],
+              "fields": [
+                {
+                  "name": "outcome_count",
+                  "required": true,
+                  "type": "integer"
+                }
+              ],
+              "id": "value-snapshot",
+              "kind": "metric",
+              "metric_refs": [
+                "completed-items"
+              ],
+              "source_ref": "fixture:collaboration:value-definition"
+            },
+            {
+              "availability": "declared",
+              "description": "Fictional owner-declared corroborating snapshot, not a connector read.",
+              "event_refs": [],
+              "fields": [
+                {
+                  "name": "delay_seconds",
+                  "required": true,
+                  "type": "number"
+                }
+              ],
+              "id": "processing-snapshot",
+              "kind": "metric",
+              "metric_refs": [
+                "processing-delay"
+              ],
+              "source_ref": "fixture:collaboration:processing-evidence"
+            }
+          ],
+          "metrics": [
+            {
+              "description": "Synthetic owner-supplied outcome count; no automatic computation is implemented.",
+              "event_refs": [
+                "item-completed"
+              ],
+              "id": "completed-items",
+              "source_ref": "fixture:collaboration:metric-definition",
+              "unit": "count",
+              "value_type": "integer"
+            },
+            {
+              "description": "Fictional owner-declared processing delay sample. Not a discovered business metric.",
+              "event_refs": [],
+              "id": "processing-delay",
+              "source_ref": "fixture:collaboration:processing-metric",
+              "unit": "seconds",
+              "value_type": "number"
+            }
+          ],
+          "product": {
+            "description": "Synthetic collaborative work product. All declarations below are fictional test inputs, not real customer objectives.",
+            "name": "Fictional Collaboration"
+          },
+          "provenance": {
+            "recorded_at": "2026-10-25T00:00:00Z",
+            "source_ref": "fixture:collaboration:m08-owner-config",
+            "supplied_by": "synthetic-fixture-author"
+          },
+          "schema_version": 1,
+          "tenant": "collaboration",
+          "value_goals": [
+            {
+              "description": "Fictional owner-declared value objective: deliver-agreed-work. No real goal is inferred.",
+              "evidence_refs": [
+                "value-snapshot",
+                "processing-snapshot"
+              ],
+              "id": "deliver-agreed-work",
+              "metric_refs": [
+                "completed-items",
+                "processing-delay"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.328199+00:00",
+      "stage": "C02 criteria",
+      "participation": "supplied_synthetic_criteria",
+      "source": {
+        "tenant": "collaboration",
+        "version": 1,
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "parent_hash": null,
+        "content_hash": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.328199+00:00",
+        "record_hash": "bfcb8c7f5abfdc312b62f52c245317d562159b1cdb3b1bfb99a82bb995058aa7",
+        "document": {
+          "config_version": 1,
+          "criteria": [
+            {
+              "aggregation": "mean",
+              "cadence_seconds": 1,
+              "comparison": "gt",
+              "coverage": "aligned_complete",
+              "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+              "dimension": "operational",
+              "evidence_refs": [
+                "processing-snapshot"
+              ],
+              "goal_refs": [
+                "deliver-agreed-work"
+              ],
+              "id": "operational-degradation",
+              "method": "threshold",
+              "metric_ref": "processing-delay",
+              "source": {
+                "definition_id": "processing-delay",
+                "field": "value",
+                "kind": "metric"
+              },
+              "threshold": 10,
+              "threshold_unit": "seconds",
+              "window_seconds": 2
+            },
+            {
+              "aggregation": "sum",
+              "cadence_seconds": 1,
+              "comparison": "lt",
+              "coverage": "aligned_complete",
+              "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+              "dimension": "value",
+              "evidence_refs": [
+                "value-snapshot"
+              ],
+              "goal_refs": [
+                "deliver-agreed-work"
+              ],
+              "id": "value-loss",
+              "method": "absolute_change",
+              "metric_ref": "completed-items",
+              "source": {
+                "definition_id": "value-snapshot",
+                "field": "outcome_count",
+                "kind": "evidence"
+              },
+              "threshold": -3,
+              "threshold_unit": "count",
+              "window_seconds": 2
+            }
+          ],
+          "provenance": {
+            "recorded_at": "2026-10-25T00:00:00Z",
+            "source_ref": "fixture:collaboration:m08-owner-criteria",
+            "supplied_by": "synthetic-fixture-author"
+          },
+          "schema_version": 1,
+          "tenant": "collaboration"
+        }
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.340808+00:00",
+      "stage": "command initialize",
+      "participation": "human_supplied_test_profile",
+      "source": {
+        "id": 1,
+        "operation": "initialize",
+        "participation": "human_supplied_test_profile",
+        "payload": {
+          "input_hashes": {
+            "configuration.json": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+            "criteria.json": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+            "initial-evidence.json": "e74e741d0aaeaf142c7a7fca1e84356773bf1d810a6fb0339701ccedf5e5c9ce",
+            "investigation.json": "8be1e8a3e448c938d769e2ddd052f4cc79417cd161baf7ad625ceb305c77fe67"
+          },
+          "profile": {
+            "as_of": "2026-10-26T11:03:46.000000Z",
+            "case_id": "observed-cycle",
+            "classification": "synthetic",
+            "customer": "fictional-account",
+            "fault": "none",
+            "operator": "operator",
+            "real_recovery_demonstrated": false,
+            "scenario": "ai_unavailable",
+            "tenant": "collaboration",
+            "usage_step": 2
+          }
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.340808+00:00",
+        "previous_hash": null,
+        "record_hash": "8b0a18b9fb0eb044485205e7fa11164420ac77d17dee8e8978361212eb0c7d60"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.389524+00:00",
+      "stage": "command login",
+      "participation": "human_session",
+      "source": {
+        "id": 2,
+        "operation": "login",
+        "participation": "human_session",
+        "payload": {
+          "expires_at": "2026-10-26T12:03:47.388284+00:00",
+          "user": "operator"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.389524+00:00",
+        "previous_hash": "8b0a18b9fb0eb044485205e7fa11164420ac77d17dee8e8978361212eb0c7d60",
+        "record_hash": "471d6aecc49de9cdd170265f2a42a606858c4a8f1c53d85f1a3dc6ba5e0257bf"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 1,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "source_ref": "fixture:collaboration:processing-metric",
+        "external_id": "fictional-processing-delay-0",
+        "occurred_at": "2026-10-26T11:03:43.000000Z",
+        "period_start": "2026-10-26T11:03:42.000000Z",
+        "period_end": "2026-10-26T11:03:43.000000Z",
+        "payload": {
+          "value": 5
+        },
+        "content_hash": "b150f30c06a177f6b02d06a713b76d5ccd9cb1bdea084a25515fd9b5ba2e797e",
+        "fact_hash": "d56964977ad5d003fac1a40e4bbeb8f511fa4b4724ac0dc6b4e93f66f162d68b",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "e7eef54352121e6e314b41039cac4cc1e60e816d4f888e743dc1629db2360cc8"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 2,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "source_ref": "fixture:collaboration:processing-evidence",
+        "external_id": "fictional-processing-snapshot-0",
+        "occurred_at": "2026-10-26T11:03:43.000000Z",
+        "period_start": "2026-10-26T11:03:42.000000Z",
+        "period_end": "2026-10-26T11:03:43.000000Z",
+        "payload": {
+          "delay_seconds": 5
+        },
+        "content_hash": "89ec9518cadef755bb0af5739c128ff0789d2a44ef004e998b50fa940e852727",
+        "fact_hash": "7bdbe1ee4c39791f432ac591ab63d2edbbbddff7c82c897c5f79ce1764b40e1e",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "1817b05e9965a250fdeb307a0e7a51a8b8e24a526248864ffd7dd5bf66f2f4d8"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 3,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "source_ref": "fixture:collaboration:value-definition",
+        "external_id": "fictional-value-snapshot-0",
+        "occurred_at": "2026-10-26T11:03:43.000000Z",
+        "period_start": "2026-10-26T11:03:42.000000Z",
+        "period_end": "2026-10-26T11:03:43.000000Z",
+        "payload": {
+          "outcome_count": 6
+        },
+        "content_hash": "2e7d9b7436f54b932f3317a6e40ca183ed6c934d50c7a436afe96ba6b8b44fe9",
+        "fact_hash": "4f129a3e34c79633b45e8ebb0b0c7a88e36b649bc602308982b8a5a399d698c5",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "70d1c4dc93cb14cccde64ff58e822be5a9f126c8d89dff7d1abf116fc38f39fc"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 4,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "source_ref": "fixture:collaboration:processing-metric",
+        "external_id": "fictional-processing-delay-1",
+        "occurred_at": "2026-10-26T11:03:44.000000Z",
+        "period_start": "2026-10-26T11:03:43.000000Z",
+        "period_end": "2026-10-26T11:03:44.000000Z",
+        "payload": {
+          "value": 5
+        },
+        "content_hash": "85b7868084cf011a46fe26cf675e954c45dc9a5114058cf902a5dacf57a2de5e",
+        "fact_hash": "55297390ae962a4366e08b9b56351499839ea188d53ee63611801ac59a43816d",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "6070bcb6e0ea25499200eb09c6575740d9f94374e99a7276b04f4c675a3bf217"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 5,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "source_ref": "fixture:collaboration:processing-evidence",
+        "external_id": "fictional-processing-snapshot-1",
+        "occurred_at": "2026-10-26T11:03:44.000000Z",
+        "period_start": "2026-10-26T11:03:43.000000Z",
+        "period_end": "2026-10-26T11:03:44.000000Z",
+        "payload": {
+          "delay_seconds": 5
+        },
+        "content_hash": "2480ed3c67a87c2cbadac4ec56de043acf61f068cecb6ce165cabab38e73c9f1",
+        "fact_hash": "bd27ed8f7f5e63619901598650f342dabde3f70d5ec3d20d8a10d7ea4b8ae907",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "44625c2e80ddf4005ce2bf94fa8912ca99bad5de22e5e49e6ba3d31369d2afea"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 6,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "source_ref": "fixture:collaboration:value-definition",
+        "external_id": "fictional-value-snapshot-1",
+        "occurred_at": "2026-10-26T11:03:44.000000Z",
+        "period_start": "2026-10-26T11:03:43.000000Z",
+        "period_end": "2026-10-26T11:03:44.000000Z",
+        "payload": {
+          "outcome_count": 6
+        },
+        "content_hash": "512bdec52a94cd1297a1936e5f63c07bcdd326600414bf71fa5018b3f65cd4ea",
+        "fact_hash": "a2103d66169397bfc9bc0e567194cdf45c79259b95f882e124a10121c65d78cf",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "7fb8d9ee409de321dd7ab3cfeff2800b6fa351159572f28e063cde4761e94eb8"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 7,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "source_ref": "fixture:collaboration:processing-metric",
+        "external_id": "fictional-processing-delay-2",
+        "occurred_at": "2026-10-26T11:03:45.000000Z",
+        "period_start": "2026-10-26T11:03:44.000000Z",
+        "period_end": "2026-10-26T11:03:45.000000Z",
+        "payload": {
+          "value": 20
+        },
+        "content_hash": "c7945abe74de23db329ee0de35c60113265a078447d98f2f77b7b681952ed064",
+        "fact_hash": "184baf986cd2996c7298e9240fccfa46be8037764703d83f9841ad19434a303f",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "3381d4bd8828129c3b7958cfa23a78e0e7c300047dc8bbf442465fdfb07a431a"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 8,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "source_ref": "fixture:collaboration:processing-evidence",
+        "external_id": "fictional-processing-snapshot-2",
+        "occurred_at": "2026-10-26T11:03:45.000000Z",
+        "period_start": "2026-10-26T11:03:44.000000Z",
+        "period_end": "2026-10-26T11:03:45.000000Z",
+        "payload": {
+          "delay_seconds": 20
+        },
+        "content_hash": "291a737bc7c35e91482ad3ebf4cfb86bef2dbfdbb4fc484ef775222b39e117b4",
+        "fact_hash": "d685554c90da46c0e15984e07c4c7c21644c0744e9542add8926cb5e8ba3de1c",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "af73a0016a138268dd6d2628db66c813ae64652c10bf8e3f3cbb04d2673afca5"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 9,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "source_ref": "fixture:collaboration:value-definition",
+        "external_id": "fictional-value-snapshot-2",
+        "occurred_at": "2026-10-26T11:03:45.000000Z",
+        "period_start": "2026-10-26T11:03:44.000000Z",
+        "period_end": "2026-10-26T11:03:45.000000Z",
+        "payload": {
+          "outcome_count": 1
+        },
+        "content_hash": "83e1efacafa40f6af8ba18f4c729a8c64c5163f6479744d03ec90aa33cffd927",
+        "fact_hash": "a21b7a2ef560aa1f660ced4f490beadc316c9bfc8a7aceb68a3719a856b83e4d",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "faba1ef78cbf91c716c53af2d8db2cd949493fe166048d33924a90ff9f00d05f"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 10,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "source_ref": "fixture:collaboration:processing-metric",
+        "external_id": "fictional-processing-delay-3",
+        "occurred_at": "2026-10-26T11:03:46.000000Z",
+        "period_start": "2026-10-26T11:03:45.000000Z",
+        "period_end": "2026-10-26T11:03:46.000000Z",
+        "payload": {
+          "value": 20
+        },
+        "content_hash": "cdcd5a7aa0a76918db445ede964246e5b00c84fe346cbb28e6fad4fe56fd1726",
+        "fact_hash": "8b898c30221ede1e3625eb3c8f56b86e0003aaaa10b0912cb319e94f04729ae9",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "cfc9d49d6d15ec8ddc4ab17c262f3ca48c6c019f2be14e99f9c24370a1f31d73"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 11,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "source_ref": "fixture:collaboration:processing-evidence",
+        "external_id": "fictional-processing-snapshot-3",
+        "occurred_at": "2026-10-26T11:03:46.000000Z",
+        "period_start": "2026-10-26T11:03:45.000000Z",
+        "period_end": "2026-10-26T11:03:46.000000Z",
+        "payload": {
+          "delay_seconds": 20
+        },
+        "content_hash": "f789843be7cfcc9c8d48c7848f01b660385c360b3dbec7070671942cea8b8344",
+        "fact_hash": "478598734f967b58db0c3ea0f50b05c73a2a21a5733bd4ecfaa5ee5b4912acc8",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "165a53c5a0b45a916d2a456e44c8ee9800c3a8458979ec033ef5171ae7540125"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 12,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "source_ref": "fixture:collaboration:value-definition",
+        "external_id": "fictional-value-snapshot-3",
+        "occurred_at": "2026-10-26T11:03:46.000000Z",
+        "period_start": "2026-10-26T11:03:45.000000Z",
+        "period_end": "2026-10-26T11:03:46.000000Z",
+        "payload": {
+          "outcome_count": 1
+        },
+        "content_hash": "4bc61e32629fabde1c384295b894b2fa0cd5bd322c3cd4daaf6a8141b2f05ee8",
+        "fact_hash": "d652cb1a54f15cf1ba7aded7559eb1276067a3985d7c431f03d13e7cd2e6c212",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "4e61628a1c118ec7d281d7c45071112b68a6b15b99ba8adebdde63af14aabb7d"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.393018Z",
+      "stage": "M07",
+      "participation": "synthetic_source_claim",
+      "source": {
+        "id": 13,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "operation-state",
+        "source_ref": "fixture:collaboration:state-definition",
+        "external_id": "fictional-paused-observation",
+        "occurred_at": "2026-10-26T11:03:46.000000Z",
+        "period_start": null,
+        "period_end": null,
+        "payload": {
+          "paused": true
+        },
+        "content_hash": "1379a1b2a06ff4e2f8f87d323dc6a0584fdd110a4e204e4dd851df48dd012bf9",
+        "fact_hash": "1f34fb475d955bdc1df9576956de6cc885a54ad9471f8b83269729bc741333ee",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "9cc53cd6ceb2eb109516ab301959ebc8f78b4c6d4eaf3ef4e8d810bd559a867d"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.395956+00:00",
+      "stage": "command M07_ingest",
+      "participation": "human_supplied_synthetic_evidence",
+      "source": {
+        "id": 3,
+        "operation": "M07_ingest",
+        "participation": "human_supplied_synthetic_evidence",
+        "payload": {
+          "input_hash": "e74e741d0aaeaf142c7a7fca1e84356773bf1d810a6fb0339701ccedf5e5c9ce",
+          "result": {
+            "batch_id": 1,
+            "classification": "synthetic",
+            "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+            "config_version": 1,
+            "customer": "fictional-account",
+            "duplicates": 0,
+            "inserted": 13,
+            "operational_state": "inactive",
+            "record_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "reused": false,
+            "tenant": "collaboration"
+          }
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.395956+00:00",
+        "previous_hash": "471d6aecc49de9cdd170265f2a42a606858c4a8f1c53d85f1a3dc6ba5e0257bf",
+        "record_hash": "7747faaa0f91b18838c5adfcd9132d8a0e5d4f1ed383b93bb0f745710bca6769"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.399073+00:00",
+      "stage": "M14 opening",
+      "participation": "explicit_local_case_registration",
+      "source": {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "request_id": "observed-cycle",
+        "payload": {
+          "cycle_number": 1,
+          "legacy_upgrade": false,
+          "new_evidence_ids": [],
+          "predecessor_closure_hash": null,
+          "previous_case_id": null,
+          "reason": "initial_registration",
+          "session_hash": null
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.399073+00:00",
+        "record_hash": "f8360a5b827fd042315b4ce092cda4231680926a05e18cfc288f0ec253645124"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.403262+00:00",
+      "stage": "orchestrator checkpoint",
+      "participation": "automatic_state_and_blockers",
+      "source": {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "version": 1,
+        "parent_hash": null,
+        "payload": {
+          "basis": {},
+          "blockers": [
+            "not_processed"
+          ],
+          "core_transition_authorized": false,
+          "operational_state": "inactive",
+          "real_recovery_demonstrated": false,
+          "refs": {},
+          "state": "awaiting_data"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.403262+00:00",
+        "record_hash": "fbac0d20ee6e7773cd24e86e2ea0fd4e3d50b2ee38b6d77b5a1bd645d09f6f37"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.419436+00:00",
+      "stage": "C02",
+      "participation": "automatic_deterministic_assessment",
+      "source": {
+        "id": 1,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "criteria_version": 1,
+        "request_hash": "780f5d974dd1d34e7c6d037a1fea14e0ce688882013caa74624e29e72e778851",
+        "payload": {
+          "algorithm": "c02-adaptive-v1",
+          "as_of": "2026-10-26T11:03:46.000000Z",
+          "classification": "synthetic",
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "config_version": 1,
+          "criteria_hash": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+          "criteria_results": [
+            {
+              "contradictions": [],
+              "criterion_id": "operational-degradation",
+              "dimension": "operational",
+              "issues": [],
+              "measured": {
+                "denominator": "1",
+                "numerator": "20"
+              },
+              "state": "demonstrated",
+              "windows": {
+                "current": {
+                  "aggregate": {
+                    "denominator": "1",
+                    "numerator": "20"
+                  },
+                  "contradictions": [],
+                  "end": "2026-10-26T11:03:46.000000Z",
+                  "evidence_ids": [
+                    7,
+                    8,
+                    10,
+                    11
+                  ],
+                  "issues": [],
+                  "start": "2026-10-26T11:03:44.000000Z"
+                }
+              }
+            },
+            {
+              "contradictions": [],
+              "criterion_id": "value-loss",
+              "dimension": "value",
+              "issues": [],
+              "measured": {
+                "denominator": "1",
+                "numerator": "-10"
+              },
+              "state": "demonstrated",
+              "windows": {
+                "baseline": {
+                  "aggregate": {
+                    "denominator": "1",
+                    "numerator": "12"
+                  },
+                  "contradictions": [],
+                  "end": "2026-10-26T11:03:44.000000Z",
+                  "evidence_ids": [
+                    3,
+                    6
+                  ],
+                  "issues": [],
+                  "start": "2026-10-26T11:03:42.000000Z"
+                },
+                "current": {
+                  "aggregate": {
+                    "denominator": "1",
+                    "numerator": "2"
+                  },
+                  "contradictions": [],
+                  "end": "2026-10-26T11:03:46.000000Z",
+                  "evidence_ids": [
+                    9,
+                    12
+                  ],
+                  "issues": [],
+                  "start": "2026-10-26T11:03:44.000000Z"
+                }
+              }
+            }
+          ],
+          "criteria_snapshot": {
+            "config_version": 1,
+            "criteria": [
+              {
+                "aggregation": "mean",
+                "cadence_seconds": 1,
+                "comparison": "gt",
+                "coverage": "aligned_complete",
+                "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+                "dimension": "operational",
+                "evidence_refs": [
+                  "processing-snapshot"
+                ],
+                "goal_refs": [
+                  "deliver-agreed-work"
+                ],
+                "id": "operational-degradation",
+                "method": "threshold",
+                "metric_ref": "processing-delay",
+                "source": {
+                  "definition_id": "processing-delay",
+                  "field": "value",
+                  "kind": "metric"
+                },
+                "threshold": 10,
+                "threshold_unit": "seconds",
+                "window_seconds": 2
+              },
+              {
+                "aggregation": "sum",
+                "cadence_seconds": 1,
+                "comparison": "lt",
+                "coverage": "aligned_complete",
+                "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+                "dimension": "value",
+                "evidence_refs": [
+                  "value-snapshot"
+                ],
+                "goal_refs": [
+                  "deliver-agreed-work"
+                ],
+                "id": "value-loss",
+                "method": "absolute_change",
+                "metric_ref": "completed-items",
+                "source": {
+                  "definition_id": "value-snapshot",
+                  "field": "outcome_count",
+                  "kind": "evidence"
+                },
+                "threshold": -3,
+                "threshold_unit": "count",
+                "window_seconds": 2
+              }
+            ],
+            "provenance": {
+              "recorded_at": "2026-10-25T00:00:00Z",
+              "source_ref": "fixture:collaboration:m08-owner-criteria",
+              "supplied_by": "synthetic-fixture-author"
+            },
+            "schema_version": 1,
+            "tenant": "collaboration"
+          },
+          "criteria_version": 1,
+          "customer": "fictional-account",
+          "evidence": [
+            {
+              "id": 1,
+              "record_hash": "e7eef54352121e6e314b41039cac4cc1e60e816d4f888e743dc1629db2360cc8"
+            },
+            {
+              "id": 2,
+              "record_hash": "1817b05e9965a250fdeb307a0e7a51a8b8e24a526248864ffd7dd5bf66f2f4d8"
+            },
+            {
+              "id": 3,
+              "record_hash": "70d1c4dc93cb14cccde64ff58e822be5a9f126c8d89dff7d1abf116fc38f39fc"
+            },
+            {
+              "id": 4,
+              "record_hash": "6070bcb6e0ea25499200eb09c6575740d9f94374e99a7276b04f4c675a3bf217"
+            },
+            {
+              "id": 5,
+              "record_hash": "44625c2e80ddf4005ce2bf94fa8912ca99bad5de22e5e49e6ba3d31369d2afea"
+            },
+            {
+              "id": 6,
+              "record_hash": "7fb8d9ee409de321dd7ab3cfeff2800b6fa351159572f28e063cde4761e94eb8"
+            },
+            {
+              "id": 7,
+              "record_hash": "3381d4bd8828129c3b7958cfa23a78e0e7c300047dc8bbf442465fdfb07a431a"
+            },
+            {
+              "id": 8,
+              "record_hash": "af73a0016a138268dd6d2628db66c813ae64652c10bf8e3f3cbb04d2673afca5"
+            },
+            {
+              "id": 9,
+              "record_hash": "faba1ef78cbf91c716c53af2d8db2cd949493fe166048d33924a90ff9f00d05f"
+            },
+            {
+              "id": 10,
+              "record_hash": "cfc9d49d6d15ec8ddc4ab17c262f3ca48c6c019f2be14e99f9c24370a1f31d73"
+            },
+            {
+              "id": 11,
+              "record_hash": "165a53c5a0b45a916d2a456e44c8ee9800c3a8458979ec033ef5171ae7540125"
+            },
+            {
+              "id": 12,
+              "record_hash": "4e61628a1c118ec7d281d7c45071112b68a6b15b99ba8adebdde63af14aabb7d"
+            },
+            {
+              "id": 13,
+              "record_hash": "9cc53cd6ceb2eb109516ab301959ebc8f78b4c6d4eaf3ef4e8d810bd559a867d"
+            }
+          ],
+          "operational_deterioration": {
+            "criterion_ids": [
+              "operational-degradation"
+            ],
+            "state": "demonstrated"
+          },
+          "operational_state": "inactive",
+          "proof_scope": "declared_criteria_and_supplied_evidence",
+          "tenant": "collaboration",
+          "through": 13,
+          "value_loss": {
+            "criterion_ids": [
+              "value-loss"
+            ],
+            "state": "demonstrated"
+          }
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.419436+00:00",
+        "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd",
+        "reused": true
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.422145+00:00",
+      "stage": "orchestrator checkpoint",
+      "participation": "automatic_state_and_blockers",
+      "source": {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "version": 2,
+        "parent_hash": "fbac0d20ee6e7773cd24e86e2ea0fd4e3d50b2ee38b6d77b5a1bd645d09f6f37",
+        "payload": {
+          "basis": {
+            "as_of": "2026-10-26T11:03:46.000000Z",
+            "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "source_heads": {
+              "config_version": 1,
+              "criteria_version": 1,
+              "eligible_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "through": 13
+            }
+          },
+          "blockers": [
+            "c02_recorded"
+          ],
+          "core_transition_authorized": false,
+          "operational_state": "inactive",
+          "real_recovery_demonstrated": false,
+          "refs": {
+            "c02": {
+              "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+              "id": 1,
+              "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+            }
+          },
+          "state": "awaiting_investigation"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.422145+00:00",
+        "record_hash": "9b5ad45b588fb3bcab43113ea1fabd2636042e9933afa6c1eb8b89a5fd748e6b"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.438297+00:00",
+      "stage": "orchestrator checkpoint",
+      "participation": "automatic_state_and_blockers",
+      "source": {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "version": 3,
+        "parent_hash": "9b5ad45b588fb3bcab43113ea1fabd2636042e9933afa6c1eb8b89a5fd748e6b",
+        "payload": {
+          "basis": {
+            "as_of": "2026-10-26T11:03:46.000000Z",
+            "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "source_heads": {
+              "config_version": 1,
+              "criteria_version": 1,
+              "eligible_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "through": 13
+            }
+          },
+          "blockers": [
+            "operator_investigation_missing"
+          ],
+          "core_transition_authorized": false,
+          "operational_state": "inactive",
+          "real_recovery_demonstrated": false,
+          "refs": {
+            "c02": {
+              "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+              "id": 1,
+              "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+            }
+          },
+          "state": "awaiting_investigation"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.438297+00:00",
+        "record_hash": "ce4fab0415bc2e0b915e0fab76d7e5fa8eb54583734e647b28293447eb90166b"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.441735+00:00",
+      "stage": "command orchestrator_advance",
+      "participation": "automatic_bounded_processing",
+      "source": {
+        "id": 4,
+        "operation": "orchestrator_advance",
+        "participation": "automatic_bounded_processing",
+        "payload": {
+          "ai_kind": "unavailable",
+          "checkpoint": {
+            "actor": "operator",
+            "case_id": "observed-cycle",
+            "created_at": "2026-10-26T11:03:47.438297+00:00",
+            "customer": "fictional-account",
+            "parent_hash": "9b5ad45b588fb3bcab43113ea1fabd2636042e9933afa6c1eb8b89a5fd748e6b",
+            "payload": {
+              "basis": {
+                "as_of": "2026-10-26T11:03:46.000000Z",
+                "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+                "source_heads": {
+                  "config_version": 1,
+                  "criteria_version": 1,
+                  "eligible_ids": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13
+                  ],
+                  "through": 13
+                }
+              },
+              "blockers": [
+                "operator_investigation_missing"
+              ],
+              "core_transition_authorized": false,
+              "operational_state": "inactive",
+              "real_recovery_demonstrated": false,
+              "refs": {
+                "c02": {
+                  "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+                  "id": 1,
+                  "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+                }
+              },
+              "state": "awaiting_investigation"
+            },
+            "record_hash": "ce4fab0415bc2e0b915e0fab76d7e5fa8eb54583734e647b28293447eb90166b",
+            "tenant": "collaboration",
+            "version": 3
+          },
+          "external_execution": "blocked"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.441735+00:00",
+        "previous_hash": "7747faaa0f91b18838c5adfcd9132d8a0e5d4f1ed383b93bb0f745710bca6769",
+        "record_hash": "b65ab19daf7288fbe9d78da6fe857f01305ee64425a6aa92490d9777e654703d"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.452583+00:00",
+      "stage": "C03",
+      "participation": "supplied_document_NOT_autonomous",
+      "source": {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "c02_run_id": 1,
+        "version": 1,
+        "parent_hash": null,
+        "c02_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd",
+        "input_hash": "8be1e8a3e448c938d769e2ddd052f4cc79417cd161baf7ad625ceb305c77fe67",
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.452583+00:00",
+        "record_hash": "fb8386c6eefc97a8e967ede35ad2cc7dd92d615d6706512b263e4e8392205530",
+        "declaration": {
+          "c02_run_id": 1,
+          "customer": "fictional-account",
+          "hypotheses": [
+            {
+              "contrary_refs": [],
+              "id": "unconfirmed-prerequisite-hypothesis",
+              "statement": "A declared prerequisite may be unmet. Whether this explains the deterioration has not been established.",
+              "support_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "recorded_at": "2026-10-25T00:00:00Z",
+            "source_ref": "fixture:collaboration:m09-operator-declaration",
+            "supplied_by": "synthetic-fixture-author"
+          },
+          "requirements": [
+            {
+              "comparison": "eq",
+              "criterion_id": "operational-degradation",
+              "declaration": "Fictional owner-declared prerequisite: processing must not be paused. This declaration is not causal proof.",
+              "expected": false,
+              "id": "explicit-unpaused-requirement",
+              "selector": {
+                "definition_id": "operation-state",
+                "field": "paused",
+                "kind": "evidence"
+              },
+              "window": "current"
+            }
+          ],
+          "schema_version": 1,
+          "tenant": "collaboration"
+        },
+        "payload": {
+          "algorithm": "c03-structured-v1",
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "investigation_version": 1,
+          "c02_run_id": 1,
+          "c02_run_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "criteria_version": 1,
+          "criteria_hash": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+          "as_of": "2026-10-26T11:03:46.000000Z",
+          "through": 13,
+          "classification": "synthetic",
+          "operational_state": "inactive",
+          "causal_status": "not_established",
+          "declaration_provenance": {
+            "recorded_at": "2026-10-25T00:00:00Z",
+            "source_ref": "fixture:collaboration:m09-operator-declaration",
+            "supplied_by": "synthetic-fixture-author"
+          },
+          "facts": [
+            {
+              "evidence_id": 1,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "metric",
+              "definition_id": "processing-delay",
+              "payload": {
+                "value": 5
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-metric",
+                "external_id": "fictional-processing-delay-0",
+                "occurred_at": "2026-10-26T11:03:43.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:42.000000Z",
+                "period_end": "2026-10-26T11:03:43.000000Z",
+                "actor": "operator",
+                "record_hash": "e7eef54352121e6e314b41039cac4cc1e60e816d4f888e743dc1629db2360cc8"
+              }
+            },
+            {
+              "evidence_id": 2,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "processing-snapshot",
+              "payload": {
+                "delay_seconds": 5
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-evidence",
+                "external_id": "fictional-processing-snapshot-0",
+                "occurred_at": "2026-10-26T11:03:43.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:42.000000Z",
+                "period_end": "2026-10-26T11:03:43.000000Z",
+                "actor": "operator",
+                "record_hash": "1817b05e9965a250fdeb307a0e7a51a8b8e24a526248864ffd7dd5bf66f2f4d8"
+              }
+            },
+            {
+              "evidence_id": 3,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "value-snapshot",
+              "payload": {
+                "outcome_count": 6
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:value-definition",
+                "external_id": "fictional-value-snapshot-0",
+                "occurred_at": "2026-10-26T11:03:43.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:42.000000Z",
+                "period_end": "2026-10-26T11:03:43.000000Z",
+                "actor": "operator",
+                "record_hash": "70d1c4dc93cb14cccde64ff58e822be5a9f126c8d89dff7d1abf116fc38f39fc"
+              }
+            },
+            {
+              "evidence_id": 4,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "metric",
+              "definition_id": "processing-delay",
+              "payload": {
+                "value": 5
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-metric",
+                "external_id": "fictional-processing-delay-1",
+                "occurred_at": "2026-10-26T11:03:44.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:43.000000Z",
+                "period_end": "2026-10-26T11:03:44.000000Z",
+                "actor": "operator",
+                "record_hash": "6070bcb6e0ea25499200eb09c6575740d9f94374e99a7276b04f4c675a3bf217"
+              }
+            },
+            {
+              "evidence_id": 5,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "processing-snapshot",
+              "payload": {
+                "delay_seconds": 5
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-evidence",
+                "external_id": "fictional-processing-snapshot-1",
+                "occurred_at": "2026-10-26T11:03:44.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:43.000000Z",
+                "period_end": "2026-10-26T11:03:44.000000Z",
+                "actor": "operator",
+                "record_hash": "44625c2e80ddf4005ce2bf94fa8912ca99bad5de22e5e49e6ba3d31369d2afea"
+              }
+            },
+            {
+              "evidence_id": 6,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "value-snapshot",
+              "payload": {
+                "outcome_count": 6
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:value-definition",
+                "external_id": "fictional-value-snapshot-1",
+                "occurred_at": "2026-10-26T11:03:44.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:43.000000Z",
+                "period_end": "2026-10-26T11:03:44.000000Z",
+                "actor": "operator",
+                "record_hash": "7fb8d9ee409de321dd7ab3cfeff2800b6fa351159572f28e063cde4761e94eb8"
+              }
+            },
+            {
+              "evidence_id": 7,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "metric",
+              "definition_id": "processing-delay",
+              "payload": {
+                "value": 20
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-metric",
+                "external_id": "fictional-processing-delay-2",
+                "occurred_at": "2026-10-26T11:03:45.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:44.000000Z",
+                "period_end": "2026-10-26T11:03:45.000000Z",
+                "actor": "operator",
+                "record_hash": "3381d4bd8828129c3b7958cfa23a78e0e7c300047dc8bbf442465fdfb07a431a"
+              }
+            },
+            {
+              "evidence_id": 8,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "processing-snapshot",
+              "payload": {
+                "delay_seconds": 20
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-evidence",
+                "external_id": "fictional-processing-snapshot-2",
+                "occurred_at": "2026-10-26T11:03:45.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:44.000000Z",
+                "period_end": "2026-10-26T11:03:45.000000Z",
+                "actor": "operator",
+                "record_hash": "af73a0016a138268dd6d2628db66c813ae64652c10bf8e3f3cbb04d2673afca5"
+              }
+            },
+            {
+              "evidence_id": 9,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "value-snapshot",
+              "payload": {
+                "outcome_count": 1
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:value-definition",
+                "external_id": "fictional-value-snapshot-2",
+                "occurred_at": "2026-10-26T11:03:45.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:44.000000Z",
+                "period_end": "2026-10-26T11:03:45.000000Z",
+                "actor": "operator",
+                "record_hash": "faba1ef78cbf91c716c53af2d8db2cd949493fe166048d33924a90ff9f00d05f"
+              }
+            },
+            {
+              "evidence_id": 10,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "metric",
+              "definition_id": "processing-delay",
+              "payload": {
+                "value": 20
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-metric",
+                "external_id": "fictional-processing-delay-3",
+                "occurred_at": "2026-10-26T11:03:46.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:45.000000Z",
+                "period_end": "2026-10-26T11:03:46.000000Z",
+                "actor": "operator",
+                "record_hash": "cfc9d49d6d15ec8ddc4ab17c262f3ca48c6c019f2be14e99f9c24370a1f31d73"
+              }
+            },
+            {
+              "evidence_id": 11,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "processing-snapshot",
+              "payload": {
+                "delay_seconds": 20
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-evidence",
+                "external_id": "fictional-processing-snapshot-3",
+                "occurred_at": "2026-10-26T11:03:46.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:45.000000Z",
+                "period_end": "2026-10-26T11:03:46.000000Z",
+                "actor": "operator",
+                "record_hash": "165a53c5a0b45a916d2a456e44c8ee9800c3a8458979ec033ef5171ae7540125"
+              }
+            },
+            {
+              "evidence_id": 12,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "value-snapshot",
+              "payload": {
+                "outcome_count": 1
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:value-definition",
+                "external_id": "fictional-value-snapshot-3",
+                "occurred_at": "2026-10-26T11:03:46.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:45.000000Z",
+                "period_end": "2026-10-26T11:03:46.000000Z",
+                "actor": "operator",
+                "record_hash": "4e61628a1c118ec7d281d7c45071112b68a6b15b99ba8adebdde63af14aabb7d"
+              }
+            },
+            {
+              "evidence_id": 13,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "operation-state",
+              "payload": {
+                "paused": true
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:state-definition",
+                "external_id": "fictional-paused-observation",
+                "occurred_at": "2026-10-26T11:03:46.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": null,
+                "period_end": null,
+                "actor": "operator",
+                "record_hash": "9cc53cd6ceb2eb109516ab301959ebc8f78b4c6d4eaf3ef4e8d810bd559a867d"
+              }
+            }
+          ],
+          "c02_findings": {
+            "algorithm": "c02-adaptive-v1",
+            "proof_scope": "declared_criteria_and_supplied_evidence",
+            "dimensions": {
+              "operational_deterioration": {
+                "criterion_ids": [
+                  "operational-degradation"
+                ],
+                "state": "demonstrated"
+              },
+              "value_loss": {
+                "criterion_ids": [
+                  "value-loss"
+                ],
+                "state": "demonstrated"
+              }
+            },
+            "criteria_snapshot": {
+              "config_version": 1,
+              "criteria": [
+                {
+                  "aggregation": "mean",
+                  "cadence_seconds": 1,
+                  "comparison": "gt",
+                  "coverage": "aligned_complete",
+                  "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+                  "dimension": "operational",
+                  "evidence_refs": [
+                    "processing-snapshot"
+                  ],
+                  "goal_refs": [
+                    "deliver-agreed-work"
+                  ],
+                  "id": "operational-degradation",
+                  "method": "threshold",
+                  "metric_ref": "processing-delay",
+                  "source": {
+                    "definition_id": "processing-delay",
+                    "field": "value",
+                    "kind": "metric"
+                  },
+                  "threshold": 10,
+                  "threshold_unit": "seconds",
+                  "window_seconds": 2
+                },
+                {
+                  "aggregation": "sum",
+                  "cadence_seconds": 1,
+                  "comparison": "lt",
+                  "coverage": "aligned_complete",
+                  "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+                  "dimension": "value",
+                  "evidence_refs": [
+                    "value-snapshot"
+                  ],
+                  "goal_refs": [
+                    "deliver-agreed-work"
+                  ],
+                  "id": "value-loss",
+                  "method": "absolute_change",
+                  "metric_ref": "completed-items",
+                  "source": {
+                    "definition_id": "value-snapshot",
+                    "field": "outcome_count",
+                    "kind": "evidence"
+                  },
+                  "threshold": -3,
+                  "threshold_unit": "count",
+                  "window_seconds": 2
+                }
+              ],
+              "provenance": {
+                "recorded_at": "2026-10-25T00:00:00Z",
+                "source_ref": "fixture:collaboration:m08-owner-criteria",
+                "supplied_by": "synthetic-fixture-author"
+              },
+              "schema_version": 1,
+              "tenant": "collaboration"
+            },
+            "criteria_results": [
+              {
+                "contradictions": [],
+                "criterion_id": "operational-degradation",
+                "dimension": "operational",
+                "issues": [],
+                "measured": {
+                  "denominator": "1",
+                  "numerator": "20"
+                },
+                "state": "demonstrated",
+                "windows": {
+                  "current": {
+                    "aggregate": {
+                      "denominator": "1",
+                      "numerator": "20"
+                    },
+                    "contradictions": [],
+                    "end": "2026-10-26T11:03:46.000000Z",
+                    "evidence_ids": [
+                      7,
+                      8,
+                      10,
+                      11
+                    ],
+                    "issues": [],
+                    "start": "2026-10-26T11:03:44.000000Z"
+                  }
+                }
+              },
+              {
+                "contradictions": [],
+                "criterion_id": "value-loss",
+                "dimension": "value",
+                "issues": [],
+                "measured": {
+                  "denominator": "1",
+                  "numerator": "-10"
+                },
+                "state": "demonstrated",
+                "windows": {
+                  "baseline": {
+                    "aggregate": {
+                      "denominator": "1",
+                      "numerator": "12"
+                    },
+                    "contradictions": [],
+                    "end": "2026-10-26T11:03:44.000000Z",
+                    "evidence_ids": [
+                      3,
+                      6
+                    ],
+                    "issues": [],
+                    "start": "2026-10-26T11:03:42.000000Z"
+                  },
+                  "current": {
+                    "aggregate": {
+                      "denominator": "1",
+                      "numerator": "2"
+                    },
+                    "contradictions": [],
+                    "end": "2026-10-26T11:03:46.000000Z",
+                    "evidence_ids": [
+                      9,
+                      12
+                    ],
+                    "issues": [],
+                    "start": "2026-10-26T11:03:44.000000Z"
+                  }
+                }
+              }
+            ]
+          },
+          "hypotheses": [
+            {
+              "contrary_refs": [],
+              "id": "unconfirmed-prerequisite-hypothesis",
+              "statement": "A declared prerequisite may be unmet. Whether this explains the deterioration has not been established.",
+              "support_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ],
+              "state": "unconfirmed",
+              "support_scope": "operator_declared_references_only",
+              "causal_status": "not_established",
+              "disputed_refs": []
+            }
+          ],
+          "requirements": [
+            {
+              "requirement_id": "explicit-unpaused-requirement",
+              "declared_requirement": {
+                "comparison": "eq",
+                "criterion_id": "operational-degradation",
+                "declaration": "Fictional owner-declared prerequisite: processing must not be paused. This declaration is not causal proof.",
+                "expected": false,
+                "id": "explicit-unpaused-requirement",
+                "selector": {
+                  "definition_id": "operation-state",
+                  "field": "paused",
+                  "kind": "evidence"
+                },
+                "window": "current"
+              },
+              "status": "supported",
+              "claim_type": "observed_requirement_noncompliance",
+              "support_scope": "observed_condition_only",
+              "causal_status": "not_established",
+              "checked_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ],
+              "violation_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ],
+              "compliant_refs": []
+            }
+          ],
+          "supported_impediments": [
+            {
+              "requirement_id": "explicit-unpaused-requirement",
+              "declared_requirement": {
+                "comparison": "eq",
+                "criterion_id": "operational-degradation",
+                "declaration": "Fictional owner-declared prerequisite: processing must not be paused. This declaration is not causal proof.",
+                "expected": false,
+                "id": "explicit-unpaused-requirement",
+                "selector": {
+                  "definition_id": "operation-state",
+                  "field": "paused",
+                  "kind": "evidence"
+                },
+                "window": "current"
+              },
+              "status": "supported",
+              "claim_type": "observed_requirement_noncompliance",
+              "support_scope": "observed_condition_only",
+              "causal_status": "not_established",
+              "checked_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ],
+              "violation_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ],
+              "compliant_refs": []
+            }
+          ],
+          "missing_information": [],
+          "analysis_limitations": [],
+          "contradictions": []
+        }
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.453927+00:00",
+      "stage": "command C03_declaration",
+      "participation": "human_supplied_investigation",
+      "source": {
+        "id": 5,
+        "operation": "C03_declaration",
+        "participation": "human_supplied_investigation",
+        "payload": {
+          "input_hash": "8be1e8a3e448c938d769e2ddd052f4cc79417cd161baf7ad625ceb305c77fe67",
+          "record_hash": "fb8386c6eefc97a8e967ede35ad2cc7dd92d615d6706512b263e4e8392205530",
+          "version": 1
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.453927+00:00",
+        "previous_hash": "b65ab19daf7288fbe9d78da6fe857f01305ee64425a6aa92490d9777e654703d",
+        "record_hash": "d21fef8bc8036a0a18fc529d3a25f1a0bac9346c69b379c6787f1d83018067e7"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.483091+00:00",
+      "stage": "orchestrator checkpoint",
+      "participation": "automatic_state_and_blockers",
+      "source": {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "version": 4,
+        "parent_hash": "ce4fab0415bc2e0b915e0fab76d7e5fa8eb54583734e647b28293447eb90166b",
+        "payload": {
+          "basis": {
+            "as_of": "2026-10-26T11:03:46.000000Z",
+            "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "source_heads": {
+              "config_version": 1,
+              "criteria_version": 1,
+              "eligible_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "through": 13
+            }
+          },
+          "blockers": [
+            "proposal_not_recorded"
+          ],
+          "core_transition_authorized": false,
+          "operational_state": "inactive",
+          "real_recovery_demonstrated": false,
+          "refs": {
+            "c02": {
+              "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+              "id": 1,
+              "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+            },
+            "c03": {
+              "record_hash": "fb8386c6eefc97a8e967ede35ad2cc7dd92d615d6706512b263e4e8392205530",
+              "version": 1
+            },
+            "c04": {
+              "request_id": "orch-849ecc9b4f41296273194c6d8598815dd8e8e5a40c3c9b350593b00c00"
+            }
+          },
+          "state": "awaiting_ai"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.483091+00:00",
+        "record_hash": "f4c146c6008fd63cbca32fe2339a2108a0ace028e91278999a51dc465f0c9462"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.504451+00:00",
+      "stage": "orchestrator checkpoint",
+      "participation": "automatic_state_and_blockers",
+      "source": {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "version": 5,
+        "parent_hash": "f4c146c6008fd63cbca32fe2339a2108a0ace028e91278999a51dc465f0c9462",
+        "payload": {
+          "basis": {
+            "as_of": "2026-10-26T11:03:46.000000Z",
+            "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "source_heads": {
+              "config_version": 1,
+              "criteria_version": 1,
+              "eligible_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "through": 13
+            }
+          },
+          "blockers": [
+            "authorized_ai_not_configured"
+          ],
+          "core_transition_authorized": false,
+          "operational_state": "inactive",
+          "real_recovery_demonstrated": false,
+          "refs": {
+            "c02": {
+              "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+              "id": 1,
+              "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+            },
+            "c03": {
+              "record_hash": "fb8386c6eefc97a8e967ede35ad2cc7dd92d615d6706512b263e4e8392205530",
+              "version": 1
+            },
+            "c04": {
+              "request_id": "orch-849ecc9b4f41296273194c6d8598815dd8e8e5a40c3c9b350593b00c00"
+            }
+          },
+          "state": "awaiting_ai"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.504451+00:00",
+        "record_hash": "569acd1a6629b1fc72529e85c6f6b96caa6d3b0331bc2315707a7bf84d5dca3f"
+      }
+    },
+    {
+      "recorded_at": "2026-10-26T11:03:47.508253+00:00",
+      "stage": "command orchestrator_advance",
+      "participation": "automatic_bounded_processing",
+      "source": {
+        "id": 6,
+        "operation": "orchestrator_advance",
+        "participation": "automatic_bounded_processing",
+        "payload": {
+          "ai_kind": "unavailable",
+          "checkpoint": {
+            "actor": "operator",
+            "case_id": "observed-cycle",
+            "created_at": "2026-10-26T11:03:47.504451+00:00",
+            "customer": "fictional-account",
+            "parent_hash": "f4c146c6008fd63cbca32fe2339a2108a0ace028e91278999a51dc465f0c9462",
+            "payload": {
+              "basis": {
+                "as_of": "2026-10-26T11:03:46.000000Z",
+                "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+                "source_heads": {
+                  "config_version": 1,
+                  "criteria_version": 1,
+                  "eligible_ids": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13
+                  ],
+                  "through": 13
+                }
+              },
+              "blockers": [
+                "authorized_ai_not_configured"
+              ],
+              "core_transition_authorized": false,
+              "operational_state": "inactive",
+              "real_recovery_demonstrated": false,
+              "refs": {
+                "c02": {
+                  "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+                  "id": 1,
+                  "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+                },
+                "c03": {
+                  "record_hash": "fb8386c6eefc97a8e967ede35ad2cc7dd92d615d6706512b263e4e8392205530",
+                  "version": 1
+                },
+                "c04": {
+                  "request_id": "orch-849ecc9b4f41296273194c6d8598815dd8e8e5a40c3c9b350593b00c00"
+                }
+              },
+              "state": "awaiting_ai"
+            },
+            "record_hash": "569acd1a6629b1fc72529e85c6f6b96caa6d3b0331bc2315707a7bf84d5dca3f",
+            "tenant": "collaboration",
+            "version": 5
+          },
+          "external_execution": "blocked"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.508253+00:00",
+        "previous_hash": "d21fef8bc8036a0a18fc529d3a25f1a0bac9346c69b379c6787f1d83018067e7",
+        "record_hash": "54285b26f980afa82603adb6e7ea97dc716758d0a175c368a0e3191134172fc5"
+      }
+    }
+  ],
+  "engines": {
+    "configuration": [
+      {
+        "tenant": "collaboration",
+        "version": 1,
+        "parent_hash": null,
+        "content_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.321427+00:00",
+        "record_hash": "d4ba788aef25e4fa4e102dfff48f09e691ed0fc76278e9702c08b2d51bc8d79e",
+        "config": {
+          "capabilities": [
+            {
+              "conditions": [
+                {
+                  "evidence_ref": "operation-state",
+                  "field": "paused",
+                  "operator": "eq",
+                  "value": true
+                }
+              ],
+              "description": "Fictional declared capability for proposal tests only; no executor or real authorization.",
+              "id": "reopen-delivery-queue",
+              "permissions": {
+                "required_role": "operator",
+                "requires_human_approval": true
+              },
+              "verification": {
+                "operational": [
+                  {
+                    "evidence_ref": "operation-state",
+                    "field": "paused",
+                    "operator": "eq",
+                    "value": false
+                  }
+                ],
+                "value": [
+                  {
+                    "evidence_ref": "value-snapshot",
+                    "field": "outcome_count",
+                    "operator": "gte",
+                    "value": 3
+                  }
+                ],
+                "value_goal_refs": [
+                  "deliver-agreed-work"
+                ]
+              }
+            }
+          ],
+          "customers": {
+            "description": "Fictional account identity contract only; no customer records.",
+            "entity": "account",
+            "id_field": "account_id"
+          },
+          "data_classification": "synthetic",
+          "events": [
+            {
+              "customer_id_field": "account_id",
+              "description": "Synthetic declared outcome event schema, not a received event.",
+              "fields": [
+                {
+                  "name": "account_id",
+                  "required": true,
+                  "type": "string"
+                },
+                {
+                  "name": "occurred_at",
+                  "required": true,
+                  "type": "timestamp"
+                }
+              ],
+              "id": "item-completed",
+              "source_ref": "fixture:collaboration:event-definition"
+            }
+          ],
+          "evidence": [
+            {
+              "availability": "declared",
+              "description": "Synthetic declared operation state; not a live state read.",
+              "event_refs": [],
+              "fields": [
+                {
+                  "name": "paused",
+                  "required": true,
+                  "type": "boolean"
+                }
+              ],
+              "id": "operation-state",
+              "kind": "state",
+              "metric_refs": [],
+              "source_ref": "fixture:collaboration:state-definition"
+            },
+            {
+              "availability": "declared",
+              "description": "Synthetic declared measured outcome for a supplier-defined evaluation period. No data is collected.",
+              "event_refs": [],
+              "fields": [
+                {
+                  "name": "outcome_count",
+                  "required": true,
+                  "type": "integer"
+                }
+              ],
+              "id": "value-snapshot",
+              "kind": "metric",
+              "metric_refs": [
+                "completed-items"
+              ],
+              "source_ref": "fixture:collaboration:value-definition"
+            },
+            {
+              "availability": "declared",
+              "description": "Fictional owner-declared corroborating snapshot, not a connector read.",
+              "event_refs": [],
+              "fields": [
+                {
+                  "name": "delay_seconds",
+                  "required": true,
+                  "type": "number"
+                }
+              ],
+              "id": "processing-snapshot",
+              "kind": "metric",
+              "metric_refs": [
+                "processing-delay"
+              ],
+              "source_ref": "fixture:collaboration:processing-evidence"
+            }
+          ],
+          "metrics": [
+            {
+              "description": "Synthetic owner-supplied outcome count; no automatic computation is implemented.",
+              "event_refs": [
+                "item-completed"
+              ],
+              "id": "completed-items",
+              "source_ref": "fixture:collaboration:metric-definition",
+              "unit": "count",
+              "value_type": "integer"
+            },
+            {
+              "description": "Fictional owner-declared processing delay sample. Not a discovered business metric.",
+              "event_refs": [],
+              "id": "processing-delay",
+              "source_ref": "fixture:collaboration:processing-metric",
+              "unit": "seconds",
+              "value_type": "number"
+            }
+          ],
+          "product": {
+            "description": "Synthetic collaborative work product. All declarations below are fictional test inputs, not real customer objectives.",
+            "name": "Fictional Collaboration"
+          },
+          "provenance": {
+            "recorded_at": "2026-10-25T00:00:00Z",
+            "source_ref": "fixture:collaboration:m08-owner-config",
+            "supplied_by": "synthetic-fixture-author"
+          },
+          "schema_version": 1,
+          "tenant": "collaboration",
+          "value_goals": [
+            {
+              "description": "Fictional owner-declared value objective: deliver-agreed-work. No real goal is inferred.",
+              "evidence_refs": [
+                "value-snapshot",
+                "processing-snapshot"
+              ],
+              "id": "deliver-agreed-work",
+              "metric_refs": [
+                "completed-items",
+                "processing-delay"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "criteria": [
+      {
+        "tenant": "collaboration",
+        "version": 1,
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "parent_hash": null,
+        "content_hash": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.328199+00:00",
+        "record_hash": "bfcb8c7f5abfdc312b62f52c245317d562159b1cdb3b1bfb99a82bb995058aa7",
+        "document": {
+          "config_version": 1,
+          "criteria": [
+            {
+              "aggregation": "mean",
+              "cadence_seconds": 1,
+              "comparison": "gt",
+              "coverage": "aligned_complete",
+              "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+              "dimension": "operational",
+              "evidence_refs": [
+                "processing-snapshot"
+              ],
+              "goal_refs": [
+                "deliver-agreed-work"
+              ],
+              "id": "operational-degradation",
+              "method": "threshold",
+              "metric_ref": "processing-delay",
+              "source": {
+                "definition_id": "processing-delay",
+                "field": "value",
+                "kind": "metric"
+              },
+              "threshold": 10,
+              "threshold_unit": "seconds",
+              "window_seconds": 2
+            },
+            {
+              "aggregation": "sum",
+              "cadence_seconds": 1,
+              "comparison": "lt",
+              "coverage": "aligned_complete",
+              "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+              "dimension": "value",
+              "evidence_refs": [
+                "value-snapshot"
+              ],
+              "goal_refs": [
+                "deliver-agreed-work"
+              ],
+              "id": "value-loss",
+              "method": "absolute_change",
+              "metric_ref": "completed-items",
+              "source": {
+                "definition_id": "value-snapshot",
+                "field": "outcome_count",
+                "kind": "evidence"
+              },
+              "threshold": -3,
+              "threshold_unit": "count",
+              "window_seconds": 2
+            }
+          ],
+          "provenance": {
+            "recorded_at": "2026-10-25T00:00:00Z",
+            "source_ref": "fixture:collaboration:m08-owner-criteria",
+            "supplied_by": "synthetic-fixture-author"
+          },
+          "schema_version": 1,
+          "tenant": "collaboration"
+        }
+      }
+    ],
+    "evidence": [
+      {
+        "id": 1,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "source_ref": "fixture:collaboration:processing-metric",
+        "external_id": "fictional-processing-delay-0",
+        "occurred_at": "2026-10-26T11:03:43.000000Z",
+        "period_start": "2026-10-26T11:03:42.000000Z",
+        "period_end": "2026-10-26T11:03:43.000000Z",
+        "payload": {
+          "value": 5
+        },
+        "content_hash": "b150f30c06a177f6b02d06a713b76d5ccd9cb1bdea084a25515fd9b5ba2e797e",
+        "fact_hash": "d56964977ad5d003fac1a40e4bbeb8f511fa4b4724ac0dc6b4e93f66f162d68b",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "e7eef54352121e6e314b41039cac4cc1e60e816d4f888e743dc1629db2360cc8"
+      },
+      {
+        "id": 2,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "source_ref": "fixture:collaboration:processing-evidence",
+        "external_id": "fictional-processing-snapshot-0",
+        "occurred_at": "2026-10-26T11:03:43.000000Z",
+        "period_start": "2026-10-26T11:03:42.000000Z",
+        "period_end": "2026-10-26T11:03:43.000000Z",
+        "payload": {
+          "delay_seconds": 5
+        },
+        "content_hash": "89ec9518cadef755bb0af5739c128ff0789d2a44ef004e998b50fa940e852727",
+        "fact_hash": "7bdbe1ee4c39791f432ac591ab63d2edbbbddff7c82c897c5f79ce1764b40e1e",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "1817b05e9965a250fdeb307a0e7a51a8b8e24a526248864ffd7dd5bf66f2f4d8"
+      },
+      {
+        "id": 3,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "source_ref": "fixture:collaboration:value-definition",
+        "external_id": "fictional-value-snapshot-0",
+        "occurred_at": "2026-10-26T11:03:43.000000Z",
+        "period_start": "2026-10-26T11:03:42.000000Z",
+        "period_end": "2026-10-26T11:03:43.000000Z",
+        "payload": {
+          "outcome_count": 6
+        },
+        "content_hash": "2e7d9b7436f54b932f3317a6e40ca183ed6c934d50c7a436afe96ba6b8b44fe9",
+        "fact_hash": "4f129a3e34c79633b45e8ebb0b0c7a88e36b649bc602308982b8a5a399d698c5",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "70d1c4dc93cb14cccde64ff58e822be5a9f126c8d89dff7d1abf116fc38f39fc"
+      },
+      {
+        "id": 4,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "source_ref": "fixture:collaboration:processing-metric",
+        "external_id": "fictional-processing-delay-1",
+        "occurred_at": "2026-10-26T11:03:44.000000Z",
+        "period_start": "2026-10-26T11:03:43.000000Z",
+        "period_end": "2026-10-26T11:03:44.000000Z",
+        "payload": {
+          "value": 5
+        },
+        "content_hash": "85b7868084cf011a46fe26cf675e954c45dc9a5114058cf902a5dacf57a2de5e",
+        "fact_hash": "55297390ae962a4366e08b9b56351499839ea188d53ee63611801ac59a43816d",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "6070bcb6e0ea25499200eb09c6575740d9f94374e99a7276b04f4c675a3bf217"
+      },
+      {
+        "id": 5,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "source_ref": "fixture:collaboration:processing-evidence",
+        "external_id": "fictional-processing-snapshot-1",
+        "occurred_at": "2026-10-26T11:03:44.000000Z",
+        "period_start": "2026-10-26T11:03:43.000000Z",
+        "period_end": "2026-10-26T11:03:44.000000Z",
+        "payload": {
+          "delay_seconds": 5
+        },
+        "content_hash": "2480ed3c67a87c2cbadac4ec56de043acf61f068cecb6ce165cabab38e73c9f1",
+        "fact_hash": "bd27ed8f7f5e63619901598650f342dabde3f70d5ec3d20d8a10d7ea4b8ae907",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "44625c2e80ddf4005ce2bf94fa8912ca99bad5de22e5e49e6ba3d31369d2afea"
+      },
+      {
+        "id": 6,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "source_ref": "fixture:collaboration:value-definition",
+        "external_id": "fictional-value-snapshot-1",
+        "occurred_at": "2026-10-26T11:03:44.000000Z",
+        "period_start": "2026-10-26T11:03:43.000000Z",
+        "period_end": "2026-10-26T11:03:44.000000Z",
+        "payload": {
+          "outcome_count": 6
+        },
+        "content_hash": "512bdec52a94cd1297a1936e5f63c07bcdd326600414bf71fa5018b3f65cd4ea",
+        "fact_hash": "a2103d66169397bfc9bc0e567194cdf45c79259b95f882e124a10121c65d78cf",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "7fb8d9ee409de321dd7ab3cfeff2800b6fa351159572f28e063cde4761e94eb8"
+      },
+      {
+        "id": 7,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "source_ref": "fixture:collaboration:processing-metric",
+        "external_id": "fictional-processing-delay-2",
+        "occurred_at": "2026-10-26T11:03:45.000000Z",
+        "period_start": "2026-10-26T11:03:44.000000Z",
+        "period_end": "2026-10-26T11:03:45.000000Z",
+        "payload": {
+          "value": 20
+        },
+        "content_hash": "c7945abe74de23db329ee0de35c60113265a078447d98f2f77b7b681952ed064",
+        "fact_hash": "184baf986cd2996c7298e9240fccfa46be8037764703d83f9841ad19434a303f",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "3381d4bd8828129c3b7958cfa23a78e0e7c300047dc8bbf442465fdfb07a431a"
+      },
+      {
+        "id": 8,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "source_ref": "fixture:collaboration:processing-evidence",
+        "external_id": "fictional-processing-snapshot-2",
+        "occurred_at": "2026-10-26T11:03:45.000000Z",
+        "period_start": "2026-10-26T11:03:44.000000Z",
+        "period_end": "2026-10-26T11:03:45.000000Z",
+        "payload": {
+          "delay_seconds": 20
+        },
+        "content_hash": "291a737bc7c35e91482ad3ebf4cfb86bef2dbfdbb4fc484ef775222b39e117b4",
+        "fact_hash": "d685554c90da46c0e15984e07c4c7c21644c0744e9542add8926cb5e8ba3de1c",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "af73a0016a138268dd6d2628db66c813ae64652c10bf8e3f3cbb04d2673afca5"
+      },
+      {
+        "id": 9,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "source_ref": "fixture:collaboration:value-definition",
+        "external_id": "fictional-value-snapshot-2",
+        "occurred_at": "2026-10-26T11:03:45.000000Z",
+        "period_start": "2026-10-26T11:03:44.000000Z",
+        "period_end": "2026-10-26T11:03:45.000000Z",
+        "payload": {
+          "outcome_count": 1
+        },
+        "content_hash": "83e1efacafa40f6af8ba18f4c729a8c64c5163f6479744d03ec90aa33cffd927",
+        "fact_hash": "a21b7a2ef560aa1f660ced4f490beadc316c9bfc8a7aceb68a3719a856b83e4d",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "faba1ef78cbf91c716c53af2d8db2cd949493fe166048d33924a90ff9f00d05f"
+      },
+      {
+        "id": 10,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "metric",
+        "definition_id": "processing-delay",
+        "source_ref": "fixture:collaboration:processing-metric",
+        "external_id": "fictional-processing-delay-3",
+        "occurred_at": "2026-10-26T11:03:46.000000Z",
+        "period_start": "2026-10-26T11:03:45.000000Z",
+        "period_end": "2026-10-26T11:03:46.000000Z",
+        "payload": {
+          "value": 20
+        },
+        "content_hash": "cdcd5a7aa0a76918db445ede964246e5b00c84fe346cbb28e6fad4fe56fd1726",
+        "fact_hash": "8b898c30221ede1e3625eb3c8f56b86e0003aaaa10b0912cb319e94f04729ae9",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "cfc9d49d6d15ec8ddc4ab17c262f3ca48c6c019f2be14e99f9c24370a1f31d73"
+      },
+      {
+        "id": 11,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "processing-snapshot",
+        "source_ref": "fixture:collaboration:processing-evidence",
+        "external_id": "fictional-processing-snapshot-3",
+        "occurred_at": "2026-10-26T11:03:46.000000Z",
+        "period_start": "2026-10-26T11:03:45.000000Z",
+        "period_end": "2026-10-26T11:03:46.000000Z",
+        "payload": {
+          "delay_seconds": 20
+        },
+        "content_hash": "f789843be7cfcc9c8d48c7848f01b660385c360b3dbec7070671942cea8b8344",
+        "fact_hash": "478598734f967b58db0c3ea0f50b05c73a2a21a5733bd4ecfaa5ee5b4912acc8",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "165a53c5a0b45a916d2a456e44c8ee9800c3a8458979ec033ef5171ae7540125"
+      },
+      {
+        "id": 12,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "value-snapshot",
+        "source_ref": "fixture:collaboration:value-definition",
+        "external_id": "fictional-value-snapshot-3",
+        "occurred_at": "2026-10-26T11:03:46.000000Z",
+        "period_start": "2026-10-26T11:03:45.000000Z",
+        "period_end": "2026-10-26T11:03:46.000000Z",
+        "payload": {
+          "outcome_count": 1
+        },
+        "content_hash": "4bc61e32629fabde1c384295b894b2fa0cd5bd322c3cd4daaf6a8141b2f05ee8",
+        "fact_hash": "d652cb1a54f15cf1ba7aded7559eb1276067a3985d7c431f03d13e7cd2e6c212",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "4e61628a1c118ec7d281d7c45071112b68a6b15b99ba8adebdde63af14aabb7d"
+      },
+      {
+        "id": 13,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "config_version": 1,
+        "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+        "kind": "evidence",
+        "definition_id": "operation-state",
+        "source_ref": "fixture:collaboration:state-definition",
+        "external_id": "fictional-paused-observation",
+        "occurred_at": "2026-10-26T11:03:46.000000Z",
+        "period_start": null,
+        "period_end": null,
+        "payload": {
+          "paused": true
+        },
+        "content_hash": "1379a1b2a06ff4e2f8f87d323dc6a0584fdd110a4e204e4dd851df48dd012bf9",
+        "fact_hash": "1f34fb475d955bdc1df9576956de6cc885a54ad9471f8b83269729bc741333ee",
+        "actor": "operator",
+        "received_at": "2026-10-26T11:03:47.393018Z",
+        "record_hash": "9cc53cd6ceb2eb109516ab301959ebc8f78b4c6d4eaf3ef4e8d810bd559a867d"
+      }
+    ],
+    "c02": [
+      {
+        "id": 1,
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "criteria_version": 1,
+        "request_hash": "780f5d974dd1d34e7c6d037a1fea14e0ce688882013caa74624e29e72e778851",
+        "payload": {
+          "algorithm": "c02-adaptive-v1",
+          "as_of": "2026-10-26T11:03:46.000000Z",
+          "classification": "synthetic",
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "config_version": 1,
+          "criteria_hash": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+          "criteria_results": [
+            {
+              "contradictions": [],
+              "criterion_id": "operational-degradation",
+              "dimension": "operational",
+              "issues": [],
+              "measured": {
+                "denominator": "1",
+                "numerator": "20"
+              },
+              "state": "demonstrated",
+              "windows": {
+                "current": {
+                  "aggregate": {
+                    "denominator": "1",
+                    "numerator": "20"
+                  },
+                  "contradictions": [],
+                  "end": "2026-10-26T11:03:46.000000Z",
+                  "evidence_ids": [
+                    7,
+                    8,
+                    10,
+                    11
+                  ],
+                  "issues": [],
+                  "start": "2026-10-26T11:03:44.000000Z"
+                }
+              }
+            },
+            {
+              "contradictions": [],
+              "criterion_id": "value-loss",
+              "dimension": "value",
+              "issues": [],
+              "measured": {
+                "denominator": "1",
+                "numerator": "-10"
+              },
+              "state": "demonstrated",
+              "windows": {
+                "baseline": {
+                  "aggregate": {
+                    "denominator": "1",
+                    "numerator": "12"
+                  },
+                  "contradictions": [],
+                  "end": "2026-10-26T11:03:44.000000Z",
+                  "evidence_ids": [
+                    3,
+                    6
+                  ],
+                  "issues": [],
+                  "start": "2026-10-26T11:03:42.000000Z"
+                },
+                "current": {
+                  "aggregate": {
+                    "denominator": "1",
+                    "numerator": "2"
+                  },
+                  "contradictions": [],
+                  "end": "2026-10-26T11:03:46.000000Z",
+                  "evidence_ids": [
+                    9,
+                    12
+                  ],
+                  "issues": [],
+                  "start": "2026-10-26T11:03:44.000000Z"
+                }
+              }
+            }
+          ],
+          "criteria_snapshot": {
+            "config_version": 1,
+            "criteria": [
+              {
+                "aggregation": "mean",
+                "cadence_seconds": 1,
+                "comparison": "gt",
+                "coverage": "aligned_complete",
+                "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+                "dimension": "operational",
+                "evidence_refs": [
+                  "processing-snapshot"
+                ],
+                "goal_refs": [
+                  "deliver-agreed-work"
+                ],
+                "id": "operational-degradation",
+                "method": "threshold",
+                "metric_ref": "processing-delay",
+                "source": {
+                  "definition_id": "processing-delay",
+                  "field": "value",
+                  "kind": "metric"
+                },
+                "threshold": 10,
+                "threshold_unit": "seconds",
+                "window_seconds": 2
+              },
+              {
+                "aggregation": "sum",
+                "cadence_seconds": 1,
+                "comparison": "lt",
+                "coverage": "aligned_complete",
+                "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+                "dimension": "value",
+                "evidence_refs": [
+                  "value-snapshot"
+                ],
+                "goal_refs": [
+                  "deliver-agreed-work"
+                ],
+                "id": "value-loss",
+                "method": "absolute_change",
+                "metric_ref": "completed-items",
+                "source": {
+                  "definition_id": "value-snapshot",
+                  "field": "outcome_count",
+                  "kind": "evidence"
+                },
+                "threshold": -3,
+                "threshold_unit": "count",
+                "window_seconds": 2
+              }
+            ],
+            "provenance": {
+              "recorded_at": "2026-10-25T00:00:00Z",
+              "source_ref": "fixture:collaboration:m08-owner-criteria",
+              "supplied_by": "synthetic-fixture-author"
+            },
+            "schema_version": 1,
+            "tenant": "collaboration"
+          },
+          "criteria_version": 1,
+          "customer": "fictional-account",
+          "evidence": [
+            {
+              "id": 1,
+              "record_hash": "e7eef54352121e6e314b41039cac4cc1e60e816d4f888e743dc1629db2360cc8"
+            },
+            {
+              "id": 2,
+              "record_hash": "1817b05e9965a250fdeb307a0e7a51a8b8e24a526248864ffd7dd5bf66f2f4d8"
+            },
+            {
+              "id": 3,
+              "record_hash": "70d1c4dc93cb14cccde64ff58e822be5a9f126c8d89dff7d1abf116fc38f39fc"
+            },
+            {
+              "id": 4,
+              "record_hash": "6070bcb6e0ea25499200eb09c6575740d9f94374e99a7276b04f4c675a3bf217"
+            },
+            {
+              "id": 5,
+              "record_hash": "44625c2e80ddf4005ce2bf94fa8912ca99bad5de22e5e49e6ba3d31369d2afea"
+            },
+            {
+              "id": 6,
+              "record_hash": "7fb8d9ee409de321dd7ab3cfeff2800b6fa351159572f28e063cde4761e94eb8"
+            },
+            {
+              "id": 7,
+              "record_hash": "3381d4bd8828129c3b7958cfa23a78e0e7c300047dc8bbf442465fdfb07a431a"
+            },
+            {
+              "id": 8,
+              "record_hash": "af73a0016a138268dd6d2628db66c813ae64652c10bf8e3f3cbb04d2673afca5"
+            },
+            {
+              "id": 9,
+              "record_hash": "faba1ef78cbf91c716c53af2d8db2cd949493fe166048d33924a90ff9f00d05f"
+            },
+            {
+              "id": 10,
+              "record_hash": "cfc9d49d6d15ec8ddc4ab17c262f3ca48c6c019f2be14e99f9c24370a1f31d73"
+            },
+            {
+              "id": 11,
+              "record_hash": "165a53c5a0b45a916d2a456e44c8ee9800c3a8458979ec033ef5171ae7540125"
+            },
+            {
+              "id": 12,
+              "record_hash": "4e61628a1c118ec7d281d7c45071112b68a6b15b99ba8adebdde63af14aabb7d"
+            },
+            {
+              "id": 13,
+              "record_hash": "9cc53cd6ceb2eb109516ab301959ebc8f78b4c6d4eaf3ef4e8d810bd559a867d"
+            }
+          ],
+          "operational_deterioration": {
+            "criterion_ids": [
+              "operational-degradation"
+            ],
+            "state": "demonstrated"
+          },
+          "operational_state": "inactive",
+          "proof_scope": "declared_criteria_and_supplied_evidence",
+          "tenant": "collaboration",
+          "through": 13,
+          "value_loss": {
+            "criterion_ids": [
+              "value-loss"
+            ],
+            "state": "demonstrated"
+          }
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.419436+00:00",
+        "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd",
+        "reused": true
+      }
+    ],
+    "c03": [
+      {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "c02_run_id": 1,
+        "version": 1,
+        "parent_hash": null,
+        "c02_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd",
+        "input_hash": "8be1e8a3e448c938d769e2ddd052f4cc79417cd161baf7ad625ceb305c77fe67",
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.452583+00:00",
+        "record_hash": "fb8386c6eefc97a8e967ede35ad2cc7dd92d615d6706512b263e4e8392205530",
+        "declaration": {
+          "c02_run_id": 1,
+          "customer": "fictional-account",
+          "hypotheses": [
+            {
+              "contrary_refs": [],
+              "id": "unconfirmed-prerequisite-hypothesis",
+              "statement": "A declared prerequisite may be unmet. Whether this explains the deterioration has not been established.",
+              "support_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "recorded_at": "2026-10-25T00:00:00Z",
+            "source_ref": "fixture:collaboration:m09-operator-declaration",
+            "supplied_by": "synthetic-fixture-author"
+          },
+          "requirements": [
+            {
+              "comparison": "eq",
+              "criterion_id": "operational-degradation",
+              "declaration": "Fictional owner-declared prerequisite: processing must not be paused. This declaration is not causal proof.",
+              "expected": false,
+              "id": "explicit-unpaused-requirement",
+              "selector": {
+                "definition_id": "operation-state",
+                "field": "paused",
+                "kind": "evidence"
+              },
+              "window": "current"
+            }
+          ],
+          "schema_version": 1,
+          "tenant": "collaboration"
+        },
+        "payload": {
+          "algorithm": "c03-structured-v1",
+          "tenant": "collaboration",
+          "customer": "fictional-account",
+          "investigation_version": 1,
+          "c02_run_id": 1,
+          "c02_run_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd",
+          "config_version": 1,
+          "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+          "criteria_version": 1,
+          "criteria_hash": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+          "as_of": "2026-10-26T11:03:46.000000Z",
+          "through": 13,
+          "classification": "synthetic",
+          "operational_state": "inactive",
+          "causal_status": "not_established",
+          "declaration_provenance": {
+            "recorded_at": "2026-10-25T00:00:00Z",
+            "source_ref": "fixture:collaboration:m09-operator-declaration",
+            "supplied_by": "synthetic-fixture-author"
+          },
+          "facts": [
+            {
+              "evidence_id": 1,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "metric",
+              "definition_id": "processing-delay",
+              "payload": {
+                "value": 5
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-metric",
+                "external_id": "fictional-processing-delay-0",
+                "occurred_at": "2026-10-26T11:03:43.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:42.000000Z",
+                "period_end": "2026-10-26T11:03:43.000000Z",
+                "actor": "operator",
+                "record_hash": "e7eef54352121e6e314b41039cac4cc1e60e816d4f888e743dc1629db2360cc8"
+              }
+            },
+            {
+              "evidence_id": 2,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "processing-snapshot",
+              "payload": {
+                "delay_seconds": 5
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-evidence",
+                "external_id": "fictional-processing-snapshot-0",
+                "occurred_at": "2026-10-26T11:03:43.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:42.000000Z",
+                "period_end": "2026-10-26T11:03:43.000000Z",
+                "actor": "operator",
+                "record_hash": "1817b05e9965a250fdeb307a0e7a51a8b8e24a526248864ffd7dd5bf66f2f4d8"
+              }
+            },
+            {
+              "evidence_id": 3,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "value-snapshot",
+              "payload": {
+                "outcome_count": 6
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:value-definition",
+                "external_id": "fictional-value-snapshot-0",
+                "occurred_at": "2026-10-26T11:03:43.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:42.000000Z",
+                "period_end": "2026-10-26T11:03:43.000000Z",
+                "actor": "operator",
+                "record_hash": "70d1c4dc93cb14cccde64ff58e822be5a9f126c8d89dff7d1abf116fc38f39fc"
+              }
+            },
+            {
+              "evidence_id": 4,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "metric",
+              "definition_id": "processing-delay",
+              "payload": {
+                "value": 5
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-metric",
+                "external_id": "fictional-processing-delay-1",
+                "occurred_at": "2026-10-26T11:03:44.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:43.000000Z",
+                "period_end": "2026-10-26T11:03:44.000000Z",
+                "actor": "operator",
+                "record_hash": "6070bcb6e0ea25499200eb09c6575740d9f94374e99a7276b04f4c675a3bf217"
+              }
+            },
+            {
+              "evidence_id": 5,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "processing-snapshot",
+              "payload": {
+                "delay_seconds": 5
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-evidence",
+                "external_id": "fictional-processing-snapshot-1",
+                "occurred_at": "2026-10-26T11:03:44.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:43.000000Z",
+                "period_end": "2026-10-26T11:03:44.000000Z",
+                "actor": "operator",
+                "record_hash": "44625c2e80ddf4005ce2bf94fa8912ca99bad5de22e5e49e6ba3d31369d2afea"
+              }
+            },
+            {
+              "evidence_id": 6,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "value-snapshot",
+              "payload": {
+                "outcome_count": 6
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:value-definition",
+                "external_id": "fictional-value-snapshot-1",
+                "occurred_at": "2026-10-26T11:03:44.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:43.000000Z",
+                "period_end": "2026-10-26T11:03:44.000000Z",
+                "actor": "operator",
+                "record_hash": "7fb8d9ee409de321dd7ab3cfeff2800b6fa351159572f28e063cde4761e94eb8"
+              }
+            },
+            {
+              "evidence_id": 7,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "metric",
+              "definition_id": "processing-delay",
+              "payload": {
+                "value": 20
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-metric",
+                "external_id": "fictional-processing-delay-2",
+                "occurred_at": "2026-10-26T11:03:45.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:44.000000Z",
+                "period_end": "2026-10-26T11:03:45.000000Z",
+                "actor": "operator",
+                "record_hash": "3381d4bd8828129c3b7958cfa23a78e0e7c300047dc8bbf442465fdfb07a431a"
+              }
+            },
+            {
+              "evidence_id": 8,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "processing-snapshot",
+              "payload": {
+                "delay_seconds": 20
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-evidence",
+                "external_id": "fictional-processing-snapshot-2",
+                "occurred_at": "2026-10-26T11:03:45.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:44.000000Z",
+                "period_end": "2026-10-26T11:03:45.000000Z",
+                "actor": "operator",
+                "record_hash": "af73a0016a138268dd6d2628db66c813ae64652c10bf8e3f3cbb04d2673afca5"
+              }
+            },
+            {
+              "evidence_id": 9,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "value-snapshot",
+              "payload": {
+                "outcome_count": 1
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:value-definition",
+                "external_id": "fictional-value-snapshot-2",
+                "occurred_at": "2026-10-26T11:03:45.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:44.000000Z",
+                "period_end": "2026-10-26T11:03:45.000000Z",
+                "actor": "operator",
+                "record_hash": "faba1ef78cbf91c716c53af2d8db2cd949493fe166048d33924a90ff9f00d05f"
+              }
+            },
+            {
+              "evidence_id": 10,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "metric",
+              "definition_id": "processing-delay",
+              "payload": {
+                "value": 20
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-metric",
+                "external_id": "fictional-processing-delay-3",
+                "occurred_at": "2026-10-26T11:03:46.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:45.000000Z",
+                "period_end": "2026-10-26T11:03:46.000000Z",
+                "actor": "operator",
+                "record_hash": "cfc9d49d6d15ec8ddc4ab17c262f3ca48c6c019f2be14e99f9c24370a1f31d73"
+              }
+            },
+            {
+              "evidence_id": 11,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "processing-snapshot",
+              "payload": {
+                "delay_seconds": 20
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:processing-evidence",
+                "external_id": "fictional-processing-snapshot-3",
+                "occurred_at": "2026-10-26T11:03:46.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:45.000000Z",
+                "period_end": "2026-10-26T11:03:46.000000Z",
+                "actor": "operator",
+                "record_hash": "165a53c5a0b45a916d2a456e44c8ee9800c3a8458979ec033ef5171ae7540125"
+              }
+            },
+            {
+              "evidence_id": 12,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "value-snapshot",
+              "payload": {
+                "outcome_count": 1
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:value-definition",
+                "external_id": "fictional-value-snapshot-3",
+                "occurred_at": "2026-10-26T11:03:46.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": "2026-10-26T11:03:45.000000Z",
+                "period_end": "2026-10-26T11:03:46.000000Z",
+                "actor": "operator",
+                "record_hash": "4e61628a1c118ec7d281d7c45071112b68a6b15b99ba8adebdde63af14aabb7d"
+              }
+            },
+            {
+              "evidence_id": 13,
+              "claim_scope": "recorded_observation",
+              "temporal_relation": "at_or_before_c02_as_of",
+              "kind": "evidence",
+              "definition_id": "operation-state",
+              "payload": {
+                "paused": true
+              },
+              "disputed_fields": [],
+              "provenance": {
+                "tenant": "collaboration",
+                "customer": "fictional-account",
+                "config_version": 1,
+                "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+                "source_ref": "fixture:collaboration:state-definition",
+                "external_id": "fictional-paused-observation",
+                "occurred_at": "2026-10-26T11:03:46.000000Z",
+                "received_at": "2026-10-26T11:03:47.393018Z",
+                "period_start": null,
+                "period_end": null,
+                "actor": "operator",
+                "record_hash": "9cc53cd6ceb2eb109516ab301959ebc8f78b4c6d4eaf3ef4e8d810bd559a867d"
+              }
+            }
+          ],
+          "c02_findings": {
+            "algorithm": "c02-adaptive-v1",
+            "proof_scope": "declared_criteria_and_supplied_evidence",
+            "dimensions": {
+              "operational_deterioration": {
+                "criterion_ids": [
+                  "operational-degradation"
+                ],
+                "state": "demonstrated"
+              },
+              "value_loss": {
+                "criterion_ids": [
+                  "value-loss"
+                ],
+                "state": "demonstrated"
+              }
+            },
+            "criteria_snapshot": {
+              "config_version": 1,
+              "criteria": [
+                {
+                  "aggregation": "mean",
+                  "cadence_seconds": 1,
+                  "comparison": "gt",
+                  "coverage": "aligned_complete",
+                  "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+                  "dimension": "operational",
+                  "evidence_refs": [
+                    "processing-snapshot"
+                  ],
+                  "goal_refs": [
+                    "deliver-agreed-work"
+                  ],
+                  "id": "operational-degradation",
+                  "method": "threshold",
+                  "metric_ref": "processing-delay",
+                  "source": {
+                    "definition_id": "processing-delay",
+                    "field": "value",
+                    "kind": "metric"
+                  },
+                  "threshold": 10,
+                  "threshold_unit": "seconds",
+                  "window_seconds": 2
+                },
+                {
+                  "aggregation": "sum",
+                  "cadence_seconds": 1,
+                  "comparison": "lt",
+                  "coverage": "aligned_complete",
+                  "description": "Fictional supplier criterion for contract QA only; not a recommended threshold.",
+                  "dimension": "value",
+                  "evidence_refs": [
+                    "value-snapshot"
+                  ],
+                  "goal_refs": [
+                    "deliver-agreed-work"
+                  ],
+                  "id": "value-loss",
+                  "method": "absolute_change",
+                  "metric_ref": "completed-items",
+                  "source": {
+                    "definition_id": "value-snapshot",
+                    "field": "outcome_count",
+                    "kind": "evidence"
+                  },
+                  "threshold": -3,
+                  "threshold_unit": "count",
+                  "window_seconds": 2
+                }
+              ],
+              "provenance": {
+                "recorded_at": "2026-10-25T00:00:00Z",
+                "source_ref": "fixture:collaboration:m08-owner-criteria",
+                "supplied_by": "synthetic-fixture-author"
+              },
+              "schema_version": 1,
+              "tenant": "collaboration"
+            },
+            "criteria_results": [
+              {
+                "contradictions": [],
+                "criterion_id": "operational-degradation",
+                "dimension": "operational",
+                "issues": [],
+                "measured": {
+                  "denominator": "1",
+                  "numerator": "20"
+                },
+                "state": "demonstrated",
+                "windows": {
+                  "current": {
+                    "aggregate": {
+                      "denominator": "1",
+                      "numerator": "20"
+                    },
+                    "contradictions": [],
+                    "end": "2026-10-26T11:03:46.000000Z",
+                    "evidence_ids": [
+                      7,
+                      8,
+                      10,
+                      11
+                    ],
+                    "issues": [],
+                    "start": "2026-10-26T11:03:44.000000Z"
+                  }
+                }
+              },
+              {
+                "contradictions": [],
+                "criterion_id": "value-loss",
+                "dimension": "value",
+                "issues": [],
+                "measured": {
+                  "denominator": "1",
+                  "numerator": "-10"
+                },
+                "state": "demonstrated",
+                "windows": {
+                  "baseline": {
+                    "aggregate": {
+                      "denominator": "1",
+                      "numerator": "12"
+                    },
+                    "contradictions": [],
+                    "end": "2026-10-26T11:03:44.000000Z",
+                    "evidence_ids": [
+                      3,
+                      6
+                    ],
+                    "issues": [],
+                    "start": "2026-10-26T11:03:42.000000Z"
+                  },
+                  "current": {
+                    "aggregate": {
+                      "denominator": "1",
+                      "numerator": "2"
+                    },
+                    "contradictions": [],
+                    "end": "2026-10-26T11:03:46.000000Z",
+                    "evidence_ids": [
+                      9,
+                      12
+                    ],
+                    "issues": [],
+                    "start": "2026-10-26T11:03:44.000000Z"
+                  }
+                }
+              }
+            ]
+          },
+          "hypotheses": [
+            {
+              "contrary_refs": [],
+              "id": "unconfirmed-prerequisite-hypothesis",
+              "statement": "A declared prerequisite may be unmet. Whether this explains the deterioration has not been established.",
+              "support_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ],
+              "state": "unconfirmed",
+              "support_scope": "operator_declared_references_only",
+              "causal_status": "not_established",
+              "disputed_refs": []
+            }
+          ],
+          "requirements": [
+            {
+              "requirement_id": "explicit-unpaused-requirement",
+              "declared_requirement": {
+                "comparison": "eq",
+                "criterion_id": "operational-degradation",
+                "declaration": "Fictional owner-declared prerequisite: processing must not be paused. This declaration is not causal proof.",
+                "expected": false,
+                "id": "explicit-unpaused-requirement",
+                "selector": {
+                  "definition_id": "operation-state",
+                  "field": "paused",
+                  "kind": "evidence"
+                },
+                "window": "current"
+              },
+              "status": "supported",
+              "claim_type": "observed_requirement_noncompliance",
+              "support_scope": "observed_condition_only",
+              "causal_status": "not_established",
+              "checked_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ],
+              "violation_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ],
+              "compliant_refs": []
+            }
+          ],
+          "supported_impediments": [
+            {
+              "requirement_id": "explicit-unpaused-requirement",
+              "declared_requirement": {
+                "comparison": "eq",
+                "criterion_id": "operational-degradation",
+                "declaration": "Fictional owner-declared prerequisite: processing must not be paused. This declaration is not causal proof.",
+                "expected": false,
+                "id": "explicit-unpaused-requirement",
+                "selector": {
+                  "definition_id": "operation-state",
+                  "field": "paused",
+                  "kind": "evidence"
+                },
+                "window": "current"
+              },
+              "status": "supported",
+              "claim_type": "observed_requirement_noncompliance",
+              "support_scope": "observed_condition_only",
+              "causal_status": "not_established",
+              "checked_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ],
+              "violation_refs": [
+                {
+                  "evidence_id": 13,
+                  "field": "paused"
+                }
+              ],
+              "compliant_refs": []
+            }
+          ],
+          "missing_information": [],
+          "analysis_limitations": [],
+          "contradictions": []
+        }
+      }
+    ],
+    "c04": [],
+    "c05": [],
+    "c06": [],
+    "commands": [
+      {
+        "id": 1,
+        "operation": "initialize",
+        "participation": "human_supplied_test_profile",
+        "payload": {
+          "input_hashes": {
+            "configuration.json": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+            "criteria.json": "ca1c874ceb2f0617fe42d0001a9ef99b6463980ba8aa173bd643a4e49de4fbe0",
+            "initial-evidence.json": "e74e741d0aaeaf142c7a7fca1e84356773bf1d810a6fb0339701ccedf5e5c9ce",
+            "investigation.json": "8be1e8a3e448c938d769e2ddd052f4cc79417cd161baf7ad625ceb305c77fe67"
+          },
+          "profile": {
+            "as_of": "2026-10-26T11:03:46.000000Z",
+            "case_id": "observed-cycle",
+            "classification": "synthetic",
+            "customer": "fictional-account",
+            "fault": "none",
+            "operator": "operator",
+            "real_recovery_demonstrated": false,
+            "scenario": "ai_unavailable",
+            "tenant": "collaboration",
+            "usage_step": 2
+          }
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.340808+00:00",
+        "previous_hash": null,
+        "record_hash": "8b0a18b9fb0eb044485205e7fa11164420ac77d17dee8e8978361212eb0c7d60"
+      },
+      {
+        "id": 2,
+        "operation": "login",
+        "participation": "human_session",
+        "payload": {
+          "expires_at": "2026-10-26T12:03:47.388284+00:00",
+          "user": "operator"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.389524+00:00",
+        "previous_hash": "8b0a18b9fb0eb044485205e7fa11164420ac77d17dee8e8978361212eb0c7d60",
+        "record_hash": "471d6aecc49de9cdd170265f2a42a606858c4a8f1c53d85f1a3dc6ba5e0257bf"
+      },
+      {
+        "id": 3,
+        "operation": "M07_ingest",
+        "participation": "human_supplied_synthetic_evidence",
+        "payload": {
+          "input_hash": "e74e741d0aaeaf142c7a7fca1e84356773bf1d810a6fb0339701ccedf5e5c9ce",
+          "result": {
+            "batch_id": 1,
+            "classification": "synthetic",
+            "config_hash": "9a95e41d08fde8f37bf70cc0fd39369cccfa13aa83b2b2cc85cf0d103169bde7",
+            "config_version": 1,
+            "customer": "fictional-account",
+            "duplicates": 0,
+            "inserted": 13,
+            "operational_state": "inactive",
+            "record_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "reused": false,
+            "tenant": "collaboration"
+          }
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.395956+00:00",
+        "previous_hash": "471d6aecc49de9cdd170265f2a42a606858c4a8f1c53d85f1a3dc6ba5e0257bf",
+        "record_hash": "7747faaa0f91b18838c5adfcd9132d8a0e5d4f1ed383b93bb0f745710bca6769"
+      },
+      {
+        "id": 4,
+        "operation": "orchestrator_advance",
+        "participation": "automatic_bounded_processing",
+        "payload": {
+          "ai_kind": "unavailable",
+          "checkpoint": {
+            "actor": "operator",
+            "case_id": "observed-cycle",
+            "created_at": "2026-10-26T11:03:47.438297+00:00",
+            "customer": "fictional-account",
+            "parent_hash": "9b5ad45b588fb3bcab43113ea1fabd2636042e9933afa6c1eb8b89a5fd748e6b",
+            "payload": {
+              "basis": {
+                "as_of": "2026-10-26T11:03:46.000000Z",
+                "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+                "source_heads": {
+                  "config_version": 1,
+                  "criteria_version": 1,
+                  "eligible_ids": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13
+                  ],
+                  "through": 13
+                }
+              },
+              "blockers": [
+                "operator_investigation_missing"
+              ],
+              "core_transition_authorized": false,
+              "operational_state": "inactive",
+              "real_recovery_demonstrated": false,
+              "refs": {
+                "c02": {
+                  "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+                  "id": 1,
+                  "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+                }
+              },
+              "state": "awaiting_investigation"
+            },
+            "record_hash": "ce4fab0415bc2e0b915e0fab76d7e5fa8eb54583734e647b28293447eb90166b",
+            "tenant": "collaboration",
+            "version": 3
+          },
+          "external_execution": "blocked"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.441735+00:00",
+        "previous_hash": "7747faaa0f91b18838c5adfcd9132d8a0e5d4f1ed383b93bb0f745710bca6769",
+        "record_hash": "b65ab19daf7288fbe9d78da6fe857f01305ee64425a6aa92490d9777e654703d"
+      },
+      {
+        "id": 5,
+        "operation": "C03_declaration",
+        "participation": "human_supplied_investigation",
+        "payload": {
+          "input_hash": "8be1e8a3e448c938d769e2ddd052f4cc79417cd161baf7ad625ceb305c77fe67",
+          "record_hash": "fb8386c6eefc97a8e967ede35ad2cc7dd92d615d6706512b263e4e8392205530",
+          "version": 1
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.453927+00:00",
+        "previous_hash": "b65ab19daf7288fbe9d78da6fe857f01305ee64425a6aa92490d9777e654703d",
+        "record_hash": "d21fef8bc8036a0a18fc529d3a25f1a0bac9346c69b379c6787f1d83018067e7"
+      },
+      {
+        "id": 6,
+        "operation": "orchestrator_advance",
+        "participation": "automatic_bounded_processing",
+        "payload": {
+          "ai_kind": "unavailable",
+          "checkpoint": {
+            "actor": "operator",
+            "case_id": "observed-cycle",
+            "created_at": "2026-10-26T11:03:47.504451+00:00",
+            "customer": "fictional-account",
+            "parent_hash": "f4c146c6008fd63cbca32fe2339a2108a0ace028e91278999a51dc465f0c9462",
+            "payload": {
+              "basis": {
+                "as_of": "2026-10-26T11:03:46.000000Z",
+                "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+                "source_heads": {
+                  "config_version": 1,
+                  "criteria_version": 1,
+                  "eligible_ids": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13
+                  ],
+                  "through": 13
+                }
+              },
+              "blockers": [
+                "authorized_ai_not_configured"
+              ],
+              "core_transition_authorized": false,
+              "operational_state": "inactive",
+              "real_recovery_demonstrated": false,
+              "refs": {
+                "c02": {
+                  "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+                  "id": 1,
+                  "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+                },
+                "c03": {
+                  "record_hash": "fb8386c6eefc97a8e967ede35ad2cc7dd92d615d6706512b263e4e8392205530",
+                  "version": 1
+                },
+                "c04": {
+                  "request_id": "orch-849ecc9b4f41296273194c6d8598815dd8e8e5a40c3c9b350593b00c00"
+                }
+              },
+              "state": "awaiting_ai"
+            },
+            "record_hash": "569acd1a6629b1fc72529e85c6f6b96caa6d3b0331bc2315707a7bf84d5dca3f",
+            "tenant": "collaboration",
+            "version": 5
+          },
+          "external_execution": "blocked"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.508253+00:00",
+        "previous_hash": "d21fef8bc8036a0a18fc529d3a25f1a0bac9346c69b379c6787f1d83018067e7",
+        "record_hash": "54285b26f980afa82603adb6e7ea97dc716758d0a175c368a0e3191134172fc5"
+      }
+    ]
+  },
+  "case": {
+    "case": {
+      "id": 1,
+      "tenant": "collaboration",
+      "customer": "fictional-account",
+      "case_id": "observed-cycle",
+      "actor": "operator",
+      "created_at": "2026-10-26T11:03:47.398913+00:00",
+      "record_hash": "2f96215ef385fe2fbab88c4c9bf40c04928269118ead71209541a55d58053ca4"
+    },
+    "history": [
+      {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "version": 1,
+        "parent_hash": null,
+        "payload": {
+          "basis": {},
+          "blockers": [
+            "not_processed"
+          ],
+          "core_transition_authorized": false,
+          "operational_state": "inactive",
+          "real_recovery_demonstrated": false,
+          "refs": {},
+          "state": "awaiting_data"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.403262+00:00",
+        "record_hash": "fbac0d20ee6e7773cd24e86e2ea0fd4e3d50b2ee38b6d77b5a1bd645d09f6f37"
+      },
+      {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "version": 2,
+        "parent_hash": "fbac0d20ee6e7773cd24e86e2ea0fd4e3d50b2ee38b6d77b5a1bd645d09f6f37",
+        "payload": {
+          "basis": {
+            "as_of": "2026-10-26T11:03:46.000000Z",
+            "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "source_heads": {
+              "config_version": 1,
+              "criteria_version": 1,
+              "eligible_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "through": 13
+            }
+          },
+          "blockers": [
+            "c02_recorded"
+          ],
+          "core_transition_authorized": false,
+          "operational_state": "inactive",
+          "real_recovery_demonstrated": false,
+          "refs": {
+            "c02": {
+              "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+              "id": 1,
+              "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+            }
+          },
+          "state": "awaiting_investigation"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.422145+00:00",
+        "record_hash": "9b5ad45b588fb3bcab43113ea1fabd2636042e9933afa6c1eb8b89a5fd748e6b"
+      },
+      {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "version": 3,
+        "parent_hash": "9b5ad45b588fb3bcab43113ea1fabd2636042e9933afa6c1eb8b89a5fd748e6b",
+        "payload": {
+          "basis": {
+            "as_of": "2026-10-26T11:03:46.000000Z",
+            "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "source_heads": {
+              "config_version": 1,
+              "criteria_version": 1,
+              "eligible_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "through": 13
+            }
+          },
+          "blockers": [
+            "operator_investigation_missing"
+          ],
+          "core_transition_authorized": false,
+          "operational_state": "inactive",
+          "real_recovery_demonstrated": false,
+          "refs": {
+            "c02": {
+              "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+              "id": 1,
+              "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+            }
+          },
+          "state": "awaiting_investigation"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.438297+00:00",
+        "record_hash": "ce4fab0415bc2e0b915e0fab76d7e5fa8eb54583734e647b28293447eb90166b"
+      },
+      {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "version": 4,
+        "parent_hash": "ce4fab0415bc2e0b915e0fab76d7e5fa8eb54583734e647b28293447eb90166b",
+        "payload": {
+          "basis": {
+            "as_of": "2026-10-26T11:03:46.000000Z",
+            "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "source_heads": {
+              "config_version": 1,
+              "criteria_version": 1,
+              "eligible_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "through": 13
+            }
+          },
+          "blockers": [
+            "proposal_not_recorded"
+          ],
+          "core_transition_authorized": false,
+          "operational_state": "inactive",
+          "real_recovery_demonstrated": false,
+          "refs": {
+            "c02": {
+              "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+              "id": 1,
+              "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+            },
+            "c03": {
+              "record_hash": "fb8386c6eefc97a8e967ede35ad2cc7dd92d615d6706512b263e4e8392205530",
+              "version": 1
+            },
+            "c04": {
+              "request_id": "orch-849ecc9b4f41296273194c6d8598815dd8e8e5a40c3c9b350593b00c00"
+            }
+          },
+          "state": "awaiting_ai"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.483091+00:00",
+        "record_hash": "f4c146c6008fd63cbca32fe2339a2108a0ace028e91278999a51dc465f0c9462"
+      },
+      {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "case_id": "observed-cycle",
+        "version": 5,
+        "parent_hash": "f4c146c6008fd63cbca32fe2339a2108a0ace028e91278999a51dc465f0c9462",
+        "payload": {
+          "basis": {
+            "as_of": "2026-10-26T11:03:46.000000Z",
+            "source_hash": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+            "source_heads": {
+              "config_version": 1,
+              "criteria_version": 1,
+              "eligible_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13
+              ],
+              "through": 13
+            }
+          },
+          "blockers": [
+            "authorized_ai_not_configured"
+          ],
+          "core_transition_authorized": false,
+          "operational_state": "inactive",
+          "real_recovery_demonstrated": false,
+          "refs": {
+            "c02": {
+              "basis": "80b920d3e9b9d68e8f1942edb70bd5fb412f6a57be5eafac084f53ae6c9760dd",
+              "id": 1,
+              "record_hash": "e3b3691caa95ae32effaf51b2ce2520631b701a430d7172b0d2328120bb262dd"
+            },
+            "c03": {
+              "record_hash": "fb8386c6eefc97a8e967ede35ad2cc7dd92d615d6706512b263e4e8392205530",
+              "version": 1
+            },
+            "c04": {
+              "request_id": "orch-849ecc9b4f41296273194c6d8598815dd8e8e5a40c3c9b350593b00c00"
+            }
+          },
+          "state": "awaiting_ai"
+        },
+        "actor": "operator",
+        "created_at": "2026-10-26T11:03:47.504451+00:00",
+        "record_hash": "569acd1a6629b1fc72529e85c6f6b96caa6d3b0331bc2315707a7bf84d5dca3f"
+      }
+    ],
+    "opening": {
+      "tenant": "collaboration",
+      "customer": "fictional-account",
+      "case_id": "observed-cycle",
+      "request_id": "observed-cycle",
+      "payload": {
+        "cycle_number": 1,
+        "legacy_upgrade": false,
+        "new_evidence_ids": [],
+        "predecessor_closure_hash": null,
+        "previous_case_id": null,
+        "reason": "initial_registration",
+        "session_hash": null
+      },
+      "actor": "operator",
+      "created_at": "2026-10-26T11:03:47.399073+00:00",
+      "record_hash": "f8360a5b827fd042315b4ce092cda4231680926a05e18cfc288f0ec253645124"
+    },
+    "closure": null,
+    "operational_state": "inactive",
+    "external_execution": "blocked"
+  },
+  "synthetic_service": {
+    "classification": "synthetic_test_only",
+    "profile": {
+      "marker": "synthetic-local-v1",
+      "tenant": "collaboration",
+      "customer": "fictional-account",
+      "capability": "reopen-delivery-queue",
+      "usage_step": 2,
+      "fault": "none"
+    },
+    "state": [
+      {
+        "tenant": "collaboration",
+        "customer": "fictional-account",
+        "revision": 1,
+        "paused": 1,
+        "outcome_count": 1
+      }
+    ],
+    "effects": [],
+    "samples": []
+  },
+  "limitations": [
+    "No autonomous investigation: C03 requires an operator-supplied document.",
+    "No external research or SaaS connector.",
+    "No real AI verified by a supplied test fixture; no configured AI means unavailable.",
+    "Only synthetic persisted effects, never real customer/value recovery.",
+    "No automatic resolution, retry or erasure of uncertain executions.",
+    "Human approval is an explicit local session assertion, not biometric verification.",
+    "C06 does not close the case; M14 remains explicit.",
+    "CLI only; pilot/production/HTTP unchanged. Local row hashes are not external audit signatures."
+  ]
+}
