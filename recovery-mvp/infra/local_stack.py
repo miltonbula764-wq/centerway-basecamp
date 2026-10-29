@@ -1,6 +1,7 @@
 """Isolated C01 synthetic lifecycle. No tunnels, public binds, DNS or ACME calls."""
 import json
 import os
+import re
 from pathlib import Path
 import secrets
 import socket
@@ -85,10 +86,16 @@ class LocalStack:
                             if entry.get('level')=='error': diagnostics.append(str(entry.get('error',entry.get('msg','startup error'))))
                         except ValueError:
                             if line.startswith('Error: '): diagnostics.append(line)
-                detail='; '.join(diagnostics[-2:]).replace(str(self.state),'<private-state>')
+                detail='; '.join(diagnostics[-2:])
+                if not detail and process is self.proxy:
+                    # Caddy can also fail before JSON logging initializes (Go/loader errors).
+                    detail=(self.state/'proxy.log').read_text()[-3000:]
+                detail=detail.replace(str(self.state),'<private-state>')
+                detail=re.sub(r'Bearer [A-Za-z0-9_-]+','Bearer <redacted>',detail)
+                detail=re.sub(r'password=[^\s]+','password=<redacted>',detail)
                 for user in self.config['users'].values(): detail=detail.replace(user['dsn'],'<redacted>')
                 for password in self.credentials.values(): detail=detail.replace(password,'<redacted>')
-                raise RuntimeError('Local server exited: '+(detail[:1500] or 'no sanitized startup diagnostic'))
+                raise RuntimeError(f'Local server exited ({process.returncode}): '+(detail[:3000] or 'no sanitized startup diagnostic'))
             try:
                 with socket.create_connection(('127.0.0.1',port),timeout=.1): return
             except OSError: time.sleep(.05)
