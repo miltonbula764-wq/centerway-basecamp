@@ -27,7 +27,7 @@ class LocalStack:
         self.caddy=str(Path(caddy).resolve()); self.state=Path(tempfile.mkdtemp(prefix='centerway-c01-'))
         self.container='centerway-c01-'+secrets.token_hex(6)
         self.api=None; self.proxy=None; self.logs=[]
-        self.api_port=free_port(); self.port=free_port()
+        self.api_port=free_port(); self.port=free_port(); self.http_port=free_port()
         self.env=os.environ.copy()
 
     def run(self,*args,input=None):
@@ -68,7 +68,7 @@ class LocalStack:
                 CENTERWAY_TLS_CERT=str(self.state/'pki'/'api.crt'),CENTERWAY_TLS_KEY=str(self.state/'pki'/'api.key'),
                 UPSTREAM_ADDR=f'127.0.0.1:{self.api_port}',UPSTREAM_CA=str(self.state/'pki'/'ca.crt'),
                 XDG_DATA_HOME=str(self.state/'caddy-data'),XDG_CONFIG_HOME=str(self.state/'caddy-config'),
-                HTTPS_PORT=str(self.port),TLS_CERT=str(self.state/'pki'/'edge.crt'),TLS_KEY=str(self.state/'pki'/'edge.key'))
+                LOCAL_HTTP_PORT=str(self.http_port),HTTPS_PORT=str(self.port),TLS_CERT=str(self.state/'pki'/'edge.crt'),TLS_KEY=str(self.state/'pki'/'edge.key'))
             self.start_api(); self.start_proxy()
             return self
         except BaseException:
@@ -109,8 +109,12 @@ class LocalStack:
     def start_proxy(self,wrong_ca=False):
         env=self.env.copy()
         if wrong_ca: env['UPSTREAM_CA']=str(self.state/'pki'/'edge.crt')
+        validation=subprocess.run([self.caddy,'validate','--config',str(ROOT/'infra'/'Caddyfile.loopback'),'--adapter','caddyfile'],cwd=ROOT/'infra',env=env,capture_output=True,text=True)
+        if validation.returncode:
+            detail=(validation.stderr+validation.stdout).replace(str(self.state),'<private-state>')
+            raise RuntimeError('Local Caddy validation failed: '+detail[-3000:])
         log=open(self.state/'proxy.log','a'); self.logs.append(log)
-        self.proxy=subprocess.Popen([self.caddy,'run','--config',str(ROOT/'infra'/'Caddyfile.local'),'--adapter','caddyfile'],cwd=ROOT/'infra',env=env,stdout=log,stderr=log)
+        self.proxy=subprocess.Popen([self.caddy,'run','--config',str(ROOT/'infra'/'Caddyfile.loopback'),'--adapter','caddyfile'],cwd=ROOT/'infra',env=env,stdout=log,stderr=log)
         self.wait_port(self.port,self.proxy)
 
     @staticmethod

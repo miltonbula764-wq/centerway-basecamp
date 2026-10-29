@@ -65,7 +65,7 @@ pela API, sem duplicar ou enfraquecer a política. Nenhum segredo vai para o fro
 
 ## Estrutura e fronteira de confiança
 
-- `Caddyfile.local`: teste local com certificado explícito e bind loopback.
+- `Caddyfile.loopback`: teste local com certificado explícito e bind loopback.
 - `Caddyfile`: template público com hostname/email fornecidos pelo operador, HTTPS
   automático e HSTS inicial de um dia, sem preload/includeSubDomains.
 - `gateway.caddy`: políticas comuns, rotas /health e /v1/*, TLS de upstream com CA e

@@ -1,0 +1,15 @@
+{
+ admin off
+ default_bind 127.0.0.1
+ http_port {$LOCAL_HTTP_PORT}
+ https_port {$HTTPS_PORT}
+ auto_https disable_redirects
+ skip_install_trust
+}
+https://localhost:{$HTTPS_PORT} {
+ bind 127.0.0.1
+ tls {$TLS_CERT} {$TLS_KEY} {
+  protocols tls1.2 tls1.3
+ }
+ import gateway.caddy
+}
