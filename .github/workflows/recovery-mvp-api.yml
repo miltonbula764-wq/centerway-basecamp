@@ -1,0 +1,28 @@
+name: Independent recovery MVP and HTTP API
+on:
+  pull_request:
+    paths: ['recovery-mvp/**', '.github/workflows/recovery-mvp-api.yml']
+  push:
+    branches: ['recovery-mvp/**']
+    paths: ['recovery-mvp/**', '.github/workflows/recovery-mvp-api.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression-and-http:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify L01 preserves existing SQL engines and regression tests
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: git diff --exit-code "$BASE_SHA" HEAD -- recovery-mvp/sql recovery-mvp/tests
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test engines F01–F06 and real HTTP sessions against isolated PostgreSQL
+        run: ./recovery-mvp/api/test.sh
