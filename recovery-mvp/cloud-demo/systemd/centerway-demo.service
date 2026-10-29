@@ -1,0 +1,26 @@
+# Uninstalled template. Loops back only; does not activate the future public gateway.
+[Unit]
+Description=CENTERWAY persistent SYNTHETIC loopback demonstration
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=centerway
+Group=centerway
+SupplementaryGroups=docker
+WorkingDirectory=/opt/centerway-basecamp/recovery-mvp/cloud-demo
+UMask=0077
+ExecStart=/var/lib/centerway/demo/venv/bin/python -B runtime.py serve --state /var/lib/centerway/demo --caddy /var/lib/centerway/demo/bin/caddy
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/centerway/demo
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
