@@ -33,3 +33,14 @@
 - A C02 run is identified by a hash of (algorithm, profile, subject, as_of, all observation ids+payload hashes); same inputs reuse the run, new inputs create a run with `revision_of` — why: reproducible, append-only history.
 - Observations from another profile version are used only when the indicator's measurement fingerprint (`_c02_fingerprint`) is identical; corrections must match source, observed_at and fingerprint and may not fork — why: incompatible meanings must never be mixed.
 - C02 signals are candidates only; no table or code may turn them into actionable cases until the case block exists — why: usage-only or unvalidated signals must not trigger interventions.
+
+## Independent recovery MVP (F01–F03.1)
+
+These rules apply to `recovery-mvp/`; the V2 rules above describe the legacy project.
+Confirmed implementation: F01 #49, F02 #50, F03 #51. F03.1 adds configurable discovery
+and automatic F03 routing. See PROJECT_STATE.md and recovery-mvp/DISCOVERY.md.
+Use real PostgreSQL login roles in disposable integration tests. Identity is
+`session_user`; audit is transactional and append-only. Preserve prior migrations.
+Discovery creates hypotheses and observations only: never synthesize reviewer records,
+independent verification, causal conclusions or intervention authorization.
+Do not implement F04 without a new explicit mission. Do not modify main.
