@@ -66,6 +66,7 @@ class LocalStack:
             self.env.update(CENTERWAY_API_CONFIG=str(self.state/'config.json'),CENTERWAY_UPSTREAM_ADDR=f'127.0.0.1:{self.api_port}',
                 CENTERWAY_TLS_CERT=str(self.state/'pki'/'api.crt'),CENTERWAY_TLS_KEY=str(self.state/'pki'/'api.key'),
                 UPSTREAM_ADDR=f'127.0.0.1:{self.api_port}',UPSTREAM_CA=str(self.state/'pki'/'ca.crt'),
+                XDG_DATA_HOME=str(self.state/'caddy-data'),XDG_CONFIG_HOME=str(self.state/'caddy-config'),
                 HTTPS_PORT=str(self.port),TLS_CERT=str(self.state/'pki'/'edge.crt'),TLS_KEY=str(self.state/'pki'/'edge.key'))
             self.start_api(); self.start_proxy()
             return self
@@ -74,7 +75,20 @@ class LocalStack:
 
     def wait_port(self,port,process):
         for _ in range(100):
-            if process.poll() is not None: raise RuntimeError('Local server exited; inspect private logs')
+            if process.poll() is not None:
+                # Startup error fields only; never dump config, certificates or whole logs.
+                diagnostics=[]
+                for path in self.state.glob('*.log'):
+                    for line in path.read_text().splitlines():
+                        try:
+                            entry=json.loads(line)
+                            if entry.get('level')=='error': diagnostics.append(str(entry.get('error',entry.get('msg','startup error'))))
+                        except ValueError:
+                            if line.startswith('Error: '): diagnostics.append(line)
+                detail='; '.join(diagnostics[-2:]).replace(str(self.state),'<private-state>')
+                for user in self.config['users'].values(): detail=detail.replace(user['dsn'],'<redacted>')
+                for password in self.credentials.values(): detail=detail.replace(password,'<redacted>')
+                raise RuntimeError('Local server exited: '+(detail[:1500] or 'no sanitized startup diagnostic'))
             try:
                 with socket.create_connection(('127.0.0.1',port),timeout=.1): return
             except OSError: time.sleep(.05)
