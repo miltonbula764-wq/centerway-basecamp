@@ -13,7 +13,9 @@ Independent implementation is in recovery-mvp/. Legacy application remains separ
 | F06 | PR #55, c4d9756 | Idempotent operations and client journey projection |
 | L01 | PR #56, d32c6e8 (CI run 40902550601 succeeded) | Authenticated HTTP transport, per-user PostgreSQL identity, local synthetic demo and independent CI |
 | L02.2 | Interface prepared, reported by user; not inspected in C01 | External Lovable project remains untouched |
-| C01 | Current branch recovery-mvp/c01-https-infrastructure | HTTPS configurations and local synthetic TLS tests; no publication/external verification |
+| C01 | PR #57, 3b9d3a2 (both CI workflows succeeded) | HTTPS configurations and local synthetic TLS tests; no publication/external verification |
+
+| C02 | Current branch recovery-mvp/c02-authorized-client-list | Authenticated, bounded client directory with persisted names; additive HTTP SQL read port; 79 local checks passed; remote CI tracked on the delivery PR |
 
 These are implementation states, not assertions of merge, deployment or production use.
 Run `./recovery-mvp/tests/run-f03.sh` for regression and discovery integration tests.
@@ -28,3 +30,14 @@ F06 integration contract: recovery-mvp/ORCHESTRATION.md. No frontend or deployme
 L01 integration and local execution: recovery-mvp/api/README.md. Local test success is not production readiness or a remote CI result. No frontend or production deployment.
 
 C01: recovery-mvp/infra/README.md and RESEARCH.md. Infrastructure prepared and locally tested only. Public DNS, host, actual Lovable origins and public CA certificate activation remain pending. No paid resources, publication or external HTTPS proof.
+
+C02: recovery-mvp/api/README.md (C02) and openapi.json. Only client_id/display_name
+from persisted clients, HTTP scope plus current session_user tenant membership. No
+engine/RLS changes; clients remains unreadable directly by centerway_api. Install the
+additive api/sql/001_client_directory.sql once before using the new endpoint. Per-client
+scope remains HTTP-side as in L01. Pagination is bounded, not a cross-request snapshot.
+No frontend change, publication, external connectivity or production readiness claimed.
+Validation: ./recovery-mvp/infra/test.sh passed locally: 60 unchanged engine tests,
+11 HTTP tests (seven L01 + four C02), eight verified-TLS tests (seven C01 + one C02),
+79 total. GitHub Actions runs both suites independently on the delivery PR; consult
+the checks on the exact commit for the remote result. All fixtures are synthetic.

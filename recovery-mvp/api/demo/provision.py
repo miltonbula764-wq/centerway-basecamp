@@ -23,7 +23,9 @@ def provision(container, port, directory):
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     if directory.stat().st_mode & 0o077:
         raise ValueError('Demo directory must be private (0700)')
-    users, credentials, statements = {}, {}, []
+    # Additive HTTP read port, installed only in this fresh disposable database.
+    migrations = sorted((Path(__file__).resolve().parents[1]/'sql').glob('*.sql'))
+    users, credentials, statements = {}, {}, [p.read_text() for p in migrations]
     specs = [('alice','http_alice',T,C,list(FIELDS)), ('reviewer','http_reviewer',T,C,['append_investigation','investigate']),
              ('reader','http_reader',T,C,[]), ('bob','http_bob',B,BC,list(FIELDS))]
     for username, principal, tenant, client, operations in specs:

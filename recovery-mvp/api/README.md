@@ -145,6 +145,7 @@ O documento `openapi.json` descreve o contrato de transporte.
 | POST /v1/sessions | Username/password | 201: access_token, token_type, expires_in, demo |
 | GET /v1/session | Bearer | Username, principal confirmado, clients, operations, company_tenants |
 | DELETE /v1/session | Bearer | 204: sessão revogada |
+| GET /v1/tenants/{tenant}/clients | Bearer + client scope + PostgreSQL membership | 200: client_id/display_name, bounded cursor page (C02) |
 | GET /v1/tenants/{tenant}/clients/{client}/journey | Bearer + scope + RLS | 200: data=projeção F06, demo |
 | POST /v1/tenants/{tenant}/clients/{client}/operations | Bearer + scope + operação + motores | 200 ou erro com recibo F06 |
 
@@ -231,3 +232,63 @@ autenticação. Respostas usam no-store, nosniff e CSP sem conteúdo ativo.
   frontend ou deploy. L02 requer outra missão explícita.
 
 Resultados locais desta entrega: 60 testes F01–F06 e sete testes L01 aprovados (67 no total). A suite HTTP final foi repetida após o hardening, com as versões fixadas. O CI verifica também que SQL e testes de regressão existentes não foram alterados.
+
+## C02 — listagem segura de clientes
+
+`GET /v1/tenants/{tenant}/clients?limit=50&after=<uuid>` usa a mesma sessão Bearer
+L01 e os mesmos guardas de HTTPS/CORS. Omitir `after` na primeira página. A resposta
+é `{"data": [], "next_cursor": null, "demo": false}` quando não há clientes visíveis.
+Cada elemento de data contém exclusivamente `client_id` e `display_name`; este último
+é o `centerway.clients.name` persistido, sem fallback ou nome gerado. Não cria clientes,
+contratos, resultados ou permissões. Os exemplos vazios não representam clientes reais.
+
+O limite padrão é 50, máximo 100, mínimo 1. A ordem é crescente pelo UUID do cliente,
+com cursor exclusivo. Seguir next_cursor até null; não há total de clientes. Parâmetros
+extra, repetidos, limites inválidos e UUIDs inválidos devolvem 422. Limites usam apenas
+dígitos decimais canónicos. O cursor não concede acesso e não tem de identificar um
+cliente visível. Páginas são leituras atuais, sem snapshot entre pedidos: dados ou
+permissões que mudem podem alterar o conjunto. Não há ordenação por nome ou pesquisa.
+
+Só uma empresa explicitamente presente em users.<user>.clients pode ser consultada.
+Empresa fora do scope (existente ou não) recebe 403; uma empresa autorizada com lista
+vazia recebe 200 vazio após verificar a identidade e membership PostgreSQL. A lista
+interseta o scope provisionado no servidor com clientes realmente existentes nessa
+empresa. `company_tenants`/discover_company não concede leitura adicional. Contas
+apenas de leitura não precisam de qualquer operação de escrita para listar clientes.
+Sem sessão válida: 401; origem recusada: 403; falha da base/configuração: 503.
+
+### Instalação adicional C02
+
+Numa base com F01–F06 já instaladas, aplicar **uma vez**, pelo administrador fora da
+API, `recovery-mvp/api/sql/001_client_directory.sql`. Não reaplicar as migrações dos
+motores. Sem esta migração, a consulta falha fechada (503). Demos e testes aplicam-na
+automaticamente apenas nas suas bases descartáveis. Nenhuma migração foi aplicada a
+uma base externa nesta missão.
+
+A tabela clients da F01 não tem SELECT para centerway_api nem RLS próprio; tal como
+no helper F06, a nova função SECURITY DEFINER é um porto restrito de leitura, com
+search_path fixo, EXECUTE revogado de PUBLIC, validação explícita de membership por
+session_user, seleção de duas colunas e limite imposto também na base. Não concede
+leitura direta, não altera tabelas/políticas RLS existentes nem usa login privilegiado
+na API. A granularidade por cliente continua na configuração HTTP L01; o PostgreSQL
+aplica a fronteira empresarial existente. Não prometer RLS por cliente nem tratar o
+array de scopes como barreira para alguém que já tenha credenciais PostgreSQL diretas.
+Essas credenciais permanecem exclusivamente no servidor.
+
+O frontend futuro pode obter empresas autorizadas de `/v1/session`, pedir esta lista
+para preencher os nomes e consultar o journey com o client_id recebido. Guardar o
+Bearer apenas em memória, `credentials: 'omit'`; não derivar permissões do nome,
+cursor ou dados guardados no browser. `display_name` é texto não confiável para
+renderizar como texto, nunca como HTML. Não foi alterado ou ligado qualquer frontend.
+
+Validação C02: quatro testes HTTP novos e um teste por HTTPS verificado, além das 74
+verificações anteriores. Cobrem campos mínimos, nomes Unicode persistidos, scope de
+leitura, 105 clientes sintéticos/paginação, scopes vazios/desatualizados, isolamento,
+membership real, recusa de SELECT direto/EXECUTE público, sessão, CORS e validação.
+Todos os nomes e dados de teste são explicitamente sintéticos. Não houve consulta de
+dados de clientes reais, publicação, prova externa ou afirmação de produção.
+
+C02 estende deliberadamente o código de transporte L01 e os testes HTTPS C01. O guard
+do CI HTTPS preserva agora os motores, testes F01–F06 e configurações C01; deixa de
+exigir API byte a byte idêntica para permitir o endpoint solicitado. Não altera
+configurações de proxy, TLS, autenticação ou execução dos motores.
