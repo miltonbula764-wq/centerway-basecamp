@@ -1,0 +1,25 @@
+[Unit]
+Description=CENTERWAY independent API (real loopback TLS, no trusted forwarded scheme)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=centerway
+Group=centerway
+WorkingDirectory=/opt/centerway-basecamp/recovery-mvp/api
+EnvironmentFile=/etc/centerway/api.env
+ExecStartPre=/opt/centerway-venv/bin/python /opt/centerway-basecamp/recovery-mvp/infra/preflight.py api
+ExecStart=/opt/centerway-venv/bin/gunicorn -c /opt/centerway-basecamp/recovery-mvp/infra/gunicorn.conf.py app:load_app()
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/centerway
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target
