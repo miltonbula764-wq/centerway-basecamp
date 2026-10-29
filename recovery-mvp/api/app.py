@@ -90,6 +90,9 @@ class Database:
                     raise APIError(503, 'database_identity_rejected')
                 if kind == 'identity':
                     return row[0]
+                if kind == 'clients':
+                    cur.execute('SELECT client_id::text,display_name FROM centerway.list_authorized_clients(%s,%s::uuid[],%s,%s)', params)
+                    return [dict(client_id=row[0], display_name=row[1]) for row in cur.fetchall()]
                 if kind == 'journey':
                     cur.execute('SELECT centerway.client_journey(%s,%s)', params)
                 elif kind == 'operate':
@@ -267,6 +270,30 @@ def create_app(config):
         if client not in g.user['clients'].get(tenant, []):
             raise APIError(403, 'forbidden')
         return tenant, client
+
+    @app.get('/v1/tenants/<tenant>/clients')
+    def clients(tenant):
+        try:
+            tenant = canonical_uuid(tenant)
+        except ValueError:
+            raise APIError(422, 'invalid_uuid')
+        if tenant not in g.user['clients']:
+            raise APIError(403, 'forbidden')
+        if set(request.args) - {'limit', 'after'} or any(len(request.args.getlist(k)) != 1 for k in request.args):
+            raise APIError(422, 'invalid_parameters')
+        try:
+            raw_limit = request.args.get('limit', '50')
+            if not re.fullmatch(r'[1-9][0-9]{0,2}', raw_limit):
+                raise ValueError()
+            limit = int(raw_limit)
+            if limit > 100:
+                raise ValueError()
+            after = canonical_uuid(request.args['after']) if 'after' in request.args else None
+        except ValueError:
+            raise APIError(422, 'invalid_parameters')
+        rows = db_call(g.user, 'clients', (tenant, g.user['clients'][tenant], after, limit))
+        next_cursor = rows[limit-1]['client_id'] if len(rows) > limit else None
+        return jsonify(data=rows[:limit], next_cursor=next_cursor, demo=bool(config.get('demo')))
 
     @app.get('/v1/tenants/<tenant>/clients/<client>/journey')
     def journey(tenant, client):

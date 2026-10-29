@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "CENTERWAY independent MVP L01",
-    "version": "l01-v1",
-    "description": "Local HTTP transport. Detailed semantics and limitations in README.md."
+    "version": "c02-v1",
+    "description": "Authenticated HTTP transport with authorized client directory. HTTPS preparation in ../infra/README.md; no published service."
   },
   "components": {
     "securitySchemes": {
@@ -559,6 +559,51 @@
             "writeOnly": true
           }
         }
+      },
+      "ClientDirectoryPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "next_cursor",
+          "demo"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "client_id",
+                "display_name"
+              ],
+              "properties": {
+                "client_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "display_name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              }
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "Last returned client_id when more authorized rows exist; null at end."
+          },
+          "demo": {
+            "type": "boolean"
+          }
+        }
       }
     },
     "responses": {
@@ -944,6 +989,83 @@
                 "$ref": "#/components/schemas/Operation"
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/tenants/{tenant}/clients": {
+      "get": {
+        "summary": "List server-provisioned HTTP client scopes intersected with current PostgreSQL tenant membership",
+        "description": "Only persisted names. Keyset order by client UUID. No tenant-wide discovery permission grants read access. Unknown/repeated query parameters rejected. Does not return totals or cross-tenant existence.",
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Canonical positive decimal digits only, no leading zeros."
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Exclusive UUID cursor from next_cursor; never an authorization grant."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized page; empty authorized scope returns data=[] and next_cursor=null.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDirectoryPage"
+                },
+                "example": {
+                  "data": [],
+                  "next_cursor": null,
+                  "demo": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "401": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "403": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "422": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "500": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "503": {
+            "$ref": "#/components/responses/Failure"
           }
         }
       }

@@ -79,6 +79,19 @@ class HTTPSTests(unittest.TestCase):
             db.execute('UPDATE sessions SET expires=0 WHERE digest=?',(hashlib.sha256(body['access_token'].encode()).hexdigest(),))
         self.assertEqual(self.call('GET','/v1/session',token=body['access_token'])[0],401)
 
+    def test_client_directory_through_verified_tls_gateway(self):
+        route=f'/v1/tenants/{T}/clients'
+        self.assertEqual(self.call('GET',route)[0],401)
+        status,headers,body=self.call('GET',route,token=self.tokens['alice'])
+        self.assertEqual(status,200)
+        self.assertEqual(body['data'],[{'client_id':C,'display_name':'SYNTHETIC client A'}])
+        self.assertIsNone(body['next_cursor'])
+        self.assertEqual(headers['Cache-Control'],'no-store')
+        self.assertEqual(self.call('GET',route,token=self.tokens['bob'])[0],403)
+        status,headers,_=self.call('OPTIONS',route,headers={'Origin':'https://lovable.example.invalid','Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'Authorization'})
+        self.assertEqual(status,204)
+        self.assertEqual(headers['Access-Control-Allow-Origin'],'https://lovable.example.invalid')
+
     def test_forwarded_headers_cannot_create_trusted_transport(self):
         unsafe=subprocess.run([sys.executable,'-m','gunicorn','--check-config','-c',str(ROOT/'infra'/'gunicorn.conf.py'),'app:load_app()'],cwd=ROOT/'api',env=self.stack.env|{'CENTERWAY_UPSTREAM_ADDR':'0.0.0.0:8444'},capture_output=True)
         self.assertNotEqual(unsafe.returncode,0)
