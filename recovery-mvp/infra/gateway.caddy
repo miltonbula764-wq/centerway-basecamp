@@ -1,0 +1,31 @@
+# No access log, header-based identity, cache or automatic mutation retry.
+header {
+ -Server
+ Cache-Control "no-store"
+ X-Content-Type-Options "nosniff"
+}
+@api path /v1/* /health
+handle @api {
+ reverse_proxy https://{$UPSTREAM_ADDR} {
+  header_up -Forwarded
+  header_up -X-Forwarded-For
+  header_up -X-Forwarded-Host
+  header_up -X-Forwarded-Proto
+  header_up -X-Forwarded-Port
+  header_up -X-Real-IP
+  header_up -CF-Connecting-IP
+  transport http {
+   tls_server_name localhost
+   tls_trust_pool file {$UPSTREAM_CA}
+   dial_timeout 3s
+   response_header_timeout 20s
+  }
+ }
+}
+handle {
+ respond 404
+}
+handle_errors {
+ header Content-Type application/json
+ respond "{\"error\":{\"code\":\"gateway_unavailable\"}}" 503
+}

@@ -1,0 +1,28 @@
+name: Independent CENTERWAY HTTPS infrastructure
+on:
+  pull_request:
+    paths: ['recovery-mvp/**', '.github/workflows/recovery-mvp-https.yml']
+  push:
+    branches: ['recovery-mvp/**']
+    paths: ['recovery-mvp/**', '.github/workflows/recovery-mvp-https.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  https-integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify C01 preserves motors and L01 code
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: git diff --exit-code "$BASE_SHA" HEAD -- recovery-mvp/sql recovery-mvp/tests recovery-mvp/api
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Real local TLS chain, authorization and failure tests (no publication)
+        run: ./recovery-mvp/infra/test.sh --tls-only

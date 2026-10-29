@@ -1,0 +1,11 @@
+{
+ admin off
+ email {$ACME_EMAIL}
+}
+{$API_HOST} {
+ tls {
+  protocols tls1.2 tls1.3
+ }
+ header Strict-Transport-Security "max-age=86400"
+ import gateway.caddy
+}
