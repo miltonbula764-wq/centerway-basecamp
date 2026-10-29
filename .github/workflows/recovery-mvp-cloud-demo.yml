@@ -1,0 +1,28 @@
+name: Independent CENTERWAY persistent synthetic demo
+on:
+  pull_request:
+    paths: ['recovery-mvp/**', '.github/workflows/recovery-mvp-cloud-demo.yml']
+  push:
+    branches: ['recovery-mvp/**']
+    paths: ['recovery-mvp/**', '.github/workflows/recovery-mvp-cloud-demo.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  persistent-demo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Preserve all existing engines, API and C01 infrastructure
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: git diff --exit-code "$BASE_SHA" HEAD -- recovery-mvp/sql recovery-mvp/tests recovery-mvp/api recovery-mvp/infra
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test complete HTTPS fixture, durable sessions/data and failures (no publication)
+        run: ./recovery-mvp/cloud-demo/test.sh --persistent-only

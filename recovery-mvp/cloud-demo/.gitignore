@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.key
+*.crt
+*.csr
+*.sqlite*
+state/
+venv/
+
+config.json
+credentials.json
+manifest.json
+scenario-*.json
+postgres.env
+*.log
