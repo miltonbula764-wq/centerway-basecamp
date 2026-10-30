@@ -8,5 +8,8 @@ python3 -m venv "$state/venv"
 "$state/venv/bin/python" -m playwright install --with-deps chromium
 ./infra/fetch-caddy.sh "$state/bin" > "$state/caddy-version.txt"
 node compatibility/build.mjs "$state/js"
-CENTERWAY_TEST_CADDY="$state/bin/caddy" CENTERWAY_TEST_JS="$state/js" \
-  "$state/venv/bin/python" -B -m unittest discover -s compatibility/tests -v
+for repetition in 1 2; do
+  echo "SYNTHETIC Chromium compatibility: fresh-stack repetition $repetition/2"
+  CENTERWAY_TEST_CADDY="$state/bin/caddy" CENTERWAY_TEST_JS="$state/js" \
+    "$state/venv/bin/python" -B -m unittest discover -s compatibility/tests -v
+done
