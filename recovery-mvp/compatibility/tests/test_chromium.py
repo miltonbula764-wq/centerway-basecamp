@@ -244,7 +244,10 @@ class ChromiumCompatibility(unittest.TestCase):
         }''', T)
         self.assertEqual(result, dict(status=401, state='expired', session=None, hasSession=False))
 
-    def test_06_database_failure_is_readable_and_gateway_failure_is_opaque(self):
+    def test_99_database_failure_is_readable_and_gateway_failure_is_opaque(self):
+        # Docker stop/start changes the runner's veth interfaces. Chromium reports
+        # ERR_NETWORK_CHANGED asynchronously after those changes, even for loopback.
+        # Keep destructive network lifecycle last, after the uninterrupted journey.
         self.boot()
         self.stack.run('docker', 'stop', self.stack.container)
         try:
@@ -265,7 +268,19 @@ class ChromiumCompatibility(unittest.TestCase):
             self.assertEqual(result, dict(kind='network', status=None))
         finally:
             self.stack.start_api()
-        self.assertEqual(self.page.evaluate('async t=>(await window.transport.listClients(t)).data.length', T), 1)
+        # Recovery is eventual after a deliberate outage. Only this read is polled;
+        # no mutation, login, intervention or request_id is ever retried here.
+        deadline = time.monotonic() + 10
+        while True:
+            result = self.page.evaluate('''async t=>{
+              try{return {count:(await window.transport.listClients(t)).data.length};}
+              catch(e){return {kind:e.kind,status:e.status};}
+            }''', T)
+            if result == dict(count=1):
+                break
+            if time.monotonic() >= deadline:
+                self.fail('Read did not recover after deliberate outage: ' + str(result))
+            time.sleep(.1)
 
     def test_07_full_synthetic_value_journey_through_browser_transport(self):
         scenario = BrowserScenario(self.stack, self.page)

@@ -172,13 +172,20 @@ Recuperação observada permanece distinta de causalidade e de retenção comerc
 | Validado com empresas reais | não |
 | Produção | não |
 
-### Observação de fiabilidade a conservar
+### Falha do runner identificada pela instrumentação
 
-No SHA 6177827, o percurso completo recebeu uma falha de transporte numa operação
-após o ensaio de paragem/reinício. O teste falhou; não houve retry automático. A
-execução seguinte, com diagnósticos de rede sanitizados (25396fc), passou os oito
-testes. A causa da falha inicial não foi demonstrada e não é declarada corrigida.
-A suite passou a exigir duas execuções em stacks novos, sem retries de comandos,
-para melhorar a deteção de instabilidade. Repetir a prova no host real e manter
-este risco pendente até obter diagnóstico caso volte a ocorrer. Não transformar
-resposta incerta em nova chave de intervenção; conservar request_id/corpo originais.
+No SHA 6177827, o percurso completo recebeu uma falha de transporte após o ensaio
+de paragem/reinício. O teste falhou sem retry de comandos. Uma execução seguinte
+passou, mas a repetição em a816764 voltou a falhar; os diagnósticos registaram
+`net::ERR_NETWORK_CHANGED` no POST. O teste anterior tinha parado/reiniciado Docker,
+que recria interfaces virtuais no runner. A explicação apoiada nesses sinais é uma
+notificação de mudança da rede do host recebida pelo Chromium durante o percurso.
+Não se identificou um erro de negócio, autorização ou contrato nesse pedido.
+
+O ensaio que provoca falhas de infraestrutura passa a correr por último, preservando
+a prova ininterrupta do percurso completo. O seu GET de recuperação é consultado até
+10 segundos, pois a recuperação após paragem é eventual. Não existe retry de login,
+POST, intervenção ou nova chave. A suite continua a exigir duas execuções em stacks
+novos. Esta correção organiza o ambiente de teste; não prova disponibilidade contínua
+ou rede pública. No destino real, respostas incertas continuam a exigir conservação
+do request_id/corpo e revisão explícita antes de qualquer reenvio.
