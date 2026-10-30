@@ -193,4 +193,3 @@ export function computeKpis(cs: CustomerVM[]): OverviewKpis {
     evaluatedRecoveries: all((c) => c.recoveries).filter((r) => r.evaluated).length,
   };
 }
-

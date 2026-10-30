@@ -164,4 +164,3 @@ export function preparePending(
 export function canResendIdentically(p: PendingOperation, principal: string): boolean {
   return p.principal === principal;
 }
-
