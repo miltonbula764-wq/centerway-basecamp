@@ -188,7 +188,8 @@ def create_app(config):
             if request.url_rule is None:
                 raise APIError(404, 'not_found')
             headers = {x.strip().lower() for x in request.headers.get('Access-Control-Request-Headers', '').split(',') if x.strip()}
-            if request.headers.get('Access-Control-Request-Method') not in request.url_rule.methods or not headers <= {'authorization', 'content-type'}:
+            methods = app.url_map.bind_to_environ(request.environ).allowed_methods()
+            if request.headers.get('Access-Control-Request-Method') not in (set(methods) & {'GET', 'POST', 'DELETE'}) or not headers <= {'authorization', 'content-type'}:
                 raise APIError(403, 'cors_forbidden')
             return '', 204
         if request.path not in ('/health', '/v1/sessions'):
