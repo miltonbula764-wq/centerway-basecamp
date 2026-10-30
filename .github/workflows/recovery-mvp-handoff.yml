@@ -1,0 +1,29 @@
+name: Independent CENTERWAY L03 PREP integration contract
+on:
+  pull_request:
+    paths: ['recovery-mvp/**', 'LOVABLE_HANDOFF.md', 'PROJECT_STATE.md', '.github/workflows/recovery-mvp-handoff.yml']
+  push:
+    branches: ['recovery-mvp/**']
+    paths: ['recovery-mvp/**', 'LOVABLE_HANDOFF.md', 'PROJECT_STATE.md', '.github/workflows/recovery-mvp-handoff.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-api-fixture-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Preserve engines and existing L01 C01 C02 C03 implementations
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: git diff --exit-code "$BASE_SHA" HEAD -- recovery-mvp/sql recovery-mvp/tests recovery-mvp/api recovery-mvp/infra recovery-mvp/cloud-demo
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compare 71 sanitized examples with real private C03 API and enforce contracts
+        run: ./recovery-mvp/integration/test.sh --handoff-only
+      # No upload-artifact/cache of temporary C03 state, credentials, raw HTTP or sessions.
