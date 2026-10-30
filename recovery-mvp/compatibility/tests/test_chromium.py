@@ -17,6 +17,7 @@ import tempfile
 import threading
 import time
 import unittest
+from urllib.parse import urlsplit
 
 from playwright.sync_api import sync_playwright
 
@@ -142,6 +143,10 @@ class ChromiumCompatibility(unittest.TestCase):
     def setUp(self):
         self.context = self.browser.new_context()
         self.page = self.context.new_page()
+        self.page.on('requestfailed', lambda req: print('Browser network failure:',
+            req.method, urlsplit(req.url).path, req.failure, flush=True))
+        self.page.on('response', lambda res: print('Browser HTTP error:',
+            res.status, urlsplit(res.url).path, flush=True) if res.status >= 500 else None)
         self.page.goto(self.origins[0])
 
     def tearDown(self):

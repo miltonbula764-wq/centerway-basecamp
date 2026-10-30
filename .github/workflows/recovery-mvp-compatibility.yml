@@ -2,8 +2,6 @@ name: CENTERWAY integrated backend and actual frontend transport
 on:
   pull_request:
     paths: ['recovery-mvp/**', '.github/workflows/recovery-mvp-compatibility.yml']
-  push:
-    branches: ['recovery-mvp/work-mode-integration']
   workflow_dispatch:
 permissions:
   contents: read
