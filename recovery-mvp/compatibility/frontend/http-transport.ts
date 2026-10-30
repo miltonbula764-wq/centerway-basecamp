@@ -154,6 +154,7 @@ export class HttpTransport implements L01Transport {
       if (
         e instanceof L01Error &&
         e.status === 401 &&
+        opts.auth !== false &&
         opts.token === undefined &&
         gen === this.#gen
       )

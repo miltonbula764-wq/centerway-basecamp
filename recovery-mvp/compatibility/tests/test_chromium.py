@@ -25,6 +25,41 @@ sys.path.insert(0, str(ROOT / 'infra'))
 sys.path.insert(0, str(ROOT / 'cloud-demo'))
 from runtime import PersistentDemo
 from demo.provision import T, B, C, BC
+from scenario import Scenario, uid
+
+
+class BrowserScenario(Scenario):
+    """Reuse C03's synthetic inputs; every login/read/operation uses browser fetch."""
+    def __init__(self, demo, page):
+        super().__init__(demo)
+        self.page = page
+
+    def login(self, user):
+        self.page.evaluate('''async cfg => {
+          const {HttpTransport}=await import('/http-transport.js');
+          window.scenarioTransports ??= {};
+          const t=new HttpTransport({baseUrl:cfg.api,allowLocalhost:true,fetch:fetch.bind(window)});
+          await t.createSession({username:cfg.user,password:cfg.password});
+          await t.getSession();
+          window.scenarioTransports[cfg.user]=t;
+        }''', dict(api=f'https://localhost:{self.demo.port}', user=user, password=self.demo.credentials[user]))
+
+    def command(self, operation, arguments, user='alice', key=None):
+        payload = dict(request_id=key or uid(), operation=operation, arguments=arguments)
+        receipt = self.page.evaluate('''async cfg =>
+          window.scenarioTransports[cfg.user].operate(cfg.tenant,cfg.client,cfg.payload)
+        ''', dict(user=user, tenant=T, client=C, payload=payload))
+        if receipt['status'] != 'completed':
+            raise RuntimeError('Browser synthetic operation did not complete')
+        return receipt['result'], payload
+
+    def request(self, method, path, data=None, user='alice'):
+        if method != 'GET' or path != f'/v1/tenants/{T}/clients/{C}/journey':
+            raise RuntimeError('Unexpected synthetic scenario route')
+        journey = self.page.evaluate('''async cfg =>
+          window.scenarioTransports[cfg.user].getJourney(cfg.tenant,cfg.client)
+        ''', dict(user=user, tenant=T, client=C))
+        return 200, dict(data=journey)
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
@@ -155,7 +190,8 @@ class ChromiumCompatibility(unittest.TestCase):
         self.boot('reader')
         result = self.page.evaluate('''async ids => {
           try { await window.transport.operate(ids.tenant,ids.client,{
-            request_id:crypto.randomUUID(),operation:'intervene',arguments:{}}); return 'unexpected_success'; }
+            request_id:crypto.randomUUID(),operation:'intervene',arguments:{
+              investigation_id:crypto.randomUUID(),report_id:crypto.randomUUID()}}); return 'unexpected_success'; }
           catch(e) { return {kind:e.kind,status:e.status}; }
         }''', dict(tenant=T, client=C))
         self.assertEqual(result, dict(kind='http', status=403))
@@ -225,3 +261,29 @@ class ChromiumCompatibility(unittest.TestCase):
         finally:
             self.stack.start_api()
         self.assertEqual(self.page.evaluate('async t=>(await window.transport.listClients(t)).data.length', T), 1)
+
+    def test_07_full_synthetic_value_journey_through_browser_transport(self):
+        scenario = BrowserScenario(self.stack, self.page)
+        result = scenario.run()
+        self.assertTrue(result['synthetic_only'])
+        self.assertEqual(result['missing_status'], 'resultado_inconclusivo')
+        self.assertEqual(result['recovery_result']['status'], 'recuperacao_completa')
+        self.assertEqual(result['recovery_result']['causal_attribution'], 'not_established')
+        self.assertEqual(result['recovery_result']['independent_verification'], 'not_established')
+        req = result['intervention_request']
+        # Explicit same-key resend; it must reuse the execution, never repeat it.
+        replay, _ = scenario.command(req['operation'], req['arguments'], key=req['request_id'])
+        self.assertEqual(replay['id'], result['decision_id'])
+        import psycopg
+        with psycopg.connect(self.stack.config['users']['alice']['dsn']) as db:
+            count = db.execute('SELECT count(*) FROM centerway.intervention_executions WHERE decision_id=%s', (result['decision_id'],)).fetchone()[0]
+            self.assertEqual(count, 1)
+
+    def test_08_invalid_login_keeps_actual_http_401(self):
+        result = self.page.evaluate('''async api => {
+          const {HttpTransport}=await import('/http-transport.js');
+          const t=new HttpTransport({baseUrl:api,allowLocalhost:true,fetch:fetch.bind(window)});
+          try {await t.createSession({username:'SYNTHETIC',password:'SYNTHETIC'});return 'unexpected_success';}
+          catch(e) {return {kind:e.kind,status:e.status,code:e.code,hasSession:t.hasSession};}
+        }''', f'https://localhost:{self.stack.port}')
+        self.assertEqual(result, dict(kind='http', status=401, code='invalid_credentials', hasSession=False))
