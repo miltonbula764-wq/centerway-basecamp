@@ -15,8 +15,9 @@ Independent implementation is in recovery-mvp/. Legacy application remains separ
 | L02.2 | Interface prepared, reported by user; not inspected in C01 | External Lovable project remains untouched |
 | C01 | PR #57, 3b9d3a2 (both CI workflows succeeded) | HTTPS configurations and local synthetic TLS tests; no publication/external verification |
 | C02 | PR #58, 9d8c124 (both CI workflows succeeded) | Authenticated, bounded client directory with persisted names; additive HTTP SQL read port; 79 local checks passed; remote CI tracked on the delivery PR |
+| C03 | PR #59, eeae52e (three CI workflows succeeded) | Persistent synthetic HTTPS installation and full fixture; 83 local checks passed; no cloud account/resource/publication |
 
-| C03 | Current branch recovery-mvp/c03-persistent-cloud-demo | Persistent synthetic HTTPS installation and full fixture; 83 local checks passed; no cloud account/resource/publication |
+| L03-PREP / B01 | Current branch recovery-mvp/l03-prep-integration-fixtures, issue #60 | 71 sanitized real-C03 API examples; versioned handoff/schema; 90 local tests passed; no deployment or Lovable changes |
 
 These are implementation states, not assertions of merge, deployment or production use.
 Run `./recovery-mvp/tests/run-f03.sh` for regression and discovery integration tests.
@@ -65,3 +66,29 @@ Prepared only: future domain api.getcenterway.com; no DNS, email, Lovable or mai
 changes, public bind or public ACME requests. No real deployment/external HTTPS proof,
 production readiness, VM restore or load benchmark. Internal certificates expire;
 rotation and backups/restore require future operational work. Do not advance to L03.
+
+
+L03-PREP / B01 (issue #60): LOVABLE_HANDOFF.md and recovery-mvp/integration/.
+Base PR #59 eeae52e preserved byte-for-byte for SQL, engines/tests, production API,
+C01/C02 and C03. New test-only collector reuses the real C03 Scenario and HTTPS stack.
+71 canonical versioned cases cover login/session, client directory/pagination, staged
+journeys, completed receipts with blocked/executed business results, persisted engine
+error, F03 gaps/review, F05 inconclusive/complete recovery, identity/isolation,
+idempotency/audit, HTTP 401/403/404/409/422/503 and an actual network refusal.
+All input is synthetic. Only typed placeholders are exported for login passwords,
+session tokens, generated UUIDs, dynamic clocks and input fingerprints; references,
+versions, business windows/scalars/states/nulls and original declared content digests
+are preserved. No raw HTTP, secrets, DSNs, PII or ephemeral identifiers in artifacts.
+Reader's second-client access is an explicit temporary test grant for pagination,
+never a new product permission; session invalidation is captured and documented.
+Validation: ./recovery-mvp/integration/test.sh passed locally: 60 engine + 11 HTTP +
+eight HTTPS + four persistent C03 + seven handoff tests = 90 total. The 71 examples
+are cases inside the new suite, not 71 extra tests. A fresh live execution is compared
+to the canonical export with strict contracts/typed reference bindings; malformed or
+unknown data and secret leaks fail closed. The new independent GitHub Actions workflow
+repeats the seven tests; the three previous workflows remain unchanged. Remote results
+must be read on the delivery PR's exact commit. No goldens are updated automatically.
+Prepared only for offline integration work. No Lovable-hosted transport/mapper proof,
+external HTTPS, cloud account/resource, DNS/domain/email change, frontend login or real
+intervention. Main unchanged. No paid infrastructure, service publication or automatic
+advance to L03. C03 operational limitations remain; the handoff is not production readiness.
