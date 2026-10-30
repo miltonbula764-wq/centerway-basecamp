@@ -1,0 +1,11 @@
+{
+  "project_id": "d355ef56-6d8c-4f6a-9294-a32f2a9919df",
+  "commit": "149ee23a60618b577e9535ce8c121d34813741a2",
+  "purpose": "Test-only verbatim Lovable mirror, not an alternate frontend",
+  "files": {
+    "journey-mapper.ts": "879b2709d55eb325de463a7e8e2cb3185eaf9579d773e761555634c81b258ce2",
+    "session-controller.ts": "2cdfed95f1ec11d2537b1142b4be64ed88d5aaa0fe6707c4bf56ebe50e2ea004",
+    "transport.ts": "cafad41657fecf4d2346c2773b98aca827886d7725f66a6c24819362f7bb5592",
+    "http-transport.ts": "0d68cb2e3c90dc6795e0b888b34a4fa17e08da9796551082d1d0c6050d45e97f"
+  }
+}
