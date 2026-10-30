@@ -1,0 +1,30 @@
+name: Independent CENTERWAY browser preflight
+on:
+  pull_request:
+    paths: ['recovery-mvp/**', 'BROWSER_HANDOFF.md', 'PROJECT_STATE.md', '.github/workflows/recovery-mvp-browser.yml']
+  push:
+    branches: ['recovery-mvp/**']
+    paths: ['recovery-mvp/**', 'BROWSER_HANDOFF.md', 'PROJECT_STATE.md', '.github/workflows/recovery-mvp-browser.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Preserve engines and existing API infrastructure fixtures
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git diff --exit-code "$BASE_SHA" HEAD -- recovery-mvp/sql recovery-mvp/tests recovery-mvp/api recovery-mvp/infra recovery-mvp/cloud-demo recovery-mvp/integration ':!recovery-mvp/api/app.py'
+          python3 recovery-mvp/browser/preserve_api.py "$BASE_SHA"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Real local HTTPS OPTIONS, origins, auth and failure tests
+        run: ./recovery-mvp/browser/test.sh --browser-only

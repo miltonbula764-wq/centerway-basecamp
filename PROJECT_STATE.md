@@ -17,7 +17,9 @@ Independent implementation is in recovery-mvp/. Legacy application remains separ
 | C02 | PR #58, 9d8c124 (both CI workflows succeeded) | Authenticated, bounded client directory with persisted names; additive HTTP SQL read port; 79 local checks passed; remote CI tracked on the delivery PR |
 | C03 | PR #59, eeae52e (three CI workflows succeeded) | Persistent synthetic HTTPS installation and full fixture; 83 local checks passed; no cloud account/resource/publication |
 
-| L03-PREP / B01 | Current branch recovery-mvp/l03-prep-integration-fixtures, issue #60 | 71 sanitized real-C03 API examples; versioned handoff/schema; 90 local tests passed; no deployment or Lovable changes |
+| L03-PREP / B01 | PR #61, 503eb0e (four CI workflows succeeded), issue #60 | 71 sanitized real-C03 API examples; versioned handoff/schema; 90 local tests passed; no deployment or Lovable changes |
+
+| C04-PREFLIGHT | Current branch recovery-mvp/c04-browser-preflight | Local HTTPS/CORS audit, OPTIONS logout correction, browser handoff and publication NO-GO checklist |
 
 These are implementation states, not assertions of merge, deployment or production use.
 Run `./recovery-mvp/tests/run-f03.sh` for regression and discovery integration tests.
@@ -92,3 +94,23 @@ Prepared only for offline integration work. No Lovable-hosted transport/mapper p
 external HTTPS, cloud account/resource, DNS/domain/email change, frontend login or real
 intervention. Main unchanged. No paid infrastructure, service publication or automatic
 advance to L03. C03 operational limitations remain; the handoff is not production readiness.
+
+
+C04-PREFLIGHT: BROWSER_HANDOFF.md; recovery-mvp/browser/. Base PR #61 503eb0e.
+L03-OFFLINE and 104 Lovable tests reported by the user, not independently executed;
+not added to backend counts. Seven new tests use real C03/C01 loopback HTTPS and
+browser headers, not a browser engine or hosted frontend. Audit found OPTIONS DELETE
+/v1/session was refused because GET/DELETE have separate Flask rules. The sole API
+correction resolves all methods for the same path, intersected with GET/POST/DELETE.
+CI permits only that exact substitution; authentication, scopes, RLS and engines
+remain unchanged. Proxy/TLS configurations and the 71 integration examples unchanged.
+Local ./recovery-mvp/browser/test.sh passed: 90 regressions + seven C04 = 97 tests.
+Includes 14 preflight subcases, origin spoof/lookalike rejection, four PG principals,
+session/logout/expiry, client scope, operations/replay/conflict/error, audit/RLS and
+PG/API failure. New independent CI workflow; remote proof on delivery PR exact SHA.
+No actual origins supplied yet: reviewed origins.json is empty, activation NO-GO.
+Offline origin comparator does not grant authority or edit configuration. Gateway 503
+without API CORS headers may appear opaque to cross-origin browsers; documented.
+No hosted browser, external TLS, DNS, cloud, paid infrastructure or public service.
+Lovable and main untouched; public GO requires separate authorization and all pending
+gates. No integration-live completion or automatic advance is asserted.
