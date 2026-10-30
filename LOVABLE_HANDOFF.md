@@ -222,7 +222,8 @@ cloud, cartão, domínio ou credencial externa. Da raiz:
 Executa 83 regressões inalteradas (60 motores + 11 HTTP + oito HTTPS + quatro C03),
 mais sete testes L03-PREP: **90 testes**, com **71 casos de transporte dentro da nova
 suite**, não 71 testes adicionais. --handoff-only executa apenas os sete novos testes.
-A validação de schemas/fixtures estáticos não faz rede; a comparação live usa somente
+A verificação date-time é explícita, incluindo datas impossíveis/sem fuso, sem
+depender de extras opcionais do JSON Schema. A validação de schemas/fixtures estáticos não faz rede; a comparação live usa somente
 o C03 loopback. Pode haver downloads de dependências/imagens no setup, não tráfego à
 Lovable ou a um backend externo.
 

@@ -143,6 +143,9 @@ class HandoffTests(unittest.TestCase):
 
     def test_fail_closed_for_secrets_and_contract_drift(self):
         with self.assertRaises(ContractError): validate({'$ref':'https://example.invalid/schema'}, {})
+        for timestamp in ('not-a-date','2025-02-30T00:00:00Z','2025-01-01T00:00:00','2025-01-01T00:00:00+01:99'):
+            with self.assertRaises(ContractError): validate({'type':'string','format':'date-time'},timestamp)
+        validate({'type':'string','format':'date-time'},'2025-01-01T00:00:00Z')
         secret='SYNTHETIC_PRIVATE_SECRET_NEVER_EXPORT'
         for value in ({'value':secret},{'dsn':'x'},{'password':'raw-value'},{'access_token':'x'*43},{'Authorization':'x'},{'email':'real@example.invalid'},{'extra':'Bearer '+'x'*43}):
             with self.assertRaises(ContractError): Sanitizer([secret]).secret_safe(value)

@@ -1,5 +1,6 @@
 """Test/export contract only. No production API, UI or business engine logic."""
 import hashlib
+from datetime import datetime
 import json
 from pathlib import Path
 import re
@@ -10,6 +11,17 @@ from jsonschema import Draft202012Validator, FormatChecker
 ROOT = Path(__file__).resolve().parents[1]
 OPENAPI_PATH = ROOT/'api'/'openapi.json'
 OPENAPI = json.loads(OPENAPI_PATH.read_text())
+FORMAT_CHECKER = FormatChecker()
+
+
+@FORMAT_CHECKER.checks('date-time', raises=(ValueError, TypeError))
+def check_timestamp(value):
+    # jsonschema's RFC3339 checker is optional and absent in a minimal installation.
+    # Match the explicit timezone/finite datetime transport used by L01, fail closed.
+    if not isinstance(value,str): return True
+    pattern=r'\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)'
+    if re.fullmatch(pattern,value) is None: return False
+    return datetime.fromisoformat(value.replace('Z','+00:00')).tzinfo is not None
 
 
 class ContractError(ValueError):
@@ -27,7 +39,7 @@ def validate(schema, value):
         elif isinstance(value,list):
             for child in value: local_refs(child)
     local_refs(wrapped)
-    errors = list(Draft202012Validator(wrapped,format_checker=FormatChecker()).iter_errors(value))
+    errors = list(Draft202012Validator(wrapped,format_checker=FORMAT_CHECKER).iter_errors(value))
     if errors:
         error = errors[0]
         # Never format a ValidationError: it may embed a password/token/raw instance.
