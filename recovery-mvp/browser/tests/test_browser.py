@@ -100,7 +100,7 @@ class BrowserTests(unittest.TestCase):
             for method in ('OPTIONS','GET'):
                 s,h,_=self.call(method,DIRECTORY,user='alice',origin=origin,headers={'Access-Control-Request-Method':'GET'})
                 self.assertEqual(s,403); self.assertNotIn('Access-Control-Allow-Origin',h)
-        for method,headers in [('PATCH','Authorization'),('POST','Authorization'),('GET','Authorization,X-Admin'),('GET','Cookie'),('GET','X-Tenant-Id')]:
+        for method,headers in [('PATCH','Authorization'),('POST','Authorization'),('HEAD','Authorization'),('OPTIONS','Authorization'),('GET','Authorization,X-Admin'),('GET','Cookie'),('GET','X-Tenant-Id')]:
             s,_,_=self.call('OPTIONS',DIRECTORY,headers={'Access-Control-Request-Method':method,'Access-Control-Request-Headers':headers})
             self.assertEqual(s,403)
         self.assertEqual(self.call('OPTIONS','/v1/no-route',headers={'Access-Control-Request-Method':'GET'})[0],404)
@@ -160,7 +160,7 @@ class BrowserTests(unittest.TestCase):
         with self.assertRaises(ValueError): check(self.stack.config,template)
         # Reserved names exercise parsing only, never authorize actual domains.
         self.assertEqual(validate_origins(ORIGINS,activation=False),ORIGINS)
-        for origins in ([],['*'],['null'],['http://ui.example.invalid'],['https://u:p@ui.example.invalid'],['https://ui.example.invalid/path'],['https://ui.example.invalid:443'],['https://UI.example.invalid'],ORIGINS, [ORIGINS[0],ORIGINS[0]]):
+        for origins in ([],['*'],['null'],['http://ui.example.invalid'],['https://u:p@ui.example.invalid'],['https://ui.example.invalid/path'],['https://ui.example.invalid:443'],['https://UI.example.invalid'],['https://ui.localhost'],ORIGINS, [ORIGINS[0],ORIGINS[0]]):
             with self.assertRaises(ValueError): validate_origins(origins)
         review=dict(version='c04-origins-v1',origins=['https://ui.centerway-demo.org'])
         config=dict(demo=False,origins=review['origins'])

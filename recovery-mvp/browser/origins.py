@@ -17,7 +17,7 @@ def validate_origins(origins, *, activation=True):
         canonical='https://'+host+((':'+str(port)) if port and port!=443 else '')
         if u.scheme!='https' or u.username is not None or u.password is not None or origin!=canonical or len(labels)<2 or any(not re.fullmatch(r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?',x) for x in labels):
             raise ValueError('Exact canonical HTTPS origin required')
-        if activation and (host.endswith(('.invalid','.test','.local','.example')) or host in {'example.com','example.org','example.net'} or host.endswith(('.example.com','.example.org','.example.net')) or all(x.isdigit() for x in labels)):
+        if activation and (host.endswith(('.invalid','.test','.local','.localhost','.example')) or host in {'example.com','example.org','example.net'} or host.endswith(('.example.com','.example.org','.example.net')) or all(x.isdigit() for x in labels)):
             raise ValueError('Real reviewed interface origins required')
     return origins
 
