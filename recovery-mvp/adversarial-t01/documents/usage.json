@@ -1,0 +1,13 @@
+{
+  "namespace": "adversarial-t01",
+  "synthetic_only": true,
+  "document_version": 1,
+  "title": "Adoção (contexto, não resultado de negócio)",
+  "start_active": 18,
+  "end_active": 31,
+  "total_users": 40,
+  "unit": "utilizadores ativos",
+  "method": "contagem; não comparável com horas/mediana",
+  "period_start": "2026-09-01T00:00:00Z",
+  "period_end": "2026-10-27T00:00:00Z"
+}

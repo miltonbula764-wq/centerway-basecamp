@@ -1,0 +1,15 @@
+{
+  "namespace": "adversarial-t01",
+  "synthetic_only": true,
+  "document_version": 1,
+  "week": "S8",
+  "observed_at": "2026-10-27T00:00:00Z",
+  "period_start": "2026-10-20T00:00:00Z",
+  "period_end": "2026-10-27T00:00:00Z",
+  "observed_value": 34,
+  "unit": "horas",
+  "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+  "quality": "verified",
+  "verification": "Declaração da narrativa sintética; não verificação independente",
+  "quality_note": "Valor fornecido explicitamente na issue #69"
+}

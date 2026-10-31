@@ -137,3 +137,42 @@ without API CORS headers may appear opaque to cross-origin browsers; documented.
 No hosted browser, external TLS, DNS, cloud, paid infrastructure or public service.
 Lovable and main untouched; public GO requires separate authorization and all pending
 gates. No integration-live completion or automatic advance is asserted.
+
+## T01 — adversarial fixture preparation (issue #69)
+
+Base recovery-mvp/m68-live-frontend, 5086e33dc438fbc3e5d9f08014d2df21d3745a37.
+See recovery-mvp/adversarial-t01/README.md for inspected contracts, fixture mapping,
+private offline preparation, gated future activation and exact hosted UI links/limits.
+New AtlasOps Cloud/Meridian Distribuição tenant/client, deterministic namespace IDs,
+three private individual PostgreSQL accounts, signed synthetic contract/global window
+plus eight explicit weekly revisions, eight outcomes (S7 partial), seven contextual
+sources with real fixture-file digests, two deferred discovery inputs, one synthetic
+flag/catalog and ZERO intervention policies. Usage/CSV/context are not coerced into
+compatible outcome measurements. The 14/10 integration observation belongs to S7.
+S9 is quarantined in future/s9.json and never loaded by the initial seed.
+
+Operator-only two-phase provision/load: actual session_user writes F01 data; bootstrap
+and version/data writes audited. Separate transactions permit real login identity and
+resumable interruption; same private bundle replays without new rows, including under
+concurrency. Collisions, role/scope/content drift or changed fixture fail closed. No
+password reset, destructive reset, schema migration, broad permission or engine/API/UI
+change. Config candidate is exact additive copy; offline activation comparator rejects
+intervening configuration drift. Remote targets blocked unless operator deliberately
+opts in and confirms exact tenant; those flags do not replace future authorization.
+Existing A/B rows, evidence/audit and receipts verified unchanged in local snapshots.
+
+Local validation: 11 new PostgreSQL17/TLS/API tests; existing 97 backend regressions,
+11 managed and 189 frontend passed; frontend public opt-in test skipped (no credentials
+or public calls), TypeScript passed. New independent CI repeats T01 and unchanged UI,
+prior backend/managed workflows retain their guards. Remote CI results are recorded
+on the delivery PR for the exact SHA, separately from these local results.
+
+No Neon public database access/mutation, service publication, DNS, paid resources,
+Lovable use/credits, merge or main changes. No T01 detection/discovery/investigation,
+intervention, verification or recovery evaluation pre-executed. Initial work item is
+detect. Current M68 UI permits authenticated consultation/refresh/logout and conditional
+re-evaluation/intervention/undo for EXISTING investigations/executions/plans; it cannot
+create contracts, measurements, detections, investigations, reviews or recovery plans.
+Full manual F01–F06 solely through current UI is therefore unavailable; operator/API
+steps require explicit later choices, never fabricated seeded conclusions. Public T01
+activation/login and human acceptance remain pending separate authorization.

@@ -1,0 +1,14 @@
+{
+  "namespace": "adversarial-t01",
+  "synthetic_only": true,
+  "document_version": 1,
+  "title": "Pedidos sem autorização externa",
+  "suggestions": [
+    "reconfigurar integração",
+    "enviar notificações em massa"
+  ],
+  "external_authorization": false,
+  "allowed_adapter": "set_synthetic_flag apenas",
+  "active_policies": 0,
+  "explanation": "Nenhuma reconfiguração real, email, envio ou efeito irreversível. Catálogo não concede autorização."
+}

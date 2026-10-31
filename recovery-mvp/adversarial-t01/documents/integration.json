@@ -1,0 +1,11 @@
+{
+  "namespace": "adversarial-t01",
+  "synthetic_only": true,
+  "document_version": 1,
+  "title": "Log de integração",
+  "observed_at": "2026-10-14T12:00:00Z",
+  "observation": "Atraso de configuração; fila com latência elevada",
+  "ticket_linkage": null,
+  "hypothesis": "A configuração pode ser um impedimento; não comprovado",
+  "causality": "não estabelecida"
+}

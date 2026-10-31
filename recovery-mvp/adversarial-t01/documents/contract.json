@@ -1,0 +1,16 @@
+{
+  "namespace": "adversarial-t01",
+  "synthetic_only": true,
+  "document_version": 1,
+  "title": "Contrato sintético assinado em 2026-09-01",
+  "signed_at": "2026-09-01T00:00:00Z",
+  "deadline": "2026-10-31",
+  "objective": "Reduzir tempo mediano de resolução de incidentes elegíveis",
+  "baseline_hours": 40,
+  "minimum_hours": 24,
+  "target_hours": 24,
+  "eligibility": "P2/P3; P1 excluído",
+  "cadence": "semanal",
+  "baseline_status": "Verificada apenas na narrativa sintética; nenhuma verificação humana/independente efetuada",
+  "baseline_window": "2026-08-01/2026-09-01; escolha explícita da fixture, não fornecida na issue"
+}

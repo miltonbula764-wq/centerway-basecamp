@@ -1,0 +1,15 @@
+{
+  "namespace": "adversarial-t01",
+  "synthetic_only": true,
+  "document_version": 1,
+  "title": "CSV fornecedor S6 incompatível",
+  "week": "S6",
+  "reported_hours": 22,
+  "unit": "horas",
+  "method": "média aritmética",
+  "eligibility": "inclui P1",
+  "compatible": false,
+  "interpretation": "Não substitui mediana P2/P3 37h; não é uma segunda medição compatível",
+  "csv": "vendor-s6.csv",
+  "csv_sha256": "9bba54519866f1880c27085392a66d6348d9ad3fc7656304c2714c0cfa9cc258"
+}

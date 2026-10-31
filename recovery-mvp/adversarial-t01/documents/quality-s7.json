@@ -1,0 +1,12 @@
+{
+  "namespace": "adversarial-t01",
+  "synthetic_only": true,
+  "document_version": 1,
+  "title": "Qualidade da amostra S7",
+  "week": "S7",
+  "total_events": 28,
+  "unreliable_close_timestamps": 7,
+  "reported_hours": 36,
+  "quality": "partial",
+  "handling": "36h é o valor declarado na issue, não recalculado. Eventos em falta não recebem zero; suficiência não estabelecida"
+}
