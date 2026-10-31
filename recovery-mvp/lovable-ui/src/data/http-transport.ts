@@ -1,7 +1,4 @@
-// INACTIVE HTTP implementation of L01Transport (contract c02-v1) for the future
-// L03 live phase. Nothing in the app imports this module: the runtime uses
-// mockTransport only. It never reads env vars, never touches storage, never
-// logs, and never retries. Tests drive it with an injected fetch.
+// Authenticated L01/T02 transport. Memory-only credentials; no logs, storage or automatic retries.
 import type { ClientJourney } from "@/domain/f06";
 import type {
   ClientDirectoryPage,
@@ -245,6 +242,60 @@ export class HttpTransport implements L01Transport {
     return validateJourneyEnvelope(body, { tenant, client });
   }
 
+  async getManualContext(
+    tenant: Uuid,
+    client: Uuid,
+  ): Promise<import("@/domain/f06").ManualContext> {
+    assertUuid(tenant, "tenant");
+    assertUuid(client, "client");
+    const { status, body } = await this.send(
+      "GET",
+      `/v1/tenants/${tenant}/clients/${client}/manual-context`,
+    );
+    const value = (body as { data?: import("@/domain/f06").ManualContext })?.data;
+    const collections = [
+      "factors",
+      "evidence",
+      "verifications",
+      "catalog",
+      "policies",
+      "revocations",
+      "resources",
+      "audit",
+    ] as const;
+    if (
+      status !== 200 ||
+      !value ||
+      value.version !== "t02-v1" ||
+      value.tenant_id !== tenant ||
+      value.client_id !== client ||
+      typeof value.principal !== "string" ||
+      value.limit_per_collection !== 100 ||
+      !value.truncated ||
+      collections.some(
+        (k) =>
+          !Array.isArray(value[k]) ||
+          value[k].length > 100 ||
+          typeof value.truncated[k] !== "boolean" ||
+          value[k].some(
+            (row) =>
+              !row ||
+              typeof row !== "object" ||
+              Array.isArray(row) ||
+              row["tenant_id"] !== tenant ||
+              (k !== "catalog" && k !== "audit" && row["client_id"] !== client) ||
+              (k === "policies" && row["principal"] !== value.principal) ||
+              (k === "audit" &&
+                (!row["snapshot"] ||
+                  typeof row["snapshot"] !== "object" ||
+                  (row["snapshot"] as Record<string, unknown>)["client_id"] !== client)),
+          ),
+      )
+    )
+      throw new L01Error("contract", status, "unexpected_manual_context");
+    return value;
+  }
+
   /** Single attempt only. A lost response is resent explicitly by the user with the same request. */
   async operate(tenant: Uuid, client: Uuid, req: OperationRequest): Promise<OperationReceipt> {
     assertUuid(tenant, "tenant");
@@ -261,4 +312,3 @@ export class HttpTransport implements L01Transport {
     return receiptOf(body, status);
   }
 }
-

@@ -1,0 +1,273 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CENTERWAY T02 manual context — additive contract",
+    "version": "t02-v1",
+    "description": "Read-only addition; api/openapi.json c02-v1 remains the immutable L01/C02 contract for existing operations."
+  },
+  "x-centerway-base-contract": "openapi.json",
+  "components": {
+    "securitySchemes": {
+      "SessionBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Opaque server session"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "ManualContext": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "tenant_id",
+          "client_id",
+          "principal",
+          "limit_per_collection",
+          "truncated",
+          "factors",
+          "evidence",
+          "verifications",
+          "catalog",
+          "policies",
+          "revocations",
+          "resources",
+          "audit"
+        ],
+        "properties": {
+          "version": {
+            "const": "t02-v1"
+          },
+          "tenant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "client_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "principal": {
+            "type": "string"
+          },
+          "limit_per_collection": {
+            "const": 100
+          },
+          "truncated": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factors",
+              "evidence",
+              "verifications",
+              "catalog",
+              "policies",
+              "revocations",
+              "resources",
+              "audit"
+            ],
+            "properties": {
+              "factors": {
+                "type": "boolean"
+              },
+              "evidence": {
+                "type": "boolean"
+              },
+              "verifications": {
+                "type": "boolean"
+              },
+              "catalog": {
+                "type": "boolean"
+              },
+              "policies": {
+                "type": "boolean"
+              },
+              "revocations": {
+                "type": "boolean"
+              },
+              "resources": {
+                "type": "boolean"
+              },
+              "audit": {
+                "type": "boolean"
+              }
+            }
+          },
+          "factors": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object"
+            },
+            "description": "Persisted rows only; contextual documents are not fetched."
+          },
+          "evidence": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object"
+            },
+            "description": "Persisted rows only; contextual documents are not fetched."
+          },
+          "verifications": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object"
+            },
+            "description": "Persisted rows only; contextual documents are not fetched."
+          },
+          "catalog": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object"
+            },
+            "description": "Persisted rows only; contextual documents are not fetched."
+          },
+          "policies": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object"
+            },
+            "description": "Persisted rows only; contextual documents are not fetched."
+          },
+          "revocations": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object"
+            },
+            "description": "Persisted rows only; contextual documents are not fetched."
+          },
+          "resources": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object"
+            },
+            "description": "Persisted rows only; contextual documents are not fetched."
+          },
+          "audit": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object"
+            },
+            "description": "Persisted rows only; contextual documents are not fetched."
+          }
+        }
+      }
+    },
+    "responses": {
+      "Failure": {
+        "description": "Sanitized HTTP error; no operation is executed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/tenants/{tenant}/clients/{client}/manual-context": {
+      "parameters": [
+        {
+          "name": "tenant",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "client",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Read scoped F03 records, F04 configuration and bounded client audit",
+        "description": "t02-v1 read-only repeatable-read snapshot, real session_user and RLS. No query params. 100 rows per collection, truncation explicit. F03 collections ordered by UUID descending/revision descending; audit latest sequence descending. Policy/revocation visibility restricted to this principal, including audit. No authorization creation, inference or evidence retrieval. Catalog is tenant configuration; other records scoped to client. GET creates no receipts or audit events.",
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "401": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "403": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "404": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "422": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "500": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "503": {
+            "$ref": "#/components/responses/Failure"
+          },
+          "200": {
+            "description": "Authorized read; inspect truncation, never infer eligibility or complete history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "demo"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ManualContext"
+                    },
+                    "demo": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

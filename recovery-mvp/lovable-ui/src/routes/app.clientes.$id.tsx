@@ -9,7 +9,6 @@ import {
   DemoOnly,
   EmptyState,
   InvestigationBadge,
-  LockedAction,
   Notice,
   PageBar,
   PriorityBadge,
@@ -21,6 +20,7 @@ import {
   ValueStateBadge,
   stageLabel,
 } from "@/components/cw/primitives";
+import { ManualJourney } from "@/components/cw/manual-journey";
 import { ErrorState } from "@/components/cw/states";
 
 async function loadCustomer(id: string) {
@@ -66,7 +66,7 @@ function Detalhe() {
           <Mono>{c.id}</Mono>
           <h2 className="page-title mt-1"><DemoOnly>{c.displayName}</DemoOnly></h2>
           <p className="mt-1 text-muted-foreground">{c.contracts.length} contrato(s) · {c.investigations.length} investigação(ões) · {c.workItems.length} orientação(ões) em paralelo</p>
-          <div className="mt-3"><LockedAction>Registar valor (append_value)</LockedAction></div>
+          <div className="mt-3"><ManualJourney client={c.id} /></div>
 
           <Section title="Orientações F06 (work_items)" className="mt-8" flush>
             <div className="py-2"><Notice tone="neutral">Orientação sobre estados guardados. Pode estar desatualizada; não é permissão, elegibilidade nem causalidade. A F04 revalida sempre antes de executar.</Notice></div>

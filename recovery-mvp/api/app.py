@@ -74,6 +74,8 @@ class Database:
             raise APIError(503, 'database_configuration')
         with psycopg.connect(user['dsn'], connect_timeout=5) as conn:
             with conn.cursor() as cur:
+                if kind == 'manual_context':
+                    cur.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
                 cur.execute("SET LOCAL statement_timeout='15s'")
                 cur.execute("SET LOCAL lock_timeout='3s'")
                 cur.execute("""SELECT session_user::text,current_user::text,
@@ -90,6 +92,42 @@ class Database:
                     raise APIError(503, 'database_identity_rejected')
                 if kind == 'identity':
                     return row[0]
+                if kind == 'manual_context':
+                    tenant, client = params
+                    cur.execute('SELECT centerway.client_journey(%s,%s) IS NOT NULL', params)
+                    if not cur.fetchone()[0]:
+                        raise APIError(403, 'forbidden')
+                    # Fixed, read-only tables; values remain parameters. RLS uses session_user.
+                    collections = {
+                        'factors': ('investigation_factor_versions', 'tenant_id=%s AND client_id=%s', params),
+                        'evidence': ('investigation_evidence_versions', 'tenant_id=%s AND client_id=%s', params),
+                        'verifications': ('investigation_verification_versions', 'tenant_id=%s AND client_id=%s', params),
+                        'catalog': ('intervention_catalog', 'tenant_id=%s', (tenant,)),
+                        'policies': ('intervention_policies', 'tenant_id=%s AND client_id=%s AND principal=session_user', params),
+                        'revocations': ('intervention_revocations', 'tenant_id=%s AND client_id=%s AND policy_id IN (SELECT id FROM centerway.intervention_policies WHERE tenant_id=%s AND client_id=%s AND principal=session_user)', (*params, *params)),
+                        'resources': ('sandbox_flags', 'tenant_id=%s AND client_id=%s', params),
+                    }
+                    result = {'version': 't02-v1', 'tenant_id': tenant, 'client_id': client,
+                              'principal': row[0], 'limit_per_collection': 100, 'truncated': {}}
+                    for key, (table, clause, values) in collections.items():
+                        # Identifiers/clauses above are internal constants, never request data.
+                        cur.execute('SELECT to_jsonb(t) FROM centerway.' + table + ' t WHERE ' + clause + (' ORDER BY policy_id DESC' if key == 'revocations' else ' ORDER BY id DESC') + (', revision DESC' if key in ('factors','evidence','verifications') else '') + ' LIMIT 101', values)
+                        rows = [r[0] for r in cur.fetchall()]
+                        result[key], result['truncated'][key] = rows[:100], len(rows) > 100
+                    cur.execute("""SELECT to_jsonb(t) FROM centerway.audit_log t
+                        WHERE tenant_id=%s AND snapshot->>'client_id'=%s
+                        AND (entity <> 'intervention_policies' OR snapshot->>'principal'=session_user::text)
+                        AND (entity <> 'intervention_revocations' OR snapshot->>'policy_id' IN (
+                            SELECT id::text FROM centerway.intervention_policies WHERE tenant_id=%s AND client_id=%s AND principal=session_user))
+                        ORDER BY sequence DESC LIMIT 101""", (*params, *params))
+                    rows = [r[0] for r in cur.fetchall()]
+                    # Match journey's HTTP sanitization; immutable DB audit stays intact.
+                    for event in rows[:100]:
+                        snapshot = event['snapshot']
+                        if event['entity'] == 'operation_receipts' and snapshot.get('status') == 'error':
+                            snapshot['result'] = {'sqlstate': snapshot['result'].get('sqlstate', ''), 'code': 'engine_rejected'}
+                    result['audit'], result['truncated']['audit'] = rows[:100], len(rows) > 100
+                    return result
                 if kind == 'clients':
                     cur.execute('SELECT client_id::text,display_name FROM centerway.list_authorized_clients(%s,%s::uuid[],%s,%s)', params)
                     return [dict(client_id=row[0], display_name=row[1]) for row in cur.fetchall()]
@@ -301,6 +339,13 @@ def create_app(config):
             if receipt.get('status') == 'error':
                 receipt['result'] = {'sqlstate': receipt['result'].get('sqlstate', ''), 'code': 'engine_rejected'}
         return jsonify(data=result, demo=bool(config.get('demo')))
+
+    @app.get('/v1/tenants/<tenant>/clients/<client>/manual-context')
+    def manual_context(tenant, client):
+        tenant, client = scope(tenant, client)
+        if request.args:
+            raise APIError(422, 'invalid_parameters')
+        return jsonify(data=db_call(g.user, 'manual_context', (tenant, client)), demo=bool(config.get('demo')))
 
     @app.post('/v1/tenants/<tenant>/clients/<client>/operations')
     def operate(tenant, client):

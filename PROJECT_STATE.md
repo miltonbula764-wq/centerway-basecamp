@@ -176,3 +176,54 @@ create contracts, measurements, detections, investigations, reviews or recovery 
 Full manual F01–F06 solely through current UI is therefore unavailable; operator/API
 steps require explicit later choices, never fabricated seeded conclusions. Public T01
 activation/login and human acceptance remain pending separate authorization.
+
+## T02 — manual journey controls (issue #71)
+
+Base PR #70/ec407d4, branch recovery-mvp/t02-manual-journey. See
+recovery-mvp/manual/README.md for real endpoint mapping, human T01 steps, deployment
+prerequisites and limitations. Existing ten F06 commands reused; no SQL engine,
+migration, T01 seed, old fixture or managed runtime changes. Minimal API extension:
+GET manual-context, scoped/authenticated read-only repeatable-read F03 records,
+F04 configuration/policies for session_user and last100 client audit (other principals'
+policy events filtered), explicit truncation, no grants/inference/write/receipt.
+Additive openapi-t02.json t02-v1 (original c02-v1/71-case capture unchanged); CI permits exact reviewed API/spec hashes, not arbitrary changes.
+
+Client detail now exposes typed manual forms for F01 source/contract/evidence,
+F02 selected revisions/cutoff, F03 opening/factors/evidence/review/evaluation,
+F03.1 explicit company discovery, F04 request/undo, F05 windows/evaluation, F06 GET
+refresh/receipts/audit. Existing visual identity preserved. Immutable memory drafts,
+explicit scope confirmation, identical-key user resend after lost response, no
+automatic POST retries or invented defaults/results/verification. Session/tenant
+boundaries and late-response guards preserved. SHA-256 optional local file hashing
+is not upload or independent verification. No self-authorization interface.
+
+Actual application Chromium suite uses local HTTPS, C01 API and real PostgreSQL17,
+clicks only for writes, separate synthetic T02 data (never operates T01), desktop and
+390x844 mobile/touch. Tests include full pipeline with separate synthetic reviewer,
+uncertain and unauthorized interventions blocked, recovery inconclusive, actual
+committed response lost/replayed once, reader/reviewer permissions, refresh/login
+and expiry. T01 API tests seed only the initial local fixture and assert no detection,
+investigation, intervention or recovery executed. Existing regression suites retained.
+Local/CI evidence is recorded on the delivery PR for the final SHA; it is not hosted
+acceptance. No public Neon/Render access/mutations, Lovable use/credits/publication,
+new accounts/resources on public services, main change or merge.
+
+T01 activation and publishing backend/UI require separate authorization. Snapshot in
+this repo is not proof of the actual Lovable GitHub/publication channel. Current live
+M68 frontend does not have these controls. Context documents remain outside the API,
+CSV meaning is not inferred, T01 has zero policies and S9 remains future-only. The
+full manual UI can request legitimate steps and show blocks/inconclusive results;
+it does not grant missing permissions or guarantee a successful intervention/recovery.
+
+T02 local validation confirmed: 97 previous backend +11 managed +11 T01, six new
+API tests,210 frontend tests (189 previous +21 new; one public opt-in skipped),
+TypeScript/build and five actual-app Chromium tests passed. Local Chromium154,
+HTTPS/PG17 and 390x844 mobile/touch; CI installs pinned Playwright1.62 Chromium.
+Positive synthetic execution/undo is demonstrated only in disposable T02 with an
+explicit test-admin bounded policy; T01 is never operated or granted a policy.
+Original c02-v1 OpenAPI and 71-case canonical capture remain unchanged: new read
+contract is separately versioned api/openapi-t02.json. No golden regeneration.
+
+T02 audit error receipts are sanitized like journey responses; SQL messages remain only
+in the immutable database history, not in the HTTP context. Verified by a real rejected
+F06 input, with no T01 engine execution.

@@ -95,10 +95,27 @@ export class LiveRuntime {
     if (this.snapshot.error) throw this.snapshot.error;
     return this.snapshot.customers;
   }
+  async loadManual(client: string) {
+    const g = this.generation;
+    try {
+      await this.controller.selectClient(client); this.current(g);
+      const context = await this.controller.manualContext(); this.current(g);
+      const journey = this.controller.state.journey;
+      if (!journey || this.controller.state.client !== client)
+        throw new L01Error("contract", null, "stale_response");
+      return { journey, context };
+    } catch (e) {
+      if (g === this.generation && this.controller.state.status === "expired") {
+        ++this.generation; this.publish({ customers: [], busy: false, error: e });
+      }
+      throw e;
+    }
+  }
   async prepare(client: string, request: OperationRequest) {
     if (!this.controller.canAttempt(request.operation)) throw new L01Error("http", 403, "operation_forbidden");
     const g = this.generation;
     await this.controller.selectClient(client); this.current(g);
+    if (this.controller.state.client !== client) throw new L01Error("contract", null, "stale_response");
     return this.controller.draft(request);
   }
   async submit(requestId: string) {
@@ -116,11 +133,21 @@ export class LiveRuntime {
   }
 }
 
+export function localApiOrigin(raw: string) {
+  const u = new URL(raw);
+  if (u.protocol !== "https:" || !["localhost", "127.0.0.1"].includes(u.hostname) || u.origin !== raw || u.username || u.password)
+    throw new Error("Local demo requires exact loopback HTTPS origin");
+  return raw;
+}
+
 let browserRuntime: LiveRuntime | undefined;
 export function getLiveRuntime() {
   if (typeof window === "undefined") throw new Error("Browser-only session; SSR must be disabled for /app");
   return browserRuntime ??= new LiveRuntime(new HttpTransport({
-    baseUrl: API_ORIGIN,
+    // Non-secret DEV-only test selector. Production cannot override the public origin.
+    baseUrl: import.meta.env.DEV && import.meta.env["VITE_CENTERWAY_LOCAL_API"]
+      ? localApiOrigin(import.meta.env["VITE_CENTERWAY_LOCAL_API"]) : API_ORIGIN,
+    allowLocalhost: !!(import.meta.env.DEV && import.meta.env["VITE_CENTERWAY_LOCAL_API"]),
     fetch: (url, init) => {
       const abort = new AbortController();
       const timer = setTimeout(() => abort.abort(), 90_000);
