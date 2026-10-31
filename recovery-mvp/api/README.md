@@ -292,3 +292,27 @@ C02 estende deliberadamente o código de transporte L01 e os testes HTTPS C01. O
 do CI HTTPS preserva agora os motores, testes F01–F06 e configurações C01; deixa de
 exigir API byte a byte idêntica para permitir o endpoint solicitado. Não altera
 configurações de proxy, TLS, autenticação ou execução dos motores.
+
+## T02 — contexto de operação manual (t02-v1)
+
+`GET /v1/tenants/{tenant}/clients/{client}/manual-context`, Bearer obrigatório,
+mesmo escopo HTTP de cliente e identidade PostgreSQL/RLS da journey. Sem parâmetros
+query. 200 `{data: ManualContext, demo: boolean}`; 401 sem sessão, 403 fora de escopo
+ou membership ausente, 422 parâmetros inesperados e 503 dependência indisponível.
+OPTIONS GET usa a mesma allowlist exata existente. Não há novo endpoint de escrita,
+concessão de políticas ou registo de utilizadores.
+
+Leitura `REPEATABLE READ, READ ONLY`: fatores/evidências/verificações F03, catálogo
+F04 da empresa, recursos do cliente, políticas/revogações **do principal atual**
+e últimos eventos de auditoria do cliente. Eventos de políticas de outros principais
+são excluídos também da auditoria. Todos os valores de escopo são parametrizados;
+nomes de tabelas/ordenação são constantes internas. Não altera motores, migrações,
+permissões ou a projeção f06-v1; não executa avaliações nem gera recibos/auditoria GET.
+
+No máximo 100 linhas por coleção; `truncated` identifica limites atingidos. F03 é
+ordenado por id descendente/revisão descendente; configurações por id descendente;
+auditoria por sequence descendente. Não é histórico completo ou paginação. Anexos
+externos/documentos sintéticos não são obtidos. Não contém DSNs, tokens ou passwords.
+As autorizações mostradas não garantem elegibilidade atual: F04 revalida sempre.
+Frontend anterior continua compatível. O novo formulário requer esta release API;
+num backend anterior, 404 do contexto bloqueia os novos controlos, sem fallback mock.

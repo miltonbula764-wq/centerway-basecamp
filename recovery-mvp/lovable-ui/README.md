@@ -32,3 +32,21 @@ Os 71 casos da captura Codex (PR #61, `l03-prep-v1`, HTTPS local, sintéticos) e
 - `HttpTransport` base URL must be a bare HTTPS origin (no path, query, fragment or credentials).
 - Activation gates (not met): public HTTPS API, exact CORS origin configured server-side, explicit approval of an L03 live mission. Neither module is imported by the app.
 
+
+## T02 — controlos manuais preparados (não publicados)
+
+No detalhe de um cliente autorizado, `Operar jornada F01–F06` abre formulários para
+as dez operações reais. Usa HttpTransport/SessionController, preview imutável,
+confirmação, resultados de negócio/recibos separados e refresh GET explícito. Nova
+consulta T02 `/manual-context` mostra registos F03, políticas próprias e auditoria
+limitada; não cria permissões. Sem documentos inventados, motor local ou mock fallback.
+
+Guia atual: `../manual/README.md`. As notas de L02/L03 acima descrevem fases históricas,
+não o estado T02. Este snapshot GitHub NÃO altera/publica automaticamente a Lovable.
+O destino público permanece o M68 até publicação posterior autorizada.
+
+Para o ensaio HTTPS local exclusivamente DEV, o harness define
+`VITE_CENTERWAY_LOCAL_API=https://localhost:<porta>`, origem validada sem caminhos,
+credenciais ou destinos externos. Em build de produção este seletor é ignorado;
+API_ORIGIN público M68 permanece inalterado. Não há seletor de servidor na UI,
+URL/query/storage, segredos frontend ou novo modo de demonstração com mocks.

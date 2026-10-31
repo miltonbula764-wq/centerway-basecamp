@@ -214,3 +214,21 @@ export interface ClientJourney {
   work_items: WorkItem[];
 }
 
+
+/** T02 read-only projection. No policy creation, document body fetch or inference. */
+export interface ManualContext {
+  version: "t02-v1";
+  tenant_id: Uuid;
+  client_id: Uuid;
+  principal: string;
+  limit_per_collection: 100;
+  truncated: Record<string, boolean>;
+  factors: Record<string, unknown>[];
+  evidence: Record<string, unknown>[];
+  verifications: Record<string, unknown>[];
+  catalog: Record<string, unknown>[];
+  policies: Record<string, unknown>[];
+  revocations: Record<string, unknown>[];
+  resources: Record<string, unknown>[];
+  audit: Record<string, unknown>[];
+}

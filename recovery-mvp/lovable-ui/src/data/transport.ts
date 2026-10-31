@@ -37,6 +37,7 @@ export class L01Error extends Error {
 }
 
 export interface L01Transport {
+  getManualContext?(tenant: Uuid, client: Uuid): Promise<import("@/domain/f06").ManualContext>;
   readonly mode: "demo" | "live";
   createSession?(login: LoginRequest): Promise<SessionCreated>;
   getSession(): Promise<SessionInfo>;

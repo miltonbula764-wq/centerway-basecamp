@@ -1,0 +1,41 @@
+name: CENTERWAY T02 manual application journey
+on:
+  pull_request:
+    paths: ['recovery-mvp/**', '.github/workflows/recovery-mvp-manual.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  api-and-t01:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12'}
+      - name: Preserve engines, original tests, managed backend and T01 fixture
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git diff --exit-code "$BASE_SHA" HEAD -- recovery-mvp/sql recovery-mvp/tests recovery-mvp/managed recovery-mvp/adversarial-t01 recovery-mvp/infra recovery-mvp/cloud-demo recovery-mvp/integration
+          python3 recovery-mvp/browser/preserve_api.py "$BASE_SHA"
+      - run: bash recovery-mvp/manual/api-test.sh
+      - run: bash recovery-mvp/adversarial-t01/test.sh
+  actual-app-chromium:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - uses: oven-sh/setup-bun@v2
+        with: {bun-version: '1.4.4'}
+      - name: Install actual frontend from lockfile
+        working-directory: recovery-mvp/lovable-ui
+        run: bun install --frozen-lockfile
+      - name: Actual UI forms on verified local HTTPS, desktop and 390px mobile
+        run: bash recovery-mvp/manual/test.sh

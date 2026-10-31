@@ -289,6 +289,20 @@ export class SessionController {
     }
   }
 
+  async manualContext() {
+    this.guard();
+    const { tenant, client, session } = this.s;
+    if (!tenant || !client || !session || !this.t.getManualContext)
+      throw new L01Error("contract", null, "manual_context_unavailable");
+    const epoch = this.epoch;
+    try {
+      const context = await this.t.getManualContext(tenant, client);
+      this.current(epoch);
+      if (context.principal !== session.principal) throw new L01Error("contract", null, "principal_mismatch");
+      return context;
+    } catch (e) { this.failIfCurrent(epoch, e); }
+  }
+
   private key(principal: string, tenant: Uuid, client: Uuid, requestId: string) {
     return `${principal}|${tenant}|${client}|${requestId}`;
   }
