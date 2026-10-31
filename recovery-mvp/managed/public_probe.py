@@ -33,6 +33,12 @@ def request(base,method,path,data=None,token=None,headers=None):
         return response.status,{k.lower():v for k,v in response.headers.items()},json.loads(payload) if payload else None
 
 
+def stable_journey(value):
+    value=json.loads(json.dumps(value))
+    value['data']['work_items']=sorted(value['data'].get('work_items',[]),key=lambda x:json.dumps(x,sort_keys=True))
+    return value
+
+
 def private(path):
     p=Path(path)
     if p.is_symlink() or not p.is_file() or p.stat().st_mode&0o077:
@@ -90,7 +96,7 @@ def main():
         check('same_target',state['url']==a.url)
         token=state['tokens']['alice']
         check('session_survives_redeploy',request(a.url,'GET','/v1/session',token=token)[0]==200)
-        check('journey_survives_redeploy',request(a.url,'GET',route,token=token)[2]==state['journey'])
+        check('journey_survives_redeploy',stable_journey(request(a.url,'GET',route,token=token)[2])==stable_journey(state['journey']))
         check('replay_survives_redeploy',request(a.url,'POST',operations,state['command'],token=token)[2]==state['receipt'])
         check('revocation_survives_redeploy',request(a.url,'GET','/v1/session',token=state['tokens']['reader'])[0]==401)
         check('isolation_after_redeploy',request(a.url,'GET',route,token=state['tokens']['bob'])[0]==403)

@@ -25,6 +25,14 @@ from backup import backup,restore
 from scenario import Scenario,setup_policy
 
 
+def stable_journey(value):
+    # SQL deliberately has no ORDER BY on work_items; preserve every value and
+    # multiplicity, normalizing only that unordered operational projection.
+    value=copy.deepcopy(value)
+    value['work_items']=sorted(value.get('work_items',[]),key=lambda x:json.dumps(x,sort_keys=True))
+    return value
+
+
 class ManagedTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -170,9 +178,9 @@ class ManagedTests(unittest.TestCase):
         restored=create_app(config)
         self.assertEqual(self.http('GET',route,token=scenario.tokens['alice'],app=restored)[0],401)
         token=self.login(app=restored)
-        self.assertEqual(self.http('GET',route,token=token,app=restored)[1]['data'],before)
+        self.assertEqual(stable_journey(self.http('GET',route,token=token,app=restored)[1]['data']),stable_journey(before))
         status,_=self.http('POST',f'/v1/tenants/{T}/clients/{C}/operations',result['intervention_request'],token,app=restored)
         self.assertEqual(status,200)
         after=self.http('GET',route,token=token,app=restored)[1]['data']
-        self.assertEqual(after,before)
+        self.assertEqual(stable_journey(after),stable_journey(before))
         self.assertIsNone(Database(False).call(config['users']['bob'],'journey',(T,C)))

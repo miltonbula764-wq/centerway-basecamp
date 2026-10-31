@@ -104,6 +104,8 @@ def restore(dsn, source, identity):
         if db.execute("SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname IN ('centerway','cw_sessions'))").fetchone()[0]:
             raise ValueError('fresh empty target required')
     with pg_environment(dsn) as env:
+        if not run(['pg_restore','--version']).decode().startswith('pg_restore (PostgreSQL) 17.'):
+            raise ValueError('PostgreSQL 17 restore client required')
         run(['pg_restore','--single-transaction','--exit-on-error','--no-owner','--dbname','service=centerway'],input=dump,env=env)
     with psycopg.connect(dsn,connect_timeout=10) as db:
         if db.execute('SELECT count(*) FROM cw_sessions.sessions').fetchone()[0]:
