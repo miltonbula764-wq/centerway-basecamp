@@ -45,6 +45,13 @@ def _load_render_app():
         raise ValueError('Synthetic-only managed PostgreSQL configuration required')
     if not config.get('users'):
         raise ValueError('Provisioned users required')
+    # Public browser allowlist is non-secret and managed independently of DSNs.
+    # create_app revalidates exact HTTPS origins and rejects wildcards/paths.
+    if 'CENTERWAY_BROWSER_ORIGINS' in os.environ:
+        origins = json.loads(os.environ['CENTERWAY_BROWSER_ORIGINS'])
+        if not isinstance(origins, list) or not origins or any(not isinstance(o, str) for o in origins):
+            raise ValueError('Non-empty exact browser origin list required')
+        config['origins'] = origins
     app = create_app(config)
     @app.after_request
     def synthetic_headers(response):
