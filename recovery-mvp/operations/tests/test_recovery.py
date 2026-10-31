@@ -104,7 +104,7 @@ class OperationalRecoveryTests(unittest.TestCase):
         raw = self.archive.read_bytes()
         self.assertTrue(raw.startswith(b'age-encryption.org/v1'))
         for secret in self.source.credentials.values():
-            self.assertNotIn(secret.encode(), raw)
+            self.assertFalse(secret.encode() in raw, 'Ciphertext exposed a credential')
         self.assertEqual(self.archive.stat().st_mode & 0o777, 0o600)
         for identity, data in ((self.other_identity, raw), (self.identity, raw[:-100])):
             with stage(self.root) as work:
@@ -176,7 +176,7 @@ class OperationalRecoveryTests(unittest.TestCase):
             self.assertEqual(db.execute('SELECT count(*) FROM centerway.audit_log').fetchone()[0], before)
         text = json.dumps(document)
         for secret in list(self.restored.credentials.values()) + list(self.client.tokens.values()):
-            self.assertNotIn(secret, text)
+            self.assertFalse(secret in text, 'Probe exposed a secret')
         self.assertNotIn('dsn', text)
         self.assertNotIn('password', text)
         strict = probe(self.restored.state, self.caddy, certificate_seconds=100 * 86400, minimum_free=2**100)

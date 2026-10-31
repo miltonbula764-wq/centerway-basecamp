@@ -1,0 +1,19 @@
+[Unit]
+Description=CENTERWAY private dependency readiness (synthetic C03 profile)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=centerway
+Group=centerway
+WorkingDirectory=/opt/centerway-basecamp
+ExecStart=/var/lib/centerway/demo/venv/bin/python -B recovery-mvp/operations/recovery.py --caddy /var/lib/centerway/demo/bin/caddy probe --state /var/lib/centerway/demo
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+StandardOutput=journal
+StandardError=journal
