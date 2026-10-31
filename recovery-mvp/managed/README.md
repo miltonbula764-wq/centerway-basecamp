@@ -7,10 +7,11 @@ Este perfil mantém F01–F06 e o transporte HTTP. Não substitui a autenticaç�
 - Um serviço Render `free`, runtime Python, branch da missão; auto-deploy desligado.
 - Build: `pip install -r recovery-mvp/api/requirements.txt`.
 - Start: `gunicorn --chdir recovery-mvp/managed -c gunicorn.conf.py 'render_app:load_render_app()'`.
-- `PYTHON_VERSION=3.12.14`; `CENTERWAY_MANAGED_CONFIG` é JSON secreto apenas no serviço, nunca em Git. Contém logins PostgreSQL individuais limitados, hashes de passwords e DSN separado das sessões. Não contém DSN administrativo.
+- `PYTHON_VERSION=3.12.15`; `CENTERWAY_MANAGED_CONFIG` é JSON secreto apenas no serviço, nunca em Git. Contém logins PostgreSQL individuais limitados, hashes de passwords e DSN separado das sessões. Não contém DSN administrativo.
 - Origem CORS inicial: `https://getcenterway.com`, provisória, não prova frontend ligado. Substituir pela origem hospedada efetivamente verificada na missão de integração.
-- `/health` é apenas liveness, sem consulta PostgreSQL: os probes da plataforma não devem consumir o compute gratuito do banco continuamente. Login, `/v1/session` e jornada verificam dependências. Não criar cron de keep-alive.
+- Health check da plataforma: TCP (configuração disponível na integração). `/health` é apenas liveness, sem consulta PostgreSQL: os probes da plataforma não devem consumir o compute gratuito do banco continuamente. Login, `/v1/session` e jornada verificam dependências. Não criar cron de keep-alive.
 - Render termina TLS e redireciona HTTP para HTTPS antes da aplicação. O adapter exclusivo de Render verifica contexto de deployment e hostname atribuído, ignora todos os cabeçalhos Forwarded/X-Forwarded e fixa o esquema nesse limite de confiança. Não utilizar noutro host. Não é TLS nativo no socket Gunicorn. Não confiar em IP fornecido pelo cliente: limiter conservador único, dez tentativas/minuto por processo, sem garantia distribuída ou persistente após restart.
+- `GUNICORN_CMD_ARGS=--access-logfile /dev/null` sobrepõe o access log predefinido da plataforma; erros mantêm nível warning e o HTTP não imprime corpos, tokens ou DSNs.
 - Operações não recebem retry automático. Após suspensão, repetir GET autorizado pode ser seguro; POST só com o mesmo request_id e após inspeção do recibo. O contrato de idempotência permanece no banco.
 - Quotas limitam disponibilidade; não prometem disponibilidade contínua. Não fazer upgrade, acrescentar pagamento ou habilitar recursos pagos.
 
@@ -45,3 +46,5 @@ Backups lógicos não dependem de funcionalidades pagas Neon. Não existe agenda
 `bash recovery-mvp/managed/test.sh` usa PostgreSQL 17 Docker com TLS real, roles reais e age; cobre sessões entre instâncias, expiração/revogação, concorrência, RLS, permissões, falhas, cabeçalhos e backup/restauro de F01–F06 com replay de intervenção sem duplicação. O wrapper pg_dump/restore existe apenas no teste para usar clientes 17 no container. Reexecutar as suites anteriores em CI. Testes locais/Actions não comprovam URL pública ou frontend hospedado.
 
 Fontes: [Render HTTP/TLS](https://render.com/docs/web-services#https), [limites Free](https://render.com/docs/free), [Neon planos](https://neon.com/docs/introduction/plans).
+
+`public_probe.py` recusa redirecionamentos, para nunca reenviar bearer tokens para outro destino. Guarda o request_id antes da escrita sintética; em falha, inspecionar esse recibo antes de repetir qualquer POST. O proxy Render pode rejeitar cabeçalhos Forwarded antes do WSGI; distinguir esta resposta da resposta JSON da API.

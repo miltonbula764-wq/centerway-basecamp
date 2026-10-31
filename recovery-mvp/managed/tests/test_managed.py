@@ -192,3 +192,24 @@ class ManagedTests(unittest.TestCase):
         env['CENTERWAY_MANAGED_CONFIG']=json.dumps(config)
         result=subprocess.run([str(Path(sys.executable).with_name('gunicorn')),'--chdir','recovery-mvp/managed','-c','gunicorn.conf.py','--check-config','render_app:load_render_app()'],cwd=ROOT.parent,env=env,capture_output=True)
         self.assertEqual(result.returncode,0,'Exact Render startup/configuration command rejected')
+
+    def test_10_public_probe_never_forwards_bearer_on_redirect(self):
+        import http.server
+        import threading
+        from public_probe import request
+        captured=[]
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path=='/redirect':
+                    self.send_response(302); self.send_header('Location',f'http://127.0.0.1:{self.server.server_port}/capture'); self.end_headers()
+                else:
+                    captured.append(self.headers.get('Authorization'))
+                    self.send_response(200); self.end_headers()
+            def log_message(self,*args): pass
+        server=http.server.HTTPServer(('127.0.0.1',0),Handler)
+        thread=threading.Thread(target=server.serve_forever,daemon=True); thread.start()
+        try:
+            status,_,body=request(f'http://127.0.0.1:{server.server_port}','GET','/redirect',token='synthetic-test-token')
+            self.assertEqual(status,302); self.assertIsNone(body); self.assertEqual(captured,[])
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=5)
