@@ -48,3 +48,5 @@ Backups lógicos não dependem de funcionalidades pagas Neon. Não existe agenda
 Fontes: [Render HTTP/TLS](https://render.com/docs/web-services#https), [limites Free](https://render.com/docs/free), [Neon planos](https://neon.com/docs/introduction/plans).
 
 `public_probe.py` recusa redirecionamentos, para nunca reenviar bearer tokens para outro destino. Guarda o request_id antes da escrita sintética; em falha, inspecionar esse recibo antes de repetir qualquer POST. O proxy Render pode rejeitar cabeçalhos Forwarded antes do WSGI; distinguir esta resposta da resposta JSON da API.
+
+O probe de cabeçalhos hostis usa curl nativo, com bearer em ficheiro temporário 0600 e sem redirects. Nesta sessão, o caminho urllib recebeu 503 text/plain antes da aplicação; o mesmo teste autenticado com curl recebeu 200 e a identidade correta. Isso não autoriza retries de POST.

@@ -7,6 +7,8 @@ import json
 import os
 from pathlib import Path
 import ssl
+import subprocess
+import tempfile
 import sys
 import urllib.request
 import urllib.error
@@ -39,6 +41,24 @@ def request(base,method,path,data=None,token=None,headers=None):
         headers={k.lower():v for k,v in response.headers.items()}
         body=json.loads(payload) if payload and headers.get('content-type','').startswith('application/json') else None
         return response.status,headers,body
+
+
+def curl_header_probe(base, path, token, headers):
+    """Use native curl for hostile forwarding headers: some HTTP/1 proxy paths
+    reject them before the application. No redirects; bearer never enters argv.
+    """
+    with tempfile.TemporaryDirectory(prefix='cw-public-header-') as directory:
+        root=Path(directory); header_file=root/'headers'; body_file=root/'body'
+        fd=os.open(header_file,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+        with os.fdopen(fd,'w') as stream:
+            for key,value in {'Authorization':'Bearer '+token,**headers}.items():
+                if any(c in key+value for c in ('\r','\n')): raise ValueError('invalid header')
+                stream.write(key+': '+value+'\n')
+        result=subprocess.run(['curl','--silent','--show-error','--max-time','90','--header','@'+str(header_file),'--output',str(body_file),'--write-out','%{http_code}',base+path],capture_output=True,text=True)
+        if result.returncode: raise RuntimeError('public curl transport failed')
+        try: body=json.loads(body_file.read_bytes())
+        except ValueError: body=None
+        return int(result.stdout),body
 
 
 def stable_journey(value):
@@ -87,8 +107,8 @@ def main():
         check('cors_rejected',request(a.url,'GET',route,token=token,headers={'Origin':'https://evil.invalid'})[0]==403)
         status,headers,_=request(a.url,'OPTIONS',route,headers={'Origin':'https://getcenterway.com','Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'Authorization'})
         check('cors_preflight',status==204 and headers.get('access-control-allow-origin')=='https://getcenterway.com')
-        status,headers,_=request(a.url,'GET','/v1/session',token=token,headers={'Forwarded':'proto=http;host=evil.invalid','X-Forwarded-Proto':'http','X-Forwarded-Host':'evil.invalid'})
-        check('forwarded_headers_safe',status==200 or status in (400,403) or (status in (301,302,307,308) and headers.get('location','').startswith(a.url+'/')))
+        status,body=curl_header_probe(a.url,'/v1/session',token,{'Forwarded':'proto=http;host=evil.invalid','X-Forwarded-Proto':'http','X-Forwarded-Host':'evil.invalid'})
+        check('forwarded_headers_ignored_native_client',status==200 and isinstance(body,dict) and body.get('principal')=='http_alice')
         command=dict(request_id=str(uuid.uuid4()),operation='append_value',arguments=dict(kind='source',id=str(uuid.uuid4()),expected_revision=0,reason='SYNTHETIC M67 public persistence probe',data=dict(name='SYNTHETIC public probe',locator='synthetic://m67',method='synthetic fixture')))
         check('reader_operation_forbidden',request(a.url,'POST',operations,command,token=tokens['reader'])[0]==403)
         checkpoint=Path(a.state+'.operation.json')

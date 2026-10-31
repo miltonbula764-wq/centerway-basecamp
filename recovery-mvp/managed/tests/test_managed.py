@@ -196,7 +196,7 @@ class ManagedTests(unittest.TestCase):
     def test_10_public_probe_never_forwards_bearer_on_redirect(self):
         import http.server
         import threading
-        from public_probe import request
+        from public_probe import request,curl_header_probe
         captured=[]
         class Handler(http.server.BaseHTTPRequestHandler):
             def do_GET(self):
@@ -210,6 +210,8 @@ class ManagedTests(unittest.TestCase):
         thread=threading.Thread(target=server.serve_forever,daemon=True); thread.start()
         try:
             status,_,body=request(f'http://127.0.0.1:{server.server_port}','GET','/redirect',token='synthetic-test-token')
+            self.assertEqual(status,302); self.assertIsNone(body); self.assertEqual(captured,[])
+            status,body=curl_header_probe(f'http://127.0.0.1:{server.server_port}','/redirect','synthetic-test-token',{})
             self.assertEqual(status,302); self.assertIsNone(body); self.assertEqual(captured,[])
         finally:
             server.shutdown(); server.server_close(); thread.join(timeout=5)
