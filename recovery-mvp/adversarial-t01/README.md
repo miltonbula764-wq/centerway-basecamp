@@ -250,6 +250,9 @@ interno; não mover o log de 14/10 para S6 para obter um match. Nenhuma destas a
 foi executada em T01. Contratos completos: `../api/openapi.json`,
 `../ORCHESTRATION.md`, `../INVESTIGATION.md`, `../DISCOVERY.md`.
 
+Os inputs afirmam apenas a presença documentada de atraso/fila e de feriado/greve
+(negação das condições literais de ausência), nunca impacto nos tickets ou incumprimento
+de um requisito aplicável. Falta evidência de aplicabilidade e não há reviews.
 Sem verificação suficiente, a investigação deve continuar inconclusiva. O cenário
 não contém autorização externa nem reviews: não conceder autorização para obter
 um resultado favorável. `future/s9.json` só pode ser revelado manualmente após o

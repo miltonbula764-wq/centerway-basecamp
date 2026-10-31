@@ -160,6 +160,9 @@ class T01Tests(unittest.TestCase):
             for item in self.data['discovery_inputs']:
                 self.assertNotIn('verification',item)
                 self.assertIn('não comprovado',item['factor']['hypothesis'])
+                self.assertIn('não',item['factor']['condition'])
+                self.assertEqual([e['purpose'] for e in item['evidence']],['condition_met'])
+                self.assertFalse(item['evidence'][0]['assertion'])
 
     def test_06_incompatible_csv_and_missing_timestamp_not_coerced(self):
         evidence=next(r for r in self.data['records'] if r['kind']=='evidence' and r['data']['contract_revision']==7)
