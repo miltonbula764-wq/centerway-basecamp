@@ -5,7 +5,6 @@ import json
 import os
 import re
 import secrets
-import sqlite3
 import stat
 import threading
 import time
@@ -20,6 +19,7 @@ from psycopg.conninfo import conninfo_to_dict
 from psycopg.types.json import Jsonb
 from flask import Flask, request, g, jsonify
 from werkzeug.exceptions import HTTPException
+from session_store import session_store
 
 FIELDS = {
     'append_value': 'kind id expected_revision reason data',
@@ -125,13 +125,7 @@ def create_app(config):
     ttl = config.get('session_ttl', 900)
     if not isinstance(ttl, int) or not 1 <= ttl <= 3600:
         raise ValueError('session_ttl must be 1..3600')
-    path = Path(config['session_db'])
-    fd = os.open(path, os.O_CREAT | os.O_RDWR, 0o600)
-    os.close(fd)
-    if stat.S_IMODE(path.stat().st_mode) & 0o077:
-        raise ValueError('session database must be private')
-    with sqlite3.connect(path) as db:
-        db.execute('CREATE TABLE IF NOT EXISTS sessions (digest TEXT PRIMARY KEY, username TEXT, version TEXT, expires REAL)')
+    sessions = session_store(config)
     db_adapter = Database(config.get('demo', False))
     dummy = password_hash(secrets.token_urlsafe(32))
     attempts, limiter_lock = OrderedDict(), threading.Lock()
@@ -165,13 +159,18 @@ def create_app(config):
                 raise APIError(422, 'operation_rejected')
             raise APIError(503, 'database_unavailable')
 
+    def session_call(method, *args):
+        try:
+            return getattr(sessions, method)(*args)
+        except psycopg.Error:
+            raise APIError(503, 'session_store_unavailable')
+
     def authenticate():
         auth = request.headers.get('Authorization', '')
         if not re.fullmatch(r'Bearer [A-Za-z0-9_-]{43}', auth):
             raise APIError(401, 'authentication_required')
         digest = hashlib.sha256(auth[7:].encode()).hexdigest()
-        with sqlite3.connect(path) as db:
-            row = db.execute('SELECT username,version,expires FROM sessions WHERE digest=?', (digest,)).fetchone()
+        row = session_call('get', digest)
         user = users.get(row[0]) if row else None
         if not user or row[1] != version(user) or row[2] <= time.time():
             raise APIError(401, 'session_expired_or_invalid')
@@ -246,10 +245,7 @@ def create_app(config):
             raise APIError(401, 'invalid_credentials')
         db_call(user, 'identity')
         token = secrets.token_urlsafe(32)
-        with sqlite3.connect(path) as db:
-            db.execute('DELETE FROM sessions WHERE expires<=?', (time.time(),))
-            db.execute('DELETE FROM sessions WHERE username=? AND digest NOT IN (SELECT digest FROM sessions WHERE username=? ORDER BY expires DESC LIMIT 9)', (data['username'], data['username']))
-            db.execute('INSERT INTO sessions VALUES (?,?,?,?)', (hashlib.sha256(token.encode()).hexdigest(), data['username'], version(user), time.time()+ttl))
+        session_call('put', hashlib.sha256(token.encode()).hexdigest(), data['username'], version(user), time.time()+ttl)
         return jsonify(access_token=token, token_type='Bearer', expires_in=ttl, demo=bool(config.get('demo'))), 201
 
     @app.get('/v1/session')
@@ -259,8 +255,7 @@ def create_app(config):
 
     @app.delete('/v1/session')
     def logout():
-        with sqlite3.connect(path) as db:
-            db.execute('DELETE FROM sessions WHERE digest=?', (g.digest,))
+        session_call('delete', g.digest)
         return '', 204
 
     def scope(tenant, client):
