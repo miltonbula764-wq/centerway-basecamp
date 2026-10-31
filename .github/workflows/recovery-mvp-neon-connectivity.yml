@@ -1,0 +1,41 @@
+name: CENTERWAY Gate 1 manual DNS and TCP diagnostic
+
+on:
+  workflow_dispatch:
+    inputs:
+      reviewed_sha:
+        description: Full reviewed commit SHA of this workflow and diagnostic
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: centerway-gate1-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  diagnostic:
+    if: github.repository == 'miltonbula764-wq/centerway-basecamp' && github.ref_type == 'branch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    # Configure reviewers, prevent self-review and restrict deployment branches
+    # BEFORE dispatch. This job does not create/configure those protections.
+    environment: centerway-gate1-diagnostic
+    steps:
+      - name: Require the exact reviewed revision
+        env:
+          REVIEWED_SHA: ${{ inputs.reviewed_sha }}
+        run: |
+          if [[ ! "$REVIEWED_SHA" =~ ^[0-9a-f]{40}$ ]] || [[ "$REVIEWED_SHA" != "$GITHUB_SHA" ]]; then
+            echo 'Refused: dispatch must select the exact reviewed commit.'
+            exit 1
+          fi
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: DNS and TCP only; no PostgreSQL protocol or credentials
+        env:
+          CENTERWAY_NEON_DIAGNOSTIC_HOST: ${{ secrets.CENTERWAY_NEON_DIAGNOSTIC_HOST }}
+        run: python3 .github/scripts/neon_connectivity.py

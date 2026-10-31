@@ -1,5 +1,22 @@
 # Confirmed CENTERWAY MVP state
 
+## T03-G1 — diagnóstico preparado (issue #74)
+
+Base T02/PR #72, aecc8aca64a9d7ce333dc1a907b5661132ba1ccd.
+See GATE1_CONNECTIVITY.md. New dispatch-only workflow for a future protected-environment
+DNS/TCP5432 diagnostic; no PostgreSQL protocol, login, SQL, backup or credential input.
+Hostname secret only; bounded subprocess, fixed sanitized status codes, no DNS/IP output
+or artifacts. Separate PR CI performs only lint/contract and simulated security tests
+without secrets or live DNS/TCP. Engines, API, frontend and prior workflows unchanged.
+GitHub default-branch workflow registration, protected environment, actual dispatch
+authorization and hostname configuration remain pending; no main changes to enable them.
+No connectivity to Neon from Actions, encrypted external backup or isolated restore is
+asserted. Private durable destination and holder's public age recipient remain pending.
+T03 Gate 1 is NOT complete; Gates 2–5 remain blocked. No Neon/Render/Lovable changes,
+real secrets, public database mutations, paid infrastructure or Lovable credits.
+Local validation: actionlint 1.7.7 and 15 tests passed (Python3.12); no live Neon
+probe. Remote CI proof must be read on the delivery PR's exact commit.
+
 ## Work Mode continuation — 2026-10-31
 
 The historical mission-specific exclusions below describe their original deliveries.
