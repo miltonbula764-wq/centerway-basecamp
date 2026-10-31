@@ -36,6 +36,8 @@ import configparser,os,subprocess,sys
 from pathlib import Path
 name=Path(sys.argv[0]).name
 args=sys.argv[1:]
+if '--version' in args:
+ raise SystemExit(subprocess.call(['docker','exec',os.environ['CW_HTTP_CONTAINER'],name,'--version']))
 if '--version' not in args:
  c=configparser.ConfigParser(interpolation=None); c.read(os.environ['PGSERVICEFILE'])
  db=c['centerway']['dbname']

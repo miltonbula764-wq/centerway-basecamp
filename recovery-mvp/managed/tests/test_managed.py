@@ -155,10 +155,13 @@ class ManagedTests(unittest.TestCase):
         archive=self.state/'logical.age'; backup(owner,archive,recipient)
         self.assertNotIn(b'SYNTHETIC',archive.read_bytes())
         with self.assertRaises(ValueError): restore(owner,archive,key)
+        wrong=self.state/'wrong.key'
+        subprocess.run(['age-keygen','-o',str(wrong)],check=True,capture_output=True); wrong.chmod(0o600)
         with psycopg.connect(owner,autocommit=True) as db: db.execute('CREATE DATABASE cw_restored')
         target=make_conninfo(owner,dbname='cw_restored')
         corrupt=self.state/'corrupt.age'; corrupt.write_bytes(archive.read_bytes()[:-20]+b'changed'); corrupt.chmod(0o600)
         with self.assertRaises(Exception): restore(target,corrupt,key)
+        with self.assertRaises(Exception): restore(target,archive,wrong)
         restore(target,archive,key)
         with self.assertRaises(ValueError): restore(target,archive,key)
         config=copy.deepcopy(self.config)
