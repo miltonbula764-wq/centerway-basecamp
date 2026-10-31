@@ -37,7 +37,7 @@ class RenderEdge:
         return self.app(environ, start_response)
 
 
-def load_render_app():
+def _load_render_app():
     if os.environ.get('RENDER') != 'true' or not os.environ.get('RENDER_SERVICE_ID'):
         raise ValueError('Render deployment environment required')
     config = json.loads(os.environ['CENTERWAY_MANAGED_CONFIG'])
@@ -52,3 +52,10 @@ def load_render_app():
         response.headers['Strict-Transport-Security'] = 'max-age=31536000'
         return response
     return RenderEdge(app, os.environ['RENDER_EXTERNAL_HOSTNAME'])
+
+
+def load_render_app():
+    try:
+        return _load_render_app()
+    except Exception:
+        raise RuntimeError("Managed startup rejected; inspect private configuration and dependency readiness") from None

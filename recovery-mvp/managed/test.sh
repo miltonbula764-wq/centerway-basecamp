@@ -27,6 +27,7 @@ for attempt in {1..60}; do
  if docker exec "$container" sh -c 'test "$(cat /proc/1/comm)" = postgres && pg_isready -U postgres' >/dev/null 2>&1; then break; fi
  sleep 1
 done
+port="$(docker port "$container" 5432/tcp | cut -d: -f2)"
 # PG17 clients inside Docker; wrappers preserve selected source/target dbname.
 mkdir "$state/bin"
 cat > "$state/bin/pg-client" <<'WRAPPER'
