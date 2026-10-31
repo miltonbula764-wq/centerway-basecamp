@@ -17,6 +17,7 @@ jobs:
       - name: Official distribution encryption utility
         run: sudo apt-get update -qq && sudo apt-get install -y age
       - name: Preserve existing engines, API and infrastructure
+        if: github.event_name == 'pull_request'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
