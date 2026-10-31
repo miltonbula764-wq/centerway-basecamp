@@ -1,0 +1,26 @@
+name: CENTERWAY encrypted recovery and readiness
+on:
+  pull_request:
+    paths: ['recovery-mvp/**', '.github/workflows/recovery-mvp-operations.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  encrypted-recovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12'}
+      - name: Official distribution encryption utility
+        run: sudo apt-get update -qq && sudo apt-get install -y age
+      - name: Preserve existing engines, API and infrastructure
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git diff --exit-code "$BASE_SHA" HEAD -- recovery-mvp/sql recovery-mvp/api recovery-mvp/infra recovery-mvp/cloud-demo
+      - name: Actual cold backup, authenticated restore, RLS and readiness failures
+        run: bash recovery-mvp/operations/test.sh

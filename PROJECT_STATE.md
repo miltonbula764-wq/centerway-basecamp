@@ -1,5 +1,28 @@
 # Confirmed CENTERWAY MVP state
 
+## Work Mode continuation — 2026-10-31
+
+The historical mission-specific exclusions below describe their original deliveries.
+Current integrated candidate: PR #64, `705db9cb009ca672aab407c86d82ea5c05614903`,
+containing #49–#62 by ancestry; no main merge. Six workflows succeeded on that SHA:
+97 backend tests and eight real-Chromium compatibility tests twice on fresh stacks.
+The actual Lovable frontend remains at `149ee23a60618b577e9535ce8c121d34813741a2`:
+178 tests, frozen lockfile, TypeScript and build independently validated in Work Mode.
+Session lifecycle fixes were applied there; the live UI transport is still inactive.
+
+PR #65 adds `recovery-mvp/operations/`: age-encrypted cold backup of the synthetic
+C03 profile, physical restore to new volumes, fail-closed archive checks and a
+read-only readiness probe. The first six actual PostgreSQL/HTTPS recovery tests
+passed on `ff06eab7994ba528262c366b570288689d5f3e85`; consult PR checks for the final
+revision. New systemd readiness templates are prepared, not installed or activated.
+No existing engine, migration, API, Caddy or C03 lifecycle implementation changed.
+
+Hosting remains blocked on an authorized persistent host/account. No public backend,
+hosted frontend-to-API proof, external backup copy, real data, real intervention,
+customer pilot or production readiness is asserted. No new Lovable credits or
+infrastructure expense in this continuation. See WORK_MODE_AUDIT.md and
+recovery-mvp/operations/README.md for boundaries and operating instructions.
+
 Independent implementation is in recovery-mvp/. Legacy application remains separate.
 
 | Mission | Implemented base | Scope |
