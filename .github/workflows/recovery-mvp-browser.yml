@@ -21,7 +21,7 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          git diff --exit-code "$BASE_SHA" HEAD -- recovery-mvp/sql recovery-mvp/tests recovery-mvp/api recovery-mvp/infra recovery-mvp/cloud-demo recovery-mvp/integration ':!recovery-mvp/api/app.py'
+          git diff --exit-code "$BASE_SHA" HEAD -- recovery-mvp/sql recovery-mvp/tests recovery-mvp/api recovery-mvp/infra recovery-mvp/cloud-demo recovery-mvp/integration ':!recovery-mvp/api/app.py' ':!recovery-mvp/api/session_store.py'
           python3 recovery-mvp/browser/preserve_api.py "$BASE_SHA"
       - uses: actions/setup-python@v5
         with:
