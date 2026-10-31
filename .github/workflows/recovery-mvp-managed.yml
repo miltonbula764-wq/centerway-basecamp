@@ -1,7 +1,7 @@
 name: CENTERWAY managed PostgreSQL sessions and recovery
 on:
   pull_request:
-    paths: ['recovery-mvp/**', '.github/workflows/recovery-mvp-managed.yml']
+    paths: ['gunicorn.conf.py', 'recovery-mvp/**', '.github/workflows/recovery-mvp-managed.yml']
   workflow_dispatch:
 permissions:
   contents: read

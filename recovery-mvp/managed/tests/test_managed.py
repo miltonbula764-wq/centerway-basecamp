@@ -184,3 +184,11 @@ class ManagedTests(unittest.TestCase):
         after=self.http('GET',route,token=token,app=restored)[1]['data']
         self.assertEqual(stable_journey(after),stable_journey(before))
         self.assertIsNone(Database(False).call(config['users']['bob'],'journey',(T,C)))
+
+    def test_09_actual_render_gunicorn_command(self):
+        env=os.environ.copy()
+        env.update(RENDER='true',RENDER_SERVICE_ID='srv-test',RENDER_EXTERNAL_HOSTNAME='centerway-test.onrender.com',CENTERWAY_MANAGED_CONFIG=json.dumps(self.config))
+        config=json.loads(env['CENTERWAY_MANAGED_CONFIG']); config['synthetic_only']=True
+        env['CENTERWAY_MANAGED_CONFIG']=json.dumps(config)
+        result=subprocess.run([str(Path(sys.executable).with_name('gunicorn')),'--chdir','recovery-mvp/managed','-c','gunicorn.conf.py','--check-config','render_app:load_render_app()'],cwd=ROOT.parent,env=env,capture_output=True)
+        self.assertEqual(result.returncode,0,'Exact Render startup/configuration command rejected')
