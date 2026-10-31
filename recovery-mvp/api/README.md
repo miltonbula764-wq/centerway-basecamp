@@ -316,3 +316,7 @@ externos/documentos sintéticos não são obtidos. Não contém DSNs, tokens ou 
 As autorizações mostradas não garantem elegibilidade atual: F04 revalida sempre.
 Frontend anterior continua compatível. O novo formulário requer esta release API;
 num backend anterior, 404 do contexto bloqueia os novos controlos, sem fallback mock.
+
+Resultados de erro nos snapshots de recibos da auditoria são sanitizados como na
+journey: apenas sqlstate e code=engine_rejected; mensagens SQL ficam no histórico
+imutável da base, não na resposta HTTP.

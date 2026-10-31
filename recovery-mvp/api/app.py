@@ -121,6 +121,11 @@ class Database:
                             SELECT id::text FROM centerway.intervention_policies WHERE tenant_id=%s AND client_id=%s AND principal=session_user))
                         ORDER BY sequence DESC LIMIT 101""", (*params, *params))
                     rows = [r[0] for r in cur.fetchall()]
+                    # Match journey's HTTP sanitization; immutable DB audit stays intact.
+                    for event in rows[:100]:
+                        snapshot = event['snapshot']
+                        if event['entity'] == 'operation_receipts' and snapshot.get('status') == 'error':
+                            snapshot['result'] = {'sqlstate': snapshot['result'].get('sqlstate', ''), 'code': 'engine_rejected'}
                     result['audit'], result['truncated']['audit'] = rows[:100], len(rows) > 100
                     return result
                 if kind == 'clients':

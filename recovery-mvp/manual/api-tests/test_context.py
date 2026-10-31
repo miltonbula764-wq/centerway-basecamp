@@ -111,3 +111,16 @@ class ContextTests(unittest.TestCase):
         self.assertTrue(result['truncated']['audit'])
         self.assertTrue(all(x['snapshot']['client_id']==C for x in result['audit']))
         self.assertEqual(result['limit_per_collection'],100)
+
+    def test_06_audit_error_receipts_hide_sql_messages_without_changing_history(self):
+        request_id=str(uuid4())
+        payload=dict(request_id=request_id,operation='append_value',arguments=dict(kind='source',id=str(uuid4()),expected_revision=0,reason='SYNTHETIC T02 actual rejected input',data={}))
+        response=self.http('POST',f'/v1/tenants/{T}/clients/{C}/operations','alice',payload)
+        self.assertEqual(response.status_code,422)
+        value=self.http('GET',f'/v1/tenants/{T}/clients/{C}/manual-context','alice').get_json()['data']
+        event=next(e for e in value['audit'] if e['entity']=='operation_receipts' and e['snapshot']['request_id']==request_id)
+        self.assertEqual(set(event['snapshot']['result']),{'code','sqlstate'})
+        self.assertEqual(event['snapshot']['result']['code'],'engine_rejected')
+        with psycopg.connect(self.fixture.owner['dsn']) as db:
+            stored=db.execute("SELECT snapshot->'result' FROM centerway.audit_log WHERE entity='operation_receipts' AND snapshot->>'request_id'=%s",(request_id,)).fetchone()[0]
+            self.assertIn('message',stored)  # Sanitized transport does not rewrite audit.

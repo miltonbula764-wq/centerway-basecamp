@@ -12,7 +12,7 @@ current=Path(path).read_text()
 managed_session_change = (hashlib.sha256(base.encode()).hexdigest() == '2ac3a53a29af29ffc03d91f10ba6854934abee9d371d02e85c7fd9306683e07b' and
                           hashlib.sha256(current.encode()).hexdigest() == '4c9007e4b6fa27081ffb3eb1b0f6be1bca4ad3711f9eef0c28e063f8da3cabb6')
 t02_read_change = (hashlib.sha256(base.encode()).hexdigest() == '4c9007e4b6fa27081ffb3eb1b0f6be1bca4ad3711f9eef0c28e063f8da3cabb6' and
-                   hashlib.sha256(current.encode()).hexdigest() == '0f905173c0799c669f38a9c78b7dd19d91267d6e814e6b76725a5b75a5cba799')
+                   hashlib.sha256(current.encode()).hexdigest() == 'd326ecf5bfcc667c9e39fed68ee5b58f17a68db97e41b1a41ecc45c532cff028')
 if base!=current and not managed_session_change and not t02_read_change and (base.count(OLD)!=1 or base.replace(OLD,NEW)!=current):
     raise SystemExit('Unexpected API change beyond exact reviewed OPTIONS/session-store/T02 read-only changes')
 spec='recovery-mvp/api/openapi.json'
@@ -23,4 +23,10 @@ if base_spec != current_spec:
 t02_spec=Path('recovery-mvp/api/openapi-t02.json')
 if hashlib.sha256(t02_spec.read_bytes()).hexdigest() != 'c29afae4da27b23fb00c7d45274271a27bd84781fa397a34cb5b922aa4f61321':
     raise SystemExit('Unexpected T02 additive OpenAPI contract change')
+readme='recovery-mvp/api/README.md'
+base_readme=subprocess.run(['git','show',sys.argv[1]+':'+readme],capture_output=True,check=True).stdout
+current_readme=Path(readme).read_bytes()
+if base_readme != current_readme and (hashlib.sha256(base_readme).hexdigest(),hashlib.sha256(current_readme).hexdigest()) != (
+    '682ac9215dc2d24e2e4c474d4b1464f5685422050c1a9f9f4df39053bf35a917', '0c8e5957f9c2ddf80132edf50e3c899b27e44820c994e53996752d1de28d7df2'):
+    raise SystemExit('Unexpected API documentation change beyond exact T02 addition')
 print('API/OpenAPI preserved except exact reviewed T02 read-only addition')

@@ -215,7 +215,7 @@ créditos/ações Lovable, pedir autorização específica; não consumir automa
 - Regressões originais: 60 motores +11 HTTP +8 HTTPS +4 persistência +7 captura de71
   casos +7 preflight =97 aprovadas. O contrato c02-v1 e a captura não foram regenerados.
 - Managed11 e T01 inicial11 aprovados, sem alterações nos respetivos testes/fixtures.
-- T02 API:5 testes reais PG17/TLS, incluindo principals T01, limites, políticas e
+- T02 API:6 testes reais PG17/TLS, incluindo principals T01, limites, políticas e
   revogações/auditoria filtradas, negação de escrita e ausência de operação no T01.
 - Frontend:210 aprovados (189 anteriores +21 novos),1 público opt-in omitido; TypeScript
   e build aprovados. O teste público não foi ativado nem substituído por mock.
@@ -228,3 +228,7 @@ créditos/ações Lovable, pedir autorização específica; não consumir automa
 
 Resultados GitHub Actions e SHA final ficam no PR de entrega. Nenhum resultado local
 ou CI comprova o cenário T01 publicado ou operação humana realizada.
+
+Recibos de erro da auditoria T02 são sanitizados como na journey: mensagens SQL
+ficam apenas no histórico imutável da base. Testado com rejeição F06 real, sem
+executar motores no T01.

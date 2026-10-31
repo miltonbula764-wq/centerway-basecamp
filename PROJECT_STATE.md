@@ -215,7 +215,7 @@ CSV meaning is not inferred, T01 has zero policies and S9 remains future-only. T
 full manual UI can request legitimate steps and show blocks/inconclusive results;
 it does not grant missing permissions or guarantee a successful intervention/recovery.
 
-T02 local validation confirmed: 97 previous backend +11 managed +11 T01, five new
+T02 local validation confirmed: 97 previous backend +11 managed +11 T01, six new
 API tests,210 frontend tests (189 previous +21 new; one public opt-in skipped),
 TypeScript/build and five actual-app Chromium tests passed. Local Chromium154,
 HTTPS/PG17 and 390x844 mobile/touch; CI installs pinned Playwright1.62 Chromium.
@@ -223,3 +223,7 @@ Positive synthetic execution/undo is demonstrated only in disposable T02 with an
 explicit test-admin bounded policy; T01 is never operated or granted a policy.
 Original c02-v1 OpenAPI and 71-case canonical capture remain unchanged: new read
 contract is separately versioned api/openapi-t02.json. No golden regeneration.
+
+T02 audit error receipts are sanitized like journey responses; SQL messages remain only
+in the immutable database history, not in the HTTP context. Verified by a real rejected
+F06 input, with no T01 engine execution.
