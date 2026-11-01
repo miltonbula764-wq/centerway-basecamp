@@ -190,4 +190,18 @@ class RecoveryTests(unittest.TestCase):
         self.assertNotIn(self.key.read_bytes(),wire.getvalue())
         self.assertEqual(g2.restore_payload(manifest,dump)['status'],'isolated_restore_verified')
 
+    def test_12_pregrant_baseline_encrypted_without_credentials(self):
+        import capture_baseline
+        with psycopg.connect(self.dsn,autocommit=True) as db: db.execute('CREATE DATABASE centerway TEMPLATE postgres')
+        config=self.state/'baseline-config.json';config.write_text(json.dumps({'dsn':make_conninfo(self.dsn,dbname='centerway')}));config.chmod(0o600)
+        binding=self.state/'binding.json';binding.write_text(json.dumps({'branch_id':'synthetic-child','parent_id':'synthetic-parent','primary':False,'default':False,'host':'127.0.0.1','endpoint_id':'127'}));binding.chmod(0o600)
+        target=self.state/'pre-export.age'
+        result=capture_baseline.capture(config,binding,target,self.recipient)
+        self.assertEqual(result['status'],'pre_export_baseline_encrypted')
+        clear=json.loads(g2.command(['age','-d','-i',str(self.key),str(target)]))
+        self.assertIn('cw_sessions.sessions',clear['tables'])
+        self.assertNotIn(self.password,json.dumps(clear))
+        self.assertTrue(all('rolpassword' not in role for role in clear['roles']))
+        self.assertIn('admin_option',clear['memberships'][0])
+
 if __name__=='__main__':unittest.main()

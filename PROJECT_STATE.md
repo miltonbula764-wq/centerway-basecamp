@@ -285,3 +285,15 @@ sent to Codespaces. Two new transport tests and one synthetic PG17 integration p
 Pre-export metadata must preserve original role/ACL baseline separately; pg_dump does
 not include global credentials. One future Gate1 authorization required. No actual
 Neon resources, credentials, backup, real transfer, deploy or cost in G5.
+
+## T03-G6 — operational preparation delegation
+
+Base PR #80/900cc4c. See recovery-mvp/gate1/DELEGATION.md. Single Android entry
+prepares a private reviewed-code package in an existing Available Codespace,
+verifies PG17/age/local Docker, synthetic SSH probe and receipt; only public age
+recipient sent. Resume reuses G5 restore and cleans staging. New read-only pre-grant
+baseline captures role attributes/memberships/data hashes into age ciphertext.
+Seven new guard tests and one PG17 baseline integration passed locally. Real
+workspace/Drive synthetic roundtrip byte equality and deletion404 proven.
+Agent Codespaces API403/invalid CLI identity block remote preparation/SSH proof;
+no real backup, new Neon resources/credentials, source/main/service changes or cost.
