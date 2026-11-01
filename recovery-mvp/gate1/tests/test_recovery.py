@@ -178,4 +178,16 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual(m['tables']['cw_sessions.sessions']['rows'],before)
         self.assertEqual(g2.restore(target,self.key)['status'],'isolated_restore_verified')
 
+    def test_11_android_decryption_payload_restores_without_remote_key(self):
+        import io
+        import android_stream
+        from handoff import verify_return
+        downloaded=self.state/'android-download'
+        shutil.copytree(self.archive,downloaded)
+        expected=verify_return(self.archive,downloaded)['bundle_fingerprint']
+        wire=io.BytesIO();android_stream.send(downloaded,self.key,wire)
+        manifest,dump=android_stream.read_frame(io.BytesIO(wire.getvalue()),expected)
+        self.assertNotIn(self.key.read_bytes(),wire.getvalue())
+        self.assertEqual(g2.restore_payload(manifest,dump)['status'],'isolated_restore_verified')
+
 if __name__=='__main__':unittest.main()
