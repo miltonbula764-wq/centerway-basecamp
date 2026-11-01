@@ -20,8 +20,9 @@ a sua correspondência ainda não foi verificada por este agente.
 3. Workflow sensível permanece literalmente bloqueado. Sem revisão independente,
    controlos compensatórios ainda não comprovados não autorizam retirar o bloqueio.
    A exceção TCP não se aplica. A Issue #78 também proíbe execução real nesta missão.
-4. ID concreto da pasta Drive, ACL privada, quota e retorno de download ainda não
-   comprovados. A informação do titular é registada, sem a converter em teste real.
+4. Pasta de backups identificada pelo conector com shared=false, separada da pasta
+   da identidade. Quota e retorno de download ainda não comprovados. Nenhum
+   ficheiro da identidade foi aberto.
 
 ## Credencial temporária: procedimento privado, não executar agora
 
@@ -109,8 +110,9 @@ Nunca carregar source.json, identidade ou passphrase. Não criar links partilhad
 Pode-se usar o app Drive no Android para upload/download ou o conector Drive para
 upload binário após identificar o ID da pasta e confirmar permissões. O conector
 não executa pg_dump, não recebe credenciais PostgreSQL e não transfere ficheiros
-automaticamente do runner Actions. Nenhuma pasta foi pesquisada nem transferência
-real realizada neste PR: a identidade/chave não deve ser aberta pelo agente.
+automaticamente do runner Actions. A pesquisa de metadados identificou a pasta de backups com shared=false e a pasta
+da identidade separada; nenhuma transferência real foi realizada. IDs de pastas
+privadas não são publicados no repositório; a identidade não foi aberta.
 A API de upload disponível aceita referência de ficheiro; a capacidade concreta de
 materializar e reenviar os bytes terá de ser testada com ciphertext autorizado.
 

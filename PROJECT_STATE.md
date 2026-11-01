@@ -271,4 +271,5 @@ and ciphertext return verifier; no key/DSN/database access. Existing G2 export,
 restore and literal workflow lock unchanged. Temporary limited role requires later
 provider privilege validation/authorization; no RLS changes or admin fallback assumed.
 Private Docker-capable executor remains necessary; normal Termux is not proof of it.
-No Drive reads/uploads, Neon role changes, real exports, service/main changes or cost.
+Drive folder metadata only: separate backup/key folders, backup shared=false; no key
+contents, uploads, Neon role changes, real exports, service/main changes or cost.
