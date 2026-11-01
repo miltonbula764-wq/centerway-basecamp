@@ -273,3 +273,15 @@ provider privilege validation/authorization; no RLS changes or admin fallback as
 Private Docker-capable executor remains necessary; normal Termux is not proof of it.
 Drive folder metadata only: separate backup/key folders, backup shared=false; no key
 contents, uploads, Neon role changes, real exports, service/main changes or cost.
+
+## T03-G5 — final Gate1 proposal (not executed)
+
+See recovery-mvp/gate1/GATE1_FINAL.md. Residual LO writes are a proposed accepted
+risk only in a disposable child, without modifying cloud_admin/PUBLIC. Provisioning
+BYPASSRLS on Neon remains unproven; fail closed, never export as cw_owner fallback.
+Minimal transport addition authenticates age on Android then passes bounded payload
+through private authenticated SSH to the existing isolated restore; no identity key
+sent to Codespaces. Two new transport tests and one synthetic PG17 integration passed.
+Pre-export metadata must preserve original role/ACL baseline separately; pg_dump does
+not include global credentials. One future Gate1 authorization required. No actual
+Neon resources, credentials, backup, real transfer, deploy or cost in G5.

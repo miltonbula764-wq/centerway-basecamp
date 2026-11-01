@@ -211,7 +211,13 @@ def restore(archive, identity):
     require(manifest['cipher_sha256']==checks['database.age'])
     # Authenticate ALL ciphertext before executing any archived SQL.
     clear=command(['age','-d','-i',str(key),str(folder/'database.age')])
-    require(clear.startswith(b'PGDMP'))
+    return restore_payload(manifest, clear)
+
+
+def restore_payload(manifest, clear):
+    # Authenticated local decryption or an explicitly trusted private channel only.
+    require(manifest['format']=='centerway-g2-v1' and manifest['sessions']=='preserved-quarantined')
+    require(len(clear)<=LIMIT and clear.startswith(b'PGDMP'))
     name='cw-g2-restore-'+uuid.uuid4().hex
     try:
         command(['docker','run','-d','--name',name,'--network','none','--memory','512m','--cpus','1',
