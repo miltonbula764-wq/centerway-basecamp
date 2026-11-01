@@ -244,3 +244,20 @@ contract is separately versioned api/openapi-t02.json. No golden regeneration.
 T02 audit error receipts are sanitized like journey responses; SQL messages remain only
 in the immutable database history, not in the HTTP context. Verified by a real rejected
 F06 input, with no T01 engine execution.
+
+## T03-G2 — encrypted export and isolated restore preparation (issue #76)
+
+Base PR #75/435c2d4. See recovery-mvp/gate1/README.md. Additive PG17 verified-TLS
+stream export to age; encrypted snapshot baseline and role manifest; all database
+sessions included, runtime secrets excluded with separate custody required. Restore
+accepts no target DSN: fresh local networkless PG17 Docker sandbox, restricted
+NOLOGIN roles, data/schema/RLS/ACL/identity comparisons and unconditional cleanup.
+Existing engines, backups, API, frontend and T01 remain unchanged. Synthetic-only
+CI; sensitive manual workflow has a literal disabled export job and fails closed.
+No independent reviewer exists; TCP exemption does not authorize credential use.
+Remote TCP success was reported by the user; no real export/restore/custody is
+claimed. Destination, private-key custody and sensitive executor controls pending.
+No Neon/Render/Lovable/main changes or paid services; T03 Gate1 remains blocked.
+Local G2 validation: 14 synthetic tests passed, actual PG17 TLS export/age and
+networkless restores, security failures and concurrent snapshot; actionlint1.7.7
+passed. CI results tracked on the delivery PR, separately from local proof.
