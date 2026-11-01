@@ -261,3 +261,14 @@ No Neon/Render/Lovable/main changes or paid services; T03 Gate1 remains blocked.
 Local G2 validation: 14 synthetic tests passed, actual PG17 TLS export/age and
 networkless restores, security failures and concurrent snapshot; actionlint1.7.7
 passed. CI results tracked on the delivery PR, separately from local proof.
+
+## T03-G3 — private custody handoff (issue #78)
+
+Base PR #77/fb925f9. Holder reports tested Android age identity and encrypted key
+copy/private backup folder in Drive; no actual Neon backup claimed. See
+recovery-mvp/gate1/PRIVATE_RUNBOOK.md. Additive offline public-recipient fingerprint
+and ciphertext return verifier; no key/DSN/database access. Existing G2 export,
+restore and literal workflow lock unchanged. Temporary limited role requires later
+provider privilege validation/authorization; no RLS changes or admin fallback assumed.
+Private Docker-capable executor remains necessary; normal Termux is not proof of it.
+No Drive reads/uploads, Neon role changes, real exports, service/main changes or cost.
