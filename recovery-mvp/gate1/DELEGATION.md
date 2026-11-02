@@ -26,7 +26,7 @@ bash recovery-mvp/gate1/android_gate1.sh prepare --reviewed-sha SHA_COMPLETO_DES
 ```
 
 O wrapper instala apenas dependências Termux ausentes: python/git/gh/openssh/age.
-Se necessário abre login oficial GitHub no browser do titular; não enviar tokens.
+Credenciais indisponíveis param sem login/refresh automático (T03-G7); não enviar tokens.
 Pacote gh oficial: https://github.com/termux/termux-packages/blob/master/packages/gh/build.sh
 
 Seleciona um Codespace existente Available do repo; ambiguidade exige --codespace
@@ -103,3 +103,7 @@ Quota Drive não exposta pelo conector: conferir espaço antes do export, sem co
 
 Nenhum backup real, credencial nova, recurso Neon, alteração Render/Lovable/main,
 chave remota, workflow sensível ou serviço pago nesta preparação.
+
+T03-G7: ver SSH_DIAGNOSTICS.md. diagnose faz só leitura, resolve nome canónico e
+separa listagem/GET/SSH; um Available pode coexistir com outros Shutdown. Nenhuma
+prova real SSH Android é inferida dos testes simulados.
