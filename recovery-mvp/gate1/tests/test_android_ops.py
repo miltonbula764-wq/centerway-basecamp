@@ -36,7 +36,7 @@ class OpsTests(unittest.TestCase):
    seen.append(command)
    if 'prepare_codespace.sh' in command:raise ValueError('failed')
    return b''
-  with patch.object(ops,'checked_package',return_value=b'public-code'),patch.object(ops,'run',return_value=b'[{"name":"synthetic","state":"Available"}]'),patch.object(ops,'remote',side_effect=remote):
+  with patch.object(ops,'checked_package',return_value=b'public-code'),patch.object(ops,'inspect_codespace',return_value={'name':'synthetic'}),patch.object(ops,'remote',side_effect=remote):
    with self.assertRaises(Exception):ops.prepare('a'*40)
   self.assertTrue(seen[-1].startswith('rm -rf -- "$HOME/.local/state/centerway-gate1/'))
 

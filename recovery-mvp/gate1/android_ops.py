@@ -17,13 +17,78 @@ from handoff import bundle,recipient_fingerprint
 ROOT=Path(__file__).resolve().parents[2]
 REPO='miltonbula764-wq/centerway-basecamp'
 
+class AccessError(Exception):
+    """Fixed diagnostics only; never forward gh stderr, headers or connection data."""
+    def __init__(self,code):
+        super().__init__(code)
+        self.code=code
+
 def require(ok):
     if not ok: raise ValueError('operation_rejected')
 
 def run(args,data=None,timeout=240):
     r=sp.run(args,input=data,stdout=sp.PIPE,stderr=sp.PIPE,timeout=timeout)
-    require(r.returncode==0)
+    if r.returncode:
+        if args[:2]==['gh','api'] or args[:3]==['gh','codespace','list'] or args[:3]==['gh','codespace','ssh']:
+            status=re.search(rb'\bHTTP\s+([45][0-9]{2})\b',r.stderr)
+            suffix=status.group(1).decode() if status else 'failed'
+            if not status and r.stderr.rstrip().endswith(b': Forbidden'):suffix='403'
+            kind='ssh' if args[:3]==['gh','codespace','ssh'] else 'read'
+            raise AccessError('codespace_'+kind+'_'+suffix)
+        require(False)
     return r.stdout
+
+def resolve_codespace(spaces,selector=None):
+    require(isinstance(spaces,list))
+    if selector:
+        # Canonical name wins, even when another display label overlaps it.
+        matches=[s for s in spaces if s.get('name')==selector]
+        if not matches:
+            label=selector.replace(' ','-')
+            matches=[s for s in spaces if str(s.get('displayName','')).replace(' ','-')==label
+                     or str(s.get('name','')).startswith(label+'-')]
+    else:
+        matches=[s for s in spaces if s.get('state')=='Available']
+    if len(matches)!=1:raise AccessError('codespace_selection_ambiguous_or_missing')
+    selected=matches[0]
+    if not re.fullmatch(r'[a-z0-9-]+',selected.get('name','')):raise AccessError('codespace_name_invalid')
+    if selected.get('state')!='Available':raise AccessError('codespace_not_available')
+    return selected
+
+def inspect_codespace(selector=None):
+    if os.environ.get('GH_HOST','github.com')!='github.com':
+        raise AccessError('codespace_host_override_conflict')
+    try:
+        spaces=json.loads(run(['gh','codespace','list','--repo',REPO,'--json','name,displayName,state','--limit','100']))
+    except AccessError as error:
+        error.phase='list';raise
+    # Do not resolve a partial page as unique.
+    if len(spaces)>=100:raise AccessError('codespace_listing_limit')
+    selected=resolve_codespace(spaces,selector)
+    canonical=selected['name']
+    try:
+        detail=json.loads(run(['gh','api','--hostname','github.com','--method','GET','user/codespaces/'+canonical]))
+    except AccessError as error:
+        error.phase='canonical_get';error.canonical=canonical;raise
+    if detail.get('name')!=canonical or detail.get('repository',{}).get('full_name')!=REPO:
+        raise AccessError('codespace_detail_identity_mismatch')
+    if detail.get('state')!='Available':raise AccessError('codespace_not_available')
+    return {'name':canonical,'state':'Available','canonical_get_verified':True,
+            'selector_resolved':selector is not None and selector!=canonical}
+
+def diagnose(selector=None):
+    version=run(['gh','--version']).splitlines()[0]
+    match=re.search(rb'gh version ([0-9]+\.[0-9]+\.[0-9]+)',version)
+    result={'gh_version':match.group(1).decode() if match else 'unknown',
+            'mode':'read_only','ssh_verified':False,'real_backup':False,
+            'credential_override_present':bool(os.environ.get('GH_TOKEN') or os.environ.get('GITHUB_TOKEN'))}
+    try:
+        result.update(inspect_codespace(selector));result['status']='canonical_get_verified'
+    except AccessError as error:
+        result['status']=error.code
+        result['phase']=getattr(error,'phase','selection')
+        if hasattr(error,'canonical'):result['name']=error.canonical
+    return result
 
 def remote(codespace,command,data=None,timeout=240):
     require(re.fullmatch(r'[a-z0-9-]+',codespace) is not None)
@@ -48,20 +113,17 @@ def probe_receive(stream,expected):
 
 def prepare(sha,codespace=None,identity=None):
     package=checked_package(sha)
-    if not codespace:
-        spaces=json.loads(run(['gh','codespace','list','--repo',REPO,'--json','name,state','--limit','20']))
-        # Do not choose arbitrarily, create, start, upgrade or change billing.
-        require(len(spaces)==1 and spaces[0]['state']=='Available')
-        codespace=spaces[0]['name']
-    selected=json.loads(run(['gh','codespace','list','--repo',REPO,'--json','name,state','--limit','20']))
-    require(any(x['name']==codespace and x['state']=='Available' for x in selected))
+    # Read-only canonical GET before any SSH/staging; never pass a short label to gh.
+    codespace=inspect_codespace(codespace)['name']
     suffix=sha+'-'+secrets.token_hex(8)
     stage='.local/state/centerway-gate1/'+suffix
     # stage has only locally generated hex and fixed ASCII path components.
     prefix='"$HOME/'+stage+'"'
     script='umask 077; mkdir -p "$HOME/.local/state/centerway-gate1" && mkdir '+prefix+' && cd '+prefix+' && tar -xf -'
+    staged=False
     try:
         remote(codespace,script,package)
+        staged=True
         ready=json.loads(remote(codespace,'cd '+prefix+' && bash recovery-mvp/gate1/prepare_codespace.sh',timeout=600))
         require(ready['status']=='codespace_dependencies_ready')
         nonce=secrets.token_hex(32)
@@ -90,7 +152,11 @@ def prepare(sha,codespace=None,identity=None):
         target=directory/('receipt-'+suffix+'.json')
         with open(target,'x') as f: os.chmod(target,0o600);json.dump(receipt,f,sort_keys=True)
         return {'status':'preparation_verified','receipt':str(target),'real_backup':False,'ssh_synthetic_verified':True,'public_recipient_sha256':public_fp}
-    except Exception:
+    except Exception as error:
+        # A 404 fetching connection details in the first tar command ran no remote
+        # shell. Do not mask it as an unconfirmed cleanup (or retry on another host).
+        if not staged and isinstance(error,AccessError) and error.code=='codespace_ssh_404':
+            raise
         # No Neon resources exist in this entry point. Remove only this new package.
         try:remote(codespace,'rm -rf -- '+prefix+' && test ! -e '+prefix)
         except Exception:raise RuntimeError('remote_cleanup_unconfirmed') from None
@@ -122,20 +188,22 @@ def restore(receipt_path,archive,identity,expected):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('mode',choices=['prepare','restore','probe-receive'])
+    p.add_argument('mode',choices=['prepare','restore','probe-receive','diagnose'])
     p.add_argument('--reviewed-sha');p.add_argument('--codespace');p.add_argument('--identity')
     p.add_argument('--receipt');p.add_argument('--archive');p.add_argument('--expected')
     a=p.parse_args()
-    if a.mode=='prepare': result=prepare(a.reviewed_sha,a.codespace,a.identity)
+    if a.mode=='diagnose':result=diagnose(a.codespace)
+    elif a.mode=='prepare': result=prepare(a.reviewed_sha,a.codespace,a.identity)
     elif a.mode=='restore':result=restore(a.receipt,a.archive,a.identity,a.expected)
     else:
         import signal
         signal.alarm(180)
         result=probe_receive(sys.stdin.buffer,a.expected)
     print(json.dumps(result,sort_keys=True))
+    if a.mode=='diagnose' and result['status']!='canonical_get_verified':sys.exit(1)
 
 if __name__=='__main__':
     try:main()
     except Exception as error:
-        code='remote_cleanup_unconfirmed' if isinstance(error,RuntimeError) and error.args==('remote_cleanup_unconfirmed',) else 'operation_rejected'
+        code=error.code if isinstance(error,AccessError) else ('remote_cleanup_unconfirmed' if isinstance(error,RuntimeError) and error.args==('remote_cleanup_unconfirmed',) else 'operation_rejected')
         print('android_operation_failed; '+code+'; no real export was started by this tool',file=sys.stderr);sys.exit(1)

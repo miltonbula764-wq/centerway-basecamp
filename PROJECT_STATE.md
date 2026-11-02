@@ -297,3 +297,14 @@ Seven new guard tests and one PG17 baseline integration passed locally. Real
 workspace/Drive synthetic roundtrip byte equality and deletion404 proven.
 Agent Codespaces API403/invalid CLI identity block remote preparation/SSH proof;
 no real backup, new Neon resources/credentials, source/main/service changes or cost.
+
+## T03-G7 — canonical Codespace selection and SSH diagnostics
+
+Base PR #81/e41ae24. See recovery-mvp/gate1/SSH_DIAGNOSTICS.md. Fix unique Available
+selection with other stopped entries, canonical-name resolution and read-only GET
+identity check before SSH. Diagnostic exposes fixed status/phase/version without
+credentials/connection fields; wrapper no longer changes authentication implicitly.
+Local real diagnostic still blocked at list403; Android404 root cause remains
+unproven without canonical name/path/version evidence. Official gh2.46.0/2.103.3
+source confirms direct name lookup and connection flags. No Codespace started,
+Neon operation, age identity access, source/main/service change or real backup.
