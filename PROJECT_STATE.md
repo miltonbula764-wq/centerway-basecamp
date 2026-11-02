@@ -308,3 +308,15 @@ Local real diagnostic still blocked at list403; Android404 root cause remains
 unproven without canonical name/path/version evidence. Official gh2.46.0/2.103.3
 source confirms direct name lookup and connection flags. No Codespace started,
 Neon operation, age identity access, source/main/service change or real backup.
+
+## MVP FIRST — functional validation priority
+
+Infrastructure expansion suspended for isolated synthetic MVP validation; Gate1 is
+not a prerequisite of that test. See MVP_FIRST.md. Existing C03/API/PG17/TLS complete
+journey executed:4 tests passed. Actual frontend Chromium154.0.8037.57 suite:5 passed,
+including new positive recovery continuation in the existing form-only journey.
+Migrations/engines/API/frontend unchanged. Synthetic admin policy is explicit and
+bounded; review fixtures are not human/independent proof. Recovery reaches minimum,
+causal attribution remains not_established. Mobile390x844 emulated. No T01 operations,
+production/cloud/credentials/main changes or paid services. Next product action:
+human acceptance of the same local journey with a concrete fictional business case.

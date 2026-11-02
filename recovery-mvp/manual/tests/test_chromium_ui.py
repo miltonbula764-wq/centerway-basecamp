@@ -263,6 +263,29 @@ class ActualUI(unittest.TestCase):
         current_report=self.dialog.get_by_label('Relatório persistido',exact=True).locator('option').last.get_attribute('value')
         self.fill({'Relatório persistido':current_report})
         executed=self.send()['result'];self.assertEqual(executed['status'],'executed');self.next()
+        # MVP-FIRST: positive recovery through actual forms, not only API fixtures.
+        # Synthetic windows are time-scaled; this is not a calendar-scale pilot.
+        anchor=datetime.fromisoformat(executed['recorded_at'])
+        for revision,start,end in [(3,-4,-2),(4,2,4)]:
+            self.action('append_value','contract')
+            self.fill({'Copiar registo para nova revisão':contract+'|1','Motivo do registo':'SYNTHETIC MVP-FIRST comparable outcome window','Início da janela':(anchor+timedelta(seconds=start)).isoformat(),'Fim da janela':(anchor+timedelta(seconds=end)).isoformat()})
+            self.assertEqual(self.send()['result']['revision'],revision+1);self.next()
+        remaining=(anchor+timedelta(seconds=4)-datetime.now(timezone.utc)).total_seconds()
+        if remaining>0:self.page.wait_for_timeout(remaining*1000+100)
+        for revision,value in [(4,8),(5,15)]:
+            self.action('append_value','evidence')
+            self.fill({'Motivo do registo':'SYNTHETIC MVP-FIRST declared measurement; no causal proof','Usar medição de contrato/versão':contract+'|'+str(revision),'Tipo de evidência':'outcome','Qualidade declarada':'verified','Valor observado':value,'Referência documental':'synthetic://mvp-first/outcome/'+str(revision),'SHA-256 do documento':hashlib.sha256(f'SYNTHETIC {revision} {value}'.encode()).hexdigest()})
+            self.send();self.next()
+        self.action('plan_recovery')
+        self.fill({'Decisão de intervenção':executed['id'],'Janela anterior':4,'Janela posterior':5,'Motivo do plano':'SYNTHETIC MVP-FIRST verify contracted minimum after authorized synthetic action'})
+        positive_plan=self.send()['result']['id'];self.next()
+        self.action('evaluate_recovery');self.fill({'Plano de recuperação':positive_plan})
+        self.dialog.get_by_role('button',name='Usar instante atual — Instante de corte',exact=True).click()
+        recovery=self.send()['result']['result']
+        self.assertEqual(recovery['status'],'recuperacao_completa')
+        self.assertTrue(recovery['execution_succeeded']);self.assertTrue(recovery['improvement_observed'])
+        self.assertEqual(recovery['causal_attribution'],'not_established')
+        self.assertEqual(recovery['independent_verification'],'not_established');self.next()
         self.action('undo');self.fill({'Execução a reverter':executed['execution_id']})
         undone=self.send()['result'];self.assertEqual(undone['undo_of'],executed['execution_id'])
         self.exit_editor()
