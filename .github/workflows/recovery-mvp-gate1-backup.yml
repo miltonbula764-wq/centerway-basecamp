@@ -1,0 +1,69 @@
+name: CENTERWAY G2 manual export (SECURITY BLOCKED)
+on:
+  workflow_dispatch:
+    inputs:
+      reviewed_sha:
+        description: Full reviewed commit SHA
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: centerway-g2-export
+  cancel-in-progress: false
+jobs:
+  security-block:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - run: |
+          echo 'BLOCKED: independent review absent; credential controls and external custody not approved.'
+          exit 1
+  export:
+    # Literal lock: no input/variable/previous TCP exemption can enable credentials.
+    # Removing this requires a separate reviewed change and explicit authorization.
+    if: ${{ false }}
+    runs-on: ubuntu-24.04
+    environment: centerway-g2-sensitive-export
+    timeout-minutes: 8
+    steps:
+      - name: Require exact revision and reject debug logging
+        env:
+          REVIEWED_SHA: ${{ inputs.reviewed_sha }}
+          STEP_DEBUG: ${{ secrets.ACTIONS_STEP_DEBUG }}
+          RUNNER_DEBUG_FLAG: ${{ secrets.ACTIONS_RUNNER_DEBUG }}
+        run: |
+          test "$REVIEWED_SHA" = "$GITHUB_SHA"
+          test "$STEP_DEBUG" != true
+          test "$RUNNER_DEBUG_FLAG" != true
+          test "${RUNNER_DEBUG:-0}" != 1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12'}
+      - run: bash recovery-mvp/gate1/install-ci-tools.sh
+      - run: python3 -m pip install -r recovery-mvp/api/requirements.txt
+      - name: Private config file and stream encryption
+        env:
+          CENTERWAY_G2_CONFIG: ${{ secrets.CENTERWAY_G2_CONFIG }}
+          AGE_RECIPIENT: ${{ vars.CENTERWAY_G2_AGE_RECIPIENT }}
+        run: |
+          umask 077
+          mkdir "$RUNNER_TEMP/g2-private"
+          python3 - <<'PY'
+          import os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'g2-private/config.json'
+          p.write_text(os.environ['CENTERWAY_G2_CONFIG'])
+          p.chmod(0o600)
+          PY
+          PATH=/usr/lib/postgresql/17/bin:$PATH python3 recovery-mvp/gate1/recovery.py export --config "$RUNNER_TEMP/g2-private/config.json" --archive "$RUNNER_TEMP/g2-private/bundle" --recipient "$AGE_RECIPIENT"
+      - name: Ciphertext only; TEMPORARY transfer, never durable custody
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: encrypted-recovery
+          path: ${{ runner.temp }}/g2-private/bundle/
+          retention-days: 1
+          if-no-files-found: error
+      - name: Remove private temporary files
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/g2-private"

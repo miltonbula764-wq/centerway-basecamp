@@ -215,3 +215,25 @@ class ManagedTests(unittest.TestCase):
             self.assertEqual(status,302); self.assertIsNone(body); self.assertEqual(captured,[])
         finally:
             server.shutdown(); server.server_close(); thread.join(timeout=5)
+
+    def test_11_non_secret_browser_allowlist_override_preserves_authentication(self):
+        from unittest.mock import patch
+        from render_app import load_render_app
+        from werkzeug.test import Client
+        from werkzeug.wrappers import Response
+        config=copy.deepcopy(self.config); config['synthetic_only']=True
+        origin='https://value-recovery-radar.lovable.app'
+        env=dict(RENDER='true',RENDER_SERVICE_ID='srv-test',RENDER_EXTERNAL_HOSTNAME='centerway-test.onrender.com',CENTERWAY_MANAGED_CONFIG=json.dumps(config),CENTERWAY_BROWSER_ORIGINS=json.dumps([origin]))
+        with patch.dict(os.environ,env):
+            client=Client(load_render_app(),Response)
+            preflight=client.open('/v1/sessions',method='OPTIONS',base_url='https://centerway-test.onrender.com',headers={'Origin':origin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'Content-Type'})
+            self.assertEqual(preflight.status_code,204)
+            self.assertEqual(preflight.headers['Access-Control-Allow-Origin'],origin)
+            denied=client.get('/v1/session',base_url='https://centerway-test.onrender.com',headers={'Origin':origin})
+            self.assertEqual(denied.status_code,401)
+            rejected=client.get('/v1/session',base_url='https://centerway-test.onrender.com',headers={'Origin':'https://untrusted.invalid'})
+            self.assertEqual(rejected.status_code,403)
+            self.assertNotIn('Access-Control-Allow-Origin',rejected.headers)
+        for invalid in ['[]','"https://value-recovery-radar.lovable.app"','[null]','["*"]','["https://value-recovery-radar.lovable.app/path"]']:
+            with self.subTest(invalid=invalid), patch.dict(os.environ,{**env,'CENTERWAY_BROWSER_ORIGINS':invalid}):
+                with self.assertRaises(RuntimeError): load_render_app()

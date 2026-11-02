@@ -1,0 +1,12 @@
+{
+  "namespace": "adversarial-t01",
+  "synthetic_only": true,
+  "document_version": 1,
+  "title": "Calendário/nota logística sintética",
+  "period_start": "2026-10-06T00:00:00Z",
+  "period_end": "2026-10-13T00:00:00Z",
+  "observation": "Feriado regional/greve logística coincide com S6",
+  "individual_impact": null,
+  "hypothesis": "Possível fator externo, sem evidência individual",
+  "causality": "não estabelecida"
+}

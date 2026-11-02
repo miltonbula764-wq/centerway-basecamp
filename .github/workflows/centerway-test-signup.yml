@@ -1,0 +1,27 @@
+name: CENTERWAY single-use test signup
+on:
+  pull_request:
+    paths:
+      - 'recovery-mvp/api/app.py'
+      - 'recovery-mvp/api/session_store.py'
+      - 'recovery-mvp/api/test_invited_signup.py'
+      - 'recovery-mvp/managed/sql/002_test_accounts.sql'
+      - '.github/workflows/centerway-test-signup.yml'
+  push:
+    branches:
+      - 'mvp/test-signup-invite-20261102'
+permissions:
+  contents: read
+jobs:
+  invited-signup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install existing API dependencies
+        run: pip install -r recovery-mvp/api/requirements.txt
+      - name: Test invite gating and login behavior
+        working-directory: recovery-mvp/api
+        run: python -m unittest -v test_invited_signup

@@ -1,0 +1,24 @@
+name: CENTERWAY G2 isolated encrypted recovery
+on:
+  pull_request:
+    paths: ['recovery-mvp/gate1/**', '.github/workflows/recovery-mvp-gate1-backup*.yml']
+permissions:
+  contents: read
+jobs:
+  synthetic-recovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with: {python-version: '3.12'}
+      - run: bash recovery-mvp/gate1/install-ci-tools.sh
+      - run: python3 -m pip install -r recovery-mvp/api/requirements.txt PyYAML==6.0.3
+      - run: |
+          curl -fLsS https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_linux_amd64.tar.gz -o "$RUNNER_TEMP/lint.tgz"
+          printf '023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757  %s\n' "$RUNNER_TEMP/lint.tgz" | sha256sum -c --status
+          tar -xzf "$RUNNER_TEMP/lint.tgz" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" .github/workflows/recovery-mvp-gate1-backup*.yml
+      - name: Real synthetic PostgreSQL17 verified TLS and networkless restore
+        run: PATH=/usr/lib/postgresql/17/bin:$PATH python3 -B -m unittest discover -s recovery-mvp/gate1/tests -v

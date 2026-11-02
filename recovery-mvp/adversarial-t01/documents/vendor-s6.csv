@@ -1,0 +1,2 @@
+namespace,synthetic_only,document_version,week,period_start,period_end,reported_hours,unit,aggregation,eligibility
+adversarial-t01,true,1,S6,2026-10-06T00:00:00Z,2026-10-13T00:00:00Z,22,horas,media_aritmetica,P1_incluido

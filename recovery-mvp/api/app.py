@@ -74,6 +74,8 @@ class Database:
             raise APIError(503, 'database_configuration')
         with psycopg.connect(user['dsn'], connect_timeout=5) as conn:
             with conn.cursor() as cur:
+                if kind == 'manual_context':
+                    cur.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY')
                 cur.execute("SET LOCAL statement_timeout='15s'")
                 cur.execute("SET LOCAL lock_timeout='3s'")
                 cur.execute("""SELECT session_user::text,current_user::text,
@@ -90,6 +92,42 @@ class Database:
                     raise APIError(503, 'database_identity_rejected')
                 if kind == 'identity':
                     return row[0]
+                if kind == 'manual_context':
+                    tenant, client = params
+                    cur.execute('SELECT centerway.client_journey(%s,%s) IS NOT NULL', params)
+                    if not cur.fetchone()[0]:
+                        raise APIError(403, 'forbidden')
+                    # Fixed, read-only tables; values remain parameters. RLS uses session_user.
+                    collections = {
+                        'factors': ('investigation_factor_versions', 'tenant_id=%s AND client_id=%s', params),
+                        'evidence': ('investigation_evidence_versions', 'tenant_id=%s AND client_id=%s', params),
+                        'verifications': ('investigation_verification_versions', 'tenant_id=%s AND client_id=%s', params),
+                        'catalog': ('intervention_catalog', 'tenant_id=%s', (tenant,)),
+                        'policies': ('intervention_policies', 'tenant_id=%s AND client_id=%s AND principal=session_user', params),
+                        'revocations': ('intervention_revocations', 'tenant_id=%s AND client_id=%s AND policy_id IN (SELECT id FROM centerway.intervention_policies WHERE tenant_id=%s AND client_id=%s AND principal=session_user)', (*params, *params)),
+                        'resources': ('sandbox_flags', 'tenant_id=%s AND client_id=%s', params),
+                    }
+                    result = {'version': 't02-v1', 'tenant_id': tenant, 'client_id': client,
+                              'principal': row[0], 'limit_per_collection': 100, 'truncated': {}}
+                    for key, (table, clause, values) in collections.items():
+                        # Identifiers/clauses above are internal constants, never request data.
+                        cur.execute('SELECT to_jsonb(t) FROM centerway.' + table + ' t WHERE ' + clause + (' ORDER BY policy_id DESC' if key == 'revocations' else ' ORDER BY id DESC') + (', revision DESC' if key in ('factors','evidence','verifications') else '') + ' LIMIT 101', values)
+                        rows = [r[0] for r in cur.fetchall()]
+                        result[key], result['truncated'][key] = rows[:100], len(rows) > 100
+                    cur.execute("""SELECT to_jsonb(t) FROM centerway.audit_log t
+                        WHERE tenant_id=%s AND snapshot->>'client_id'=%s
+                        AND (entity <> 'intervention_policies' OR snapshot->>'principal'=session_user::text)
+                        AND (entity <> 'intervention_revocations' OR snapshot->>'policy_id' IN (
+                            SELECT id::text FROM centerway.intervention_policies WHERE tenant_id=%s AND client_id=%s AND principal=session_user))
+                        ORDER BY sequence DESC LIMIT 101""", (*params, *params))
+                    rows = [r[0] for r in cur.fetchall()]
+                    # Match journey's HTTP sanitization; immutable DB audit stays intact.
+                    for event in rows[:100]:
+                        snapshot = event['snapshot']
+                        if event['entity'] == 'operation_receipts' and snapshot.get('status') == 'error':
+                            snapshot['result'] = {'sqlstate': snapshot['result'].get('sqlstate', ''), 'code': 'engine_rejected'}
+                    result['audit'], result['truncated']['audit'] = rows[:100], len(rows) > 100
+                    return result
                 if kind == 'clients':
                     cur.execute('SELECT client_id::text,display_name FROM centerway.list_authorized_clients(%s,%s::uuid[],%s,%s)', params)
                     return [dict(client_id=row[0], display_name=row[1]) for row in cur.fetchall()]
@@ -128,6 +166,22 @@ def create_app(config):
     sessions = session_store(config)
     db_adapter = Database(config.get('demo', False))
     dummy = password_hash(secrets.token_urlsafe(32))
+    # Explicitly optional. Only the isolated synthetic demo may accept an invite.
+    signup_key = os.environ.get('CENTERWAY_TEST_SIGNUP_KEY', '')
+    signup_enabled = (
+        config.get('synthetic_only') is True
+        and config.get('session_store') == 'postgres'
+        and 'alice' in users
+        and len(signup_key) >= 32
+    )
+
+    def resolve_user(username):
+        if username in users:
+            return users[username]
+        if not signup_enabled:
+            return None
+        encoded = session_call('get_test_user', username)
+        return {**users['alice'], 'password_hash': encoded} if encoded else None
     attempts, limiter_lock = OrderedDict(), threading.Lock()
 
     def version(user):
@@ -171,7 +225,7 @@ def create_app(config):
             raise APIError(401, 'authentication_required')
         digest = hashlib.sha256(auth[7:].encode()).hexdigest()
         row = session_call('get', digest)
-        user = users.get(row[0]) if row else None
+        user = resolve_user(row[0]) if row else None
         if not user or row[1] != version(user) or row[2] <= time.time():
             raise APIError(401, 'session_expired_or_invalid')
         g.username, g.user, g.digest = row[0], user, digest
@@ -191,7 +245,7 @@ def create_app(config):
             if request.headers.get('Access-Control-Request-Method') not in (set(methods) & {'GET', 'POST', 'DELETE'}) or not headers <= {'authorization', 'content-type'}:
                 raise APIError(403, 'cors_forbidden')
             return '', 204
-        if request.path not in ('/health', '/v1/sessions'):
+        if request.path not in ('/health', '/v1/sessions', '/v1/test-signup'):
             authenticate()
 
     @app.after_request
@@ -239,7 +293,7 @@ def create_app(config):
             attempts[ip] = recent + [now]
             while len(attempts) > 2048:
                 attempts.popitem(last=False)
-        user = users.get(data['username'])
+        user = resolve_user(data['username'])
         valid = password_matches(data['password'], user['password_hash'] if user else dummy)
         if not user or not valid:
             raise APIError(401, 'invalid_credentials')
@@ -247,6 +301,31 @@ def create_app(config):
         token = secrets.token_urlsafe(32)
         session_call('put', hashlib.sha256(token.encode()).hexdigest(), data['username'], version(user), time.time()+ttl)
         return jsonify(access_token=token, token_type='Bearer', expires_in=ttl, demo=bool(config.get('demo'))), 201
+
+    @app.post('/v1/test-signup')
+    def test_signup():
+        # Owner-controlled invitation for the synthetic sandbox. Never open registration.
+        if not signup_enabled:
+            raise APIError(404, 'not_found')
+        data = body()
+        if set(data) != {'username', 'password', 'invite_code'}:
+            raise APIError(422, 'invalid_parameters')
+        username, password, invite_code = data['username'], data['password'], data['invite_code']
+        if (not isinstance(username, str) or
+            not re.fullmatch(r'[a-z][a-z0-9_]{2,31}', username) or
+            username in users or
+            not isinstance(password, str) or not 12 <= len(password) <= 128 or
+            not isinstance(invite_code, str) or len(invite_code) > 256):
+            raise APIError(422, 'invalid_parameters')
+        # Constant-time compare; no invite or password is ever logged.
+        if not hmac.compare_digest(
+            hashlib.sha256(invite_code.encode()).digest(),
+            hashlib.sha256(signup_key.encode()).digest(),
+        ):
+            raise APIError(403, 'invite_invalid')
+        if not session_call('register_test_user', username, password_hash(password)):
+            raise APIError(409, 'test_account_already_created')
+        return jsonify(created=True, synthetic_only=True), 201
 
     @app.get('/v1/session')
     def session_info():
@@ -301,6 +380,13 @@ def create_app(config):
             if receipt.get('status') == 'error':
                 receipt['result'] = {'sqlstate': receipt['result'].get('sqlstate', ''), 'code': 'engine_rejected'}
         return jsonify(data=result, demo=bool(config.get('demo')))
+
+    @app.get('/v1/tenants/<tenant>/clients/<client>/manual-context')
+    def manual_context(tenant, client):
+        tenant, client = scope(tenant, client)
+        if request.args:
+            raise APIError(422, 'invalid_parameters')
+        return jsonify(data=db_call(g.user, 'manual_context', (tenant, client)), demo=bool(config.get('demo')))
 
     @app.post('/v1/tenants/<tenant>/clients/<client>/operations')
     def operate(tenant, client):

@@ -1,0 +1,543 @@
+{
+  "namespace": "adversarial-t01",
+  "version": 1,
+  "synthetic_only": true,
+  "tenant_id": "110577e9-2d2c-5288-93f2-2ba53f86f074",
+  "tenant_name": "AtlasOps Cloud",
+  "client_id": "073b083a-e6f1-590a-882b-063dfac5f1da",
+  "client_name": "Meridian Distribuição",
+  "contract_id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+  "records": [
+    {
+      "kind": "source",
+      "id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: documento sintético v1; não prova independente",
+      "data": {
+        "name": "SYNTHETIC T01 — contract",
+        "locator": "synthetic://adversarial-t01/documents/contract.json#v1",
+        "method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído"
+      }
+    },
+    {
+      "kind": "source",
+      "id": "77629d08-5569-5dd1-93e6-7edd9b6ff4ec",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: documento sintético v1; não prova independente",
+      "data": {
+        "name": "SYNTHETIC T01 — usage",
+        "locator": "synthetic://adversarial-t01/documents/usage.json#v1",
+        "method": "Documento contextual sintético v1; não é medição compatível de resultado"
+      }
+    },
+    {
+      "kind": "source",
+      "id": "f22808dc-cd16-5ec6-9ee9-49c15ef03882",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: documento sintético v1; não prova independente",
+      "data": {
+        "name": "SYNTHETIC T01 — vendor-s6",
+        "locator": "synthetic://adversarial-t01/documents/vendor-s6.json#v1",
+        "method": "Documento contextual sintético v1; não é medição compatível de resultado"
+      }
+    },
+    {
+      "kind": "source",
+      "id": "531b443a-b471-5cc9-b76f-f943c3b4cc53",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: documento sintético v1; não prova independente",
+      "data": {
+        "name": "SYNTHETIC T01 — integration",
+        "locator": "synthetic://adversarial-t01/documents/integration.json#v1",
+        "method": "Documento contextual sintético v1; não é medição compatível de resultado"
+      }
+    },
+    {
+      "kind": "source",
+      "id": "2892af57-373f-5253-b5c0-971c53684701",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: documento sintético v1; não prova independente",
+      "data": {
+        "name": "SYNTHETIC T01 — external",
+        "locator": "synthetic://adversarial-t01/documents/external.json#v1",
+        "method": "Documento contextual sintético v1; não é medição compatível de resultado"
+      }
+    },
+    {
+      "kind": "source",
+      "id": "a8b30426-0c33-5355-85c5-eec07a5d4c95",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: documento sintético v1; não prova independente",
+      "data": {
+        "name": "SYNTHETIC T01 — quality-s7",
+        "locator": "synthetic://adversarial-t01/documents/quality-s7.json#v1",
+        "method": "Documento contextual sintético v1; não é medição compatível de resultado"
+      }
+    },
+    {
+      "kind": "source",
+      "id": "9039b1b0-ae15-5d07-ad1b-b17422d19b16",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: documento sintético v1; não prova independente",
+      "data": {
+        "name": "SYNTHETIC T01 — requests",
+        "locator": "synthetic://adversarial-t01/documents/requests.json#v1",
+        "method": "Documento contextual sintético v1; não é medição compatível de resultado"
+      }
+    },
+    {
+      "kind": "contract",
+      "id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: contrato assinado sintético; janela global [01/09,01/11)",
+      "data": {
+        "objective": "Reduzir tempo mediano de resolução de incidentes P2/P3 elegíveis; P1 excluído",
+        "expected_outcome": "Passar de 40h para no máximo 24h até 31/10/2026; medição semanal; contrato sintético assinado 01/09/2026",
+        "indicator": "Tempo mediano de resolução de incidentes elegíveis",
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "direction": "lower",
+        "baseline": 40,
+        "minimum_acceptable": 24,
+        "target": 24,
+        "baseline_start": "2026-08-01T00:00:00Z",
+        "baseline_end": "2026-09-01T00:00:00Z",
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "baseline_reference": "synthetic://adversarial-t01/documents/contract.json#v1",
+        "period_start": "2026-09-01T00:00:00Z",
+        "period_end": "2026-11-01T00:00:00Z"
+      }
+    },
+    {
+      "kind": "contract",
+      "id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+      "expected_revision": 1,
+      "reason": "adversarial-t01: S1; revisão de janela explícita, sem alterar significado ou baseline",
+      "data": {
+        "objective": "Reduzir tempo mediano de resolução de incidentes P2/P3 elegíveis; P1 excluído",
+        "expected_outcome": "Passar de 40h para no máximo 24h até 31/10/2026; medição semanal; contrato sintético assinado 01/09/2026",
+        "indicator": "Tempo mediano de resolução de incidentes elegíveis",
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "direction": "lower",
+        "baseline": 40,
+        "minimum_acceptable": 24,
+        "target": 24,
+        "baseline_start": "2026-08-01T00:00:00Z",
+        "baseline_end": "2026-09-01T00:00:00Z",
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "baseline_reference": "synthetic://adversarial-t01/documents/contract.json#v1",
+        "period_start": "2026-09-01T00:00:00Z",
+        "period_end": "2026-09-08T00:00:00Z"
+      }
+    },
+    {
+      "kind": "evidence",
+      "id": "47a0ba1c-b35c-5497-9ef9-7ce8da29f7ae",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: S1 sintética, qualidade declarada; não prova independente",
+      "data": {
+        "contract_id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+        "contract_revision": 2,
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "evidence_type": "outcome",
+        "quality": "verified",
+        "observed_value": 39,
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "period_start": "2026-09-01T00:00:00Z",
+        "period_end": "2026-09-08T00:00:00Z",
+        "reference": "synthetic://adversarial-t01/documents/s1.json#v1",
+        "content_sha256": "FROM_DOCUMENT"
+      }
+    },
+    {
+      "kind": "contract",
+      "id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+      "expected_revision": 2,
+      "reason": "adversarial-t01: S2; revisão de janela explícita, sem alterar significado ou baseline",
+      "data": {
+        "objective": "Reduzir tempo mediano de resolução de incidentes P2/P3 elegíveis; P1 excluído",
+        "expected_outcome": "Passar de 40h para no máximo 24h até 31/10/2026; medição semanal; contrato sintético assinado 01/09/2026",
+        "indicator": "Tempo mediano de resolução de incidentes elegíveis",
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "direction": "lower",
+        "baseline": 40,
+        "minimum_acceptable": 24,
+        "target": 24,
+        "baseline_start": "2026-08-01T00:00:00Z",
+        "baseline_end": "2026-09-01T00:00:00Z",
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "baseline_reference": "synthetic://adversarial-t01/documents/contract.json#v1",
+        "period_start": "2026-09-08T00:00:00Z",
+        "period_end": "2026-09-15T00:00:00Z"
+      }
+    },
+    {
+      "kind": "evidence",
+      "id": "d33c3a21-b3e5-5fa1-8a4c-1a400c93dbdb",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: S2 sintética, qualidade declarada; não prova independente",
+      "data": {
+        "contract_id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+        "contract_revision": 3,
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "evidence_type": "outcome",
+        "quality": "verified",
+        "observed_value": 35,
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "period_start": "2026-09-08T00:00:00Z",
+        "period_end": "2026-09-15T00:00:00Z",
+        "reference": "synthetic://adversarial-t01/documents/s2.json#v1",
+        "content_sha256": "FROM_DOCUMENT"
+      }
+    },
+    {
+      "kind": "contract",
+      "id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+      "expected_revision": 3,
+      "reason": "adversarial-t01: S3; revisão de janela explícita, sem alterar significado ou baseline",
+      "data": {
+        "objective": "Reduzir tempo mediano de resolução de incidentes P2/P3 elegíveis; P1 excluído",
+        "expected_outcome": "Passar de 40h para no máximo 24h até 31/10/2026; medição semanal; contrato sintético assinado 01/09/2026",
+        "indicator": "Tempo mediano de resolução de incidentes elegíveis",
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "direction": "lower",
+        "baseline": 40,
+        "minimum_acceptable": 24,
+        "target": 24,
+        "baseline_start": "2026-08-01T00:00:00Z",
+        "baseline_end": "2026-09-01T00:00:00Z",
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "baseline_reference": "synthetic://adversarial-t01/documents/contract.json#v1",
+        "period_start": "2026-09-15T00:00:00Z",
+        "period_end": "2026-09-22T00:00:00Z"
+      }
+    },
+    {
+      "kind": "evidence",
+      "id": "d80eb286-0479-5f12-96b1-f1a4c293fb89",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: S3 sintética, qualidade declarada; não prova independente",
+      "data": {
+        "contract_id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+        "contract_revision": 4,
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "evidence_type": "outcome",
+        "quality": "verified",
+        "observed_value": 29,
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "period_start": "2026-09-15T00:00:00Z",
+        "period_end": "2026-09-22T00:00:00Z",
+        "reference": "synthetic://adversarial-t01/documents/s3.json#v1",
+        "content_sha256": "FROM_DOCUMENT"
+      }
+    },
+    {
+      "kind": "contract",
+      "id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+      "expected_revision": 4,
+      "reason": "adversarial-t01: S4; revisão de janela explícita, sem alterar significado ou baseline",
+      "data": {
+        "objective": "Reduzir tempo mediano de resolução de incidentes P2/P3 elegíveis; P1 excluído",
+        "expected_outcome": "Passar de 40h para no máximo 24h até 31/10/2026; medição semanal; contrato sintético assinado 01/09/2026",
+        "indicator": "Tempo mediano de resolução de incidentes elegíveis",
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "direction": "lower",
+        "baseline": 40,
+        "minimum_acceptable": 24,
+        "target": 24,
+        "baseline_start": "2026-08-01T00:00:00Z",
+        "baseline_end": "2026-09-01T00:00:00Z",
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "baseline_reference": "synthetic://adversarial-t01/documents/contract.json#v1",
+        "period_start": "2026-09-22T00:00:00Z",
+        "period_end": "2026-09-29T00:00:00Z"
+      }
+    },
+    {
+      "kind": "evidence",
+      "id": "7a040932-7387-5105-8a7c-fb3ab8a86e27",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: S4 sintética, qualidade declarada; não prova independente",
+      "data": {
+        "contract_id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+        "contract_revision": 5,
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "evidence_type": "outcome",
+        "quality": "verified",
+        "observed_value": 30,
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "period_start": "2026-09-22T00:00:00Z",
+        "period_end": "2026-09-29T00:00:00Z",
+        "reference": "synthetic://adversarial-t01/documents/s4.json#v1",
+        "content_sha256": "FROM_DOCUMENT"
+      }
+    },
+    {
+      "kind": "contract",
+      "id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+      "expected_revision": 5,
+      "reason": "adversarial-t01: S5; revisão de janela explícita, sem alterar significado ou baseline",
+      "data": {
+        "objective": "Reduzir tempo mediano de resolução de incidentes P2/P3 elegíveis; P1 excluído",
+        "expected_outcome": "Passar de 40h para no máximo 24h até 31/10/2026; medição semanal; contrato sintético assinado 01/09/2026",
+        "indicator": "Tempo mediano de resolução de incidentes elegíveis",
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "direction": "lower",
+        "baseline": 40,
+        "minimum_acceptable": 24,
+        "target": 24,
+        "baseline_start": "2026-08-01T00:00:00Z",
+        "baseline_end": "2026-09-01T00:00:00Z",
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "baseline_reference": "synthetic://adversarial-t01/documents/contract.json#v1",
+        "period_start": "2026-09-29T00:00:00Z",
+        "period_end": "2026-10-06T00:00:00Z"
+      }
+    },
+    {
+      "kind": "evidence",
+      "id": "38a1a351-8181-5743-8204-5bc59355099b",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: S5 sintética, qualidade declarada; não prova independente",
+      "data": {
+        "contract_id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+        "contract_revision": 6,
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "evidence_type": "outcome",
+        "quality": "verified",
+        "observed_value": 33,
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "period_start": "2026-09-29T00:00:00Z",
+        "period_end": "2026-10-06T00:00:00Z",
+        "reference": "synthetic://adversarial-t01/documents/s5.json#v1",
+        "content_sha256": "FROM_DOCUMENT"
+      }
+    },
+    {
+      "kind": "contract",
+      "id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+      "expected_revision": 6,
+      "reason": "adversarial-t01: S6; revisão de janela explícita, sem alterar significado ou baseline",
+      "data": {
+        "objective": "Reduzir tempo mediano de resolução de incidentes P2/P3 elegíveis; P1 excluído",
+        "expected_outcome": "Passar de 40h para no máximo 24h até 31/10/2026; medição semanal; contrato sintético assinado 01/09/2026",
+        "indicator": "Tempo mediano de resolução de incidentes elegíveis",
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "direction": "lower",
+        "baseline": 40,
+        "minimum_acceptable": 24,
+        "target": 24,
+        "baseline_start": "2026-08-01T00:00:00Z",
+        "baseline_end": "2026-09-01T00:00:00Z",
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "baseline_reference": "synthetic://adversarial-t01/documents/contract.json#v1",
+        "period_start": "2026-10-06T00:00:00Z",
+        "period_end": "2026-10-13T00:00:00Z"
+      }
+    },
+    {
+      "kind": "evidence",
+      "id": "7e7f7108-8fd0-5f17-adaf-390fe6c538c2",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: S6 sintética, qualidade declarada; não prova independente",
+      "data": {
+        "contract_id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+        "contract_revision": 7,
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "evidence_type": "outcome",
+        "quality": "verified",
+        "observed_value": 37,
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "period_start": "2026-10-06T00:00:00Z",
+        "period_end": "2026-10-13T00:00:00Z",
+        "reference": "synthetic://adversarial-t01/documents/s6.json#v1",
+        "content_sha256": "FROM_DOCUMENT"
+      }
+    },
+    {
+      "kind": "contract",
+      "id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+      "expected_revision": 7,
+      "reason": "adversarial-t01: S7; revisão de janela explícita, sem alterar significado ou baseline",
+      "data": {
+        "objective": "Reduzir tempo mediano de resolução de incidentes P2/P3 elegíveis; P1 excluído",
+        "expected_outcome": "Passar de 40h para no máximo 24h até 31/10/2026; medição semanal; contrato sintético assinado 01/09/2026",
+        "indicator": "Tempo mediano de resolução de incidentes elegíveis",
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "direction": "lower",
+        "baseline": 40,
+        "minimum_acceptable": 24,
+        "target": 24,
+        "baseline_start": "2026-08-01T00:00:00Z",
+        "baseline_end": "2026-09-01T00:00:00Z",
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "baseline_reference": "synthetic://adversarial-t01/documents/contract.json#v1",
+        "period_start": "2026-10-13T00:00:00Z",
+        "period_end": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "kind": "evidence",
+      "id": "a65ef836-7eaf-5604-b21a-8c4b8a90f047",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: S7 sintética, qualidade declarada; não prova independente",
+      "data": {
+        "contract_id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+        "contract_revision": 8,
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "evidence_type": "outcome",
+        "quality": "partial",
+        "observed_value": 36,
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "period_start": "2026-10-13T00:00:00Z",
+        "period_end": "2026-10-20T00:00:00Z",
+        "reference": "synthetic://adversarial-t01/documents/s7.json#v1",
+        "content_sha256": "FROM_DOCUMENT"
+      }
+    },
+    {
+      "kind": "contract",
+      "id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+      "expected_revision": 8,
+      "reason": "adversarial-t01: S8; revisão de janela explícita, sem alterar significado ou baseline",
+      "data": {
+        "objective": "Reduzir tempo mediano de resolução de incidentes P2/P3 elegíveis; P1 excluído",
+        "expected_outcome": "Passar de 40h para no máximo 24h até 31/10/2026; medição semanal; contrato sintético assinado 01/09/2026",
+        "indicator": "Tempo mediano de resolução de incidentes elegíveis",
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "direction": "lower",
+        "baseline": 40,
+        "minimum_acceptable": 24,
+        "target": 24,
+        "baseline_start": "2026-08-01T00:00:00Z",
+        "baseline_end": "2026-09-01T00:00:00Z",
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "baseline_reference": "synthetic://adversarial-t01/documents/contract.json#v1",
+        "period_start": "2026-10-20T00:00:00Z",
+        "period_end": "2026-10-27T00:00:00Z"
+      }
+    },
+    {
+      "kind": "evidence",
+      "id": "75c6494a-f5e2-5854-a132-b394dcee4f17",
+      "expected_revision": 0,
+      "reason": "adversarial-t01: S8 sintética, qualidade declarada; não prova independente",
+      "data": {
+        "contract_id": "6bc03825-1d3d-5570-9fd9-1e182e3c8379",
+        "contract_revision": 9,
+        "source_id": "0eed9572-fd2c-53b1-a531-ad6e56c58cf6",
+        "source_revision": 1,
+        "evidence_type": "outcome",
+        "quality": "verified",
+        "observed_value": 34,
+        "unit": "horas",
+        "measurement_method": "Mediana de horas de resolução; incidentes P2/P3 elegíveis; P1 excluído",
+        "period_start": "2026-10-20T00:00:00Z",
+        "period_end": "2026-10-27T00:00:00Z",
+        "reference": "synthetic://adversarial-t01/documents/s8.json#v1",
+        "content_sha256": "FROM_DOCUMENT"
+      }
+    }
+  ],
+  "discovery_inputs": [
+    {
+      "id": "e5842956-9aa4-5cca-84f7-ebc03895e589",
+      "contract_revision": 8,
+      "rule_id": "4724e09c-6960-54b2-a57c-36d4115f3e95",
+      "factor": {
+        "scope": "internal",
+        "category": "integration_configuration",
+        "hypothesis": "O atraso de configuração pode impedir valor; não comprovado, sem ligação ticket-a-ticket",
+        "requirement": "Aplicabilidade aos incidentes elegíveis ainda por verificar",
+        "condition": "O log de 14/10 não contém atraso de configuração nem fila com latência elevada",
+        "test_protocol": "Procurar ligação individual e requisitos; não aceitar coincidência como causa",
+        "assessment_at": "2026-10-14T12:00:00Z",
+        "control": "saas",
+        "responsible_party": "AtlasOps Cloud (sintético)"
+      },
+      "evidence": [
+        {
+          "purpose": "condition_met",
+          "kind": "document",
+          "assertion": false,
+          "source_id": "531b443a-b471-5cc9-b76f-f943c3b4cc53",
+          "source_revision": 1,
+          "reference": "synthetic://adversarial-t01/documents/integration.json#v1",
+          "content_sha256": "FROM_DOCUMENT",
+          "collected_at": "2026-10-27T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "1ae53afd-bbc2-5442-b12e-2580d1418a8e",
+      "contract_revision": 7,
+      "rule_id": "68b8bac3-edba-5e7a-802f-909924bcb4d3",
+      "factor": {
+        "scope": "external",
+        "category": "external_logistics",
+        "hypothesis": "Coincidência com feriado/greve; impacto não comprovado",
+        "requirement": "Aplicabilidade aos incidentes elegíveis ainda por verificar",
+        "condition": "O calendário da S6 não assinala feriado regional nem greve logística",
+        "test_protocol": "Procurar ligação individual e requisitos; não aceitar coincidência como causa",
+        "assessment_at": "2026-10-08T12:00:00Z",
+        "control": "third_party",
+        "responsible_party": "Operador logístico fictício"
+      },
+      "evidence": [
+        {
+          "purpose": "condition_met",
+          "kind": "document",
+          "assertion": false,
+          "source_id": "2892af57-373f-5253-b5c0-971c53684701",
+          "source_revision": 1,
+          "reference": "synthetic://adversarial-t01/documents/external.json#v1",
+          "content_sha256": "FROM_DOCUMENT",
+          "collected_at": "2026-10-27T00:00:00Z"
+        }
+      ]
+    }
+  ],
+  "catalog_id": "be26b53b-4f4c-58ec-9b45-c30d64d27f5a",
+  "resource_id": "8625b127-a44b-5a00-b570-d3efedfd24ed",
+  "weekly_revisions": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ]
+}

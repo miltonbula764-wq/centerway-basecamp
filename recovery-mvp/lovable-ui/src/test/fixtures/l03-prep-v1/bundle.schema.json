@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CENTERWAY L03-PREP synthetic integration capture v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["fixture_version", "synthetic_only", "source", "base_commit", "contracts", "sanitization", "cases"],
+  "properties": {
+    "fixture_version": {"const": "l03-prep-v1"},
+    "synthetic_only": {"const": true},
+    "source": {"const": "real-local-c03-https-api"},
+    "base_commit": {"const": "eeae52ef4d1fbf3bdc524299203098fe75f6badd"},
+    "contracts": {"type": "object", "minProperties": 5, "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
+    "sanitization": {"const": "typed-placeholders-v1"},
+    "cases": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "actor", "request", "response", "transport_error"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "actor": {"enum": ["alice", "reviewer", "reader", "bob"]},
+          "request": {
+            "type": "object", "additionalProperties": false,
+            "required": ["method", "path", "json"],
+            "properties": {
+              "method": {"enum": ["GET", "POST", "DELETE"]},
+              "path": {"type": "string", "pattern": "^/v1/"},
+              "json": {"type": ["object", "null"]}
+            }
+          },
+          "response": {
+            "oneOf": [
+              {"type": "null"},
+              {"type": "object", "additionalProperties": false, "required": ["status", "json"], "properties": {
+                "status": {"enum": [200, 201, 204, 401, 403, 404, 409, 422, 503]},
+                "json": {"type": ["object", "null"]}
+              }}
+            ]
+          },
+          "transport_error": {"enum": [null, "connection_refused"]}
+        }
+      }
+    }
+  }
+}
+

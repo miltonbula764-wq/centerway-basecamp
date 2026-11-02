@@ -1,0 +1,27 @@
+import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { LiveRuntime } from '@/data/live-runtime';
+import { L01Error, type L01Transport } from '@/data/transport';
+import type { ClientJourney } from '@/domain/f06';
+import type { OperationRequest, SessionInfo } from '@/domain/l01';
+const TA='a1000000-0000-0000-0000-000000000001', TB='b1000000-0000-0000-0000-000000000001';
+const CA='a2000000-0000-0000-0000-000000000001', CB='b2000000-0000-0000-0000-000000000001';
+const bundle=JSON.parse(readFileSync(__dirname+'/fixtures/l03-prep-v1/capture.json', 'utf8'));
+const journey=bundle.cases.find((c: {id:string})=>c.id==='journey-initial').response.json.data as ClientJourney;
+function deferred<T>() { let resolve!:(v:T)=>void; const promise=new Promise<T>(r=>{resolve=r}); return {promise,resolve}; }
+function setup(options: {single?:boolean; reader?:boolean; now?:()=>number}={}) {
+ const session:SessionInfo={username:'synthetic',principal:'p',clients: options.single?{[TA]:[CA]}:{[TA]:[CA],[TB]:[CB]},operations:options.reader?[]:['investigate'],company_tenants:[]};
+ const transport:L01Transport={mode:'live',createSession:vi.fn(async()=>({access_token:'[memory-only]',token_type:'Bearer' as const,expires_in:900,demo:false})),getSession:vi.fn(async()=>session),deleteSession:vi.fn(async()=>{}),listClients:vi.fn(async(t)=>({data:[{client_id:t===TA?CA:CB,display_name:'SYNTHETIC from API'}],next_cursor:null,demo:false})),getJourney:vi.fn(async(t,c)=>({...structuredClone(journey),tenant_id:t,client_id:c})),operate:vi.fn(async()=>({} as never))};
+ return {runtime:new LiveRuntime(transport,options.now),transport};
+}
+const request:OperationRequest={request_id:'a4000000-0000-0000-0000-000000000001',operation:'investigate',arguments:{investigation_id:'a3000000-0000-0000-0000-000000000001',as_of:'2026-10-31T12:00:00Z'}};
+describe('M68 live runtime',()=>{
+ it('uses server directory and journeys, with no writes on login/read',async()=>{const {runtime:r,transport:t}=setup({single:true}); await r.login('synthetic','test-only'); expect((await r.customers())[0]!.displayName).toBe('SYNTHETIC from API'); expect(t.getJourney).toHaveBeenCalledWith(TA,CA); expect(t.operate).not.toHaveBeenCalled(); });
+ it('clears customer cache immediately on logout before revocation completes',async()=>{const {runtime:r,transport:t}=setup({single:true});await r.login('u','p');const d=deferred<void>();t.deleteSession=()=>d.promise;const pending=r.logout();expect(r.getSnapshot().customers).toEqual([]);expect(r.getSnapshot().auth.session).toBeNull();d.resolve();await pending;});
+ it('discards a late tenant result after switching company',async()=>{const {runtime:r,transport:t}=setup();await r.login('u','p');const old=deferred<ClientJourney>();t.getJourney=vi.fn().mockImplementationOnce(()=>old.promise).mockResolvedValue({...journey,tenant_id:TB,client_id:CB});const first=r.selectTenant(TA).catch(e=>e);await Promise.resolve();await Promise.resolve();await Promise.resolve();const next=r.selectTenant(TB);expect(r.getSnapshot().customers).toEqual([]);await next;old.resolve(journey);await first;expect(r.getSnapshot().auth.tenant).toBe(TB);expect(r.getSnapshot().customers.map(c=>c.id)).toEqual([CB]);});
+ it('forbids out of scope companies and clears the displayed cache',async()=>{const {runtime:r}=setup({single:true});await r.login('u','p');await expect(r.selectTenant(TB)).rejects.toMatchObject({status:403});expect(r.getSnapshot().customers).toEqual([]);});
+ it('expires even a forbidden session and clears all displayed data',async()=>{let now=0;const {runtime:r,transport:t}=setup({single:true,now:()=>now});await r.login('u','p');t.getJourney=async()=>{throw new L01Error('http',403,'forbidden')};await expect(r.refresh()).rejects.toMatchObject({status:403});now=900000;r.checkExpiry();expect(r.getSnapshot().auth.status).toBe('expired');expect(r.getSnapshot().auth.session).toBeNull();expect(r.getSnapshot().customers).toEqual([]);});
+ it('never sends a read-only operation',async()=>{const {runtime:r,transport:t}=setup({single:true,reader:true});await r.login('u','p');await expect(r.prepare(CA,request)).rejects.toMatchObject({status:403});expect(t.operate).not.toHaveBeenCalled();});
+ it('retries only explicitly with identical immutable request, then returns receipt without another read',async()=>{const {runtime:r,transport:t}=setup({single:true});await r.login('u','p');const draft=await r.prepare(CA,request);expect(t.operate).not.toHaveBeenCalled();t.operate=vi.fn().mockRejectedValueOnce(new L01Error('network',null,'unavailable')).mockResolvedValueOnce({request_id:request.request_id});await expect(r.submit(draft.request.request_id)).rejects.toMatchObject({kind:'network'});expect(t.operate).toHaveBeenCalledTimes(1);const reads=vi.mocked(t.getJourney).mock.calls.length;await r.submit(draft.request.request_id);expect(vi.mocked(t.operate).mock.calls[0]).toEqual(vi.mocked(t.operate).mock.calls[1]);expect(vi.mocked(t.getJourney).mock.calls).toHaveLength(reads);});
+ it('wipes cached data when a submit receives an expired session',async()=>{const {runtime:r,transport:t}=setup({single:true});await r.login('u','p');await r.prepare(CA,request);t.operate=async()=>{throw new L01Error('http',401,'expired')};await expect(r.submit(request.request_id)).rejects.toMatchObject({status:401});expect(r.getSnapshot().auth.session).toBeNull();expect(r.getSnapshot().customers).toEqual([]);});
+});

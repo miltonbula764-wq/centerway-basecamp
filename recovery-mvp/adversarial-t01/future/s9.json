@@ -1,0 +1,24 @@
+{
+  "namespace": "adversarial-t01",
+  "synthetic_only": true,
+  "document_version": 1,
+  "reveal": "MANUAL_ONLY_AFTER_INITIAL_TEST",
+  "week": "S9",
+  "period_start": "2026-10-27T00:00:00Z",
+  "period_end": "2026-11-03T00:00:00Z",
+  "reports": [
+    {
+      "source": "posterior-a",
+      "hours": 23,
+      "method": "mediana declarada"
+    },
+    {
+      "source": "posterior-b",
+      "sample": "diferente",
+      "eligibility": "critério alterado",
+      "compatible": false
+    }
+  ],
+  "causal_attribution": "não estabelecida",
+  "warning": "Não ingerir automaticamente. Janela termina após prazo contratual e pode anteceder execução humana; requer contrato/janelas legítimos. Não há comandos de aplicação neste ficheiro."
+}

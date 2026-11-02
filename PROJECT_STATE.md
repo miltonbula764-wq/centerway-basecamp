@@ -1,5 +1,22 @@
 # Confirmed CENTERWAY MVP state
 
+## T03-G1 — diagnóstico preparado (issue #74)
+
+Base T02/PR #72, aecc8aca64a9d7ce333dc1a907b5661132ba1ccd.
+See GATE1_CONNECTIVITY.md. New dispatch-only workflow for a future protected-environment
+DNS/TCP5432 diagnostic; no PostgreSQL protocol, login, SQL, backup or credential input.
+Hostname secret only; bounded subprocess, fixed sanitized status codes, no DNS/IP output
+or artifacts. Separate PR CI performs only lint/contract and simulated security tests
+without secrets or live DNS/TCP. Engines, API, frontend and prior workflows unchanged.
+GitHub default-branch workflow registration, protected environment, actual dispatch
+authorization and hostname configuration remain pending; no main changes to enable them.
+No connectivity to Neon from Actions, encrypted external backup or isolated restore is
+asserted. Private durable destination and holder's public age recipient remain pending.
+T03 Gate 1 is NOT complete; Gates 2–5 remain blocked. No Neon/Render/Lovable changes,
+real secrets, public database mutations, paid infrastructure or Lovable credits.
+Local validation: actionlint 1.7.7 and 15 tests passed (Python3.12); no live Neon
+probe. Remote CI proof must be read on the delivery PR's exact commit.
+
 ## Work Mode continuation — 2026-10-31
 
 The historical mission-specific exclusions below describe their original deliveries.
@@ -137,3 +154,169 @@ without API CORS headers may appear opaque to cross-origin browsers; documented.
 No hosted browser, external TLS, DNS, cloud, paid infrastructure or public service.
 Lovable and main untouched; public GO requires separate authorization and all pending
 gates. No integration-live completion or automatic advance is asserted.
+
+## T01 — adversarial fixture preparation (issue #69)
+
+Base recovery-mvp/m68-live-frontend, 5086e33dc438fbc3e5d9f08014d2df21d3745a37.
+See recovery-mvp/adversarial-t01/README.md for inspected contracts, fixture mapping,
+private offline preparation, gated future activation and exact hosted UI links/limits.
+New AtlasOps Cloud/Meridian Distribuição tenant/client, deterministic namespace IDs,
+three private individual PostgreSQL accounts, signed synthetic contract/global window
+plus eight explicit weekly revisions, eight outcomes (S7 partial), seven contextual
+sources with real fixture-file digests, two deferred discovery inputs, one synthetic
+flag/catalog and ZERO intervention policies. Usage/CSV/context are not coerced into
+compatible outcome measurements. The 14/10 integration observation belongs to S7.
+S9 is quarantined in future/s9.json and never loaded by the initial seed.
+
+Operator-only two-phase provision/load: actual session_user writes F01 data; bootstrap
+and version/data writes audited. Separate transactions permit real login identity and
+resumable interruption; same private bundle replays without new rows, including under
+concurrency. Collisions, role/scope/content drift or changed fixture fail closed. No
+password reset, destructive reset, schema migration, broad permission or engine/API/UI
+change. Config candidate is exact additive copy; offline activation comparator rejects
+intervening configuration drift. Remote targets blocked unless operator deliberately
+opts in and confirms exact tenant; those flags do not replace future authorization.
+Existing A/B rows, evidence/audit and receipts verified unchanged in local snapshots.
+
+Local validation: 11 new PostgreSQL17/TLS/API tests; existing 97 backend regressions,
+11 managed and 189 frontend passed; frontend public opt-in test skipped (no credentials
+or public calls), TypeScript passed. New independent CI repeats T01 and unchanged UI,
+prior backend/managed workflows retain their guards. Remote CI results are recorded
+on the delivery PR for the exact SHA, separately from these local results.
+
+No Neon public database access/mutation, service publication, DNS, paid resources,
+Lovable use/credits, merge or main changes. No T01 detection/discovery/investigation,
+intervention, verification or recovery evaluation pre-executed. Initial work item is
+detect. Current M68 UI permits authenticated consultation/refresh/logout and conditional
+re-evaluation/intervention/undo for EXISTING investigations/executions/plans; it cannot
+create contracts, measurements, detections, investigations, reviews or recovery plans.
+Full manual F01–F06 solely through current UI is therefore unavailable; operator/API
+steps require explicit later choices, never fabricated seeded conclusions. Public T01
+activation/login and human acceptance remain pending separate authorization.
+
+## T02 — manual journey controls (issue #71)
+
+Base PR #70/ec407d4, branch recovery-mvp/t02-manual-journey. See
+recovery-mvp/manual/README.md for real endpoint mapping, human T01 steps, deployment
+prerequisites and limitations. Existing ten F06 commands reused; no SQL engine,
+migration, T01 seed, old fixture or managed runtime changes. Minimal API extension:
+GET manual-context, scoped/authenticated read-only repeatable-read F03 records,
+F04 configuration/policies for session_user and last100 client audit (other principals'
+policy events filtered), explicit truncation, no grants/inference/write/receipt.
+Additive openapi-t02.json t02-v1 (original c02-v1/71-case capture unchanged); CI permits exact reviewed API/spec hashes, not arbitrary changes.
+
+Client detail now exposes typed manual forms for F01 source/contract/evidence,
+F02 selected revisions/cutoff, F03 opening/factors/evidence/review/evaluation,
+F03.1 explicit company discovery, F04 request/undo, F05 windows/evaluation, F06 GET
+refresh/receipts/audit. Existing visual identity preserved. Immutable memory drafts,
+explicit scope confirmation, identical-key user resend after lost response, no
+automatic POST retries or invented defaults/results/verification. Session/tenant
+boundaries and late-response guards preserved. SHA-256 optional local file hashing
+is not upload or independent verification. No self-authorization interface.
+
+Actual application Chromium suite uses local HTTPS, C01 API and real PostgreSQL17,
+clicks only for writes, separate synthetic T02 data (never operates T01), desktop and
+390x844 mobile/touch. Tests include full pipeline with separate synthetic reviewer,
+uncertain and unauthorized interventions blocked, recovery inconclusive, actual
+committed response lost/replayed once, reader/reviewer permissions, refresh/login
+and expiry. T01 API tests seed only the initial local fixture and assert no detection,
+investigation, intervention or recovery executed. Existing regression suites retained.
+Local/CI evidence is recorded on the delivery PR for the final SHA; it is not hosted
+acceptance. No public Neon/Render access/mutations, Lovable use/credits/publication,
+new accounts/resources on public services, main change or merge.
+
+T01 activation and publishing backend/UI require separate authorization. Snapshot in
+this repo is not proof of the actual Lovable GitHub/publication channel. Current live
+M68 frontend does not have these controls. Context documents remain outside the API,
+CSV meaning is not inferred, T01 has zero policies and S9 remains future-only. The
+full manual UI can request legitimate steps and show blocks/inconclusive results;
+it does not grant missing permissions or guarantee a successful intervention/recovery.
+
+T02 local validation confirmed: 97 previous backend +11 managed +11 T01, six new
+API tests,210 frontend tests (189 previous +21 new; one public opt-in skipped),
+TypeScript/build and five actual-app Chromium tests passed. Local Chromium154,
+HTTPS/PG17 and 390x844 mobile/touch; CI installs pinned Playwright1.62 Chromium.
+Positive synthetic execution/undo is demonstrated only in disposable T02 with an
+explicit test-admin bounded policy; T01 is never operated or granted a policy.
+Original c02-v1 OpenAPI and 71-case canonical capture remain unchanged: new read
+contract is separately versioned api/openapi-t02.json. No golden regeneration.
+
+T02 audit error receipts are sanitized like journey responses; SQL messages remain only
+in the immutable database history, not in the HTTP context. Verified by a real rejected
+F06 input, with no T01 engine execution.
+
+## T03-G2 — encrypted export and isolated restore preparation (issue #76)
+
+Base PR #75/435c2d4. See recovery-mvp/gate1/README.md. Additive PG17 verified-TLS
+stream export to age; encrypted snapshot baseline and role manifest; all database
+sessions included, runtime secrets excluded with separate custody required. Restore
+accepts no target DSN: fresh local networkless PG17 Docker sandbox, restricted
+NOLOGIN roles, data/schema/RLS/ACL/identity comparisons and unconditional cleanup.
+Existing engines, backups, API, frontend and T01 remain unchanged. Synthetic-only
+CI; sensitive manual workflow has a literal disabled export job and fails closed.
+No independent reviewer exists; TCP exemption does not authorize credential use.
+Remote TCP success was reported by the user; no real export/restore/custody is
+claimed. Destination, private-key custody and sensitive executor controls pending.
+No Neon/Render/Lovable/main changes or paid services; T03 Gate1 remains blocked.
+Local G2 validation: 14 synthetic tests passed, actual PG17 TLS export/age and
+networkless restores, security failures and concurrent snapshot; actionlint1.7.7
+passed. CI results tracked on the delivery PR, separately from local proof.
+
+## T03-G3 — private custody handoff (issue #78)
+
+Base PR #77/fb925f9. Holder reports tested Android age identity and encrypted key
+copy/private backup folder in Drive; no actual Neon backup claimed. See
+recovery-mvp/gate1/PRIVATE_RUNBOOK.md. Additive offline public-recipient fingerprint
+and ciphertext return verifier; no key/DSN/database access. Existing G2 export,
+restore and literal workflow lock unchanged. Temporary limited role requires later
+provider privilege validation/authorization; no RLS changes or admin fallback assumed.
+Private Docker-capable executor remains necessary; normal Termux is not proof of it.
+Drive folder metadata only: separate backup/key folders, backup shared=false; no key
+contents, uploads, Neon role changes, real exports, service/main changes or cost.
+
+## T03-G5 — final Gate1 proposal (not executed)
+
+See recovery-mvp/gate1/GATE1_FINAL.md. Residual LO writes are a proposed accepted
+risk only in a disposable child, without modifying cloud_admin/PUBLIC. Provisioning
+BYPASSRLS on Neon remains unproven; fail closed, never export as cw_owner fallback.
+Minimal transport addition authenticates age on Android then passes bounded payload
+through private authenticated SSH to the existing isolated restore; no identity key
+sent to Codespaces. Two new transport tests and one synthetic PG17 integration passed.
+Pre-export metadata must preserve original role/ACL baseline separately; pg_dump does
+not include global credentials. One future Gate1 authorization required. No actual
+Neon resources, credentials, backup, real transfer, deploy or cost in G5.
+
+## T03-G6 — operational preparation delegation
+
+Base PR #80/900cc4c. See recovery-mvp/gate1/DELEGATION.md. Single Android entry
+prepares a private reviewed-code package in an existing Available Codespace,
+verifies PG17/age/local Docker, synthetic SSH probe and receipt; only public age
+recipient sent. Resume reuses G5 restore and cleans staging. New read-only pre-grant
+baseline captures role attributes/memberships/data hashes into age ciphertext.
+Seven new guard tests and one PG17 baseline integration passed locally. Real
+workspace/Drive synthetic roundtrip byte equality and deletion404 proven.
+Agent Codespaces API403/invalid CLI identity block remote preparation/SSH proof;
+no real backup, new Neon resources/credentials, source/main/service changes or cost.
+
+## T03-G7 — canonical Codespace selection and SSH diagnostics
+
+Base PR #81/e41ae24. See recovery-mvp/gate1/SSH_DIAGNOSTICS.md. Fix unique Available
+selection with other stopped entries, canonical-name resolution and read-only GET
+identity check before SSH. Diagnostic exposes fixed status/phase/version without
+credentials/connection fields; wrapper no longer changes authentication implicitly.
+Local real diagnostic still blocked at list403; Android404 root cause remains
+unproven without canonical name/path/version evidence. Official gh2.46.0/2.103.3
+source confirms direct name lookup and connection flags. No Codespace started,
+Neon operation, age identity access, source/main/service change or real backup.
+
+## MVP FIRST — functional validation priority
+
+Infrastructure expansion suspended for isolated synthetic MVP validation; Gate1 is
+not a prerequisite of that test. See MVP_FIRST.md. Existing C03/API/PG17/TLS complete
+journey executed:4 tests passed. Actual frontend Chromium154.0.8037.57 suite:5 passed,
+including new positive recovery continuation in the existing form-only journey.
+Migrations/engines/API/frontend unchanged. Synthetic admin policy is explicit and
+bounded; review fixtures are not human/independent proof. Recovery reaches minimum,
+causal attribution remains not_established. Mobile390x844 emulated. No T01 operations,
+production/cloud/credentials/main changes or paid services. Next product action:
+human acceptance of the same local journey with a concrete fictional business case.
