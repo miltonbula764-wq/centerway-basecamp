@@ -166,6 +166,22 @@ def create_app(config):
     sessions = session_store(config)
     db_adapter = Database(config.get('demo', False))
     dummy = password_hash(secrets.token_urlsafe(32))
+    # Explicitly optional. Only the isolated synthetic demo may accept an invite.
+    signup_key = os.environ.get('CENTERWAY_TEST_SIGNUP_KEY', '')
+    signup_enabled = (
+        config.get('synthetic_only') is True
+        and config.get('session_store') == 'postgres'
+        and 'alice' in users
+        and len(signup_key) >= 32
+    )
+
+    def resolve_user(username):
+        if username in users:
+            return users[username]
+        if not signup_enabled:
+            return None
+        encoded = session_call('get_test_user', username)
+        return {**users['alice'], 'password_hash': encoded} if encoded else None
     attempts, limiter_lock = OrderedDict(), threading.Lock()
 
     def version(user):
@@ -209,7 +225,7 @@ def create_app(config):
             raise APIError(401, 'authentication_required')
         digest = hashlib.sha256(auth[7:].encode()).hexdigest()
         row = session_call('get', digest)
-        user = users.get(row[0]) if row else None
+        user = resolve_user(row[0]) if row else None
         if not user or row[1] != version(user) or row[2] <= time.time():
             raise APIError(401, 'session_expired_or_invalid')
         g.username, g.user, g.digest = row[0], user, digest
@@ -229,7 +245,7 @@ def create_app(config):
             if request.headers.get('Access-Control-Request-Method') not in (set(methods) & {'GET', 'POST', 'DELETE'}) or not headers <= {'authorization', 'content-type'}:
                 raise APIError(403, 'cors_forbidden')
             return '', 204
-        if request.path not in ('/health', '/v1/sessions'):
+        if request.path not in ('/health', '/v1/sessions', '/v1/test-signup'):
             authenticate()
 
     @app.after_request
@@ -277,7 +293,7 @@ def create_app(config):
             attempts[ip] = recent + [now]
             while len(attempts) > 2048:
                 attempts.popitem(last=False)
-        user = users.get(data['username'])
+        user = resolve_user(data['username'])
         valid = password_matches(data['password'], user['password_hash'] if user else dummy)
         if not user or not valid:
             raise APIError(401, 'invalid_credentials')
@@ -285,6 +301,31 @@ def create_app(config):
         token = secrets.token_urlsafe(32)
         session_call('put', hashlib.sha256(token.encode()).hexdigest(), data['username'], version(user), time.time()+ttl)
         return jsonify(access_token=token, token_type='Bearer', expires_in=ttl, demo=bool(config.get('demo'))), 201
+
+    @app.post('/v1/test-signup')
+    def test_signup():
+        # Owner-controlled invitation for the synthetic sandbox. Never open registration.
+        if not signup_enabled:
+            raise APIError(404, 'not_found')
+        data = body()
+        if set(data) != {'username', 'password', 'invite_code'}:
+            raise APIError(422, 'invalid_parameters')
+        username, password, invite_code = data.values()
+        if (not isinstance(username, str) or
+            not re.fullmatch(r'[a-z][a-z0-9_]{2,31}', username) or
+            username in users or
+            not isinstance(password, str) or not 12 <= len(password) <= 128 or
+            not isinstance(invite_code, str) or len(invite_code) > 256):
+            raise APIError(422, 'invalid_parameters')
+        # Constant-time compare; no invite or password is ever logged.
+        if not hmac.compare_digest(
+            hashlib.sha256(invite_code.encode()).digest(),
+            hashlib.sha256(signup_key.encode()).digest(),
+        ):
+            raise APIError(403, 'invite_invalid')
+        if not session_call('register_test_user', username, password_hash(password)):
+            raise APIError(409, 'test_account_already_created')
+        return jsonify(created=True, synthetic_only=True), 201
 
     @app.get('/v1/session')
     def session_info():
