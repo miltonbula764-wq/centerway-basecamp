@@ -77,6 +77,27 @@ class PostgresSessions:
         with self.connect() as db:
             db.execute('DELETE FROM cw_sessions.sessions WHERE digest=%s', (digest,))
 
+    def get_test_user(self, username):
+        with self.connect() as db:
+            row = db.execute(
+                'SELECT password_hash FROM cw_sessions.test_accounts WHERE username=%s',
+                (username,),
+            ).fetchone()
+            return row[0] if row else None
+
+    def register_test_user(self, username, password_hash):
+        # One invite = one additional synthetic test account; no SQL role creation.
+        with self.connect() as db:
+            db.execute('SELECT pg_advisory_xact_lock(920261102)')
+            count = db.execute('SELECT count(*) FROM cw_sessions.test_accounts').fetchone()[0]
+            if count:
+                return False
+            db.execute(
+                'INSERT INTO cw_sessions.test_accounts(username,password_hash) VALUES (%s,%s)',
+                (username, password_hash),
+            )
+            return True
+
 
 def session_store(config):
     if config.get('session_store', 'sqlite') == 'sqlite':
