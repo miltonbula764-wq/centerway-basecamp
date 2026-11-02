@@ -310,7 +310,7 @@ def create_app(config):
         data = body()
         if set(data) != {'username', 'password', 'invite_code'}:
             raise APIError(422, 'invalid_parameters')
-        username, password, invite_code = data.values()
+        username, password, invite_code = data['username'], data['password'], data['invite_code']
         if (not isinstance(username, str) or
             not re.fullmatch(r'[a-z][a-z0-9_]{2,31}', username) or
             username in users or
