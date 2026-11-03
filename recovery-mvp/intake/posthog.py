@@ -154,12 +154,14 @@ class PostgresStore:
     def completed_days(self, tenant, project, event, group_index, start, end):
         with self.psycopg.connect(self.dsn, connect_timeout=5) as conn:
             with conn.cursor() as cur:
-                cur.execute("""SELECT DISTINCT period_start::date
+                start_utc = datetime(start.year, start.month, start.day, tzinfo=timezone.utc)
+                end_utc = datetime(end.year, end.month, end.day, tzinfo=timezone.utc)
+                cur.execute("""SELECT DISTINCT (period_start AT TIME ZONE 'UTC')::date
                     FROM centerway.outcome_imports
                     WHERE tenant_id=%s AND project_id=%s AND event_name=%s
                       AND group_index=%s AND period_start >= %s
                       AND period_start < %s""",
-                    (tenant, project, event, group_index, start, end))
+                    (tenant, project, event, group_index, start_utc, end_utc))
                 return {r[0] for r in cur.fetchall()}
 
     def append_day(self, tenant, project, event, group_index, day, rows):
