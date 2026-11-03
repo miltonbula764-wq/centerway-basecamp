@@ -1,7 +1,7 @@
 -- Run only in disposable api/test.sh PostgreSQL after HTTP test provisioning.
 \set ON_ERROR_STOP on
 BEGIN;
-SET SESSION AUTHORIZATION http_alice;
+SET SESSION AUTHORIZATION m01_a;
 SELECT centerway.append_posthog_outcome_import(
  'a1000000-0000-0000-0000-000000000001',
  'e1000000-0000-0000-0000-000000000001',
@@ -56,7 +56,7 @@ BEGIN
 END $$;
 ROLLBACK;
 BEGIN;
-SET SESSION AUTHORIZATION http_bob;
+SET SESSION AUTHORIZATION m01_b;
 DO $$
 DECLARE n integer;
 BEGIN
