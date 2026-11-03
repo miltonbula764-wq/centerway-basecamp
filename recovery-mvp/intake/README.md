@@ -8,7 +8,7 @@ para uma empresa SaaS autorizada. Consulta uma vez por dia os eventos de
 agregados por identificador de **grupo/conta** (PostHog Group Analytics).
 
 Guarda snapshots de contagens diárias na tabela append-only
-`centerway.outcome_imports` (migração `sql/009_posthog_outcome_intake.sql`),
+`centerway.outcome_imports` (migração `intake/001_posthog_outcome_intake.sql`),
 com empresa, projeto, evento, índice de grupo, janela UTC, contagens,
 hash de dados, produtor e instante de receção. **Não** muda F01–F06, não
 fabrica contratos nem intervenções e não expõe dados ao frontend.
@@ -100,7 +100,7 @@ nem iniciou o cron. A M06 cuidará do agendamento após piloto.
 
 ## Validação automatizada
 
-`bash recovery-mvp/api/test.sh` inclui: mocks do PostHog (sem Internet),
+`bash recovery-mvp/intake/test.sh` inclui: mocks do PostHog (sem Internet),
 backfill, reconsulta, tipos/colunas inválidos, limites de grupos,
 idempotência e testes PostgreSQL17 usando logins não privilegiados e
 isolamento entre SaaS. Os testes não provam disponibilidade nem
