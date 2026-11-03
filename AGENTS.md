@@ -34,13 +34,28 @@
 - Observations from another profile version are used only when the indicator's measurement fingerprint (`_c02_fingerprint`) is identical; corrections must match source, observed_at and fingerprint and may not fork — why: incompatible meanings must never be mixed.
 - C02 signals are candidates only; no table or code may turn them into actionable cases until the case block exists — why: usage-only or unvalidated signals must not trigger interventions.
 
-## Independent recovery MVP (F01–F03.1)
+## CENTERWAY 3.0 — independent recovery MVP (F01–F06)
 
-These rules apply to `recovery-mvp/`; the V2 rules above describe the legacy project.
-Confirmed implementation: F01 #49, F02 #50, F03 #51. F03.1 adds configurable discovery
-and automatic F03 routing. See PROJECT_STATE.md and recovery-mvp/DISCOVERY.md.
-Use real PostgreSQL login roles in disposable integration tests. Identity is
-`session_user`; audit is transactional and append-only. Preserve prior migrations.
-Discovery creates hypotheses and observations only: never synthesize reviewer records,
-independent verification, causal conclusions or intervention authorization.
-Do not implement F04 without a new explicit mission. Do not modify main.
+The legacy C01–C10 rules above apply to the root legacy application, not to
+`recovery-mvp/`. Do **not** migrate the legacy schema or UI into F01–F06.
+Working baseline: `recovery-mvp/mvp-first-functional-proof` (PR #83, `cab5268`).
+F01–F06, HTTP L01, Render synthetic profile, frontend T02 and tests are present,
+but F04 executes only a reversible **synthetic flag**. No external SaaS
+data ingestion, real intervention or scheduled autonomous processing is proven.
+
+For CENTERWAY 3.0:
+- Reuse engines and tests; avoid adding redundant decision logic in frontend.
+- Never label clicks, logins, usage or a producer's `verified` assertion as
+  independent proof of external business value.
+- Keep outcome evidence, provenance, uncertainty and observed improvement
+  separate from causal attribution. No data/contradictions => inconclusive.
+- Never fabricate independent reviewers, permissions, causes, customer outcomes
+  or recovery. Keep tenant isolation, PostgreSQL RLS and real nonprivileged
+  `session_user` identities, versioned audit trails and idempotent receipts.
+- Before a real intervention, require scoped prior consent, a fresh supported
+  condition, allowlisted action, bounded retries and post-action verification.
+- Changes stay in isolated PR branches. No migrations on an existing DB, live
+  external actions, paid infra, Lovable credit use, deploy or merge without
+  the relevant explicit authorization. Do not rewrite published history.
+- Remove obsolete files only after replacing their runtime/test dependencies
+  and confirming that no active deploy depends on them. See PROJECT_STATE.md.
