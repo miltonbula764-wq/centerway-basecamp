@@ -19,3 +19,5 @@ done
 for migration in sql/*.sql; do docker exec -i "$container" psql -X -v ON_ERROR_STOP=1 -U postgres < "$migration" >/dev/null; done
 port="$(docker port "$container" 5432/tcp | cut -d: -f2)"
 CW_HTTP_CONTAINER="$container" CW_HTTP_PORT="$port" CW_HTTP_STATE="$state_dir" "$state_dir/venv/bin/python" -B -m unittest discover -s api/tests -v
+# M01: check new intake grants and idempotency under real nonprivileged logins.
+docker exec -i "$container" psql -X -v ON_ERROR_STOP=1 -U postgres < intake/sql_access_test.sql >/dev/null
