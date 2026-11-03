@@ -1,3 +1,49 @@
+# CENTERWAY 3.0 — M00: inventário e decisões (2026-11-03)
+
+> Estado da auditoria, não prova de integração real nem autorização de publicação. As secções históricas abaixo pertencem a missões anteriores e podem ter limites já desatualizados. Fonte: código na branch de referência `recovery-mvp/mvp-first-functional-proof` (commit `cab5268`), PR #83 e documentos F01–F06.
+
+## Objetivo único do novo MVP
+
+Uma SaaS autorizada → recolha automática → avaliação de resultados verificáveis → deteção/investigação → **uma ação externa permitida** → nova medição → dashboard de leitura. Sem formulários diários para o fundador. Não interpretar login/cliques como valor comprovado; ausência ou contradição de dados significa inconclusivo, nunca ausência de valor. Melhorias observadas não provam causalidade.
+
+## Inventário de retenção (provisório até testes de regressão e verificação de deployment)
+
+| Área | Decisão M00 | Justificação |
+| --- | --- | --- |
+| `recovery-mvp/sql/001–008` (F01–F06) | REUTILIZAR, adaptar somente onde necessário | Versionamento, deteção, investigação, controlo de intervenção e verificação já existem. |
+| `recovery-mvp/api/` | REUTILIZAR | API autenticada L01 e isolamento por principal PostgreSQL; sem ingestão SaaS automática conhecida. |
+| `recovery-mvp/managed/` + Neon/Render | PRESERVAR E VERIFICAR | Perfil de backend sintético documentado; ligação à implantação efetiva não verificada nesta auditoria. |
+| `recovery-mvp/lovable-ui/` | ADAPTAR na M06 | UI existente privilegia operações manuais; futura UI founder deverá ser de leitura, baseada em evidências. |
+| `recovery-mvp/sql/006_synthetic_interventions.sql` | PRESERVAR COMO TESTE; NÃO VENDER COMO REAL | F04 só altera uma flag sintética; primeira ação real requer conector/credenciais/autorizações limitadas. |
+| `recovery-mvp/tests/`, API/testes, browser CI | MANTER | Prova de regressão, isolamento e segurança; não eliminar só por serem testes sintéticos. |
+| `recovery-mvp/gate1/`, `operations/`, `infra/` | CONGELAR DESENVOLVIMENTO, SEM APAGAR AINDA | Documentos e utilitários de segurança/recuperação podem ser necessários; dependências/implantação ainda não verificados. |
+| Aplicação legada na raiz `src/`, `supabase/`, `drizzle/` | CANDIDATA A REMOÇÃO FUTURA, BLOQUEADA | Ligação Lovable/main e possíveis dependências de publicação não foram descartadas; não apagar prematuramente. |
+| `recovery-mvp/manual/` e UI T02 | CANDIDATO A RETIRAR DO FLUXO DO FOUNDER | Ainda utilizados no teste sintético completo; substituir por execução autónoma antes de remover. |
+| Variáveis locais de frontend no `.env` versionado | RETIRAR DA BRANCH M00; manter `.env.example` | Configuração específica não deve ficar versionada na base do MVP; passar por configuração do ambiente. |
+
+## Lacunas comprovadas — missão seguinte
+
+1. **M01:** escolher uma única SaaS com fonte de resultados e permissão contratual; implementar importação histórica + atualização incremental, proveniência e recuperação de falhas, sem dados reais antes de consentimento.
+2. **M02:** adaptar critérios de suficiência e tendência por indicador; usar `inconclusivo` onde não há provas; evitar falsos positivos de redução de uso.
+3. **M03:** automatizar descoberta e investigação somente dentro de regras verificáveis; distinguir causas, hipóteses e desconhecidos.
+4. **M04:** adicionar **um adaptador de intervenção real** autorizado, idempotente e auditável; F04 atual é estritamente sintético.
+5. **M05:** verificar resultado após ação com janelas comparáveis, sem prometer causalidade ou taxa de recuperação.
+6. **M06:** agendar execução confiável e criar dashboard read-only; só depois desligar componentes antigos.
+
+## Regras de eliminação
+
+Remover código antigo **somente** após: (a) identificar consumidores/referências, (b) validar o caminho substituto, (c) correr testes relevantes, (d) confirmar que nenhum deploy usa a versão removida. Não apagar históricos ou migrações aplicadas, RLS, auditoria, backups necessários ou testes de segurança. Fazer alterações numa branch e PR; nunca reescrever histórico, merge automático ou deploy. Não gastar créditos de agentes pagos nem contratar infraestrutura.
+
+## Resultado M00, primeira passagem
+
+- Branch isolada criada a partir do candidato F01–F06 testado; `main` não modificada.
+- A cadeia de PRs F01–F06 ainda não está integrada na `main`, que continua com a aplicação legada.
+- O teste sintético da PR #83 documenta o ciclo completo na interface, mas **não** prova integração com SaaS real, intervenção externa real, agendamento ou atribuição causal.
+- O serviço implantado no Render e o frontend Lovable efetivo ainda necessitam de identificação antes de remover código e workflows que possam alimentá-los.
+- A grande poda de código legado fica **deliberadamente bloqueada** até essa verificação; nada é classificado como inútil apenas por ser antigo.
+
+---
+
 # Confirmed CENTERWAY MVP state
 
 ## T03-G1 — diagnóstico preparado (issue #74)
