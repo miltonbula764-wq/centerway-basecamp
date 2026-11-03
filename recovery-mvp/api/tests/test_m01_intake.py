@@ -66,7 +66,7 @@ class M01Tests(unittest.TestCase):
         self.assertNotIn("in-memory-private-key", url)
         self.assertEqual(headers["Authorization"], "Bearer in-memory-private-key")
         q = payload["query"]["query"]
-        self.assertIn("events.\`$group_2\`", q)
+        self.assertIn("events.`$group_2`", q)
         self.assertIn("2026-01-12 00:00:00", q)
         self.assertIn("2026-01-13 00:00:00", q)
         self.assertIn("count(DISTINCT uuid)", q)
