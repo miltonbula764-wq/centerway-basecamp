@@ -1,0 +1,23 @@
+name: CENTERWAY M01 outcome intake
+
+on:
+  pull_request:
+    paths:
+      - 'recovery-mvp/intake/**'
+      - '.github/workflows/centerway-m01-outcome-intake.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  posthog-outcome-intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate M01 without SaaS credentials
+        run: bash recovery-mvp/intake/test.sh
