@@ -105,7 +105,7 @@ class PostHog:
     def query_for_day(self, day):
         require(isinstance(day, date) and type(day) is date, "invalid_utc_day")
         start, end = day.isoformat(), (day + timedelta(days=1)).isoformat()
-        group = "events.\`$group_" + str(self.group_index) + "\`"
+        group = "events.`$group_" + str(self.group_index) + "`"
         # IDs, region, group index and event name validated before formatting.
         return (
             f"SELECT {group} AS customer, count(DISTINCT uuid) AS amount FROM events "
