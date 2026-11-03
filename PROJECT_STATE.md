@@ -6,7 +6,7 @@
 
 Uma SaaS autorizada → recolha automática → avaliação de resultados verificáveis → deteção/investigação → **uma ação externa permitida** → nova medição → dashboard de leitura. Sem formulários diários para o fundador. Não interpretar login/cliques como valor comprovado; ausência ou contradição de dados significa inconclusivo, nunca ausência de valor. Melhorias observadas não provam causalidade.
 
-## Inventário de retenção (provisório até testes de regressão e verificação de deployment)
+## Inventário de retenção (verificação de deployment ainda pendente)
 
 | Área | Decisão M00 | Justificação |
 | --- | --- | --- |
@@ -20,6 +20,27 @@ Uma SaaS autorizada → recolha automática → avaliação de resultados verifi
 | Aplicação legada na raiz `src/`, `supabase/`, `drizzle/` | CANDIDATA A REMOÇÃO FUTURA, BLOQUEADA | Ligação Lovable/main e possíveis dependências de publicação não foram descartadas; não apagar prematuramente. |
 | `recovery-mvp/manual/` e UI T02 | CANDIDATO A RETIRAR DO FLUXO DO FOUNDER | Ainda utilizados no teste sintético completo; substituir por execução autónoma antes de remover. |
 | Variáveis locais de frontend no `.env` versionado | RETIRAR DA BRANCH M00; manter `.env.example` | Configuração específica não deve ficar versionada na base do MVP; passar por configuração do ambiente. |
+
+
+## Bloqueios semânticos prioritários revelados na auditoria
+
+- **F01/F02** chamam estados `valor_demonstrado` e `deterioracao_demonstrada`,
+  mas apenas avaliam critérios contratuais sob evidências declaradas pelo produtor;
+  `verified` não é verificação independente. **M02 deverá impedir o dashboard de
+  traduzir esses estados em prova de benefício empresarial externo.**
+- **F02** compara janelas rígidas e não infere sazonalidade, maturidade,
+  normalização ou causalidade. A primeira SaaS precisa de cadência, política de
+  suficiência e testes de falsos positivos específicos do indicador.
+- **F03** só investiga fatores explícitos ou regras configuradas; não recolhe
+  automaticamente provas de sistemas externos nem demonstra causas.
+- **F04** só altera `set_synthetic_flag`; qualquer integração com APIs reais
+  requer um novo executor externo sob política específica, observabilidade
+  e autorização efetiva. Não reutilizar a flag como prova de intervenção real.
+- **F05** observa antes/depois mas não atribui causalidade; a métrica comercial
+  do MVP será "melhorias observadas em casos elegíveis", com denominador e
+  inconclusivos expostos, nunca "clientes recuperados" sem definição e prova.
+- **F06** oferece portas idempotentes, mas **não** possui worker ou scheduler
+  autónomo. Conectar os motores requer coordenador simples e retomável.
 
 ## Lacunas comprovadas — missão seguinte
 
