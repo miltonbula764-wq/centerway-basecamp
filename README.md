@@ -1,31 +1,47 @@
 # CENTERWAY
 
-M
+## Projeto atual (MVP CENTERWAY 3.0)
 
-This project was built with [Lovable](https://lovable.dev).
+**Objetivo:** uma SaaS autoriza uma ligação; o CENTERWAY recolhe resultados,
+deteta e investiga impedimentos, executa uma ação previamente autorizada e
+mede o resultado posterior. O founder acompanha evidências no dashboard,
+sem operar manualmente cada cliente.
 
-## Build with Lovable
+**Fonte do MVP F01–F06:** `recovery-mvp/`, em desenvolvimento
+na cadeia de PRs iniciada em #49 e validada sinteticamente em #83.
+**M00:** [inventário/decisões](PROJECT_STATE.md) e PR #85.
+A branch `main` continua a conter a aplicação legada C01–C10.
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/fb5e84e9-e3a9-40bf-a7ab-26c21ea1cf0a).
+### Componentes existentes
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+- `recovery-mvp/sql/` — F01–F06: contrato, deteção, investigação, decisão
+  de intervenção **sintética**, verificação e orquestração idempotente.
+- `recovery-mvp/api/` — API autenticada.
+- `recovery-mvp/managed/` — perfil de demonstração Render/Neon.
+- `recovery-mvp/lovable-ui/` — interface atual; fluxo manual a substituir
+  pelo founder dashboard de leitura, após existir motor autónomo.
+- `recovery-mvp/tests/` — testes de regressão e isolamento.
 
-## Development
+### Limite do que foi demonstrado
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Há percurso F01–F06 sintético com PostgreSQL/HTTPS/browser testado
+(consultar PR #83). Ainda **não** está demonstrada a ingestão autónoma
+de uma SaaS real, intervenção externa real ou execução agendada.
+Uma medição declarada `verified` não equivale a prova independente
+de valor empresarial; melhoria posterior não prova que a ação a causou.
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+### Ordem de execução
 
-## MVP C01–C10 em revisão
+**M00** inventariar/limpar com segurança → **M01** integrar uma SaaS e obter
+resultados verificáveis → **M02** avaliar valor e deterioração → **M03**
+investigar → **M04** executar uma ação real autorizada → **M05** verificar →
+**M06** dashboard apenas de leitura e piloto.
 
-O percurso operacional está em `/app/casos`, com Core e política sintética isolada.
-Ver [arranque e limites](docs/MVP_RUNNING.md) e [contrato da demonstração](docs/MVP_JOURNEY_CONTRACT.md).
-Para uma referência visual sem instalação, abrir `public/mvp-preview.html` (leitura, ilustrativo).
-Não aplicar migrações no backend hospedado para testar esta entrega.
+### Trabalho local
+
+O projeto Lovable legado permanece na raiz (`npm install`, `npm run dev`).
+As instruções de testes do MVP Python/PostgreSQL encontram-se em
+[`recovery-mvp/README.md`](recovery-mvp/README.md) e
+[`recovery-mvp/api/README.md`](recovery-mvp/api/README.md).
+Não confundir a aplicação antiga com a fonte do novo MVP, nem aplicar
+migrações dos testes descartáveis à base de dados pública.

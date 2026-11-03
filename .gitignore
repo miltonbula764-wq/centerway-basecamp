@@ -43,3 +43,8 @@ dist-ssr
 /e2e/api-fixtures.json
 
 /e2e/responsibility-fixtures.json
+
+# Per-machine configuration (never commit live service settings)
+.env
+.env.*
+!.env.example
