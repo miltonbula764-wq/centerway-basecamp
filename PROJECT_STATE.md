@@ -42,6 +42,36 @@ Uma SaaS autorizada → recolha automática → avaliação de resultados verifi
 - **F06** oferece portas idempotentes, mas **não** possui worker ou scheduler
   autónomo. Conectar os motores requer coordenador simples e retomável.
 
+## Destinos Lovable verificados em leitura — 2026-11-03
+
+- O projeto Lovable **CENTERWAY** do código antigo (id `fb5e84e9-...`) está
+  **não publicado** e a versão que reporta coincide com a `main` antiga
+  (`3ce64099...`). A sua ligação ao repositório deve ser preservada até uma
+  migração consciente; não reescrever a `main`.
+- O projeto Lovable **Value Recovery Radar** (id `d355ef56-...`) está
+  **publicado**, com código próprio e último commit reportado
+  `daae8e3a...`. Nele ainda existe `src/components/cw/manual-journey.tsx`.
+  **Não** confundir a cópia manual no monorepo com a publicação Lovable;
+  o dashboard read-only será uma substituição futura, não uma alteração
+  concluída nesta M00.
+- Render/Neon: nenhum acesso a configuração/versão de deploy foi realizado
+  nesta auditoria; a disponibilidade pública não foi comprovada. A limpeza de
+  ficheiros usados pelo backend mantém-se bloqueada até mapear a ligação real.
+- Não foi encontrado motivo técnico para apagar já o arquivo Git de branches/
+  PRs antigos, as migrações versionadas, os testes de isolamento ou os
+  mecanismos de recuperação de dados. Eles não fazem parte da experiência
+  do founder e ficam fora do trabalho das missões M01–M05.
+
+## Critério de fecho da M00
+
+**Fecho da fase de auditoria/limpeza segura:** a fonte F01–F06 foi selecionada,
+o legado foi separado explicitamente, os limites e lacunas funcionais foram
+mapeados, a configuração local versionada removida e a documentação ativa
+corrigida. O PR M00 mantém-se isolado e sujeito aos checks da branch; não
+implica merge/publicação nem diz que a poda de dependências legadas já é segura.
+**A remoção de grandes módulos fica para a substituição validada**, para que
+não se perca uma prova funcional nem se quebre um frontend publicado.
+
 ## Lacunas comprovadas — missão seguinte
 
 1. **M01:** escolher uma única SaaS com fonte de resultados e permissão contratual; implementar importação histórica + atualização incremental, proveniência e recuperação de falhas, sem dados reais antes de consentimento.
