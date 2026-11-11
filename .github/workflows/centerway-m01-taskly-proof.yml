@@ -132,11 +132,11 @@ jobs:
                   proximo = min(inicio + timedelta(days=1), fim)
                   query = f"""
                       SELECT toString(properties.company_id) AS conta, event AS tipo,
-                             toStartOfHour(timestamp, 'UTC') AS hora, count(DISTINCT uuid) AS total
+                             toStartOfHour(timestamp) AS hora, count(DISTINCT uuid) AS total
                       FROM events
                       WHERE timestamp >= toDateTime('{inicio:%Y-%m-%d %H:%M:%S}', 'UTC')
                         AND timestamp < toDateTime('{proximo:%Y-%m-%d %H:%M:%S}', 'UTC')
-                        AND properties.testbed = true AND toString(properties.company_id) IN ({contas})
+                        AND toString(properties.testbed) = 'true' AND toString(properties.company_id) IN ({contas})
                         AND event IN ({sinais})
                       GROUP BY conta, tipo, hora
                       ORDER BY hora, conta, tipo
@@ -151,7 +151,8 @@ jobs:
                       with opener.open(pedido, timeout=30) as resposta:
                           corpo = resposta.read(1_000_001)
                   except HTTPError as e:
-                      raise ValueError(f"PostHog respondeu HTTP {e.code}") from None
+                      detail = json.loads(e.read(4096)).get("detail", "") if e.code == 400 else ""
+                  raise ValueError(f"PostHog respondeu HTTP {e.code}: {str(detail)[:400]}") from None
                   except (URLError, TimeoutError):
                       raise ValueError("a consulta ao PostHog falhou ou excedeu o tempo limite") from None
                   if len(corpo) > 1_000_000:
