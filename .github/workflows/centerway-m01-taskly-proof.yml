@@ -152,7 +152,7 @@ jobs:
                           corpo = resposta.read(1_000_001)
                   except HTTPError as e:
                       detail = json.loads(e.read(4096)).get("detail", "") if e.code == 400 else ""
-                  raise ValueError(f"PostHog respondeu HTTP {e.code}: {str(detail)[:400]}") from None
+                      raise ValueError(f"PostHog respondeu HTTP {e.code}: {str(detail)[:400]}") from None
                   except (URLError, TimeoutError):
                       raise ValueError("a consulta ao PostHog falhou ou excedeu o tempo limite") from None
                   if len(corpo) > 1_000_000:
