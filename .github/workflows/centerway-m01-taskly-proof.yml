@@ -1,0 +1,95 @@
+name: Taskly M01 isolated proof
+
+on:
+  pull_request:
+    branches: [centerway-3/m01-posthog-outcome-intake]
+    paths:
+      - '.github/workflows/centerway-m01-taskly-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    if: github.event.pull_request.number == 88 && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'test/m01-taskly-isolation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: taskly-m01-proof
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PostgreSQL client dependency
+        run: python -m pip install 'psycopg[binary]==3.2.13'
+      - name: Read Taskly outcomes and verify M01 in disposable PostgreSQL
+        env:
+          POSTHOG_PERSONAL_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "$POSTHOG_PERSONAL_API_KEY" ]; then
+            echo '::notice::Read-only PostHog credential required. Live proof did not run.'
+            exit 0
+          fi
+          container=$(docker run -d -p 127.0.0.1::5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres:17-alpine)
+          trap 'docker rm -f "$container" >/dev/null 2>&1' EXIT
+          for i in {1..40}; do
+            if docker exec "$container" sh -c 'test "$(cat /proc/1/comm)" = postgres && pg_isready -U postgres' >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          docker exec "$container" pg_isready -U postgres
+          for migration in recovery-mvp/sql/*.sql recovery-mvp/intake/001_posthog_outcome_intake.sql; do
+            docker exec -i "$container" psql -X -v ON_ERROR_STOP=1 -U postgres < "$migration" >/dev/null
+          done
+          docker exec -i "$container" psql -X -v ON_ERROR_STOP=1 -U postgres >/dev/null <<'SQL'
+          CREATE ROLE m01_taskly LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS IN ROLE centerway_api;
+          INSERT INTO centerway.companies(tenant_id,name)
+          VALUES ('a1000000-0000-0000-0000-000000000001','SYNTHETIC Taskly');
+          INSERT INTO centerway.memberships(principal,tenant_id)
+          VALUES ('m01_taskly','a1000000-0000-0000-0000-000000000001');
+          SQL
+          export M01_PORT=$(docker port "$container" 5432/tcp | cut -d: -f2)
+          PYTHONPATH=recovery-mvp/intake python - <<'PY'
+          from datetime import date, datetime, timedelta, timezone
+          import json
+          import os
+          from posthog import IntakeError, PostHog, PostgresStore, sync
+
+          tenant = "a1000000-0000-0000-0000-000000000001"
+          first = date(2026, 11, 10)
+          today = datetime.now(timezone.utc).date()
+          valid_ids = {f"c{i:02}" for i in range(1, 21)}
+
+          class TasklyProvider(PostHog):
+              def fetch_day(self, day):
+                  rows = super().fetch_day(day)
+                  if not rows or any(row["customer"] not in valid_ids for row in rows):
+                      raise IntakeError("taskly_missing_or_unexpected_group_ids")
+                  return rows
+
+          provider = TasklyProvider("us", 723763, os.environ["POSTHOG_PERSONAL_API_KEY"], "task_completed", 0)
+          store = PostgresStore(f"host=127.0.0.1 port={os.environ['M01_PORT']} dbname=postgres user=m01_taskly")
+          try:
+              if today <= first:
+                  rows = provider.fetch_day(first)
+                  print(json.dumps({"partial_read_only": True, "day_utc": str(first), "rows": rows}))
+              else:
+                  end = first + timedelta(days=1)
+                  result = sync(provider, store, tenant, first, through=end)
+                  assert result["completed_days"] == 1
+                  with store.psycopg.connect(store.dsn) as conn:
+                      rows = conn.execute(
+                          "SELECT import_id, counts FROM centerway.outcome_imports WHERE tenant_id=%s",
+                          (tenant,),
+                      ).fetchall()
+                  assert len(rows) == 1
+                  replay_id = store.append_day(tenant, provider.project, provider.event, provider.group_index, first, rows[0][1])
+                  assert replay_id == str(rows[0][0])
+                  with store.psycopg.connect(store.dsn) as conn:
+                      assert conn.execute("SELECT count(*) FROM centerway.outcome_imports").fetchone()[0] == 1
+                  print(json.dumps({"partial_read_only": False, "day_utc": str(first), "rows": rows[0][1], "replay": "passed"}))
+          except IntakeError as exc:
+              raise SystemExit(f"M01 Taskly proof failed: {exc}") from None
+          PY
