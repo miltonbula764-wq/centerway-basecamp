@@ -93,3 +93,141 @@ jobs:
           except IntakeError as exc:
               raise SystemExit(f"M01 Taskly proof failed: {exc}") from None
           PY
+
+      - name: Export synthetic hourly Taskly signals for the isolated Core proof
+        env:
+          POSTHOG_PERSONAL_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$POSTHOG_PERSONAL_API_KEY" || { echo 'Taskly read-only key unavailable'; exit 1; }
+          python - <<'PY'
+          import gzip, json, os
+          from datetime import datetime, timedelta, timezone
+          from urllib.error import HTTPError, URLError
+          from urllib.request import HTTPRedirectHandler, Request, build_opener
+
+          CONTAS = tuple(f"c{n:02}" for n in range(1, 21))
+          SINAIS = ("task_completed", "task_created", "session_started", "feature_used", "subscription_started")
+          HORA = timedelta(hours=1)
+          MAX_LINHAS = 24 * len(CONTAS) * len(SINAIS)
+
+          Linha = tuple[str, str, datetime, int]
+
+
+          class SemRedirect(HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+
+
+          def ler_periodo(regiao: str, projeto: int, chave: str, inicio: datetime, fim: datetime) -> list[Linha]:
+              if regiao not in {"us", "eu"} or not 0 < projeto <= 2_147_483_647:
+                  raise ValueError("região ou ID do projeto PostHog inválido")
+              if not chave.strip() or chave.startswith("phc_") or any(c.isspace() for c in chave):
+                  raise ValueError("é necessária uma chave PostHog de leitura do projeto Taskly")
+              contas = ", ".join(map(repr, CONTAS))
+              sinais = ", ".join(map(repr, SINAIS))
+              linhas: list[Linha] = []
+              opener = build_opener(SemRedirect())
+              while inicio < fim:
+                  proximo = min(inicio + timedelta(days=1), fim)
+                  query = f"""
+                      SELECT toString(properties.company_id) AS conta, event AS tipo,
+                             toStartOfHour(timestamp) AS hora, count(DISTINCT uuid) AS total
+                      FROM events
+                      WHERE timestamp >= toDateTime('{inicio:%Y-%m-%d %H:%M:%S}', 'UTC')
+                        AND timestamp < toDateTime('{proximo:%Y-%m-%d %H:%M:%S}', 'UTC')
+                        AND toString(properties.testbed) = 'true' AND toString(properties.company_id) IN ({contas})
+                        AND event IN ({sinais})
+                      GROUP BY conta, tipo, hora
+                      ORDER BY hora, conta, tipo
+                      LIMIT {MAX_LINHAS + 1}
+                  """
+                  pedido = Request(
+                      f"https://{regiao}.posthog.com/api/projects/{projeto}/query/",
+                      data=json.dumps({"query": {"kind": "HogQLQuery", "query": query}}).encode(),
+                      headers={"Authorization": f"Bearer {chave}", "Content-Type": "application/json"},
+                  )
+                  try:
+                      with opener.open(pedido, timeout=30) as resposta:
+                          corpo = resposta.read(1_000_001)
+                  except HTTPError as e:
+                      raise ValueError(f"PostHog respondeu HTTP {e.code}") from None
+                  except (URLError, TimeoutError):
+                      raise ValueError("a consulta ao PostHog falhou ou excedeu o tempo limite") from None
+                  if len(corpo) > 1_000_000:
+                      raise ValueError("resposta PostHog excede o limite")
+                  resultado = json.loads(corpo)
+                  linhas.extend(validar_resposta(resultado, inicio, proximo))
+                  inicio = proximo
+              return linhas
+
+
+          def validar_resposta(resposta: dict, inicio: datetime, fim: datetime) -> list[Linha]:
+              if not isinstance(resposta, dict) or resposta.get("error") or resposta.get("has_more") or resposta.get("next"):
+                  raise ValueError("resposta PostHog incompleta")
+              linhas = resposta.get("results")
+              if not isinstance(linhas, list) or len(linhas) > MAX_LINHAS:
+                  raise ValueError("resultado PostHog inválido ou truncado")
+              if resposta.get("columns", ["conta", "tipo", "hora", "total"]) != ["conta", "tipo", "hora", "total"]:
+                  raise ValueError("colunas PostHog inesperadas")
+              vistos = set()
+              dados = []
+              for linha in linhas:
+                  if not isinstance(linha, list) or len(linha) != 4:
+                      raise ValueError("linha PostHog inválida")
+                  conta, tipo, hora, total = linha
+                  if conta not in CONTAS or tipo not in SINAIS or not isinstance(hora, str) or type(total) is not int or total <= 0:
+                      raise ValueError("campos PostHog inválidos")
+                  try:
+                      bucket = datetime.fromisoformat(hora.replace("Z", "+00:00"))
+                  except ValueError:
+                      raise ValueError("hora PostHog inválida") from None
+                  bucket = bucket.replace(tzinfo=bucket.tzinfo or timezone.utc).astimezone(timezone.utc)
+                  chave = conta, tipo, bucket
+                  if not inicio <= bucket < fim or bucket != bucket.replace(minute=0, second=0, microsecond=0) or chave in vistos:
+                      raise ValueError("hora PostHog fora do período ou repetida")
+                  vistos.add(chave)
+                  dados.append((*chave, total))
+              return dados
+
+
+
+          corte = (datetime.now(timezone.utc) - timedelta(minutes=5)).replace(minute=0, second=0, microsecond=0)
+          inicio = max(datetime(2026, 11, 10, tzinfo=timezone.utc), corte - timedelta(days=7))
+          linhas = ler_periodo("us", 723763, os.environ["POSTHOG_PERSONAL_API_KEY"], inicio, corte)
+          if not linhas:
+              raise SystemExit("No Taskly events returned by PostHog")
+          with gzip.open(os.environ["RUNNER_TEMP"] + "/taskly.json.gz", "wt", encoding="utf-8") as f:
+              json.dump({"inicio": inicio, "corte": corte, "linhas": linhas}, f, default=str)
+          print(f"Read {sum(r[3] for r in linhas)} Taskly events in {len(linhas)} aggregate rows")
+          PY
+          cat > "$RUNNER_TEMP/taskly.crt" <<'CERT'
+          -----BEGIN CERTIFICATE-----
+          MIIEJzCCAo+gAwIBAgIUYQLOJmY0c6VUztNW+pmZLLrhErkwDQYJKoZIhvcNAQEL
+          BQAwIzEhMB8GA1UEAwwYdGFza2x5LWVuc2Fpby0yMDI2LTExLTE2MB4XDTI2MTEx
+          NjEzMTA0NVoXDTI2MTExODEzMTA0NVowIzEhMB8GA1UEAwwYdGFza2x5LWVuc2Fp
+          by0yMDI2LTExLTE2MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEA2DhU
+          E8tpGnFB8AXPs/HRTg8fBad++iUFmuHvdqmTdGZR+P8e/oSiZBNRoasPqLC8VzYH
+          1sYuCAvsvecxDY1duBGLRhofTX0lbizRiSeQGpdIKHYvXacXl17HwqFuUaBRXAxR
+          /Zr941nJZBL/D4tNnPk6s+XBNOVdJ9xav03X9f0YoDQL5xBTf7fqRjVGhdWNgWCS
+          zuhKghWC43Lfr95TmP6qP6idbPFd6o1JxXm+f5oYx/EtkP4Dmu/Y08wY5d282yTQ
+          V+byZpuSBlViH6Wc9HTABy6q/WJYCa+9xs5jOSWRC0+07Z3s93xZSTOIheu0oMVx
+          HiQgVJgFyjhp3wdXAgqpcuHH6omcHDhM6wAQacCo6eZfzwEz9cLmsS0pKNDi04Bt
+          MPeg06XAC3rRa8Sp9SLSV8PfYdTioKPZXNBFw994DUM0bLuqYcHE3g6Tqx4t/cz8
+          TL+pfIo969jELJXoetvjnTgFfLMF4BYZVZF1nDwoAttuRZDanuen0Me6O+uzAgMB
+          AAGjUzBRMB0GA1UdDgQWBBSkS2gn3stjRicEdhONIDpG2FGQXTAfBgNVHSMEGDAW
+          gBSkS2gn3stjRicEdhONIDpG2FGQXTAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3
+          DQEBCwUAA4IBgQCOGLuAES/B5tiXY4D2hmeAnqSW+0Cga1OXMyeMI7gt5qqmEC33
+          Fht6hv4oa2CRXlhptlJwk727WdBkliWExte/YHDuRQYeuSfL14KEPseC981WcpC2
+          3k7MVpwBv2KFgexa6ng+ew/O10DgLS6ROpiuqMbwJT+HkQ2AZQjTben8UkkijSl9
+          T9yjFoGxDkOcZukAcD5nC8+jZ4cqyEM6oSKTNnAZgl+2bb5XYnwsBRhn16kHnsbC
+          /bD3/9Zz7LYHkDyk0k17aKPC22v9JuW1vP0vw0bPlageXimlyA97g561dBJ4jTUQ
+          F4EvLgTRTeqnQO88koBj/GVP/ssspYLv/l6mzoaBn2AKq1hMyu1nkHQnmVLRu9oQ
+          LETUD1xqctT264ZBE2gQJQWiUHLX0t+7CTG0ddk4QZlJmpo4uytyhSM/y7/H8T6D
+          sIM6tVWuNCnpb66TWBtSRj6CJiSOQ/Hl2116qG4jCeAT8f0qEBN+lDBIlhjBMgqp
+          OV3UonkCPXUMqFw=
+          -----END CERTIFICATE-----
+          CERT
+          openssl cms -encrypt -binary -aes256 -outform DER \
+            -in "$RUNNER_TEMP/taskly.json.gz" -out "$RUNNER_TEMP/taskly-export.cms" "$RUNNER_TEMP/taskly.crt"
+          base64 -w 96 "$RUNNER_TEMP/taskly-export.cms" | sed 's/^/TASKLY_EXPORT /'
